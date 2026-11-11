@@ -127,90 +127,37 @@
             </div>
         </div>
 
-        <!-- Live Countdown Section (Alpine.js) -->
-        <div class="rounded-3xl p-6 sm:p-8 shadow-xl text-center border"
-             style="background-color: {{ $cardColor }}; border-color: {{ $primaryColor }}40;"
-             x-data="{
-                target: new Date('{{ \Carbon\Carbon::parse($invitation->wedding_date)->toIso8601String() }}').getTime(),
-                now: new Date().getTime(),
-                days: 0, hours: 0, minutes: 0, seconds: 0,
-                update() {
-                    const diff = Math.max(0, this.target - new Date().getTime());
-                    this.days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    this.hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    this.minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    this.seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                }
-             }"
-             x-init="update(); setInterval(() => update(), 1000);">
-            
-            <h3 class="font-cairo text-base sm:text-lg font-bold mb-4" style="color: {{ $primaryColor }};">
-                ⏳ المتبقي حتى ليلة العمر
-            </h3>
+        <!-- Countdown Section -->
+        @include('templates.partials.countdown', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
 
-            <div class="grid grid-cols-4 gap-2 sm:gap-4 max-w-md mx-auto">
-                <div class="p-3 rounded-2xl bg-[#FAF7F2] border border-[#E8DED0]">
-                    <span class="font-cairo text-2xl sm:text-3xl font-black block" style="color: {{ $primaryColor }};" x-text="days">0</span>
-                    <span class="text-xs opacity-70">يوم</span>
-                </div>
-                <div class="p-3 rounded-2xl bg-[#FAF7F2] border border-[#E8DED0]">
-                    <span class="font-cairo text-2xl sm:text-3xl font-black block" style="color: {{ $primaryColor }};" x-text="hours">0</span>
-                    <span class="text-xs opacity-70">ساعة</span>
-                </div>
-                <div class="p-3 rounded-2xl bg-[#FAF7F2] border border-[#E8DED0]">
-                    <span class="font-cairo text-2xl sm:text-3xl font-black block" style="color: {{ $primaryColor }};" x-text="minutes">0</span>
-                    <span class="text-xs opacity-70">دقيقة</span>
-                </div>
-                <div class="p-3 rounded-2xl bg-[#FAF7F2] border border-[#E8DED0]">
-                    <span class="font-cairo text-2xl sm:text-3xl font-black block" style="color: {{ $primaryColor }};" x-text="seconds">0</span>
-                    <span class="text-xs opacity-70">ثانية</span>
-                </div>
-            </div>
-        </div>
+        <!-- Timeline Section -->
+        @include('templates.partials.timeline', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
 
-        <!-- Sections: Timeline, Photo Gallery, Dress Code -->
-        @foreach($invitation->sections as $section)
-            @if($section->is_enabled && $section->section_type === 'timeline' && !empty($section->content['events']))
-                <div class="rounded-3xl p-6 sm:p-8 shadow-xl border"
-                     style="background-color: {{ $cardColor }}; border-color: {{ $primaryColor }}40;">
-                    <h3 class="font-cairo text-xl font-bold text-center mb-6" style="color: {{ $primaryColor }};">
-                        {{ $section->title_ar ?: 'برنامج الحفل' }}
-                    </h3>
-                    <div class="space-y-4 max-w-md mx-auto">
-                        @foreach($section->content['events'] as $event)
-                            <div class="flex items-start gap-4 p-4 rounded-2xl bg-[#FAF7F2] border border-[#E8DED0]">
-                                <span class="px-3 py-1 rounded-xl text-xs font-bold text-white shrink-0"
-                                      style="background-color: {{ $primaryColor }};">
-                                    {{ $event['time'] }}
-                                </span>
-                                <div>
-                                    <h4 class="font-bold text-sm text-[#292521]">{{ $event['title'] }}</h4>
-                                    @if(!empty($event['desc']))
-                                        <p class="text-xs text-[#292521]/70 mt-0.5">{{ $event['desc'] }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
+        <!-- Gallery Section -->
+        @include('templates.partials.gallery', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
 
-            @if($section->is_enabled && $section->section_type === 'gallery' && !empty($section->content['photos']))
-                <div class="rounded-3xl p-6 sm:p-8 shadow-xl border"
-                     style="background-color: {{ $cardColor }}; border-color: {{ $primaryColor }}40;">
-                    <h3 class="font-cairo text-xl font-bold text-center mb-6" style="color: {{ $primaryColor }};">
-                        {{ $section->title_ar ?: 'ألبوم الذكريات' }}
-                    </h3>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        @foreach($section->content['photos'] as $photoUrl)
-                            <div class="h-36 sm:h-44 rounded-2xl overflow-hidden shadow-sm border border-[#E8DED0]">
-                                <img src="{{ $photoUrl }}" alt="صورة الزفاف" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-        @endforeach
+        <!-- Dress Code Section -->
+        @include('templates.partials.dress_code', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
 
         <!-- RSVP Form Section -->
         @if($invitation->is_rsvp_enabled && !$isPreview)
@@ -221,39 +168,18 @@
 
         <!-- WhatsApp Sharing & Copy Link Box -->
         @if(!$isPreview)
-            <div class="rounded-3xl p-6 shadow-xl text-center space-y-4 border"
-                 style="background-color: {{ $cardColor }}; border-color: {{ $primaryColor }}40;"
-                 x-data="{ copied: false }">
-                <h4 class="text-sm font-bold opacity-80">شارك هذه الدعوة مع الأهل والأصدقاء</h4>
-                <div class="flex flex-wrap items-center justify-center gap-3">
-                    <a href="{{ $invitation->getWhatsAppShareUrl() }}" target="_blank"
-                       class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-emerald-600 text-white text-xs font-bold shadow-md hover:bg-emerald-700 transition">
-                        <x-app-icon name="whatsapp" class="w-4 h-4" />
-                        <span>مشاركة عبر واتساب</span>
-                    </a>
-
-                    <button @click="navigator.clipboard.writeText('{{ $invitation->public_url }}'); copied = true; setTimeout(() => copied = false, 2500)"
-                            class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#292521] text-white text-xs font-bold shadow-md hover:bg-[#3D3731] transition">
-                        <x-app-icon name="copy" class="w-4 h-4 text-[#C6A76B]" />
-                        <span x-text="copied ? 'تم نسخ الرابط! ✓' : 'نسخ رابط الدعوة'"></span>
-                    </button>
-                </div>
-            </div>
+            @include('templates.partials.share_box', [
+                'invitation' => $invitation,
+                'primaryColor' => $primaryColor,
+                'cardColor' => $cardColor,
+            ])
         @endif
 
-        <!-- Floating audio / music player if configured -->
-        @if($invitation->music_url)
-            <div x-data="{ playing: false, audio: null }" 
-                 x-init="audio = new Audio('{{ $invitation->music_url }}')"
-                 class="fixed bottom-6 right-6 z-40">
-                <button @click="if(playing) { audio.pause(); playing = false; } else { audio.play(); playing = true; }"
-                        class="w-12 h-12 rounded-full shadow-2xl flex items-center justify-center text-white border-2 border-white transition transform hover:scale-110"
-                        style="background-color: {{ $primaryColor }};">
-                    <x-app-icon name="music" class="w-5 h-5 animate-spin" x-show="playing" />
-                    <x-app-icon name="music" class="w-5 h-5" x-show="!playing" />
-                </button>
-            </div>
-        @endif
+        <!-- Floating audio / music player -->
+        @include('templates.partials.music_player', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+        ])
 
         <!-- Platform Watermark -->
         <div class="text-center text-xs opacity-50 pt-6 pb-10">

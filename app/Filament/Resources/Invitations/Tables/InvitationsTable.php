@@ -16,10 +16,13 @@ class InvitationsTable
         return $table
             ->columns([
                 TextColumn::make('user.name')
+                    ->label('المستخدم')
                     ->searchable(),
-                TextColumn::make('template.id')
+                TextColumn::make('template.name_ar')
+                    ->label('القالب')
                     ->searchable(),
                 TextColumn::make('title')
+                    ->label('العنوان')
                     ->searchable(),
                 TextColumn::make('slug')
                     ->searchable(),

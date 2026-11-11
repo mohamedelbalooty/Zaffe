@@ -51,9 +51,20 @@
                 </div>
 
                 <!-- Contact Form -->
-                <div class="bg-white rounded-3xl p-8 shadow-wedding border border-[#E8DED0] space-y-5">
+                <div class="bg-white rounded-3xl p-8 shadow-wedding border border-[#E8DED0] space-y-5" x-data="{ submitted: false }">
                     <h3 class="font-cairo text-xl font-bold text-[#292521]">أرسل لنا رسالة سريعة</h3>
-                    <form action="#" method="POST" onsubmit="event.preventDefault(); alert('شكراً لتواصلك معنا! سيرد عليك فريق الدعم خلال دقائق عبر الواتساب أو البريد.');" class="space-y-4">
+                    
+                    <div x-show="submitted" class="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-center space-y-3" style="display: none;">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto text-xl">
+                            ✓
+                        </div>
+                        <h4 class="font-bold text-base">تم إرسال رسالتك بنجاح!</h4>
+                        <p class="text-xs leading-relaxed">
+                            شكراً لتواصلك مع زفّــة. يقوم فريق الدعم بمراجعة استفسارك وسنعاود التواصل معك عبر الواتساب أو البريد الإلكتروني في أسرع وقت.
+                        </p>
+                    </div>
+
+                    <form x-show="!submitted" @submit.prevent="submitted = true" class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-[#292521] mb-1">الاسم الكامل</label>
                             <input type="text" required placeholder="أحمد محمود" class="w-full px-4 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/50 outline-none focus:border-[#C6A76B]">

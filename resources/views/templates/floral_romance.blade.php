@@ -95,6 +95,38 @@
             </div>
         </div>
 
+        <!-- Countdown Section -->
+        @include('templates.partials.countdown', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
+
+        <!-- Timeline Section -->
+        @include('templates.partials.timeline', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
+
+        <!-- Gallery Section -->
+        @include('templates.partials.gallery', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
+
+        <!-- Dress Code Section -->
+        @include('templates.partials.dress_code', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
+
         <!-- RSVP Form Section -->
         @if($invitation->is_rsvp_enabled && !$isPreview)
             <div id="rsvp-section" class="scroll-mt-10">
@@ -102,18 +134,25 @@
             </div>
         @endif
 
-        <!-- WhatsApp Box -->
+        <!-- WhatsApp & Copy Link Box -->
         @if(!$isPreview)
-            <div class="rounded-3xl p-6 shadow-md text-center space-y-3 bg-white border border-[#E8DED0]">
-                <h4 class="text-xs font-bold opacity-75">مشاركة الدعوة مع الأهل والأصدقاء</h4>
-                <div class="flex items-center justify-center gap-3">
-                    <a href="{{ $invitation->getWhatsAppShareUrl() }}" target="_blank"
-                       class="px-5 py-2.5 rounded-full bg-emerald-600 text-white text-xs font-bold shadow-sm hover:bg-emerald-700 transition flex items-center gap-1.5">
-                        <x-app-icon name="whatsapp" class="w-4 h-4" />
-                        <span>مشاركة عبر واتساب</span>
-                    </a>
-                </div>
-            </div>
+            @include('templates.partials.share_box', [
+                'invitation' => $invitation,
+                'primaryColor' => $primaryColor,
+                'cardColor' => $cardColor,
+            ])
         @endif
+
+        <!-- Floating audio / music player -->
+        @include('templates.partials.music_player', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+        ])
+
+        <!-- Platform Watermark -->
+        <div class="text-center text-xs opacity-50 pt-6 pb-10">
+            <span>صُممت بكل حب عبر </span>
+            <a href="{{ route('home') }}" class="font-bold underline hover:opacity-100">منصة زفّــة</a>
+        </div>
     </div>
 </div>

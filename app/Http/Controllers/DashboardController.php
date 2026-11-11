@@ -191,15 +191,22 @@ class DashboardController extends Controller
                 'تاريخ التأكيد',
             ]);
 
+            $sanitize = function ($value) {
+                if (is_string($value) && strlen($value) > 0 && in_array($value[0], ['=', '+', '-', '@'])) {
+                    return "'" . $value;
+                }
+                return $value;
+            };
+
             foreach ($rsvps as $rsvp) {
                 fputcsv($file, [
-                    $rsvp->guest_name,
-                    $rsvp->phone ?? '—',
-                    $rsvp->email ?? '—',
+                    $sanitize($rsvp->guest_name),
+                    $sanitize($rsvp->phone ?? '—'),
+                    $sanitize($rsvp->email ?? '—'),
                     $rsvp->attendance_status === 'attending' ? 'حضور مؤكد' : ($rsvp->attendance_status === 'declined' ? 'اعتذار' : 'غير محدد'),
                     $rsvp->guest_count,
-                    $rsvp->message ?? '—',
-                    $rsvp->dietary_notes ?? '—',
+                    $sanitize($rsvp->message ?? '—'),
+                    $sanitize($rsvp->dietary_notes ?? '—'),
                     $rsvp->created_at->format('Y-m-d H:i'),
                 ]);
             }

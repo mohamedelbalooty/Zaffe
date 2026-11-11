@@ -90,11 +90,64 @@
             </div>
         </div>
 
+        <!-- Countdown Section -->
+        @include('templates.partials.countdown', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
+
+        <!-- Timeline Section -->
+        @include('templates.partials.timeline', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
+
+        <!-- Gallery Section -->
+        @include('templates.partials.gallery', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
+
+        <!-- Dress Code Section -->
+        @include('templates.partials.dress_code', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+            'cardColor' => $cardColor,
+            'bgColor' => $bgColor,
+        ])
+
         <!-- RSVP Form Section -->
         @if($invitation->is_rsvp_enabled && !$isPreview)
             <div id="rsvp-section" class="scroll-mt-10">
                 <livewire:rsvp-form :invitation-id="$invitation->id" :max-guests="$invitation->max_guests_per_rsvp" />
             </div>
         @endif
+
+        <!-- WhatsApp & Copy Link Box -->
+        @if(!$isPreview)
+            @include('templates.partials.share_box', [
+                'invitation' => $invitation,
+                'primaryColor' => $primaryColor,
+                'cardColor' => $cardColor,
+            ])
+        @endif
+
+        <!-- Floating audio / music player -->
+        @include('templates.partials.music_player', [
+            'invitation' => $invitation,
+            'primaryColor' => $primaryColor,
+        ])
+
+        <!-- Platform Watermark -->
+        <div class="text-center text-xs opacity-50 pt-6 pb-10">
+            <span>صُممت بكل حب عبر </span>
+            <a href="{{ route('home') }}" class="font-bold underline hover:opacity-100">منصة زفّــة</a>
+        </div>
     </div>
 </div>

@@ -53,6 +53,13 @@
 
                 <!-- Auth & Action CTA Buttons -->
                 <div class="hidden sm:flex items-center gap-3">
+                    <a href="{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}" 
+                       class="px-3 py-1.5 rounded-full text-xs font-bold border border-[#C6A76B]/40 text-[#292521] hover:bg-[#C6A76B]/10 transition flex items-center gap-1"
+                       title="تغيير اللغة / Switch Language">
+                        <x-app-icon name="globe" class="w-3.5 h-3.5 text-[#C6A76B]" />
+                        <span>{{ app()->getLocale() === 'ar' ? 'English' : 'العربية' }}</span>
+                    </a>
+
                     @auth
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#292521] text-white text-sm font-bold shadow-md hover:bg-[#3D3731] transition">
                             <x-app-icon name="crown" class="w-4 h-4 text-[#C6A76B]" />

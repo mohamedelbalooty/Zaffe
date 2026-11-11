@@ -8,6 +8,7 @@ use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -15,6 +16,7 @@ class InvitationEditor extends Component
 {
     use WithFileUploads;
 
+    #[Locked]
     public int $invitationId;
     public string $activeTab = 'basics'; // basics, content, design, media, sections, share
     public string $previewDevice = 'mobile'; // mobile, tablet, desktop
@@ -98,6 +100,15 @@ class InvitationEditor extends Component
         $this->section_dress_code = (bool) $invitation->sections->where('section_type', 'dress_code')->first()?->is_enabled ?? true;
     }
 
+    protected function getAuthorizedInvitation(): Invitation
+    {
+        $invitation = Invitation::findOrFail($this->invitationId);
+        if ($invitation->user_id !== auth()->id() && !auth()->user()?->isAdmin()) {
+            abort(403, 'غير مصرح لك بتعديل هذه الدعوة.');
+        }
+        return $invitation;
+    }
+
     public function updated($propertyName)
     {
         $this->saveStatus = 'جاري الحفظ...';
@@ -106,6 +117,8 @@ class InvitationEditor extends Component
 
     public function updatedNewCoverPhoto()
     {
+        $this->getAuthorizedInvitation();
+
         $this->validate([
             'new_cover_photo' => 'image|max:5120', // 5MB
         ]);
@@ -118,6 +131,8 @@ class InvitationEditor extends Component
 
     public function updatedNewGalleryPhoto()
     {
+        $invitation = $this->getAuthorizedInvitation();
+
         $this->validate([
             'new_gallery_photo' => 'image|max:5120',
         ]);
@@ -125,10 +140,10 @@ class InvitationEditor extends Component
         $path = $this->new_gallery_photo->store('invitations/gallery', 'public');
         
         InvitationPhoto::create([
-            'invitation_id' => $this->invitationId,
+            'invitation_id' => $invitation->id,
             'image_path' => Storage::disk('public')->url($path),
             'caption' => 'صورة من ألبوم الفرح',
-            'sort_order' => InvitationPhoto::where('invitation_id', $this->invitationId)->count() + 1,
+            'sort_order' => InvitationPhoto::where('invitation_id', $invitation->id)->count() + 1,
         ]);
 
         $this->saveStatus = 'تمت إضافة الصورة بنجاح ✓';
@@ -136,13 +151,22 @@ class InvitationEditor extends Component
 
     public function deleteGalleryPhoto(int $photoId)
     {
-        $photo = InvitationPhoto::where('invitation_id', $this->invitationId)->findOrFail($photoId);
+        $invitation = $this->getAuthorizedInvitation();
+        $photo = InvitationPhoto::where('invitation_id', $invitation->id)->findOrFail($photoId);
+        
+        // Clean up storage file if stored locally
+        if ($photo->image_path && !str_starts_with($photo->image_path, 'http')) {
+            $relativePath = str_replace(Storage::disk('public')->url(''), '', $photo->image_path);
+            Storage::disk('public')->delete(ltrim($relativePath, '/'));
+        }
+
         $photo->delete();
         $this->saveStatus = 'تم حذف الصورة ✓';
     }
 
     public function changeTemplate(int $templateId)
     {
+        $this->getAuthorizedInvitation();
         $this->template_id = $templateId;
         $template = InvitationTemplate::findOrFail($templateId);
         
@@ -159,6 +183,7 @@ class InvitationEditor extends Component
 
     public function togglePublish()
     {
+        $this->getAuthorizedInvitation();
         $this->status = ($this->status === 'published') ? 'draft' : 'published';
         $this->saveChanges();
         $this->saveStatus = ($this->status === 'published') ? 'تم نشر الدعوة وأصبحت متاحة للجميع 🎉' : 'تم تحويل الدعوة إلى مسودة';
@@ -166,7 +191,7 @@ class InvitationEditor extends Component
 
     public function saveChanges()
     {
-        $invitation = Invitation::findOrFail($this->invitationId);
+        $invitation = $this->getAuthorizedInvitation();
 
         $customStyles = [
             'primary_color' => $this->primary_color,
@@ -222,7 +247,8 @@ class InvitationEditor extends Component
 
     public function render()
     {
-        $invitation = Invitation::with(['template', 'sections', 'photos'])->findOrFail($this->invitationId);
+        $invitation = $this->getAuthorizedInvitation();
+        $invitation->load(['template', 'sections', 'photos']);
         $templates = InvitationTemplate::where('is_active', true)->orderBy('sort_order')->get();
 
         // Build dynamic live preview object combining active state
