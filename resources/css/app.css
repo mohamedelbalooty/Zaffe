@@ -1,0 +1,60 @@
+@import 'tailwindcss';
+
+@layer base {
+  :root {
+    --color-ivory: #FAF7F2;
+    --color-gold: #C6A76B;
+    --color-gold-hover: #B59556;
+    --color-gold-light: #F4EBD9;
+    --color-beige: #E8DED0;
+    --color-charcoal: #292521;
+    --color-rose: #D9B7B0;
+    --color-rose-light: #F7EFEB;
+    --color-emerald: #0F4C3A;
+  }
+
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-charcoal);
+    font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+  }
+}
+
+.font-tajawal {
+  font-family: 'Tajawal', sans-serif;
+}
+
+.font-cairo {
+  font-family: 'Cairo', sans-serif;
+}
+
+.font-amiri {
+  font-family: 'Amiri', serif;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Luxurious gold gradient text and accents */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #C6A76B 0%, #E6D5B8 50%, #B59556 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #C6A76B 0%, #DFC99E 50%, #B59556 100%);
+}
+
+.border-gold-subtle {
+  border-color: rgba(198, 167, 107, 0.35);
+}
+
+.shadow-wedding {
+  box-shadow: 0 10px 30px -5px rgba(41, 37, 33, 0.08), 0 4px 12px -2px rgba(198, 167, 107, 0.12);
+}
+
+.shadow-wedding-hover:hover {
+  box-shadow: 0 20px 40px -10px rgba(41, 37, 33, 0.12), 0 8px 20px -4px rgba(198, 167, 107, 0.2);
+}
