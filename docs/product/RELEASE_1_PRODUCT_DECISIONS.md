@@ -110,3 +110,4 @@ Release 1 must maintain near-zero fixed infrastructure overhead:
 2. Strictly sequential development: F01 must pass all quality gates before starting F10; Milestone 1 must finish before starting Milestone 2.
 3. Every feature must pass Code-Level, Business-Level, Security, and Automated Regression tests before preparing its Pull Request for `dev`.
 4. No direct commits to `dev`, `staging`, or `production`.
+

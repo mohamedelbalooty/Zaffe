@@ -172,7 +172,7 @@ class AuditTest extends TestCase
         $owner = User::where('email', 'couple@zaffe.app')->first();
         $invitation = Invitation::where('user_id', $owner->id)->first();
 
-        $file = UploadedFile::fake()->image('wedding-memory.jpg');
+        $file = UploadedFile::fake()->image('wedding-memory.png');
 
         $component = Livewire::actingAs($owner)
             ->test(InvitationEditor::class, ['id' => $invitation->id])

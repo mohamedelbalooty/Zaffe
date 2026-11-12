@@ -6,6 +6,7 @@ use App\Models\Invitation;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Models\RsvpResponse;
+use App\Services\PhoneService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
@@ -236,7 +237,7 @@ class DashboardController extends Controller
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
-        $user->phone = $validated['phone'] ?? null;
+        $user->phone = !empty($validated['phone']) ? PhoneService::normalize($validated['phone']) : null;
 
         if (!empty($validated['password'])) {
             $user->password = bcrypt($validated['password']);
