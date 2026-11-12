@@ -167,8 +167,10 @@ class InvitationEditor extends Component
     public function changeTemplate(int $templateId)
     {
         $this->getAuthorizedInvitation();
-        $this->template_id = $templateId;
-        $template = InvitationTemplate::findOrFail($templateId);
+        $template = InvitationTemplate::where('id', $templateId)
+            ->where('is_active', true)
+            ->firstOrFail();
+        $this->template_id = $template->id;
         
         if (!empty($template->default_styles)) {
             $this->primary_color = $template->default_styles['primary_color'] ?? $this->primary_color;
