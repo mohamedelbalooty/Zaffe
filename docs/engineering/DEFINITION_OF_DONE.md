@@ -1,7 +1,7 @@
-# Zaffe (زفّــة) — Global Definition of Done (DoD)
+# Zaffe (زفّــة) — Global Definition of Done (DoD) (Release 1)
 
 > **Mandatory Quality Gates & Acceptance Standards for Every Feature & Task**  
-> **Status:** Active & Enforced | **Date:** 2026-11-12
+> **Status:** Officially Updated | **Date:** 2026-11-12 | **Target Markets:** Egypt & Saudi Arabia
 
 ---
 
@@ -38,6 +38,7 @@ graph LR
 - **Error & Exception Handling:**
   - Exceptions are handled gracefully with user-friendly Arabic/English messages.
   - Unhandled raw exceptions or stack traces are never exposed to public users.
+  - Failed email deliveries are logged with context and never crash user HTTP requests.
 
 ---
 
@@ -48,8 +49,8 @@ graph LR
   - Common query filters and search columns (`slug`, `user_id`, `status`, `phone`, `attendance_status`) are properly indexed.
 - **Migration Standards:**
   - Migrations must be reversible (`down()` method properly reverses `up()`).
-  - Migrations must be compatible with both **SQLite 3** (local/testing) and **MySQL 8.4** (production).
-  - Existing user and wedding data must be preserved; destructive column drops must be handled with data migration scripts.
+  - Migrations must be compatible with both **SQLite 3** (local/testing) and **MySQL 8.4** (production target).
+  - Existing user and wedding data must be preserved.
 
 ---
 
@@ -58,6 +59,7 @@ graph LR
   - Unauthenticated access to private resources is strictly prevented with middleware (`auth`).
   - Access to administrative resources (`/admin`) is gated by `User::canAccessPanel()` and role checks.
   - Insecure Direct Object References (IDOR) are prevented: IDs received from client requests or Livewire state are validated against `Auth::id()`.
+  - Password reset tokens expire properly, are hashed in database, and are single-use.
 - **Input Validation & Sanitization:**
   - All incoming request parameters and Livewire inputs are validated with strict Laravel rules.
   - CSV exports sanitize formula triggers (`=`, `+`, `-`, `@`) with a leading `'`, including inputs preceded by whitespace, tabs, or newlines.
@@ -70,10 +72,14 @@ graph LR
 
 ---
 
-### 2.4 Business Quality
-- **Requirements Satisfaction:**
-  - Every user story and acceptance criterion in the Feature Brief is explicitly verified.
-  - Business rules are enforced on the server, not solely in client-side JavaScript.
+### 2.4 Business Quality & Regional Requirements
+- **Release 1 Free Launch Policy:**
+  - All 6 templates and all editor customization features are completely free.
+  - No paywall blocks, subscription enforcement gates, or broken payment buttons.
+- **Regional Localization (Egypt & Saudi Arabia):**
+  - Phone numbers support both Egypt (`+20`) and Saudi Arabia (`+966`) with standardized E.164 normalization.
+  - Event timezones are explicitly configured per invitation (defaulting to `Africa/Cairo` or `Asia/Riyadh`).
+  - Countdown timers and schedule displays calculate time based on the invitation's configured timezone.
 - **Workflow Integrity:**
   - RSVP deadlines reject submissions after the deadline date.
   - Guest counts adhere to `max_guests_per_rsvp`.
@@ -86,7 +92,7 @@ graph LR
 ### 2.5 Frontend Quality
 - **Responsive Layouts:**
   - Tested and functional across standard viewports: Mobile (375px–414px), Tablet (768px–1024px), and Desktop (1280px+).
-  - Tested across all six wedding invitation templates.
+  - Tested across all six wedding invitation themes.
 - **Bilingual & Typography:**
   - Layouts support both Arabic (`rtl`) and English (`ltr`) directions without broken flex or grid alignments.
   - Official typography loaded and styled correctly: `font-cairo`, `font-tajawal`, `font-amiri`, `font-playfair`.
@@ -122,4 +128,3 @@ graph LR
   npm run build
   ```
 - **Integrity Rule:** Never report a build or test as passing unless it was actually executed and exited with code 0.
-

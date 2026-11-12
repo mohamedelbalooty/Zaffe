@@ -1,71 +1,73 @@
-# Zaffe (زفّــة) — Feature Map & Domain Architecture Taxonomy
+# Zaffe (زفّــة) — Feature Map & Domain Architecture Taxonomy (Release 1)
 
 > **Comprehensive Mapping of SaaS Business Capabilities to Laravel Architecture**  
-> **Status:** Current Baseline Audit | **Date:** 2026-11-12
+> **Status:** Officially Updated for Release 1 | **Date:** 2026-11-12 | **Target Markets:** Egypt & Saudi Arabia
 
 ---
 
 ## 1. Feature Map Overview
 
-To avoid disjointed or monolithic development, the Zaffe backend and frontend are organized into **12 distinct business and architectural domains**:
+In accordance with official product directives ([docs/product/RELEASE_1_PRODUCT_DECISIONS.md](file:///e:/GithubProjects/Zaffe/docs/product/RELEASE_1_PRODUCT_DECISIONS.md)), Zaffe is organized into **11 Active Release 1 Feature Domains** and **1 Deferred Domain (F11)**:
 
 ```mermaid
 graph TD
     subgraph CorePlatform["Core Platform Foundations"]
-        F01["F01 — Auth, Authz & Locale"]
-        F02["F02 — Template Management"]
-        F10["F10 — Email & Notifications"]
+        F01["F01 — Auth, Authz & Locale (EG/KSA)"]
+        F10["F10 — Email & Notifications (Resend)"]
         F12["F12 — Production Readiness"]
     end
 
     subgraph WeddingLifecycle["Wedding Invitation Engine"]
-        F03["F03 — Invitation Lifecycle"]
+        F02["F02 — Template Management (All Free)"]
+        F03["F03 — Invitation Lifecycle & Timezones"]
         F04["F04 — Invitation Studio Editor"]
-        F05["F05 — Public Invitation View"]
+        F05["F05 — Public View & Cairo/Riyadh Time"]
     end
 
     subgraph GuestExperience["Guest & Attendance Engine"]
-        F06["F06 — RSVP Engine"]
+        F06["F06 — RSVP Engine (E.164 + Real-time Alert)"]
         F07["F07 — Guest Mgmt & Export"]
     end
 
-    subgraph Administration["Management & Commercialization"]
-        F08["F08 — Customer Studio"]
+    subgraph Administration["Management"]
+        F08["F08 — Customer Studio (100% Free Launch)"]
         F09["F09 — Admin & Platform Mgmt"]
-        F11["F11 — Monetization & Billing"]
     end
 
+    subgraph Deferred["Post-Release 1"]
+        F11["F11 — Monetization & Paymob (DEFERRED)"]
+    end
+
+    F01 --> F10
     F01 --> F03
     F02 --> F03
     F03 --> F04
     F04 --> F05
     F05 --> F06
+    F06 --> F10
     F06 --> F07
     F07 --> F08
-    F08 --> F11
-    F09 --> CorePlatform
-    F10 --> F01
-    F10 --> F06
-    F12 --> CorePlatform
+    F08 --> F09
+    F10 --> F12
+    F09 --> F12
 ```
 
 ---
 
 ## 2. Classification Legend
 
-Every capability in the application is audited and classified into one of five states:
-- `[VERIFIED]`: **Implemented and Verified** — Confirmed working in code and covered by passing automated tests.
-- `[VALIDATION_NEEDED]`: **Implemented but Needs Validation** — Implemented in code, but requires edge-case verification or browser testing.
-- `[PARTIAL]`: **Partially Implemented** — Component structure or UI exists, but core logic, notifications, or backend integrations are missing.
-- `[MISSING]`: **Missing** — Planned domain capability with no functional backend or UI implementation.
-- `[IMPROVEMENT_NEEDED]`: **Requires Improvement** — Functional, but contains known bottlenecks, technical debt, or optimization opportunities.
+- `[ACTIVE - R1]`: Core feature domain required for Release 1 free launch.
+- `[DEFERRED]`: Gated feature domain postponed until Post-Release 1.
+- `[VERIFIED]`: Implemented in code and verified with passing automated tests.
+- `[PARTIAL]`: Component structure exists, but core logic or integrations require implementation.
+- `[IMPROVEMENT_NEEDED]`: Functional, but requires optimization, cleanup, or country-specific support.
 
 ---
 
 ## 3. Comprehensive Feature Domain Breakdown
 
-### F01 — Authentication, Authorization & Localization
-- **Domain Mission:** User identity, secure session lifecycle, role-based authorization, and seamless Arabic RTL / English LTR multilingual switching.
+### F01 — Authentication, Authorization & Localization `[ACTIVE - R1]`
+- **Domain Mission:** User identity, secure session lifecycle, role-based authorization, Egypt (+20) and Saudi Arabia (+966) phone support, and bilingual Arabic RTL / English LTR support.
 - **Components & Files:**
   - Controller: `app/Http/Controllers/AuthController.php`
   - Middleware: `app/Http/Middleware/SetLocale.php`
@@ -74,187 +76,163 @@ Every capability in the application is audited and classified into one of five s
   - Routes: `routes/web.php:24-43`
   - Tests: `tests/Feature/AuditTest.php:29-44, 355-379`, `tests/Feature/WeddingPlatformTest.php:66-104`
 - **Capability Audit:**
-  - `[VERIFIED]` User Registration (`POST /register`) with password confirmation and auto-login.
-  - `[VERIFIED]` User Login (`POST /login`) with session regeneration and 'Remember Me'.
-  - `[VERIFIED]` Authentication Throttling (`throttle:6,1` with HTTP 429 Too Many Requests).
-  - `[VERIFIED]` Role-Based Panel Gate (`User::canAccessPanel()` blocks non-admins with HTTP 403).
-  - `[VERIFIED]` Multilingual Locale Switching (`GET /lang/{locale}`) setting `session('locale')` with RTL/LTR directional support.
-  - `[PARTIAL]` Password Reset Workflow: `AuthController::sendResetLink()` is a simulated response; Laravel `Password::broker()` and actual reset notification tokens are missing.
+  - `[VERIFIED]` Registration (`POST /register`) with password confirmation and auto-login.
+  - `[VERIFIED]` Login (`POST /login`) with session regeneration and remember-me.
+  - `[VERIFIED]` Rate limiting (`throttle:6,1` with HTTP 429).
+  - `[VERIFIED]` Role authorization (`User::canAccessPanel()` gates `/admin`).
+  - `[VERIFIED]` Locale switching (`GET /lang/{locale}`) setting `session('locale')` with RTL/LTR directional support.
+  - `[PARTIAL]` Password Reset Workflow: `sendResetLink` is a simulated placeholder. Requires real Laravel `Password::broker()`, token generation, notification dispatch, and reset form view.
+  - `[IMPROVEMENT_NEEDED]` Country-aware phone input: Support Egypt (`+20`) and Saudi Arabia (`+966`) with E.164 normalization.
 
 ---
 
-### F02 — Template Management & Discovery
-- **Domain Mission:** Organization, presentation, filtering, and preview of luxury wedding invitation themes.
+### F10 — Email & Notifications `[ACTIVE - R1]`
+- **Domain Mission:** Transactional email infrastructure powered by **Resend** for password reset links, couple RSVP alerts, and guest confirmations.
+- **Components & Files:**
+  - Mail Config: `config/mail.php`
+  - Mailer Integration: Resend via Laravel standard mail abstraction
+  - Notification Classes: To be implemented in `app/Notifications/`
+  - Queue Config: `config/queue.php` (lightweight `database` driver)
+- **Capability Audit:**
+  - `[PARTIAL]` Resend approved as provider. Currently `.env` uses `MAIL_MAILER=log`.
+  - `[MISSING]` Password reset mailable/notification.
+  - `[MISSING]` Couple notification on guest RSVP submission (`NewRsvpReceivedNotification`).
+  - `[MISSING]` Guest confirmation mailable (`RsvpConfirmationNotification`).
+  - `[MISSING]` Asynchronous queue delivery with error logging.
+
+---
+
+### F02 — Template Management & Discovery `[ACTIVE - R1]`
+- **Domain Mission:** Presentation, filtering, and preview of all 6 luxury wedding themes — **100% free** in Release 1.
 - **Components & Files:**
   - Models: `app/Models/TemplateCategory.php`, `app/Models/InvitationTemplate.php`
-  - Controller: `app/Http/Controllers/HomeController.php:24-69` (`templates()`, `previewTemplate()`)
-  - Admin Resource: `app/Filament/Resources/InvitationTemplates/`, `app/Filament/Resources/TemplateCategories/`
-  - Views: `resources/views/pages/templates.blade.php`, `resources/views/pages/preview-template.blade.php`
-  - Template Views: `resources/views/templates/` (`royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`)
-  - Tests: `tests/Feature/AuditTest.php:320-353`, `tests/Feature/WeddingPlatformTest.php:35-49`
+  - Controller: `app/Http/Controllers/HomeController.php:24-69`
+  - Views: `resources/views/pages/templates.blade.php`, `preview-template.blade.php`
+  - Templates: `resources/views/templates/` (`royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`)
 - **Capability Audit:**
-  - `[VERIFIED]` Template categorization into distinct aesthetic categories (`luxury`, `floral`, `minimal`, `islamic`, `classic`, `romantic`).
-  - `[VERIFIED]` Search & filtering by category slug and Arabic/English keyword search.
-  - `[VERIFIED]` Live interactive template preview with dynamic mock data (`/templates/{slug}/preview`).
-  - `[VERIFIED]` Admin CRUD for categories, templates, default color schemes, and active statuses.
-  - `[VALIDATION_NEEDED]` Template selection validation: Verify that deactivated templates (`is_active = false`) are strictly rejected during invitation creation and template switching.
+  - `[VERIFIED]` All 6 templates rendered and verified by `AuditTest.php:320-340`.
+  - `[VERIFIED]` Category filtering and search.
+  - `[VERIFIED]` Interactive preview with mock data (`/templates/{slug}/preview`).
+  - `[ACTIVE DIRECTIVE]` All templates are unlocked for all users. No premium gating in Release 1.
+  - `[IMPROVEMENT_NEEDED]` Enforce inactive template rejection in catalog and creation wizard.
 
 ---
 
-### F03 — Invitation Lifecycle & Publishing
-- **Domain Mission:** Management of invitation ownership, creation wizard, unique slug generation, draft state protection, and lifecycle transitions (`draft`, `published`, `archived`).
+### F03 — Invitation Lifecycle & Publishing `[ACTIVE - R1]`
+- **Domain Mission:** Invitation creation wizard, unique slug generation, draft state protection, event timezone tracking, and safe deletion.
 - **Components & Files:**
   - Model: `app/Models/Invitation.php`
-  - Controller: `app/Http/Controllers/DashboardController.php:38-131` (`create()`, `store()`, `destroy()`)
+  - Controller: `app/Http/Controllers/DashboardController.php:38-131`
   - Livewire: `app/Livewire/InvitationEditor.php:218-228` (`togglePublish()`)
   - Migrations: `database/migrations/2026_01_01_000004_create_invitations_table.php`
-  - Views: `resources/views/dashboard/create.blade.php`, `resources/views/pages/unpublished.blade.php`
-  - Tests: `tests/Feature/AuditTest.php:57-94, 146-166, 381-411, 454-465`, `tests/Feature/WeddingPlatformTest.php:106-129`
 - **Capability Audit:**
-  - `[VERIFIED]` Creation wizard with template selection and event basics.
-  - `[VERIFIED]` Unique slug generation algorithm: Handles Arabic names via transliteration and appends sequential `-1`, `-2` suffixes upon collisions.
-  - `[VERIFIED]` Draft privacy protection: Unpublished invitations return HTTP 403 to public visitors while allowing access to the verified owner and platform admins.
-  - `[VERIFIED]` Real-time publishing toggle (`status` toggling between `'draft'` and `'published'`).
-  - `[IMPROVEMENT_NEEDED]` Deletion cleanup: `DashboardController::destroy()` deletes database records but leaves cover images and gallery photos orphaned on storage.
-  - `[IMPROVEMENT_NEEDED]` Archival lifecycle: The `'archived'` status exists in DB schema enum but has no exposed management workflow in UI.
+  - `[VERIFIED]` Creation wizard with unique slug generation and duplicate suffix incrementation.
+  - `[VERIFIED]` Draft privacy protection (HTTP 403 unless owner or admin).
+  - `[VERIFIED]` Real-time publishing toggle (`draft` vs `published`).
+  - `[IMPROVEMENT_NEEDED]` Storage cleanup on deletion: Delete cover and gallery files from disk when an invitation is destroyed.
+  - `[IMPROVEMENT_NEEDED]` Event timezone support: Add explicit `timezone` column (`Africa/Cairo` / `Asia/Riyadh`).
 
 ---
 
-### F04 — Invitation Editor & Customization
-- **Domain Mission:** High-productivity Livewire visual studio enabling real-time wedding detail customization, responsive phone preview mockups, style overrides, and media management.
+### F04 — Invitation Editor & Customization `[ACTIVE - R1]`
+- **Domain Mission:** Real-time visual studio for couples to customize wedding details, colors, typography, agenda, dress code, and photos.
 - **Components & Files:**
-  - Livewire Component: `app/Livewire/InvitationEditor.php`
-  - Blade View: `resources/views/livewire/invitation-editor.blade.php`
+  - Livewire: `app/Livewire/InvitationEditor.php`
+  - View: `resources/views/livewire/invitation-editor.blade.php`
   - Models: `app/Models/Invitation.php`, `app/Models/InvitationPhoto.php`, `app/Models/InvitationSection.php`
-  - Tests: `tests/Feature/AuditTest.php:46-55, 96-186, 256-318`
 - **Capability Audit:**
-  - `[VERIFIED]` Multi-tab navigation: Basics, Content, Design, Media, Sections, Share.
-  - `[VERIFIED]` Autosave mechanism: Syncs form updates to database and recalculates styles.
-  - `[VERIFIED]` Template switching: Allows couples to change themes dynamically while preserving customized event details.
-  - `[VERIFIED]` IDOR Prevention: Locked component state (`#[Locked]`) and server-side authorization check (`getAuthorizedInvitation()`).
-  - `[VERIFIED]` Media uploads & gallery management with 5MB validation and immediate storage deletion on gallery photo removal.
-  - `[IMPROVEMENT_NEEDED]` Image optimization: Uploads are stored as raw high-resolution files without WebP conversion or dimension capping.
-  - `[IMPROVEMENT_NEEDED]` Private draft media security: Draft images in `public/storage` are accessible if URLs are guessed.
+  - `[VERIFIED]` Multi-tab editing, autosave, template switching, and gallery management.
+  - `[VERIFIED]` IDOR protection via `getAuthorizedInvitation()` and `#[Locked]` state.
+  - `[ACTIVE DIRECTIVE]` All customization features unlocked for all users in Release 1.
+  - `[IMPROVEMENT_NEEDED]` Image optimization pipeline: Automatic WebP conversion and dimension capping (max 1600px width).
+  - `[IMPROVEMENT_NEEDED]` Timezone configuration in event basics tab.
 
 ---
 
-### F05 — Public Invitation Rendering
-- **Domain Mission:** Pixel-perfect delivery of luxury responsive wedding cards on mobile, tablet, and desktop viewports, complete with background music, countdowns, and social sharing.
+### F05 — Public Invitation Rendering `[ACTIVE - R1]`
+- **Domain Mission:** Fast, responsive public wedding card delivery featuring event-specific timezones, background music, and WhatsApp sharing.
 - **Components & Files:**
-  - Controller: `app/Http/Controllers/InvitationController.php` (`show()`)
-  - Views: `resources/views/templates/*.blade.php` (6 themes)
+  - Controller: `app/Http/Controllers/InvitationController.php`
+  - Views: `resources/views/templates/*.blade.php`
   - Partials: `resources/views/templates/partials/` (`countdown`, `music_player`, `share_box`, `timeline`, `gallery`, `dress_code`)
-  - Tests: `tests/Feature/AuditTest.php:320-340`, `tests/Feature/WeddingPlatformTest.php:57-65`
 - **Capability Audit:**
-  - `[VERIFIED]` Dynamic theme rendering based on selected template view and effective styles.
-  - `[VERIFIED]` Real-time countdown timer powered by Alpine.js calculating time remaining until wedding moment.
-  - `[VERIFIED]` Floating background music player with play/pause and looping audio.
-  - `[VERIFIED]` Modular section contract: All 6 templates consistently support countdown, timeline, gallery, dress code, RSVP, and share box.
-  - `[VERIFIED]` Native 1-click WhatsApp sharing with localized invite message and public deep link.
-  - `[IMPROVEMENT_NEEDED]` Synchronous view count increment: `$invitation->increment('view_count')` runs on every HTTP request without throttling or queueing.
-  - `[IMPROVEMENT_NEEDED]` Social Meta Tags: Dynamic OpenGraph (`og:image`, `og:title`, `og:description`) need optimization for WhatsApp chat previews.
+  - `[VERIFIED]` Dynamic theme rendering across all 6 themes with shared modular section contract.
+  - `[VERIFIED]` 1-click WhatsApp sharing with localized message and deep link.
+  - `[IMPROVEMENT_NEEDED]` Timezone-aware countdown: Pin countdown calculations to the invitation's configured timezone (`Africa/Cairo` / `Asia/Riyadh`).
+  - `[IMPROVEMENT_NEEDED]` View count optimization: Session-based deduplication to prevent database row-locking contention.
+  - `[IMPROVEMENT_NEEDED]` Social meta tags: Dynamic OpenGraph tags for rich WhatsApp link previews.
 
 ---
 
-### F06 — RSVP & Attendance Engine
-- **Domain Mission:** Interactive guest confirmation, companion tracking, dietary notes, strict deadline enforcement, and anti-abuse safeguards.
+### F06 — RSVP & Attendance Engine `[ACTIVE - R1]`
+- **Domain Mission:** Interactive guest confirmation, companion tracking, deadline enforcement, phone deduplication, and couple notification alerts.
 - **Components & Files:**
-  - Livewire Component: `app/Livewire/RsvpForm.php`
+  - Livewire: `app/Livewire/RsvpForm.php`
   - Model: `app/Models/RsvpResponse.php`
   - View: `resources/views/livewire/rsvp-form.blade.php`
-  - Tests: `tests/Feature/AuditTest.php:188-254, 467-503`, `tests/Feature/WeddingPlatformTest.php:131-150`
 - **Capability Audit:**
-  - `[VERIFIED]` Attendance statuses: Attending (`attending`), Declining (`declined`), Tentative (`tentative`).
-  - `[VERIFIED]` Deadline enforcement: Rejects RSVP submissions when `rsvp_deadline` is in the past.
-  - `[VERIFIED]` Maximum guest limit: Enforces `max_guests_per_rsvp` configured per invitation.
-  - `[VERIFIED]` Decline headcount coherence: Forcibly sets `guest_count = 0` when declining.
-  - `[VERIFIED]` Duplicate phone deduplication: Updates existing guest response rather than creating inflated duplicate records.
-  - `[VERIFIED]` Anti-abuse rate limiting: Enforces max 10 submissions per minute per IP address.
-  - `[VALIDATION_NEEDED]` Standardized dietary preferences: Add pre-set dietary choices (Vegetarian, Gluten-Free, Vegan) alongside free-form notes.
+  - `[VERIFIED]` Attendance statuses (`attending`, `declined`, `tentative`).
+  - `[VERIFIED]` Deadline enforcement and guest count caps.
+  - `[VERIFIED]` Declining attendance sets `guest_count = 0`.
+  - `[VERIFIED]` Phone deduplication updates existing responses in-place.
+  - `[VERIFIED]` Anti-abuse IP rate limiting (10/min).
+  - `[IMPROVEMENT_NEEDED]` Country-aware phone formatting for Egypt (`+20`) and Saudi Arabia (`+966`) with E.164 normalization.
+  - `[IMPROVEMENT_NEEDED]` Standardized dietary checkboxes (Vegetarian, Gluten-Free, Allergies).
+  - `[IMPROVEMENT_NEEDED]` Dispatch real-time email notification (via F10) to the couple upon RSVP receipt.
 
 ---
 
-### F07 — Guest Management & Export
-- **Domain Mission:** Customer Studio guest list analytics, searching, filtering, and Excel-ready CSV export with formula injection defense.
+### F07 — Guest Management & Export `[ACTIVE - R1]`
+- **Domain Mission:** Customer Studio guest list analytics, searching, filtering, and Excel-ready CSV export with reinforced formula injection defense.
 - **Components & Files:**
-  - Controller: `app/Http/Controllers/DashboardController.php:133-212` (`guests()`, `exportGuestsCsv()`)
+  - Controller: `app/Http/Controllers/DashboardController.php:133-212`
   - View: `resources/views/dashboard/guests.blade.php`
-  - Tests: `tests/Feature/AuditTest.php:412-453`, `tests/Feature/WeddingPlatformTest.php:151-165`
 - **Capability Audit:**
-  - `[VERIFIED]` RSVP overview metrics: Total RSVPs, attending count, total guests sum, declined count.
-  - `[VERIFIED]` Guest search across name, phone number, and personal message.
-  - `[VERIFIED]` Status filtering (`attending`, `declined`, `tentative`) with paginated results.
-  - `[VERIFIED]` CSV export streaming with UTF-8 Byte Order Mark (`0xEF, 0xBB, 0xBF`) for Arabic Excel rendering.
-  - `[VERIFIED]` CSV formula injection defense: Sanitizes `=`, `+`, `-`, `@` with a leading `'`.
-  - `[IMPROVEMENT_NEEDED]` Leading whitespace formula injection defense: Extend sanitization to catch formula characters following tabs (`\t`), spaces, or carriage returns (`\r\n`).
+  - `[VERIFIED]` RSVP overview metrics and paginated search.
+  - `[VERIFIED]` Streamed CSV export with UTF-8 BOM.
+  - `[VERIFIED]` Formula injection sanitization prefixing `=`, `+`, `-`, `@` with `'`.
+  - `[IMPROVEMENT_NEEDED]` Enhanced sanitization regex catching formula triggers preceded by whitespace, tabs, or newlines.
 
 ---
 
-### F08 — Customer Dashboard & Analytics
-- **Domain Mission:** Couple portal overview, invitation management table, aggregate attendance statistics, and account profile editing.
+### F08 — Customer Dashboard & Analytics `[ACTIVE - R1]`
+- **Domain Mission:** Couple portal overview, invitation management, attendee analytics, and free launch communication.
 - **Components & Files:**
-  - Controller: `app/Http/Controllers/DashboardController.php:16-36, 214-247` (`index()`, `profile()`, `updateProfile()`)
-  - Views: `resources/views/dashboard/index.blade.php`, `resources/views/dashboard/profile.blade.php`
-  - Tests: `tests/Feature/WeddingPlatformTest.php:92-104`
+  - Controller: `app/Http/Controllers/DashboardController.php:16-36, 214-247`
+  - Views: `resources/views/dashboard/index.blade.php`, `resources/views/pages/pricing.blade.php`
 - **Capability Audit:**
-  - `[VERIFIED]` Real-time KPI cards: Total invitations, total RSVPs received, confirmed attendees, total views.
-  - `[VERIFIED]` Invitation management cards: Quick links to editor, live preview, guest list, and WhatsApp sharing.
-  - `[VERIFIED]` Profile settings: Update account name, email, phone, and password with current password verification.
-  - `[IMPROVEMENT_NEEDED]` Empty state polish: Enhance UX for newly registered couples with guided next-step prompts.
+  - `[VERIFIED]` Real-time KPI metrics and invitation cards.
+  - `[VERIFIED]` Profile update for name, email, phone, and password.
+  - `[ACTIVE DIRECTIVE]` Update pricing page (`/pricing`) to communicate 100% free launch campaign; remove non-functional purchase buttons.
+  - `[IMPROVEMENT_NEEDED]` Polished onboarding empty states for newly registered couples.
 
 ---
 
-### F09 — Admin & Platform Management
-- **Domain Mission:** Filament v5 Super Admin backoffice for full system oversight, catalog curation, plan configuration, and platform metrics.
+### F09 — Admin & Platform Management `[ACTIVE - R1]`
+- **Domain Mission:** Filament v5 Super Admin backoffice for system oversight, template curation, and platform health.
 - **Components & Files:**
-  - Provider: `app/Providers/Filament/AdminPanelProvider.php`
-  - Resources: `app/Filament/Resources/` (`Users`, `Invitations`, `InvitationTemplates`, `TemplateCategories`, `SubscriptionPlans`, `PlatformSettings`, `RsvpResponses`)
+  - Resources: `app/Filament/Resources/` (`Users`, `Invitations`, `InvitationTemplates`, `TemplateCategories`, `PlatformSettings`, `RsvpResponses`)
   - Widget: `app/Filament/Widgets/PlatformStatsOverview.php`
-  - Tests: `tests/Feature/AuditTest.php:29-44`
 - **Capability Audit:**
-  - `[VERIFIED]` Super admin panel gating via `User::canAccessPanel()`.
-  - `[VERIFIED]` Resource CRUD for users, wedding invitations, template catalogs, categories, plans, and platform settings.
-  - `[VERIFIED]` Platform analytics overview widget.
-  - `[IMPROVEMENT_NEEDED]` Granular Laravel Policies: Explicit Filament resource policy bindings for fine-grained authorization.
+  - `[VERIFIED]` Gated access for `role = 'admin'`.
+  - `[VERIFIED]` Resource CRUD and platform overview stats.
+  - `[ACTIVE DIRECTIVE]` Subscription and billing management excluded from Release 1 operational flows.
+  - `[IMPROVEMENT_NEEDED]` Explicit Laravel Policies bound to Filament resources.
 
 ---
 
-### F10 — Email & Notifications
-- **Domain Mission:** Transactional email infrastructure for account security, couple RSVP notifications, and guest confirmations.
-- **Components & Files:**
-  - Configuration: `config/mail.php`, `config/queue.php`
-  - Controllers: `app/Http/Controllers/AuthController.php:90-101`
-- **Capability Audit:**
-  - `[MISSING]` Password reset mailable/notification.
-  - `[MISSING]` Couple email alert when a guest submits an RSVP.
-  - `[MISSING]` Guest RSVP confirmation email.
-  - `[MISSING]` Production transactional email driver configuration (e.g., SMTP / SES / Resend) with queued delivery.
+### F11 — Monetization & Subscription System `[DEFERRED — POST RELEASE 1]`
+- **Domain Mission:** Commercial package tiers, Paymob payment gateway integration (Egypt & Saudi Arabia), and tier enforcement.
+- **Release 1 Status:** **DEFERRED**.
+- **Directives:** Zero payment gateway dependencies or checkout flows in Release 1. Existing schema preserved dormantly. Future integration documented for Paymob.
 
 ---
 
-### F11 — Monetization & Subscription System
-- **Domain Mission:** Commercial package tiers, payment gateway checkout, webhook handling, and tier entitlement enforcement.
+### F12 — Production Readiness & Performance `[ACTIVE - R1]`
+- **Domain Mission:** MySQL 8.4 runtime validation, cloud/local storage privacy, lightweight queues, and security hardening.
 - **Components & Files:**
-  - Models: `app/Models/SubscriptionPlan.php`, `app/Models/UserSubscription.php`
-  - Migrations: `database/migrations/2026_01_01_000008_create_subscription_plans_table.php`
-  - Public Page: `resources/views/pages/pricing.blade.php`
+  - Config: `config/database.php`, `config/filesystems.php`, `config/queue.php`, `config/cache.php`
 - **Capability Audit:**
-  - `[PARTIAL]` Database tables for subscription plans and user subscriptions exist.
-  - `[PARTIAL]` Pricing page displays tiers (`Starter Free` vs `Royal Wedding Pro`).
-  - `[MISSING]` Payment gateway checkout integration (Paymob, Fawry, Tap, or Stripe).
-  - `[MISSING]` Webhook receiver and payment signature validation.
-  - `[MISSING]` Plan entitlement enforcement gates (e.g., restricting premium templates or capping invitations for free tier).
-
----
-
-### F12 — Production Readiness & Performance
-- **Domain Mission:** MySQL 8.4 runtime compatibility, cloud file storage, background job processing, Redis caching, and security hardening.
-- **Components & Files:**
-  - Configuration: `config/database.php`, `config/filesystems.php`, `config/cache.php`, `config/queue.php`
-  - Environment: `.env.example`
-- **Capability Audit:**
-  - `[PARTIAL]` SQLite runs locally; MySQL configuration exists in `config/database.php` but requires isolated runtime test verification.
-  - `[IMPROVEMENT_NEEDED]` Cloud storage driver (S3/R2) configuration for stateless multi-server deployment.
-  - `[IMPROVEMENT_NEEDED]` Redis queue and cache driver configuration for production workloads.
-  - `[IMPROVEMENT_NEEDED]` Database indexing audit on foreign keys and search columns.
-
+  - `[PARTIAL]` SQLite local/testing environment. MySQL 8.4 runtime test execution required.
+  - `[ACTIVE DIRECTIVE]` Cost efficiency prioritized: Database queues and file/database caching used initially; Redis only when workload justifies it.
+  - `[IMPROVEMENT_NEEDED]` Storage privacy: Prevent predictable public path access to unpublished draft photos.
