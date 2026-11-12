@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
@@ -62,7 +63,10 @@ class DashboardController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'template_id' => ['required', 'exists:invitation_templates,id'],
+            'template_id' => [
+                'required',
+                Rule::exists('invitation_templates', 'id')->where('is_active', true),
+            ],
             'groom_name' => ['required', 'string', 'max:255'],
             'bride_name' => ['required', 'string', 'max:255'],
             'wedding_date' => ['required', 'date'],
