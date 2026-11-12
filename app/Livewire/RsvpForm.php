@@ -4,6 +4,10 @@ namespace App\Livewire;
 
 use App\Models\Invitation;
 use App\Models\RsvpResponse;
+use App\Notifications\NewRsvpNotification;
+use App\Notifications\RsvpConfirmationNotification;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -85,6 +89,7 @@ class RsvpForm extends Component
         RateLimiter::hit($rateKey, 60);
 
         // Duplicate handling: if phone exists for this invitation, update existing response
+        $rsvpRecord = null;
         if (!empty($this->phone)) {
             $existing = RsvpResponse::where('invitation_id', $invitation->id)
                 ->where('phone', $this->phone)
@@ -101,22 +106,37 @@ class RsvpForm extends Component
                     'ip_address' => request()->ip(),
                 ]);
 
-                $this->isSubmitted = true;
-                return;
+                $rsvpRecord = $existing;
             }
         }
 
-        RsvpResponse::create([
-            'invitation_id' => $invitation->id,
-            'guest_name' => $this->guest_name,
-            'phone' => $this->phone ?: null,
-            'email' => $this->email ?: null,
-            'attendance_status' => $this->attendance_status,
-            'guest_count' => $this->attendance_status === 'attending' ? $this->guest_count : 0,
-            'message' => $this->message ?: null,
-            'dietary_notes' => $this->dietary_notes ?: null,
-            'ip_address' => request()->ip(),
-        ]);
+        if (!$rsvpRecord) {
+            $rsvpRecord = RsvpResponse::create([
+                'invitation_id' => $invitation->id,
+                'guest_name' => $this->guest_name,
+                'phone' => $this->phone ?: null,
+                'email' => $this->email ?: null,
+                'attendance_status' => $this->attendance_status,
+                'guest_count' => $this->attendance_status === 'attending' ? $this->guest_count : 0,
+                'message' => $this->message ?: null,
+                'dietary_notes' => $this->dietary_notes ?: null,
+                'ip_address' => request()->ip(),
+            ]);
+        }
+
+        // Dispatch notifications gracefully (errors in mail delivery must not fail submission)
+        try {
+            if ($invitation->user) {
+                $invitation->user->notify(new NewRsvpNotification($invitation, $rsvpRecord));
+            }
+
+            if (!empty($rsvpRecord->email)) {
+                Notification::route('mail', $rsvpRecord->email)
+                    ->notify(new RsvpConfirmationNotification($invitation, $rsvpRecord));
+            }
+        } catch (\Throwable $e) {
+            Log::error('Failed to dispatch RSVP notifications: ' . $e->getMessage());
+        }
 
         $this->isSubmitted = true;
     }
