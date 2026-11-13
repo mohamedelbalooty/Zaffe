@@ -6,6 +6,7 @@ use App\Models\Invitation;
 use App\Models\RsvpResponse;
 use App\Notifications\NewRsvpNotification;
 use App\Notifications\RsvpConfirmationNotification;
+use App\Services\PhoneService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
@@ -18,11 +19,13 @@ class RsvpForm extends Component
     public int $invitationId;
     public string $guest_name = '';
     public string $phone = '';
+    public string $phone_country = 'EG';
     public string $email = '';
     public string $attendance_status = 'attending';
     public int $guest_count = 1;
     public string $message = '';
     public string $dietary_notes = '';
+    public array $selected_dietary = [];
     public bool $isSubmitted = false;
     #[Locked]
     public int $maxGuests = 5;
@@ -86,23 +89,41 @@ class RsvpForm extends Component
 
         $this->validate();
 
+        // Validate and normalize phone number if provided
+        $normalizedPhone = null;
+        if (!empty($this->phone)) {
+            if (!PhoneService::isValid($this->phone, $this->phone_country)) {
+                $this->addError('phone', 'رقم الهاتف المدخل غير صالح. يرجى التأكد من كتابة الرقم بشكل صحيح.');
+                return;
+            }
+            $normalizedPhone = PhoneService::normalize($this->phone, $this->phone_country);
+        }
+
         RateLimiter::hit($rateKey, 60);
 
-        // Duplicate handling: if phone exists for this invitation, update existing response
+        // Process dietary notes combining checkboxes and custom text
+        $dietaryList = $this->selected_dietary;
+        if (!empty($this->dietary_notes)) {
+            $dietaryList[] = trim($this->dietary_notes);
+        }
+        $combinedDietary = !empty($dietaryList) ? implode('، ', array_unique($dietaryList)) : null;
+
+        // Duplicate handling: if normalized phone exists for this invitation, update existing response
         $rsvpRecord = null;
-        if (!empty($this->phone)) {
+        if (!empty($normalizedPhone)) {
             $existing = RsvpResponse::where('invitation_id', $invitation->id)
-                ->where('phone', $this->phone)
+                ->where('phone', $normalizedPhone)
                 ->first();
 
             if ($existing) {
                 $existing->update([
                     'guest_name' => $this->guest_name,
+                    'phone' => $normalizedPhone,
                     'email' => $this->email ?: $existing->email,
                     'attendance_status' => $this->attendance_status,
                     'guest_count' => $this->attendance_status === 'attending' ? $this->guest_count : 0,
                     'message' => $this->message ?: $existing->message,
-                    'dietary_notes' => $this->dietary_notes ?: $existing->dietary_notes,
+                    'dietary_notes' => $combinedDietary ?: $existing->dietary_notes,
                     'ip_address' => request()->ip(),
                 ]);
 
@@ -114,12 +135,12 @@ class RsvpForm extends Component
             $rsvpRecord = RsvpResponse::create([
                 'invitation_id' => $invitation->id,
                 'guest_name' => $this->guest_name,
-                'phone' => $this->phone ?: null,
+                'phone' => $normalizedPhone,
                 'email' => $this->email ?: null,
                 'attendance_status' => $this->attendance_status,
                 'guest_count' => $this->attendance_status === 'attending' ? $this->guest_count : 0,
                 'message' => $this->message ?: null,
-                'dietary_notes' => $this->dietary_notes ?: null,
+                'dietary_notes' => $combinedDietary,
                 'ip_address' => request()->ip(),
             ]);
         }
@@ -143,8 +164,9 @@ class RsvpForm extends Component
 
     public function resetForm()
     {
-        $this->reset(['guest_name', 'phone', 'email', 'message', 'dietary_notes', 'isSubmitted']);
+        $this->reset(['guest_name', 'phone', 'email', 'message', 'dietary_notes', 'selected_dietary', 'isSubmitted']);
         $this->guest_count = 1;
+        $this->phone_country = 'EG';
         $this->attendance_status = 'attending';
     }
 
