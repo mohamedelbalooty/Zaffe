@@ -119,11 +119,14 @@ class InvitationEditor extends Component
 
     public function updatedNewCoverPhoto()
     {
-        $this->getAuthorizedInvitation();
+        $invitation = $this->getAuthorizedInvitation();
 
         $this->validate([
             'new_cover_photo' => 'image|max:5120', // 5MB
         ]);
+
+        // Clean up previous cover photo if stored locally
+        $this->deleteStorageFile($invitation->cover_photo);
 
         $path = $this->new_cover_photo->store('invitations/covers', 'public');
         $this->cover_photo = Storage::disk('public')->url($path);
@@ -156,14 +159,33 @@ class InvitationEditor extends Component
         $invitation = $this->getAuthorizedInvitation();
         $photo = InvitationPhoto::where('invitation_id', $invitation->id)->findOrFail($photoId);
         
-        // Clean up storage file if stored locally
-        if ($photo->image_path && !str_starts_with($photo->image_path, 'http')) {
-            $relativePath = str_replace(Storage::disk('public')->url(''), '', $photo->image_path);
-            Storage::disk('public')->delete(ltrim($relativePath, '/'));
-        }
+        $this->deleteStorageFile($photo->image_path);
 
         $photo->delete();
         $this->saveStatus = 'تم حذف الصورة ✓';
+    }
+
+    protected function deleteStorageFile(?string $pathOrUrl): void
+    {
+        if (empty($pathOrUrl)) {
+            return;
+        }
+
+        $disk = Storage::disk('public');
+        $storageUrl = $disk->url('');
+
+        $relativePath = $pathOrUrl;
+        if (!empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
+            $relativePath = substr($relativePath, strlen($storageUrl));
+        } elseif (str_starts_with($relativePath, '/storage/')) {
+            $relativePath = substr($relativePath, strlen('/storage/'));
+        }
+
+        $relativePath = ltrim($relativePath, '/');
+
+        if (!empty($relativePath) && $disk->exists($relativePath)) {
+            $disk->delete($relativePath);
+        }
     }
 
     public function changeTemplate(int $templateId)
