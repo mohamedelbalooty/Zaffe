@@ -150,6 +150,15 @@
                         </div>
 
                         <div>
+                            <label class="block text-xs font-bold text-white mb-1.5">المنطقة الزمنية لموعد الحفل</label>
+                            <select wire:model.live="timezone" 
+                                    class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-[#C6A76B] outline-none">
+                                <option value="Africa/Cairo" class="bg-[#292521] text-white">توقيت مصر والقاهرة (Africa/Cairo)</option>
+                                <option value="Asia/Riyadh" class="bg-[#292521] text-white">توقيت السعودية والرياض (Asia/Riyadh)</option>
+                            </select>
+                        </div>
+
+                        <div>
                             <label class="block text-xs font-bold text-white mb-1.5">اسم مكان الحفل (القاعة / الفندق)</label>
                             <input type="text" wire:model.live.debounce.300ms="venue_name" 
                                    class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-[#C6A76B] outline-none"
