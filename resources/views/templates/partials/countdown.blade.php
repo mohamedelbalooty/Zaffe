@@ -8,7 +8,18 @@
 @php
     $countdownSection = collect($invitation->sections ?? [])->where('section_type', 'countdown')->first();
     $isEnabled = $countdownSection ? (bool) $countdownSection->is_enabled : true;
-    $targetDate = $invitation->wedding_date ? \Carbon\Carbon::parse($invitation->wedding_date)->toIso8601String() : null;
+
+    $dateString = is_string($invitation->wedding_date) 
+        ? $invitation->wedding_date 
+        : ($invitation->wedding_date?->format('Y-m-d') ?? now()->addDays(30)->format('Y-m-d'));
+    $timeString = !empty($invitation->wedding_time) ? substr($invitation->wedding_time, 0, 5) : '20:00';
+    $tz = !empty($invitation->timezone) ? $invitation->timezone : 'Africa/Cairo';
+
+    try {
+        $targetDate = \Carbon\Carbon::parse($dateString . ' ' . $timeString, $tz)->toIso8601String();
+    } catch (\Throwable $e) {
+        $targetDate = \Carbon\Carbon::now($tz)->addDays(30)->toIso8601String();
+    }
 @endphp
 
 @if($isEnabled && $targetDate)
