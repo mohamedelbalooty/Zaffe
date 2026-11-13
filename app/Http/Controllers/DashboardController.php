@@ -10,6 +10,7 @@ use App\Services\PhoneService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -71,6 +72,7 @@ class DashboardController extends Controller
             'bride_name' => ['required', 'string', 'max:255'],
             'wedding_date' => ['required', 'date'],
             'venue_name' => ['required', 'string', 'max:255'],
+            'timezone' => ['nullable', 'string', 'in:Africa/Cairo,Asia/Riyadh'],
             'title' => ['nullable', 'string', 'max:255'],
         ], [
             'template_id.required' => 'الرجاء اختيار قالب للدعوة.',
@@ -103,8 +105,9 @@ class DashboardController extends Controller
             'bride_name' => $validated['bride_name'],
             'wedding_date' => $validated['wedding_date'],
             'wedding_time' => '20:00',
+            'timezone' => $validated['timezone'] ?? 'Africa/Cairo',
             'venue_name' => $validated['venue_name'],
-            'welcome_message' => 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n«وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً»',
+            'welcome_message' => "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n«وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً»",
             'invitation_message' => 'يسرنا دعوتكم لمشاركتنا فرحة العمر وتتويج قصة حبنا في ليلة لا تكتمل إلا بوجودكم.',
             'status' => 'draft',
             'is_rsvp_enabled' => true,
@@ -128,11 +131,64 @@ class DashboardController extends Controller
 
     public function destroy(int $id)
     {
-        $invitation = Auth::user()->invitations()->findOrFail($id);
+        $invitation = Auth::user()->invitations()->with('photos')->findOrFail($id);
+
+        $this->deleteStorageFile($invitation->cover_photo);
+
+        foreach ($invitation->photos as $photo) {
+            $this->deleteStorageFile($photo->image_path);
+        }
+
         $invitation->delete();
 
         return redirect()->route('dashboard.invitations.index')
             ->with('success', 'تم حذف الدعوة بنجاح.');
+    }
+
+    public function togglePublish(int $id)
+    {
+        $invitation = Auth::user()->invitations()->findOrFail($id);
+
+        if ($invitation->status === 'published') {
+            $invitation->update(['status' => 'draft']);
+            $message = 'تم تحويل الدعوة إلى مسودة.';
+        } else {
+            $invitation->update(['status' => 'published']);
+            $message = 'تم نشر الدعوة بنجاح!';
+        }
+
+        return back()->with('success', $message);
+    }
+
+    public function archive(int $id)
+    {
+        $invitation = Auth::user()->invitations()->findOrFail($id);
+        $invitation->update(['status' => 'archived']);
+
+        return back()->with('success', 'تم أرشفة الدعوة بنجاح.');
+    }
+
+    protected function deleteStorageFile(?string $pathOrUrl): void
+    {
+        if (empty($pathOrUrl)) {
+            return;
+        }
+
+        $disk = Storage::disk('public');
+        $storageUrl = $disk->url('');
+
+        $relativePath = $pathOrUrl;
+        if (!empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
+            $relativePath = substr($relativePath, strlen($storageUrl));
+        } elseif (str_starts_with($relativePath, '/storage/')) {
+            $relativePath = substr($relativePath, strlen('/storage/'));
+        }
+
+        $relativePath = ltrim($relativePath, '/');
+
+        if (!empty($relativePath) && $disk->exists($relativePath)) {
+            $disk->delete($relativePath);
+        }
     }
 
     public function guests(int $id, Request $request)

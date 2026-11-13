@@ -94,6 +94,17 @@
                     </div>
                 </div>
 
+                <div>
+                    <label for="timezone" class="block text-xs font-bold text-[#292521] mb-1.5">المنطقة الزمنية لموعد الحفل</label>
+                    <select id="timezone" name="timezone" class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/50 focus:border-[#C6A76B] focus:ring-2 focus:ring-[#C6A76B]/20 outline-none">
+                        <option value="Africa/Cairo" {{ old('timezone', 'Africa/Cairo') === 'Africa/Cairo' ? 'selected' : '' }}>توقيت مصر والقاهرة (Africa/Cairo)</option>
+                        <option value="Asia/Riyadh" {{ old('timezone') === 'Asia/Riyadh' ? 'selected' : '' }}>توقيت السعودية والرياض (Asia/Riyadh)</option>
+                    </select>
+                    @error('timezone')
+                        <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div class="pt-4 flex items-center justify-end">
                     <button type="submit" 
                             class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white font-bold text-sm shadow-md hover:shadow-lg hover:opacity-95 transition flex items-center gap-2">

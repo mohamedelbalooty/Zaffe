@@ -29,6 +29,7 @@ class InvitationEditor extends Component
     public string $slug = '';
     public string $wedding_date = '';
     public string $wedding_time = '';
+    public string $timezone = 'Africa/Cairo';
     public string $venue_name = '';
     public string $venue_address = '';
     public string $venue_map_url = '';
@@ -74,6 +75,7 @@ class InvitationEditor extends Component
         $this->slug = $invitation->slug;
         $this->wedding_date = $invitation->wedding_date ? $invitation->wedding_date->format('Y-m-d') : '';
         $this->wedding_time = $invitation->wedding_time ? substr($invitation->wedding_time, 0, 5) : '';
+        $this->timezone = $invitation->timezone ?? 'Africa/Cairo';
         $this->venue_name = $invitation->venue_name;
         $this->venue_address = $invitation->venue_address ?? '';
         $this->venue_map_url = $invitation->venue_map_url ?? '';
@@ -208,6 +210,7 @@ class InvitationEditor extends Component
             'title' => $this->title ?: 'حفل زفاف ' . $this->groom_name . ' و ' . $this->bride_name,
             'wedding_date' => $this->wedding_date,
             'wedding_time' => $this->wedding_time ?: null,
+            'timezone' => $this->timezone ?: 'Africa/Cairo',
             'venue_name' => $this->venue_name,
             'venue_address' => $this->venue_address ?: null,
             'venue_map_url' => $this->venue_map_url ?: null,

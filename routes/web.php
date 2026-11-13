@@ -59,6 +59,8 @@ Route::middleware('auth')->prefix('dashboard')->name('dashboard')->group(functio
     Route::get('/invitations/create', [DashboardController::class, 'create'])->name('.invitations.create');
     Route::post('/invitations', [DashboardController::class, 'store'])->name('.invitations.store');
     Route::get('/invitations/{id}/editor', InvitationEditor::class)->name('.invitations.editor');
+    Route::post('/invitations/{id}/toggle-publish', [DashboardController::class, 'togglePublish'])->name('.invitations.toggle-publish');
+    Route::post('/invitations/{id}/archive', [DashboardController::class, 'archive'])->name('.invitations.archive');
     Route::delete('/invitations/{id}', [DashboardController::class, 'destroy'])->name('.invitations.destroy');
     
     // RSVP Guest Management
