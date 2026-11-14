@@ -9,16 +9,18 @@
 
 | Finding ID | Title | Original Severity | Current Status | Assigned Feature Domain | Remediation Target Milestone |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **SEC-01** | Password Reset Link is a Simulated Placeholder | Medium | **Open (Requires Implementation)** | **F01 / F10** | Milestone 1 (Sprint 1) |
-| **SEC-02** | Missing Subscription & Plan Gating | Medium (Business) | **Resolved by Policy Decision** | **F11 (Deferred)** | Release 1 is 100% Free; F11 deferred |
-| **SEC-03** | Insecure Direct Object Reference (IDOR) | High | **Remediated & Verified `[PASS]`** | **F03 / F04** | Remediated in Baseline (`82c01ca`) |
-| **SEC-04** | CSV Formula Injection in Guest Export | High | **Remediated & Verified `[PASS]`** | **F07** | Remediated in Baseline (`82c01ca`) |
-| **PERF-01** | Synchronous View Count Increments | Low-Medium | **Open (Requires Improvement)** | **F05 / F12** | Milestone 2 (Sprint 2) |
-| **PERF-02** | Raw High-Resolution Image Uploads | Low-Medium | **Open (Requires Improvement)** | **F04 / F12** | Milestone 2 (Sprint 2) |
-| **PERF-03** | Potential N+1 Eloquent Queries | Medium | **Remediated & Verified `[PASS]`** | **F05 / F07 / F08** | Remediated in Baseline (`82c01ca`) |
-| **SCAL-01** | Local Disk Storage for Public Uploads | Medium | **Open (Requires Improvement)** | **F12** | Milestone 5 (Production Readiness) |
-| **SCAL-02** | Database Driver for Background Queues | Low | **Approved Lightweight Strategy** | **F10 / F12** | Database queue approved for Release 1 |
-| **DEV-01** | Windows Winget Composer Corruption | Low | **Mitigated `[DOCUMENTED]`** | **Development** | Standalone `composer.phar` / `latest.phar` |
+| **SEC-01** | Password Reset Link is a Simulated Placeholder | Medium | **Remediated & Verified `[PASS]`** | **F01 / F10** | Implemented Laravel Password Broker + queued `ResetPasswordNotification` |
+| **SEC-02** | Missing Subscription & Plan Gating | Medium (Business) | **Resolved by Policy Decision** | **F09 / F11 (Deferred)** | Release 1 is 100% Free; `SubscriptionPlanResource` disabled; F11 deferred |
+| **SEC-03** | Insecure Direct Object Reference (IDOR) | High | **Remediated & Verified `[PASS]`** | **F03 / F04 / F09** | `#[Locked]` state + ownership scoping + Laravel Policies (`F09`) |
+| **SEC-04** | CSV Formula Injection in Guest Export | High | **Remediated & Verified `[PASS]`** | **F07** | Sanitizes `=`, `+`, `-`, `@`, `\t`, `\r` after `ltrim` (`GuestManagementTest`) |
+| **PERF-01** | Synchronous View Count Increments | Low-Medium | **Mitigated (Session Deduplication) `[PASS]`** | **F05 / F12** | Session key `viewed_invitation_{id}` prevents reload increments (`PublicInvitationTest`) |
+| **PERF-02** | Raw High-Resolution Image Uploads | Low-Medium | **Partially Mitigated (Validation; WebP Post-R1)** | **F04** | 5MB & MIME validation + storage delete purge (`F04`); WebP pipeline deferred post-R1 |
+| **PERF-03** | Potential N+1 Eloquent Queries | Medium | **Remediated & Verified `[PASS]`** | **F05 / F07 / F08 / F12** | Eager loading verified + composite indexes added (`2026_11_14_000001`) |
+| **SCAL-01** | Local Disk Storage for Public Uploads | Medium | **Documented for Release 1 Deploy** | **F12** | `storage:link` + S3/R2 migration checklist documented in `docs/DEPLOYMENT_CHECKLIST.md` |
+| **SCAL-02** | Database Driver for Background Queues | Low | **Approved Lightweight Strategy `[IMPLEMENTED]`** | **F10 / F12** | `database` queue active (`ShouldQueue`) + Supervisor config in `DEPLOYMENT_CHECKLIST.md` |
+| **DEV-01** | Windows Winget Composer Corruption | Low | **Mitigated `[DOCUMENTED]`** | **Development** | Standalone `composer.phar` / `herd-lite` PHP; `ext-intl` documented for Filament |
+
+> **Release 1 Status Note (2026-11-14):** Milestones 1–5 (`F01`–`F10`, `F12`) completed all Release 1 engineering remediations, adding HTTP `SecurityHeaders` middleware (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `X-XSS-Protection`) and composite query indexes (`F12`). Detailed section headings below reflect original sprint-planning snapshots where superseded by this summary table.
 
 ---
 
