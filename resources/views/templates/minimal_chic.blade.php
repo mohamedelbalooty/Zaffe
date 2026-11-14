@@ -6,6 +6,7 @@
     $secondaryColor = $styles['secondary_color'] ?? '#6B7280';
     $bgColor = $styles['background_color'] ?? '#FAFAFA';
     $cardColor = $styles['card_color'] ?? '#FFFFFF';
+    $dateInfo = \App\Services\InvitationDateFormatter::forInvitation($invitation);
 @endphp
 
 <div class="min-h-screen py-12 px-4 sm:px-6 relative font-tajawal text-right"
@@ -55,11 +56,20 @@
             <!-- Date & Venue -->
             <div class="pt-8 border-t border-zinc-100 space-y-3">
                 <div class="text-lg font-bold text-zinc-900">
-                    {{ \Carbon\Carbon::parse($invitation->wedding_date)->translatedFormat('l, d F Y') }}
+                    <bdi dir="{{ $dateInfo['dir'] }}">{{ $dateInfo['gregorian_date'] }}</bdi>
                 </div>
-                @if($invitation->wedding_time)
+                @if($dateInfo['hijri_date'])
+                    <div class="text-xs sm:text-sm font-medium text-zinc-600">
+                        @if($dateInfo['locale'] === 'ar')<span>الموافق </span>@endif<bdi dir="rtl">{{ $dateInfo['hijri_date'] }}</bdi>
+                    </div>
+                @endif
+                @if($dateInfo['time'])
                     <div class="text-xs font-semibold text-zinc-500">
-                        الساعة {{ date('h:i A', strtotime($invitation->wedding_time)) }}
+                        @if($dateInfo['locale'] === 'en')
+                            <bdi dir="ltr">At {{ $dateInfo['time'] }}</bdi>
+                        @else
+                            <span dir="rtl">الساعة <bdi dir="rtl">{{ $dateInfo['time'] }}</bdi></span>
+                        @endif
                     </div>
                 @endif
                 <div class="text-sm font-semibold text-zinc-700 pt-1">

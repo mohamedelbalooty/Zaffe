@@ -158,6 +158,30 @@
                             </select>
                         </div>
 
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-white mb-1.5">لغة الدعوة</label>
+                                <select wire:model.live="invitation_locale"
+                                        class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-[#C6A76B] outline-none">
+                                    <option value="ar" class="bg-[#292521] text-white">العربية</option>
+                                    <option value="en" class="bg-[#292521] text-white">English</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-white mb-1.5">شكل الأرقام</label>
+                                <select wire:model.live="digits"
+                                        class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-[#C6A76B] outline-none">
+                                    <option value="latin" class="bg-[#292521] text-white">أرقام قياسية (0-9)</option>
+                                    <option value="arabic_indic" class="bg-[#292521] text-white">أرقام عربية (٠-٩)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 cursor-pointer">
+                            <span class="text-xs font-bold text-white">عرض التاريخ الهجري (تقويم أم القرى)</span>
+                            <input type="checkbox" wire:model.live="show_hijri" class="w-4 h-4 rounded text-[#C6A76B]">
+                        </label>
+
                         <div>
                             <label class="block text-xs font-bold text-white mb-1.5">اسم مكان الحفل (القاعة / الفندق)</label>
                             <input type="text" wire:model.live.debounce.300ms="venue_name" 

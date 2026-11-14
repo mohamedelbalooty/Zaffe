@@ -5,6 +5,7 @@
     $primaryColor = $styles['primary_color'] ?? '#E6C687';
     $bgColor = '#0F172A';
     $cardColor = '#1E293B';
+    $dateInfo = \App\Services\InvitationDateFormatter::forInvitation($invitation);
 @endphp
 
 <div class="min-h-screen py-10 px-4 sm:px-6 relative overflow-hidden font-cairo text-right text-slate-100"
@@ -52,12 +53,23 @@
             @endif
 
             <div class="p-6 rounded-2xl border border-slate-700 bg-slate-900/60 space-y-3 font-tajawal">
-                <div class="text-base sm:text-lg font-bold text-[#E6C687]">
-                    🌙 {{ \Carbon\Carbon::parse($invitation->wedding_date)->translatedFormat('l, d F Y') }}
+                <div class="flex items-center justify-center gap-2 text-base sm:text-lg font-bold text-[#E6C687]">
+                    <x-app-icon name="calendar" class="w-5 h-5" />
+                    <bdi dir="{{ $dateInfo['dir'] }}">{{ $dateInfo['gregorian_date'] }}</bdi>
                 </div>
-                @if($invitation->wedding_time)
-                    <div class="text-sm text-slate-400">
-                        الساعة {{ date('h:i A', strtotime($invitation->wedding_time)) }}
+                @if($dateInfo['hijri_date'])
+                    <div class="text-xs sm:text-sm font-semibold text-[#E6C687]/85">
+                        @if($dateInfo['locale'] === 'ar')<span>الموافق </span>@endif<bdi dir="rtl">{{ $dateInfo['hijri_date'] }}</bdi>
+                    </div>
+                @endif
+                @if($dateInfo['time'])
+                    <div class="flex items-center justify-center gap-2 text-sm text-slate-400">
+                        <x-app-icon name="clock" class="w-4 h-4" />
+                        @if($dateInfo['locale'] === 'en')
+                            <bdi dir="ltr">At {{ $dateInfo['time'] }}</bdi>
+                        @else
+                            <span dir="rtl">الساعة <bdi dir="rtl">{{ $dateInfo['time'] }}</bdi></span>
+                        @endif
                     </div>
                 @endif
                 <div class="text-sm font-bold text-slate-200 pt-1">

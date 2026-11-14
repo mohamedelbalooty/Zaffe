@@ -6,6 +6,7 @@
     $secondaryColor = $styles['secondary_color'] ?? '#292521';
     $bgColor = $styles['background_color'] ?? '#FAF7F2';
     $cardColor = $styles['card_color'] ?? '#FFFFFF';
+    $dateInfo = \App\Services\InvitationDateFormatter::forInvitation($invitation);
 @endphp
 
 <div class="min-h-screen py-10 px-4 sm:px-6 relative overflow-hidden font-tajawal text-right"
@@ -88,13 +89,23 @@
                     <div class="flex items-center justify-center gap-2 text-base sm:text-lg font-bold"
                          style="color: {{ $primaryColor }};">
                         <x-app-icon name="calendar" class="w-5 h-5" />
-                        <span>{{ \Carbon\Carbon::parse($invitation->wedding_date)->translatedFormat('l, d F Y') }}</span>
+                        <bdi dir="{{ $dateInfo['dir'] }}">{{ $dateInfo['gregorian_date'] }}</bdi>
                     </div>
 
-                    @if($invitation->wedding_time)
+                    @if($dateInfo['hijri_date'])
+                        <div class="text-xs sm:text-sm font-semibold opacity-85" style="color: {{ $primaryColor }};">
+                            @if($dateInfo['locale'] === 'ar')<span>الموافق </span>@endif<bdi dir="rtl">{{ $dateInfo['hijri_date'] }}</bdi>
+                        </div>
+                    @endif
+
+                    @if($dateInfo['time'])
                         <div class="flex items-center justify-center gap-2 text-sm font-semibold opacity-80">
                             <x-app-icon name="clock" class="w-4 h-4" />
-                            <span>في تمام الساعة {{ date('h:i A', strtotime($invitation->wedding_time)) }}</span>
+                            @if($dateInfo['locale'] === 'en')
+                                <bdi dir="ltr">At {{ $dateInfo['time'] }}</bdi>
+                            @else
+                                <span dir="rtl">في تمام الساعة <bdi dir="rtl">{{ $dateInfo['time'] }}</bdi></span>
+                            @endif
                         </div>
                     @endif
                 </div>
