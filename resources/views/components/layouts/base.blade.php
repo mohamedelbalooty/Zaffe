@@ -5,21 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة' }}</title>
-    <meta name="description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">
+    @php
+        $resolvedTitle = $title ?? 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة';
+        $resolvedOgTitle = $ogTitle ?? $resolvedTitle;
+        $resolvedDescription = $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.';
+        $resolvedOgDescription = $ogDescription ?? $resolvedDescription;
+        $resolvedOgUrl = $ogUrl ?? url()->current();
+        $resolvedOgImage = $ogImage ?? asset('images/templates/royal-gold.webp');
+    @endphp
+    <title>{{ $resolvedTitle }}</title>
+    <meta name="description" content="{{ $resolvedDescription }}">
 
     <!-- Open Graph / WhatsApp / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ $ogUrl ?? url()->current() }}">
-    <meta property="og:title" content="{{ $title ?? 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة' }}">
-    <meta property="og:description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">
-    <meta property="og:image" content="{{ $ogImage ?? asset('images/og-zaffe.jpg') }}">
+    <meta property="og:url" content="{{ $resolvedOgUrl }}">
+    <meta property="og:title" content="{{ $resolvedOgTitle }}">
+    <meta property="og:description" content="{{ $resolvedOgDescription }}">
+    <meta property="og:image" content="{{ $resolvedOgImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $title ?? 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة' }}">
-    <meta name="twitter:description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">
-    <meta name="twitter:image" content="{{ $ogImage ?? asset('images/og-zaffe.jpg') }}">
+    <meta name="twitter:title" content="{{ $resolvedOgTitle }}">
+    <meta name="twitter:description" content="{{ $resolvedOgDescription }}">
+    <meta name="twitter:image" content="{{ $resolvedOgImage }}">
 
     <!-- Google Fonts: Tajawal, Cairo, Amiri, Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

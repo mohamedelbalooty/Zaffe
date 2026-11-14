@@ -6,6 +6,7 @@ use App\Models\Invitation;
 use App\Models\InvitationPhoto;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
+use App\Services\OgImageService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
@@ -133,6 +134,7 @@ class InvitationEditor extends Component
 
         // Clean up previous cover photo if stored locally
         $this->deleteStorageFile($invitation->cover_photo);
+        app(OgImageService::class)->cleanupForInvitation($invitation->id);
 
         $path = $this->new_cover_photo->store('invitations/covers', 'public');
         $this->cover_photo = Storage::disk('public')->url($path);
@@ -303,6 +305,7 @@ class InvitationEditor extends Component
             'id' => $invitation->id,
             'title' => $this->title,
             'slug' => $this->slug,
+            'code' => $invitation->code,
             'groom_name' => $this->groom_name ?: 'اسم العريس',
             'bride_name' => $this->bride_name ?: 'اسم العروس',
             'wedding_date' => $this->wedding_date ?: now()->addDays(30),

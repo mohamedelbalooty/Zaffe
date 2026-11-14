@@ -254,4 +254,58 @@ class InvitationLifecycleTest extends TestCase
         Storage::disk('public')->assertMissing($coverPath);
         Storage::disk('public')->assertMissing($galleryPath);
     }
+
+    public function test_new_invitation_receives_short_url_safe_unique_code_and_canonical_i_url(): void
+    {
+        $response = $this->actingAs($this->user)->post(route('dashboard.invitations.store'), [
+            'template_id' => $this->template->id,
+            'groom_name' => 'عبدالله السالم',
+            'bride_name' => 'سارة العتيبي',
+            'wedding_date' => now()->addDays(30)->toDateString(),
+            'venue_name' => 'قاعة نيارة الرياض',
+            'timezone' => 'Asia/Riyadh',
+        ]);
+
+        $invitation = Invitation::where('groom_name', 'عبدالله السالم')->firstOrFail();
+        $response->assertRedirect(route('dashboard.invitations.editor', $invitation->id));
+
+        $this->assertMatchesRegularExpression('/^[A-Za-z0-9]{7,8}$/', $invitation->slug);
+        $this->assertSame($invitation->slug, $invitation->code);
+        $this->assertSame(url('/i/' . $invitation->slug), $invitation->public_url);
+        $this->assertStringNotContainsString('-and-', $invitation->slug);
+
+        $whatsAppUrl = $invitation->getWhatsAppShareUrl();
+        $this->assertStringContainsString(rawurlencode($invitation->public_url), $whatsAppUrl);
+        $this->assertStringNotContainsString(rawurlencode('/invitation/'), $whatsAppUrl);
+    }
+
+    public function test_destroy_cleans_up_cached_og_image(): void
+    {
+        Storage::fake('public');
+
+        $coverFile = UploadedFile::fake()->image('cover.png', 1600, 1000);
+        $coverPath = $coverFile->store('invitations/covers', 'public');
+
+        $invitation = Invitation::create([
+            'user_id' => $this->user->id,
+            'template_id' => $this->template->id,
+            'title' => 'فرح مع OG كاش',
+            'groom_name' => 'فيصل',
+            'bride_name' => 'مها',
+            'venue_name' => 'فندق الريتز كارلتون',
+            'wedding_date' => now()->addDays(15)->toDateString(),
+            'status' => 'published',
+            'cover_photo' => Storage::disk('public')->url($coverPath),
+        ]);
+
+        $ogUrl = $invitation->og_image_url;
+        $this->assertStringContainsString('/storage/invitations/og/', $ogUrl);
+        $this->assertNotEmpty(Storage::disk('public')->files('invitations/og'));
+
+        $this->actingAs($this->user)
+            ->delete(route('dashboard.invitations.destroy', $invitation->id))
+            ->assertRedirect(route('dashboard.invitations.index'));
+
+        $this->assertEmpty(Storage::disk('public')->files('invitations/og'));
+    }
 }

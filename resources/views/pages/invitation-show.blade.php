@@ -1,6 +1,9 @@
-<x-layouts.base :title="$invitation->title . ' — زفّة'" 
-                 :description="$invitation->invitation_message ?: ('نتشرف بدعوتكم لحضور حفل زفاف ' . $invitation->groom_name . ' و ' . $invitation->bride_name)"
-                 :og-image="$invitation->cover_photo ?: ($invitation->template?->thumbnail ?? asset('images/og-zaffe.jpg'))">
+<x-layouts.base :title="$invitation->og_title"
+                :description="$invitation->og_description"
+                :og-title="$invitation->og_title"
+                :og-description="$invitation->og_description"
+                :og-url="$invitation->public_url"
+                :og-image="$invitation->og_image_url">
     
     <!-- Draft Alert Banner for Owner -->
     @if(!$invitation->isPublished() && auth()->check() && (auth()->id() === $invitation->user_id || auth()->user()->isAdmin()))

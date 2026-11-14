@@ -6,12 +6,12 @@ use App\Models\Invitation;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Models\RsvpResponse;
+use App\Services\OgImageService;
 use App\Services\PhoneService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
@@ -86,17 +86,8 @@ class DashboardController extends Controller
 
         $template = InvitationTemplate::findOrFail($validated['template_id']);
 
-        // Generate unique slug
-        $baseSlug = Str::slug($validated['groom_name'] . '-and-' . $validated['bride_name']);
-        if (empty($baseSlug)) {
-            $baseSlug = 'wedding-' . Str::random(6);
-        }
-        $slug = $baseSlug;
-        $counter = 1;
-        while (Invitation::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
-            $counter++;
-        }
+        // Generate short unique URL-safe public code
+        $slug = Invitation::generateUniqueCode();
 
         $invitation = Invitation::create([
             'user_id' => Auth::id(),
@@ -136,6 +127,7 @@ class DashboardController extends Controller
         $invitation = Auth::user()->invitations()->with('photos')->findOrFail($id);
 
         $this->deleteStorageFile($invitation->cover_photo);
+        app(OgImageService::class)->cleanupForInvitation($invitation->id);
 
         foreach ($invitation->photos as $photo) {
             $this->deleteStorageFile($photo->image_path);

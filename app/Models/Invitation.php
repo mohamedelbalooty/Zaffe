@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Services\InvitationDateFormatter;
+use App\Services\OgImageService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Invitation extends Model
 {
@@ -49,6 +51,24 @@ class Invitation extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (Invitation $invitation): void {
+            if (empty($invitation->slug)) {
+                $invitation->slug = static::generateUniqueCode();
+            }
+        });
+    }
+
+    public static function generateUniqueCode(int $length = 8): string
+    {
+        do {
+            $code = Str::random($length);
+        } while (static::where('slug', $code)->exists());
+
+        return $code;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -79,9 +99,60 @@ class Invitation extends Model
         return $this->status === 'published';
     }
 
+    public function getCodeAttribute(): string
+    {
+        return (string) $this->slug;
+    }
+
     public function getPublicUrlAttribute(): string
     {
-        return url('/invitation/' . $this->slug);
+        return url('/i/' . $this->slug);
+    }
+
+    public function getOgTitleAttribute(): string
+    {
+        $groom = trim((string) $this->groom_name);
+        $bride = trim((string) $this->bride_name);
+
+        if ($groom !== '' && $bride !== '') {
+            $coupleLabel = "{$groom} و {$bride}";
+        } else {
+            $coupleLabel = $groom !== '' ? $groom : $bride;
+        }
+
+        $title = trim((string) $this->title);
+        $hasGroom = $groom === '' || str_contains($title, $groom);
+        $hasBride = $bride === '' || str_contains($title, $bride);
+
+        if ($title !== '' && $hasGroom && $hasBride) {
+            return "{$title} — زفّة";
+        }
+
+        if ($coupleLabel !== '') {
+            return "حفل زفاف {$coupleLabel}" . ($title !== '' ? " ({$title})" : '') . ' — زفّة';
+        }
+
+        return ($title !== '' ? $title : 'دعوة زفاف رقمية') . ' — زفّة';
+    }
+
+    public function getOgDescriptionAttribute(): string
+    {
+        $message = trim((string) preg_replace('/\s+/u', ' ', (string) $this->invitation_message));
+        if ($message !== '') {
+            return Str::limit($message, 200);
+        }
+
+        $groom = trim((string) $this->groom_name);
+        $bride = trim((string) $this->bride_name);
+        $coupleLabel = ($groom !== '' && $bride !== '') ? "{$groom} و {$bride}" : ($groom !== '' ? $groom : $bride);
+        $venue = trim((string) $this->venue_name);
+
+        return 'نتشرف بدعوتكم لحضور حفل زفاف ' . $coupleLabel . ($venue !== '' ? ' في ' . $venue : '');
+    }
+
+    public function getOgImageUrlAttribute(): string
+    {
+        return app(OgImageService::class)->forInvitation($this);
     }
 
     public function getEffectiveStylesAttribute(): array
@@ -124,9 +195,11 @@ class Invitation extends Model
             "تفاصيل الدعوة وتأكيد الحضور:\n" . $url;
     }
 
-    public function getWhatsAppShareUrl(string $lang = 'ar'): string
+    public function getWhatsAppShareUrl(?string $lang = null): string
     {
-        $text = $this->getWhatsAppShareText($lang);
+        $resolvedLang = $lang ?? ($this->effective_styles['locale'] ?? 'ar');
+        $text = $this->getWhatsAppShareText($resolvedLang);
+
         return 'https://api.whatsapp.com/send?text=' . rawurlencode($text);
     }
 }

@@ -406,7 +406,8 @@ class AuditTest extends TestCase
         $second = Invitation::where('venue_name', 'قصر النيل')->first();
 
         $this->assertNotEquals($first->slug, $second->slug);
-        $this->assertTrue(str_starts_with($second->slug, $first->slug));
+        $this->assertMatchesRegularExpression('/^[A-Za-z0-9]{7,8}$/', $first->slug);
+        $this->assertMatchesRegularExpression('/^[A-Za-z0-9]{7,8}$/', $second->slug);
     }
 
     public function test_csv_export_sanitizes_formula_injection()

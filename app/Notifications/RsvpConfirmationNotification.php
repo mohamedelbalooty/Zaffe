@@ -27,7 +27,7 @@ class RsvpConfirmationNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $invitationUrl = url(route('invitation.show', $this->invitation->slug));
+        $invitationUrl = $this->invitation->public_url;
         $coupleNames = "{$this->invitation->groom_name} و {$this->invitation->bride_name}";
 
         $mail = (new MailMessage)

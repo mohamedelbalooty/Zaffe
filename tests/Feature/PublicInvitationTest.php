@@ -8,6 +8,8 @@ use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -246,5 +248,123 @@ class PublicInvitationTest extends TestCase
             ->set('digits', 'latin')
             ->assertSee('Monday, 14 December 2026')
             ->assertSee('At 8:00 PM');
+    }
+
+    public function test_new_code_route_and_legacy_slug_route_both_render_successfully(): void
+    {
+        $shortInvitation = Invitation::create([
+            'user_id' => $this->owner->id,
+            'template_id' => $this->template->id,
+            'title' => 'حفل زفاف طارق ولينا',
+            'groom_name' => 'طارق',
+            'bride_name' => 'لينا',
+            'wedding_date' => now()->addDays(25)->toDateString(),
+            'wedding_time' => '20:00',
+            'timezone' => 'Asia/Riyadh',
+            'venue_name' => 'قاعة المملكة',
+            'status' => 'published',
+        ]);
+
+        $this->assertMatchesRegularExpression('/^[A-Za-z0-9]{7,8}$/', $shortInvitation->slug);
+
+        // New canonical /i/{code} route
+        $codeResponse = $this->get('/i/' . $shortInvitation->slug);
+        $codeResponse->assertOk();
+        $codeResponse->assertSee('طارق');
+        $codeResponse->assertSee('لينا');
+        $codeResponse->assertSee($shortInvitation->public_url, false);
+        $codeResponse->assertSee($shortInvitation->getWhatsAppShareUrl(), false);
+
+        // Existing legacy /invitation/{slug} route remains backward-compatible
+        $legacyResponse = $this->get('/invitation/' . $this->invitation->slug);
+        $legacyResponse->assertOk();
+        $legacyResponse->assertSee('كريم');
+        $legacyResponse->assertSee('مريم');
+        $legacyResponse->assertSee($this->invitation->public_url, false);
+    }
+
+    public function test_opengraph_and_twitter_tags_include_couple_names_and_fallback_to_template_thumbnail(): void
+    {
+        $this->template->update(['thumbnail' => '/images/templates/royal-gold.webp']);
+        $this->invitation->update([
+            'title' => 'ليلة العمر',
+            'cover_photo' => null,
+            'invitation_message' => 'يسرنا دعوتكم لحفلنا السعيد في القاهرة',
+        ]);
+
+        $response = $this->get('/i/' . $this->invitation->slug);
+        $response->assertOk();
+
+        $expectedTitle = 'حفل زفاف كريم و مريم (ليلة العمر) — زفّة';
+        $expectedImage = url('/images/templates/royal-gold.webp');
+
+        $response->assertSee('<meta property="og:title" content="' . $expectedTitle . '">', false);
+        $response->assertSee('<meta name="twitter:title" content="' . $expectedTitle . '">', false);
+        $response->assertSee('<meta property="og:description" content="يسرنا دعوتكم لحفلنا السعيد في القاهرة">', false);
+        $response->assertSee('<meta name="twitter:description" content="يسرنا دعوتكم لحفلنا السعيد في القاهرة">', false);
+        $response->assertSee('<meta property="og:url" content="' . $this->invitation->public_url . '">', false);
+        $response->assertSee('<meta property="og:image" content="' . $expectedImage . '">', false);
+        $response->assertSee('<meta name="twitter:image" content="' . $expectedImage . '">', false);
+    }
+
+    public function test_opengraph_image_resizes_cover_photo_to_1200x630_under_300kb_and_caches_on_disk(): void
+    {
+        Storage::fake('public');
+
+        $coverPath = UploadedFile::fake()->image('cover.png', 1600, 1200)->store('invitations/covers', 'public');
+        $this->invitation->update([
+            'cover_photo' => Storage::disk('public')->url($coverPath),
+        ]);
+
+        $firstResponse = $this->get('/i/' . $this->invitation->slug);
+        $firstResponse->assertOk();
+
+        $cachedFiles = Storage::disk('public')->files('invitations/og');
+        $this->assertCount(1, $cachedFiles);
+        $cachedFile = $cachedFiles[0];
+        $this->assertStringStartsWith("invitations/og/inv_{$this->invitation->id}_", $cachedFile);
+
+        $bytes = Storage::disk('public')->get($cachedFile);
+        $this->assertGreaterThan(0, strlen($bytes));
+        $this->assertLessThanOrEqual(300 * 1024, strlen($bytes));
+
+        $info = getimagesizefromstring($bytes);
+        $this->assertIsArray($info);
+        $this->assertSame(1200, $info[0]);
+        $this->assertSame(630, $info[1]);
+        $this->assertContains($info['mime'], ['image/webp', 'image/jpeg']);
+
+        $expectedOgImageUrl = url(Storage::disk('public')->url($cachedFile));
+        $firstResponse->assertSee('<meta property="og:image" content="' . $expectedOgImageUrl . '">', false);
+        $firstResponse->assertSee('<meta name="twitter:image" content="' . $expectedOgImageUrl . '">', false);
+        $firstResponse->assertSee('<meta property="og:image:width" content="1200">', false);
+        $firstResponse->assertSee('<meta property="og:image:height" content="630">', false);
+
+        // Second request reuses cached file on disk without duplicating files
+        $secondResponse = $this->get('/i/' . $this->invitation->slug);
+        $secondResponse->assertOk();
+        $this->assertSame([$cachedFile], Storage::disk('public')->files('invitations/og'));
+    }
+
+    public function test_draft_invitation_never_leaks_og_data_on_code_or_legacy_routes(): void
+    {
+        $this->invitation->update([
+            'status' => 'draft',
+            'title' => 'زفاف خاص سري جداً',
+            'groom_name' => 'سلطان القحطاني',
+            'bride_name' => 'العنود الدوسري',
+            'invitation_message' => 'رسالة خاصة جداً لا يجب تسريبها للعامة',
+            'cover_photo' => '/storage/invitations/covers/secret-cover-xyz.png',
+        ]);
+
+        foreach (['/i/' . $this->invitation->slug, '/invitation/' . $this->invitation->slug] as $url) {
+            $response = $this->get($url);
+            $response->assertStatus(403);
+            $response->assertDontSee('سلطان القحطاني');
+            $response->assertDontSee('العنود الدوسري');
+            $response->assertDontSee('زفاف خاص سري جداً');
+            $response->assertDontSee('رسالة خاصة جداً لا يجب تسريبها للعامة');
+            $response->assertDontSee('secret-cover-xyz.png');
+        }
     }
 }

@@ -77,4 +77,5 @@ Route::middleware('auth')->prefix('dashboard')->name('dashboard')->group(functio
 | Public Invitation Page
 |--------------------------------------------------------------------------
 */
-Route::get('/invitation/{slug}', [InvitationController::class, 'show'])->name('invitation.show');
+Route::get('/i/{slug}', [InvitationController::class, 'show'])->name('invitation.show');
+Route::get('/invitation/{slug}', [InvitationController::class, 'show'])->name('invitation.legacy');

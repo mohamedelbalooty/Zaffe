@@ -17,7 +17,7 @@ class InvitationController extends Controller
         // Check publishing access: published invitations are public; drafts are only viewable by owner or admin
         if (!$invitation->isPublished()) {
             if (!Auth::check() || (Auth::id() !== $invitation->user_id && !Auth::user()->isAdmin())) {
-                return response()->view('pages.unpublished', ['invitation' => $invitation], 403);
+                return response()->view('pages.unpublished', [], 403);
             }
         }
 
