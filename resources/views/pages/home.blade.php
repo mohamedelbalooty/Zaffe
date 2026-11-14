@@ -207,28 +207,47 @@
                 @foreach($featuredTemplates as $template)
                     <div class="bg-white rounded-3xl overflow-hidden border border-[#C6A76B]/25 shadow-wedding hover:shadow-wedding-hover transition-all flex flex-col group">
                         <!-- Thumbnail Preview -->
-                        <div class="relative h-64 overflow-hidden bg-zinc-100">
-                            <img src="{{ $template->thumbnail }}" 
-                                 alt="{{ $template->name_ar }}" 
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="relative h-64 overflow-hidden bg-[#292521]">
+                            <!-- Graceful Fallback (Gradient + Template Name) -->
+                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
+                                 style="background: linear-gradient(135deg, #292521 0%, {{ $template->default_styles['primary_color'] ?? '#C6A76B' }} 100%);">
+                                <div class="w-11 h-11 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white mb-2.5 shadow-sm">
+                                    <x-app-icon name="sparkles" class="w-5 h-5" />
+                                </div>
+                                <span class="font-cairo text-base font-bold text-white">{{ $template->name_ar }}</span>
+                                @if($template->name_en)
+                                    <span class="text-xs font-medium text-white/75 mt-0.5" dir="ltr">{{ $template->name_en }}</span>
+                                @endif
+                            </div>
+
+                            @if($template->thumbnail)
+                                <img src="{{ $template->thumbnail }}" 
+                                     alt="" 
+                                     loading="lazy"
+                                     onerror="this.style.display='none'"
+                                     class="relative z-10 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                            @endif
                             
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                            <div class="absolute inset-0 z-20 pointer-events-none bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
 
                             <!-- Category Badge -->
-                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-[#292521] shadow-sm">
+                            <div class="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-[#292521] shadow-sm">
                                 {{ $template->category?->name_ar ?? 'تصميم فاخر' }}
                             </div>
 
                             @if($template->is_premium)
-                                <div class="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md">
+                                <div class="absolute top-4 left-4 z-20 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md">
                                     <x-app-icon name="crown" class="w-3 h-3" />
                                     <span>ملكي</span>
                                 </div>
                             @endif
 
-                            <div class="absolute bottom-4 right-4 left-4 text-white">
-                                <h3 class="font-cairo text-lg font-bold">{{ $template->name_ar }}</h3>
-                                <p class="text-xs text-white/80 line-clamp-1 mt-0.5">{{ $template->description_ar }}</p>
+                            <div class="absolute bottom-4 right-4 left-4 z-20 text-white">
+                                <h3 class="font-cairo text-lg font-bold leading-snug">{{ $template->name_ar }}</h3>
+                                @if($template->name_en)
+                                    <span class="block text-[11px] font-medium text-white/75 tracking-wide" dir="ltr">{{ $template->name_en }}</span>
+                                @endif
+                                <p class="text-xs text-white/80 line-clamp-1 mt-1">{{ $template->description_ar }}</p>
                             </div>
                         </div>
 

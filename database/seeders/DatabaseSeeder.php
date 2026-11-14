@@ -104,12 +104,12 @@ class DatabaseSeeder extends Seeder
             [
                 'category_id' => $categoryModels['luxury']->id,
                 'slug' => 'royal-gold',
-                'name_ar' => 'الفخامة الذهبية (Royal Gold)',
+                'name_ar' => 'الفخامة الذهبية',
                 'name_en' => 'Royal Gold & Ivory',
                 'view_name' => 'templates.royal_gold',
                 'description_ar' => 'إطارات مذهبة هندسية مع خط عربي ملكي وخلفية عاجية دافئة تليق بأفخم الأعراس.',
                 'description_en' => 'Gilded geometric framing with royal Arabic calligraphy on warm ivory parchment.',
-                'thumbnail' => 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80',
+                'thumbnail' => '/images/templates/royal-gold.webp',
                 'default_styles' => [
                     'primary_color' => '#C6A76B',
                     'secondary_color' => '#292521',
@@ -126,12 +126,12 @@ class DatabaseSeeder extends Seeder
             [
                 'category_id' => $categoryModels['floral']->id,
                 'slug' => 'floral-romance',
-                'name_ar' => 'سحر الزهور والحديقة (Floral Romance)',
+                'name_ar' => 'سحر الزهور والحديقة',
                 'name_en' => 'Floral Romance & Rose',
                 'view_name' => 'templates.floral_romance',
                 'description_ar' => 'ألوان الباستيل الوردية وزهور الأوركيد والمشمش المائية الرقيقة المفعمة بالحب.',
                 'description_en' => 'Delicate blush pink watercolor botanicals and romantic garden vibes.',
-                'thumbnail' => 'https://images.unsplash.com/photo-1519225429402-957e8fa134d1?auto=format&fit=crop&w=600&q=80',
+                'thumbnail' => '/images/templates/floral-romance.webp',
                 'default_styles' => [
                     'primary_color' => '#D9828A',
                     'secondary_color' => '#4A3E3D',
@@ -148,12 +148,12 @@ class DatabaseSeeder extends Seeder
             [
                 'category_id' => $categoryModels['minimal']->id,
                 'slug' => 'minimal-chic',
-                'name_ar' => 'البساطة الراقية (Minimal Chic)',
+                'name_ar' => 'البساطة الراقية',
                 'name_en' => 'Minimalist Modern Chic',
                 'view_name' => 'templates.minimal_chic',
                 'description_ar' => 'عصرية فائقة بخطوط بسيطة ومساحات بيضاء نقية تركز على جمال التفاصيل.',
                 'description_en' => 'Ultra modern aesthetic with clean typography, generous whitespace, and understated luxury.',
-                'thumbnail' => 'https://images.unsplash.com/photo-1544077960-604201fe74bc?auto=format&fit=crop&w=600&q=80',
+                'thumbnail' => '/images/templates/minimal-chic.webp',
                 'default_styles' => [
                     'primary_color' => '#1F2937',
                     'secondary_color' => '#6B7280',
@@ -170,12 +170,12 @@ class DatabaseSeeder extends Seeder
             [
                 'category_id' => $categoryModels['islamic']->id,
                 'slug' => 'islamic-elegance',
-                'name_ar' => 'الأصالة الإسلامية (Islamic Heritage)',
+                'name_ar' => 'الأصالة الإسلامية',
                 'name_en' => 'Islamic Heritage & Arabesque',
                 'view_name' => 'templates.islamic_elegance',
                 'description_ar' => 'زخارف أرابيسك هندسية متداخلة مع آية المودة والرحمة ودرجات الزمرد والذهب.',
                 'description_en' => 'Intricate arabesque motifs with Quranic blessings in majestic emerald and gold.',
-                'thumbnail' => 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=600&q=80',
+                'thumbnail' => '/images/templates/islamic-elegance.webp',
                 'default_styles' => [
                     'primary_color' => '#0F4C3A',
                     'secondary_color' => '#C6A76B',
@@ -192,12 +192,12 @@ class DatabaseSeeder extends Seeder
             [
                 'category_id' => $categoryModels['romantic']->id,
                 'slug' => 'emerald-night',
-                'name_ar' => 'ليلة النجوم الملكية (Starry Gala)',
+                'name_ar' => 'ليلة النجوم الملكية',
                 'name_en' => 'Midnight Starry Gala',
                 'view_name' => 'templates.emerald_night',
                 'description_ar' => 'سحر المساء بلون الليل الكحلي الداكن والنجوم المتلألئة المذهبة لأمسية أسطورية.',
                 'description_en' => 'Midnight sapphire and shimmering constellation stardust for an enchanting evening.',
-                'thumbnail' => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80',
+                'thumbnail' => '/images/templates/emerald-night.webp',
                 'default_styles' => [
                     'primary_color' => '#E6C687',
                     'secondary_color' => '#E2E8F0',
@@ -214,12 +214,12 @@ class DatabaseSeeder extends Seeder
             [
                 'category_id' => $categoryModels['classic']->id,
                 'slug' => 'classic-aristocrat',
-                'name_ar' => 'الكلاسيكي العريق (Aristocrat)',
+                'name_ar' => 'الكلاسيكي العريق',
                 'name_en' => 'Classic Aristocrat & Seal',
                 'view_name' => 'templates.classic_aristocrat',
                 'description_ar' => 'طابع البطاقات الورقية الكلاسيكية الفاخرة مع ختم الشمع الأحمر وخطوط ديوانية مهيبة.',
                 'description_en' => 'Traditional high-society invitation aesthetic featuring a wax seal motif and noble script.',
-                'thumbnail' => 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=600&q=80',
+                'thumbnail' => '/images/templates/classic-aristocrat.webp',
                 'default_styles' => [
                     'primary_color' => '#8B263E',
                     'secondary_color' => '#2B2B2B',

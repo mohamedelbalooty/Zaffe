@@ -125,4 +125,96 @@ class TemplateManagementTest extends TestCase
         $invitation->refresh();
         $this->assertEquals($originalTemplateId, $invitation->template_id);
     }
+
+    public function test_template_thumbnails_are_local_webp_files_with_no_external_urls(): void
+    {
+        $templates = InvitationTemplate::orderBy('sort_order')->get();
+        $this->assertCount(6, $templates);
+
+        foreach ($templates as $template) {
+            $expectedPath = "/images/templates/{$template->slug}.webp";
+            $this->assertSame($expectedPath, $template->thumbnail);
+            $this->assertDoesNotMatchRegularExpression('#^https?://#i', (string) $template->thumbnail);
+
+            $absolutePath = public_path(ltrim($expectedPath, '/'));
+            $this->assertFileExists($absolutePath);
+
+            $fileSize = filesize($absolutePath);
+            $this->assertIsInt($fileSize);
+            $this->assertGreaterThan(0, $fileSize);
+            $this->assertLessThanOrEqual(120 * 1024, $fileSize);
+        }
+    }
+
+    public function test_template_names_are_arabic_first_with_english_secondary_label_on_catalog_and_create_pages(): void
+    {
+        $templates = InvitationTemplate::where('is_active', true)->get();
+        $user = User::where('email', 'couple@zaffe.app')->first();
+
+        $catalogResponse = $this->get('/templates');
+        $catalogResponse->assertOk();
+
+        $createResponse = $this->actingAs($user)->get('/dashboard/invitations/create');
+        $createResponse->assertOk();
+
+        foreach ($templates as $template) {
+            $this->assertDoesNotMatchRegularExpression('/[A-Za-z()]/', $template->name_ar);
+            $this->assertNotEmpty($template->name_en);
+
+            $catalogResponse->assertSee($template->name_ar);
+            $catalogResponse->assertSee($template->name_en);
+
+            $createResponse->assertSee($template->name_ar);
+            $createResponse->assertSee($template->name_en);
+        }
+    }
+
+    public function test_template_thumbnails_render_graceful_fallback_without_raw_alt_text(): void
+    {
+        $user = User::where('email', 'couple@zaffe.app')->first();
+
+        $floral = InvitationTemplate::where('slug', 'floral-romance')->firstOrFail();
+        $floral->update(['thumbnail' => '/images/templates/missing-preview.webp']);
+
+        $minimal = InvitationTemplate::where('slug', 'minimal-chic')->firstOrFail();
+        $minimal->update(['thumbnail' => null]);
+
+        foreach ([$this->get('/templates'), $this->actingAs($user)->get('/dashboard/invitations/create')] as $response) {
+            $response->assertOk();
+            $response->assertSee('alt=""', false);
+            $response->assertSee('onerror="this.style.display=\'none\'"', false);
+            $response->assertSee('linear-gradient(135deg, #292521 0%,', false);
+            $response->assertDontSee('alt="' . $floral->name_ar . '"', false);
+            $response->assertDontSee('alt="' . $minimal->name_ar . '"', false);
+            $response->assertSee($floral->name_ar);
+            $response->assertSee($minimal->name_ar);
+        }
+    }
+
+    public function test_data_migration_updates_existing_external_thumbnails_and_names(): void
+    {
+        $royal = InvitationTemplate::where('slug', 'royal-gold')->firstOrFail();
+        $royal->update([
+            'name_ar' => 'الفخامة الذهبية (Royal Gold)',
+            'thumbnail' => 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80',
+        ]);
+
+        $floral = InvitationTemplate::where('slug', 'floral-romance')->firstOrFail();
+        $floral->update([
+            'name_ar' => 'سحر الزهور والحديقة (Floral Romance)',
+            'thumbnail' => 'https://images.unsplash.com/photo-1519225429402-957e8fa134d1?auto=format&fit=crop&w=600&q=80',
+        ]);
+
+        $migration = require database_path('migrations/2026_11_14_000002_update_template_thumbnails_and_names.php');
+        $migration->up();
+
+        $royal->refresh();
+        $floral->refresh();
+
+        $this->assertSame('الفخامة الذهبية', $royal->name_ar);
+        $this->assertSame('/images/templates/royal-gold.webp', $royal->thumbnail);
+
+        $this->assertSame('سحر الزهور والحديقة', $floral->name_ar);
+        $this->assertSame('/images/templates/floral-romance.webp', $floral->thumbnail);
+    }
 }
