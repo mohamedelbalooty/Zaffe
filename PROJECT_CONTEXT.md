@@ -1,8 +1,8 @@
 # PROJECT CONTEXT — Zaffe (زفّــة)
 
 > **Single Source of Truth for Technical & Product Architecture**  
-> **Repository:** `e:\GithubProjects\Zaffe` | **Last Verified:** 2026-11-12  
-> **Status:** Active Development | **Primary Language:** Arabic (`ar`), with English (`en`) support.
+> **Repository:** `e:\GithubProjects\Zaffe` | **Last Verified:** 2026-11-14  
+> **Status:** Release 1 Engineering Complete (Staging Release Candidate) | **Primary Language:** Arabic (`ar`), with English (`en`) support.
 
 ---
 
@@ -35,9 +35,10 @@ For deep dives into specific topics, consult the specialized guides in `docs/`:
 - **CSS / Styling:** Tailwind CSS v4 (`v4.0.0`) with `@import 'tailwindcss';` and custom luxury Arabic aesthetic tokens (`font-cairo`, `font-tajawal`, `font-amiri`, `font-playfair`).
 - **Super Admin Panel:** Filament v5 (`v5.11.2`) at `/admin`.
 - **Frontend Asset Pipeline:** Vite 8 (`v8.0.0`) with `laravel-vite-plugin` v3.1.
-- **Database:** SQLite 3 (default for local development and unit/feature testing); compatible with MySQL 8.0+.
+- **Database:** SQLite 3 (local development and PHPUnit feature test suite); **MySQL 8.4** production target (with `docs/DEPLOYMENT_CHECKLIST.md` staging validation).
+- **Email & Queues:** **Resend** SMTP integration behind standard Laravel Mail & Notifications (`ShouldQueue` via `database` queue driver).
 - **Storage:** Local public storage (`storage/app/public` linked to `public/storage`) with AWS S3 driver support.
-- **Testing:** PHPUnit 12 with in-memory SQLite database (`tests/Feature/AuditTest.php`, `tests/Feature/WeddingPlatformTest.php`).
+- **Testing:** PHPUnit 12 with in-memory SQLite database (`AuditTest`, `WeddingPlatformTest`, `AuthTest`, `NotificationTest`, `TemplateManagementTest`, `InvitationLifecycleTest`, `InvitationEditorTest`, `PublicInvitationTest`, `RsvpEngineTest`, `GuestManagementTest`, `CustomerDashboardTest`, `AdminManagementTest`, `ProductionReadinessTest`).
 
 ---
 
@@ -65,7 +66,7 @@ For deep dives into specific topics, consult the specialized guides in `docs/`:
 - **`InvitationSection` (`invitation_sections`):** Modular blocks (`countdown`, `timeline`, `gallery`, `dress_code`).
 - **`InvitationPhoto` (`invitation_photos`):** Gallery images with storage URL resolvers.
 - **`RsvpResponse` (`rsvp_responses`):** Guest attendance tracking (`attending`, `declined`, `tentative`), guest counts, messages, and dietary notes.
-- **`SubscriptionPlan` & `UserSubscription`:** Defines commercial packages (`Starter Free` at 0 EGP, `Royal Wedding Pro` at 799 EGP).
+- **`SubscriptionPlan` & `UserSubscription`:** Legacy/future tier schema preserved in DB; **Release 1 is 100% Free** (zero tier limits, `/admin/subscription-plans` returns `403` via `SubscriptionPlanResource::canAccess(): false`). Full monetization (`F11`) is deferred Post-Release 1 (`docs/engineering/briefs/F11_DEFERRED_MONETIZATION_NOTE.md`).
 - **`PlatformSetting`:** Key-value store for global settings.
 
 ---
@@ -83,42 +84,39 @@ For deep dives into specific topics, consult the specialized guides in `docs/`:
    - Rate limiting: Max 10 RSVP submissions per minute per IP.
 3. **Data Security & Injection Defense:**
    - Livewire `InvitationEditor` secures all mutations behind strict ownership validation (`getAuthorizedInvitation()`).
-   - CSV export sanitizes formulas starting with `=`, `+`, `-`, or `@` with a leading `'` and includes UTF-8 BOM for Microsoft Excel.
+   - CSV export sanitizes formulas starting with `=`, `+`, `-`, `@`, `\t`, or `\r` (after `ltrim`) with a leading `'` and includes UTF-8 BOM for Microsoft Excel.
+   - Explicit Laravel Model Policies (`InvitationPolicy`, `InvitationTemplatePolicy`, `UserPolicy`) guard domain models and Filament resources.
+   - Global HTTP `SecurityHeaders` middleware (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `X-XSS-Protection`) hardens web responses.
 
 ---
 
 ## 7. Current Implementation Status Matrix `[VERIFIED]`
 
-- **Fully Implemented & Verified by Tests:**
-  - Public marketing pages & template gallery.
-  - Interactive template previews with mock data.
-  - Authentication (Login, Register, Logout) with throttling (`throttle:6,1`).
-  - Bilingual switcher (Arabic/English).
-  - Customer Studio dashboard & metrics overview.
-  - Invitation creation wizard with unique slug generator.
-  - Visual Studio Livewire editor with real-time autosave, style customization, device mockups, and photo upload/deletion.
+- **Fully Implemented & Verified by Automated Feature Tests (`F01`–`F10`, `F12`):**
+  - Public marketing pages, 100% Free Release 1 pricing page, and unrestricted 6-theme template gallery (`F02`, `F08`).
+  - Interactive template previews with realistic Arabic/English sample data.
+  - Authentication (Login, Register, Logout, Laravel Password Broker reset lifecycle) with throttling (`throttle:6,1`) and E.164 phone normalization for Egypt (`+20`) and Saudi Arabia (`+966`) via `PhoneService` (`F01`).
+  - Resend transactional emails (`ResetPasswordNotification`, `NewRsvpNotification`, `RsvpConfirmationNotification`) queued via `database` queue driver (`F10`).
+  - Bilingual switcher (Arabic RTL default / English LTR).
+  - Customer Studio dashboard with total views & invitation KPIs (`F08`), profile phone normalization, and wizard creation (`F03`).
+  - Visual Studio Livewire editor with timezone selector (`Africa/Cairo` / `Asia/Riyadh`), real-time autosave, free style/template customization, and storage-backed photo management (`F04`).
   - Six specialized wedding themes (`royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`).
-  - Interactive countdown timer (Alpine.js).
-  - Floating background music player.
-  - Interactive RSVP submission with validation, deduplication, and rate limiting.
-  - RSVP guest list management with search and status filters.
-  - Excel/CSV guest export with UTF-8 BOM and formula sanitization.
-  - Filament v5 Super Admin panel at `/admin`.
-- **Partially Implemented:**
-  - Password Reset Request (Controller returns simulated message; mailer broker not wired).
-- **Planned / Not Yet Implemented:**
-  - Online payment checkout & webhook integration (Paymob / Fawry / Stripe).
-  - Commercial tier gating (free vs. premium restrictions).
-  - Transactional emails for RSVP alerts and welcome notices.
+  - Public wedding rendering with timezone-aware countdown ISO targets, OpenGraph/Twitter previews, and session-deduplicated `view_count` (`F05`).
+  - Interactive RSVP submission with validation, E.164 deduplication, and rate limiting (`F06`).
+  - RSVP guest list management with search, dietary badges, status filters, and formula-sanitized UTF-8 BOM CSV export (`F07`).
+  - Filament v5 Super Admin panel at `/admin` with Model Policies and Release 1 subscription resource lockout (`F09`).
+  - Production hardening (`SecurityHeaders` middleware, named composite database indexes, and `docs/DEPLOYMENT_CHECKLIST.md`) (`F12`).
+- **Deferred Post-Release 1 (`F11`):**
+  - Online payment checkout & webhook integration (Paymob / Fawry) and commercial tier gating (`docs/engineering/briefs/F11_DEFERRED_MONETIZATION_NOTE.md`).
 
 ---
 
-## 8. High-Priority Technical Risks `[VERIFIED]`
+## 8. High-Priority Technical & Operational Notes `[VERIFIED]`
 
-1. **Missing Payment Gateway:** Revenue collection is not yet automated.
-2. **Uncompressed Image Uploads:** Images up to 5MB are stored without compression or WebP conversion, which can degrade mobile loading performance.
-3. **Synchronous View Count Increments:** Direct database updates on every public view could cause row contention during viral WhatsApp traffic spikes.
-4. **Local Windows Composer Issue:** The Winget PHP package's Composer wrapper is corrupted (`PharException: manifest cannot be larger than 100 MB`). Use standalone `composer.phar` or standard Windows Composer setup as described in `docs/DEVELOPMENT_GUIDE.md`.
+1. **MySQL 8.4 & PHP `ext-intl` Staging Validation Required:** Automated CI/local suites run on SQLite in-memory and local `herd-lite` PHP (which omits `ext-intl` needed by Filament `Number::format()` on `/admin/*` table index views). Run full runtime validation on the staging MySQL 8.4 + `ext-intl` environment per `docs/DEPLOYMENT_CHECKLIST.md` before `production` release.
+2. **Deferred Image Optimization (Post-Release 1):** Images up to 5MB are MIME-validated and cleaned up on deletion; server-side WebP resizing/compression remains queued for Post-Release 1 enhancement.
+3. **Deferred Monetization (`F11`):** Release 1 operates intentionally 100% free with zero paywalls; revenue gateway integration is planned for Post-Release 1.
+4. **Local Windows Composer Issue:** The Winget PHP package's Composer wrapper is corrupted (`PharException: manifest cannot be larger than 100 MB`). Use standalone `composer.phar` and `herd-lite` PHP (`8.5`) as documented in `docs/DEVELOPMENT_GUIDE.md`.
 
 ---
 
