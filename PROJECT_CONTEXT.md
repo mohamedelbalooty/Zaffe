@@ -25,6 +25,7 @@ For deep dives into specific topics, consult the specialized guides in `docs/`:
 | **[DEVELOPMENT_GUIDE.md](file:///e:/GithubProjects/Zaffe/docs/DEVELOPMENT_GUIDE.md)** | Local environment setup, step-by-step installation, running tests, seed accounts, coding conventions, and instructions for creating new templates. |
 | **[TECHNICAL_AUDIT.md](file:///e:/GithubProjects/Zaffe/docs/TECHNICAL_AUDIT.md)** | Code quality audit, security assessment (IDOR & CSV injection mitigations), performance bottlenecks, scalability findings, and prioritized technical debt. |
 | **[OPEN_QUESTIONS.md](file:///e:/GithubProjects/Zaffe/docs/OPEN_QUESTIONS.md)** | Unresolved business, product, and operational decisions requiring stakeholder confirmation (payment gateway, expiry lifecycle, etc.). |
+| **[SAUDI_MARKET_DECISIONS.md](file:///e:/GithubProjects/Zaffe/docs/product/SAUDI_MARKET_DECISIONS.md)** | Saudi-first market priorities, cultural & privacy rules, Hijri dates, mobile/WhatsApp performance targets, music & religious text policies, per-invitation monetization direction, PDPL privacy, KPIs, and agent working agreement. |
 
 ---
 

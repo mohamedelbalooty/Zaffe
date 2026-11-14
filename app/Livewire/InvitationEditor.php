@@ -47,6 +47,9 @@ class InvitationEditor extends Component
     public string $secondary_color = '#292521';
     public string $background_color = '#FAF7F2';
     public string $font_family = 'Tajawal';
+    public string $invitation_locale = 'ar';
+    public string $digits = 'latin';
+    public bool $show_hijri = true;
 
     // Media
     public ?string $cover_photo = null;
@@ -94,6 +97,9 @@ class InvitationEditor extends Component
         $this->secondary_color = $styles['secondary_color'] ?? '#292521';
         $this->background_color = $styles['background_color'] ?? '#FAF7F2';
         $this->font_family = $styles['font_family'] ?? 'Tajawal';
+        $this->invitation_locale = $styles['locale'] ?? $styles['language'] ?? 'ar';
+        $this->digits = $styles['digits'] ?? 'latin';
+        $this->show_hijri = (bool) ($styles['show_hijri'] ?? true);
 
         // Check active sections
         $this->section_countdown = (bool) $invitation->sections->where('section_type', 'countdown')->first()?->is_enabled ?? true;
@@ -219,12 +225,15 @@ class InvitationEditor extends Component
     {
         $invitation = $this->getAuthorizedInvitation();
 
-        $customStyles = [
+        $customStyles = array_merge($invitation->custom_styles ?? [], [
             'primary_color' => $this->primary_color,
             'secondary_color' => $this->secondary_color,
             'background_color' => $this->background_color,
             'font_family' => $this->font_family,
-        ];
+            'locale' => in_array($this->invitation_locale, ['ar', 'en'], true) ? $this->invitation_locale : 'ar',
+            'digits' => in_array($this->digits, ['latin', 'arabic_indic'], true) ? $this->digits : 'latin',
+            'show_hijri' => $this->show_hijri,
+        ]);
 
         $invitation->update([
             'groom_name' => $this->groom_name,
@@ -278,6 +287,17 @@ class InvitationEditor extends Component
         $invitation->load(['template', 'sections', 'photos']);
         $templates = InvitationTemplate::where('is_active', true)->orderBy('sort_order')->get();
 
+        $previewStyles = [
+            'primary_color' => $this->primary_color,
+            'secondary_color' => $this->secondary_color,
+            'background_color' => $this->background_color,
+            'card_color' => '#FFFFFF',
+            'font_family' => $this->font_family,
+            'locale' => in_array($this->invitation_locale, ['ar', 'en'], true) ? $this->invitation_locale : 'ar',
+            'digits' => in_array($this->digits, ['latin', 'arabic_indic'], true) ? $this->digits : 'latin',
+            'show_hijri' => $this->show_hijri,
+        ];
+
         // Build dynamic live preview object combining active state
         $previewObject = (object) [
             'id' => $invitation->id,
@@ -287,6 +307,7 @@ class InvitationEditor extends Component
             'bride_name' => $this->bride_name ?: 'اسم العروس',
             'wedding_date' => $this->wedding_date ?: now()->addDays(30),
             'wedding_time' => $this->wedding_time,
+            'timezone' => $this->timezone ?: 'Africa/Cairo',
             'venue_name' => $this->venue_name ?: 'اسم القاعة أو الفندق',
             'venue_address' => $this->venue_address,
             'venue_map_url' => $this->venue_map_url,
@@ -297,13 +318,8 @@ class InvitationEditor extends Component
             'is_rsvp_enabled' => $this->is_rsvp_enabled,
             'max_guests_per_rsvp' => $this->max_guests_per_rsvp,
             'template' => $invitation->template,
-            'effective_styles' => [
-                'primary_color' => $this->primary_color,
-                'secondary_color' => $this->secondary_color,
-                'background_color' => $this->background_color,
-                'card_color' => '#FFFFFF',
-                'font_family' => $this->font_family,
-            ],
+            'custom_styles' => $previewStyles,
+            'effective_styles' => $previewStyles,
             'sections' => $invitation->sections,
             'photos' => $invitation->photos,
             'public_url' => $invitation->public_url,

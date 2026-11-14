@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\InvitationDateFormatter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -85,13 +86,22 @@ class Invitation extends Model
 
     public function getEffectiveStylesAttribute(): array
     {
-        $defaultStyles = $this->template?->default_styles ?? [
-            'primary_color' => '#C6A76B',
-            'secondary_color' => '#292521',
-            'background_color' => '#FAF7F2',
-            'accent_color' => '#D9B7B0',
-            'font_family' => 'Tajawal',
+        $dateDefaults = [
+            'locale' => InvitationDateFormatter::DEFAULT_LOCALE,
+            'digits' => InvitationDateFormatter::DEFAULT_DIGITS,
+            'show_hijri' => true,
         ];
+
+        $defaultStyles = array_merge(
+            $dateDefaults,
+            $this->template?->default_styles ?? [
+                'primary_color' => '#C6A76B',
+                'secondary_color' => '#292521',
+                'background_color' => '#FAF7F2',
+                'accent_color' => '#D9B7B0',
+                'font_family' => 'Tajawal',
+            ]
+        );
 
         return array_merge($defaultStyles, $this->custom_styles ?? []);
     }
@@ -109,7 +119,7 @@ class Invitation extends Model
 
         return "يسعدنا ويشرفنا دعوتكم لمشاركتنا أجمل أيام حياتنا وبدء فصل جديد معاً ❤️\n\n" .
             "حفل زفاف: {$this->groom_name} و {$this->bride_name}\n" .
-            "الموعد: " . $this->wedding_date->translatedFormat('l, d F Y') . "\n" .
+            "الموعد: " . InvitationDateFormatter::formatGregorianDate($this, 'ar') . "\n" .
             "المكان: {$this->venue_name}\n\n" .
             "تفاصيل الدعوة وتأكيد الحضور:\n" . $url;
     }

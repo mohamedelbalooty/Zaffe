@@ -73,6 +73,7 @@ class HomeController extends Controller
             'bride_name' => 'نور مصطفى الألفي',
             'wedding_date' => now()->addDays(30),
             'wedding_time' => '20:30',
+            'timezone' => 'Asia/Riyadh',
             'venue_name' => 'قصر البارون إمبان - حديقة القصر الملكية',
             'venue_address' => 'شارع العروبة، مصر الجديدة، القاهرة، مصر',
             'venue_map_url' => 'https://maps.google.com/?q=Baron+Empain+Palace',
