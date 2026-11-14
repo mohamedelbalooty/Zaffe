@@ -39,9 +39,15 @@
 
                 <div>
                     <label for="phone" class="block text-sm font-bold text-[#292521] mb-1.5">رقم الهاتف أو الواتساب (اختياري)</label>
-                    <input type="text" id="phone" name="phone" value="{{ old('phone') }}" dir="ltr"
-                           class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] focus:border-[#C6A76B] focus:ring-2 focus:ring-[#C6A76B]/20 outline-none transition text-sm bg-[#FAF7F2]/50 text-right"
-                           placeholder="+20 100 123 4567">
+                    <div class="flex rounded-xl border border-[#E8DED0] focus-within:border-[#C6A76B] focus-within:ring-2 focus-within:ring-[#C6A76B]/20 overflow-hidden bg-[#FAF7F2]/50 transition">
+                        <select name="phone_country" id="phone_country" class="px-3 py-3 bg-[#FAF7F2] border-none text-xs font-bold text-[#292521] focus:outline-none cursor-pointer border-l border-[#E8DED0]">
+                            <option value="EG" {{ old('phone_country', 'EG') === 'EG' ? 'selected' : '' }}>مصر (+20) 🇪🇬</option>
+                            <option value="SA" {{ old('phone_country') === 'SA' ? 'selected' : '' }}>السعودية (+966) 🇸🇦</option>
+                        </select>
+                        <input type="text" id="phone" name="phone" value="{{ old('phone') }}" dir="ltr"
+                               class="w-full px-4 py-3 border-none outline-none text-sm bg-transparent text-left"
+                               placeholder="100 123 4567">
+                    </div>
                     @error('phone')
                         <p class="text-xs text-rose-600 mt-1 font-medium">{{ $message }}</p>
                     @enderror

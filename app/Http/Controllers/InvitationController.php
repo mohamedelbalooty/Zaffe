@@ -21,8 +21,12 @@ class InvitationController extends Controller
             }
         }
 
-        // Increment view count safely
-        $invitation->increment('view_count');
+        // Increment view count safely with session-based deduplication
+        $sessionKey = 'viewed_invitation_' . $invitation->id;
+        if (!session()->has($sessionKey)) {
+            session()->put($sessionKey, true);
+            $invitation->increment('view_count');
+        }
 
         $viewName = $invitation->template?->view_name ?? 'templates.royal_gold';
 

@@ -10,9 +10,16 @@
 
     <!-- Open Graph / WhatsApp / Facebook -->
     <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ $ogUrl ?? url()->current() }}">
     <meta property="og:title" content="{{ $title ?? 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة' }}">
     <meta property="og:description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">
     <meta property="og:image" content="{{ $ogImage ?? asset('images/og-zaffe.jpg') }}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $title ?? 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة' }}">
+    <meta name="twitter:description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">
+    <meta name="twitter:image" content="{{ $ogImage ?? asset('images/og-zaffe.jpg') }}">
 
     <!-- Google Fonts: Tajawal, Cairo, Amiri, Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

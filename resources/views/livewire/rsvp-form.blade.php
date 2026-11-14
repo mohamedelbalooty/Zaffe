@@ -60,9 +60,18 @@
             <!-- Phone / WhatsApp -->
             <div>
                 <label for="rsvp_phone" class="block text-xs font-bold text-[#292521] mb-1.5">رقم الهاتف أو الواتساب (اختياري للتذكير)</label>
-                <input type="text" id="rsvp_phone" wire:model="phone" dir="ltr"
-                       class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] focus:ring-2 focus:ring-[#C6A76B]/20 outline-none text-right"
-                       placeholder="+20 100 000 0000">
+                <div class="flex items-center gap-2">
+                    <select wire:model.live="phone_country" class="px-3 py-3 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none font-bold shrink-0">
+                        <option value="EG">🇪🇬 +20 (مصر)</option>
+                        <option value="SA">🇸🇦 +966 (السعودية)</option>
+                    </select>
+                    <input type="tel" id="rsvp_phone" wire:model="phone" dir="ltr"
+                           class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] focus:ring-2 focus:ring-[#C6A76B]/20 outline-none text-right"
+                           placeholder="100 000 0000">
+                </div>
+                @error('phone')
+                    <span class="text-xs text-rose-600 mt-1 block">{{ $message }}</span>
+                @enderror
             </div>
 
             @if($attendance_status === 'attending')
@@ -79,6 +88,28 @@
                     @error('guest_count')
                         <span class="text-xs text-rose-600 mt-1 block">{{ $message }}</span>
                     @enderror
+                </div>
+
+                <!-- Dietary Preferences -->
+                <div>
+                    <label class="block text-xs font-bold text-[#292521] mb-1.5">ملاحظات الوجبات الغذائية والحساسية (اختياري)</label>
+                    <div class="grid grid-cols-3 gap-2 mb-2 text-xs">
+                        <label class="flex items-center gap-1.5 p-2 rounded-xl border border-[#E8DED0] bg-[#FAF7F2]/40 cursor-pointer hover:bg-[#FAF7F2]">
+                            <input type="checkbox" wire:model="selected_dietary" value="وجبة نباتية" class="rounded text-[#C6A76B]">
+                            <span>نباتي</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 p-2 rounded-xl border border-[#E8DED0] bg-[#FAF7F2]/40 cursor-pointer hover:bg-[#FAF7F2]">
+                            <input type="checkbox" wire:model="selected_dietary" value="خالٍ من الجلوتين" class="rounded text-[#C6A76B]">
+                            <span>خالٍ من الجلوتين</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 p-2 rounded-xl border border-[#E8DED0] bg-[#FAF7F2]/40 cursor-pointer hover:bg-[#FAF7F2]">
+                            <input type="checkbox" wire:model="selected_dietary" value="حساسية مكسرات" class="rounded text-[#C6A76B]">
+                            <span>حساسية مكسرات</span>
+                        </label>
+                    </div>
+                    <input type="text" wire:model="dietary_notes" 
+                           class="w-full px-4 py-2 rounded-xl border border-[#E8DED0] text-xs bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none"
+                           placeholder="أي تفضيلات أو حساسيات طعام أخرى...">
                 </div>
             @endif
 

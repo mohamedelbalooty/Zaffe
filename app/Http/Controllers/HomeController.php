@@ -60,7 +60,9 @@ class HomeController extends Controller
 
     public function previewTemplate(string $slug)
     {
-        $template = InvitationTemplate::where('slug', $slug)->firstOrFail();
+        $template = InvitationTemplate::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
 
         // Sample wedding invitation data for previewing this template
         $previewData = (object) [

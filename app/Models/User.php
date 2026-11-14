@@ -45,6 +45,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->isAdmin();
     }
 
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
+
     public function invitations(): HasMany
     {
         return $this->hasMany(Invitation::class);

@@ -29,6 +29,7 @@ class InvitationEditor extends Component
     public string $slug = '';
     public string $wedding_date = '';
     public string $wedding_time = '';
+    public string $timezone = 'Africa/Cairo';
     public string $venue_name = '';
     public string $venue_address = '';
     public string $venue_map_url = '';
@@ -74,6 +75,7 @@ class InvitationEditor extends Component
         $this->slug = $invitation->slug;
         $this->wedding_date = $invitation->wedding_date ? $invitation->wedding_date->format('Y-m-d') : '';
         $this->wedding_time = $invitation->wedding_time ? substr($invitation->wedding_time, 0, 5) : '';
+        $this->timezone = $invitation->timezone ?? 'Africa/Cairo';
         $this->venue_name = $invitation->venue_name;
         $this->venue_address = $invitation->venue_address ?? '';
         $this->venue_map_url = $invitation->venue_map_url ?? '';
@@ -117,11 +119,14 @@ class InvitationEditor extends Component
 
     public function updatedNewCoverPhoto()
     {
-        $this->getAuthorizedInvitation();
+        $invitation = $this->getAuthorizedInvitation();
 
         $this->validate([
             'new_cover_photo' => 'image|max:5120', // 5MB
         ]);
+
+        // Clean up previous cover photo if stored locally
+        $this->deleteStorageFile($invitation->cover_photo);
 
         $path = $this->new_cover_photo->store('invitations/covers', 'public');
         $this->cover_photo = Storage::disk('public')->url($path);
@@ -154,21 +159,42 @@ class InvitationEditor extends Component
         $invitation = $this->getAuthorizedInvitation();
         $photo = InvitationPhoto::where('invitation_id', $invitation->id)->findOrFail($photoId);
         
-        // Clean up storage file if stored locally
-        if ($photo->image_path && !str_starts_with($photo->image_path, 'http')) {
-            $relativePath = str_replace(Storage::disk('public')->url(''), '', $photo->image_path);
-            Storage::disk('public')->delete(ltrim($relativePath, '/'));
-        }
+        $this->deleteStorageFile($photo->image_path);
 
         $photo->delete();
         $this->saveStatus = 'تم حذف الصورة ✓';
     }
 
+    protected function deleteStorageFile(?string $pathOrUrl): void
+    {
+        if (empty($pathOrUrl)) {
+            return;
+        }
+
+        $disk = Storage::disk('public');
+        $storageUrl = $disk->url('');
+
+        $relativePath = $pathOrUrl;
+        if (!empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
+            $relativePath = substr($relativePath, strlen($storageUrl));
+        } elseif (str_starts_with($relativePath, '/storage/')) {
+            $relativePath = substr($relativePath, strlen('/storage/'));
+        }
+
+        $relativePath = ltrim($relativePath, '/');
+
+        if (!empty($relativePath) && $disk->exists($relativePath)) {
+            $disk->delete($relativePath);
+        }
+    }
+
     public function changeTemplate(int $templateId)
     {
         $this->getAuthorizedInvitation();
-        $this->template_id = $templateId;
-        $template = InvitationTemplate::findOrFail($templateId);
+        $template = InvitationTemplate::where('id', $templateId)
+            ->where('is_active', true)
+            ->firstOrFail();
+        $this->template_id = $template->id;
         
         if (!empty($template->default_styles)) {
             $this->primary_color = $template->default_styles['primary_color'] ?? $this->primary_color;
@@ -206,6 +232,7 @@ class InvitationEditor extends Component
             'title' => $this->title ?: 'حفل زفاف ' . $this->groom_name . ' و ' . $this->bride_name,
             'wedding_date' => $this->wedding_date,
             'wedding_time' => $this->wedding_time ?: null,
+            'timezone' => $this->timezone ?: 'Africa/Cairo',
             'venue_name' => $this->venue_name,
             'venue_address' => $this->venue_address ?: null,
             'venue_map_url' => $this->venue_map_url ?: null,

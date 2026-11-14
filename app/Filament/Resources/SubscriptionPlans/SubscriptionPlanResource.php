@@ -20,6 +20,16 @@ class SubscriptionPlanResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static bool $shouldRegisterNavigation = false;
+
+    /**
+     * Subscription management is deferred post-Release 1 (F11).
+     */
+    public static function canAccess(): bool
+    {
+        return false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return SubscriptionPlanForm::configure($schema);

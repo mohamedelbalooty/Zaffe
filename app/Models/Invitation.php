@@ -20,6 +20,7 @@ class Invitation extends Model
         'bride_name',
         'wedding_date',
         'wedding_time',
+        'timezone',
         'venue_name',
         'venue_address',
         'venue_map_url',
