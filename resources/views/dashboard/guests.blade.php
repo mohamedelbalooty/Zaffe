@@ -105,7 +105,7 @@
                                         {{ $rsvp->guest_name }}
                                     </td>
                                     <td class="px-6 py-4 text-[#292521]/70 font-mono" dir="ltr">
-                                        {{ $rsvp->phone ?: '—' }}
+                                        {{ $rsvp->phone ? \App\Services\PhoneService::formatForDisplay($rsvp->phone) : '—' }}
                                     </td>
                                     <td class="px-6 py-4">
                                         @if($rsvp->attendance_status === 'attending')
@@ -123,8 +123,13 @@
                                     <td class="px-6 py-4 font-bold text-sm text-[#292521]">
                                         {{ $rsvp->guest_count }}
                                     </td>
-                                    <td class="px-6 py-4 text-[#292521]/80 max-w-xs truncate" title="{{ $rsvp->message }}">
-                                        {{ $rsvp->message ?: '—' }}
+                                    <td class="px-6 py-4 text-[#292521]/80 max-w-xs">
+                                        @if($rsvp->dietary_notes)
+                                            <span class="inline-block text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md mb-1">
+                                                🍽️ {{ $rsvp->dietary_notes }}
+                                            </span>
+                                        @endif
+                                        <div class="truncate" title="{{ $rsvp->message }}">{{ $rsvp->message ?: '—' }}</div>
                                     </td>
                                     <td class="px-6 py-4 text-[#292521]/60 whitespace-nowrap">
                                         {{ $rsvp->created_at->translatedFormat('d M Y, h:i A') }}

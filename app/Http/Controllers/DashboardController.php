@@ -253,16 +253,22 @@ class DashboardController extends Controller
             ]);
 
             $sanitize = function ($value) {
-                if (is_string($value) && strlen($value) > 0 && in_array($value[0], ['=', '+', '-', '@'])) {
+                if (!is_string($value) || $value === '') {
+                    return $value;
+                }
+                $trimmed = ltrim($value);
+                if ($trimmed !== '' && in_array($trimmed[0], ['=', '+', '-', '@', "\t", "\r"])) {
                     return "'" . $value;
                 }
                 return $value;
             };
 
             foreach ($rsvps as $rsvp) {
+                $phoneDisplay = $rsvp->phone ? PhoneService::formatForDisplay($rsvp->phone) : '—';
+
                 fputcsv($file, [
                     $sanitize($rsvp->guest_name),
-                    $sanitize($rsvp->phone ?? '—'),
+                    $sanitize($phoneDisplay),
                     $sanitize($rsvp->email ?? '—'),
                     $rsvp->attendance_status === 'attending' ? 'حضور مؤكد' : ($rsvp->attendance_status === 'declined' ? 'اعتذار' : 'غير محدد'),
                     $rsvp->guest_count,
