@@ -22,18 +22,44 @@
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     @foreach($templates as $tmpl)
+                        @php
+                            $primaryColor = $tmpl->default_styles['primary_color'] ?? '#C6A76B';
+                        @endphp
                         <div @click="selectedTemplate = '{{ $tmpl->id }}'"
                              :class="selectedTemplate == '{{ $tmpl->id }}' ? 'border-[#C6A76B] ring-2 ring-[#C6A76B]/30 bg-[#FAF7F2]' : 'border-[#E8DED0] hover:border-[#C6A76B]/40'"
-                             class="rounded-2xl p-3 border-2 cursor-pointer transition flex flex-col gap-2 relative group">
+                             class="rounded-2xl p-3 border-2 cursor-pointer transition flex flex-col gap-2.5 relative group">
                             
-                            <div class="h-32 sm:h-40 rounded-xl overflow-hidden bg-zinc-100">
-                                <img src="{{ $tmpl->thumbnail }}" alt="{{ $tmpl->name_ar }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="relative h-36 sm:h-44 rounded-xl overflow-hidden bg-[#292521]">
+                                <!-- Graceful Fallback (Gradient + Template Name) -->
+                                <div class="absolute inset-0 flex flex-col items-center justify-center p-3 text-center"
+                                     style="background: linear-gradient(135deg, #292521 0%, {{ $primaryColor }} 100%);">
+                                    <div class="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white mb-2 shadow-sm">
+                                        <x-app-icon name="sparkles" class="w-4 h-4" />
+                                    </div>
+                                    <span class="font-cairo text-xs sm:text-sm font-bold text-white line-clamp-1">{{ $tmpl->name_ar }}</span>
+                                    @if($tmpl->name_en)
+                                        <span class="text-[10px] font-medium text-white/75 line-clamp-1 mt-0.5" dir="ltr">{{ $tmpl->name_en }}</span>
+                                    @endif
+                                </div>
+
+                                @if($tmpl->thumbnail)
+                                    <img src="{{ $tmpl->thumbnail }}"
+                                         alt=""
+                                         loading="lazy"
+                                         onerror="this.style.display='none'"
+                                         class="relative z-10 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300">
+                                @endif
                             </div>
 
-                            <div class="flex items-center justify-between">
-                                <span class="font-cairo text-xs font-bold text-[#292521] truncate">{{ $tmpl->name_ar }}</span>
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="min-w-0 flex-1">
+                                    <span class="font-cairo text-xs sm:text-sm font-bold text-[#292521] block truncate">{{ $tmpl->name_ar }}</span>
+                                    @if($tmpl->name_en)
+                                        <span class="text-[10px] text-[#292521]/55 font-medium block truncate" dir="ltr">{{ $tmpl->name_en }}</span>
+                                    @endif
+                                </div>
                                 <div :class="selectedTemplate == '{{ $tmpl->id }}' ? 'bg-[#C6A76B] text-white' : 'border border-gray-300 text-transparent'"
-                                     class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold">
+                                     class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">
                                     ✓
                                 </div>
                             </div>

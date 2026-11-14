@@ -77,9 +77,9 @@ class HomeController extends Controller
             'venue_name' => 'قصر البارون إمبان - حديقة القصر الملكية',
             'venue_address' => 'شارع العروبة، مصر الجديدة، القاهرة، مصر',
             'venue_map_url' => 'https://maps.google.com/?q=Baron+Empain+Palace',
-            'welcome_message' => 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n«وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً»',
+            'welcome_message' => "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n«وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً»",
             'invitation_message' => 'يسرنا دعوتكم لمشاركتنا فرحة العمر وتتويج حكاية حبنا في ليلة لا تكتمل إلا بحضوركم العطر ومشاركتكم الكريمة.',
-            'cover_photo' => $template->thumbnail,
+            'cover_photo' => null,
             'music_url' => null,
             'is_rsvp_enabled' => true,
             'rsvp_deadline' => now()->addDays(20),
@@ -113,10 +113,7 @@ class HomeController extends Controller
                     'is_enabled' => true,
                 ],
             ]),
-            'photos' => collect([
-                (object)['url' => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80', 'caption' => 'يوم خطوبتنا السعيد'],
-                (object)['url' => 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80', 'caption' => 'بداية رحلة العمر'],
-            ]),
+            'photos' => collect([]),
         ];
 
         return view('pages.preview-template', compact('template', 'previewData'));

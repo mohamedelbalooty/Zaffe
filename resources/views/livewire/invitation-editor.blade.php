@@ -353,15 +353,36 @@
 
                         <div class="grid grid-cols-2 gap-3">
                             @foreach($templates as $tmpl)
+                                @php
+                                    $primaryColor = $tmpl->default_styles['primary_color'] ?? '#C6A76B';
+                                @endphp
                                 <button type="button" wire:click="changeTemplate({{ $tmpl->id }})"
                                         class="rounded-2xl p-2.5 border text-right transition flex flex-col gap-2 {{ $template_id == $tmpl->id ? 'border-[#C6A76B] bg-[#C6A76B]/15 shadow-md' : 'border-white/10 bg-white/5 hover:border-white/30' }}">
-                                    <div class="h-24 w-full rounded-xl overflow-hidden bg-zinc-800">
-                                        <img src="{{ $tmpl->thumbnail }}" alt="{{ $tmpl->name_ar }}" class="w-full h-full object-cover">
+                                    <div class="relative h-24 w-full rounded-xl overflow-hidden bg-[#1E1B18]">
+                                        <div class="absolute inset-0 flex flex-col items-center justify-center p-2 text-center"
+                                             style="background: linear-gradient(135deg, #292521 0%, {{ $primaryColor }} 100%);">
+                                            <span class="font-cairo text-[11px] font-bold text-white line-clamp-1">{{ $tmpl->name_ar }}</span>
+                                            @if($tmpl->name_en)
+                                                <span class="text-[9px] text-white/75 line-clamp-1" dir="ltr">{{ $tmpl->name_en }}</span>
+                                            @endif
+                                        </div>
+                                        @if($tmpl->thumbnail)
+                                            <img src="{{ $tmpl->thumbnail }}"
+                                                 alt=""
+                                                 loading="lazy"
+                                                 onerror="this.style.display='none'"
+                                                 class="relative z-10 w-full h-full object-cover object-top">
+                                        @endif
                                     </div>
-                                    <div class="flex items-center justify-between w-full">
-                                        <span class="text-xs font-bold text-white truncate">{{ $tmpl->name_ar }}</span>
+                                    <div class="flex items-center justify-between gap-2 w-full">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-xs font-bold text-white block truncate">{{ $tmpl->name_ar }}</span>
+                                            @if($tmpl->name_en)
+                                                <span class="text-[10px] text-[#E8DED0]/60 block truncate" dir="ltr">{{ $tmpl->name_en }}</span>
+                                            @endif
+                                        </div>
                                         @if($template_id == $tmpl->id)
-                                            <span class="text-xs text-[#C6A76B]">✓</span>
+                                            <span class="text-xs text-[#C6A76B] shrink-0">✓</span>
                                         @endif
                                     </div>
                                 </button>
