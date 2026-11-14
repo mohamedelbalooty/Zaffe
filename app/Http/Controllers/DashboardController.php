@@ -24,6 +24,7 @@ class DashboardController extends Controller
         // Calculate statistics
         $totalInvitations = $invitations->count();
         $publishedInvitations = $invitations->where('status', 'published')->count();
+        $totalViews = $invitations->sum('view_count');
 
         // Aggregated RSVP stats across user's invitations
         $allInvitationIds = $invitations->pluck('id');
@@ -39,7 +40,8 @@ class DashboardController extends Controller
             'publishedInvitations',
             'confirmedAttendees',
             'declinedCount',
-            'totalResponses'
+            'totalResponses',
+            'totalViews'
         ));
     }
 
@@ -298,12 +300,15 @@ class DashboardController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'phone' => ['nullable', 'string', 'max:30'],
+            'phone_country' => ['nullable', 'string', 'in:EG,SA'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
-        $user->phone = !empty($validated['phone']) ? PhoneService::normalize($validated['phone']) : null;
+        $user->phone = !empty($validated['phone'])
+            ? PhoneService::normalize($validated['phone'], $request->input('phone_country', 'EG'))
+            : null;
 
         if (!empty($validated['password'])) {
             $user->password = bcrypt($validated['password']);

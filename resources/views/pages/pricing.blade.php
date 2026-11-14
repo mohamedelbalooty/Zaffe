@@ -1,80 +1,125 @@
 <x-layouts.marketing :title="'باقات الأسعار — زفّة'">
     <div class="bg-[#FAF7F2] py-16 md:py-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-[#C6A76B] bg-[#C6A76B]/15 px-3 py-1 rounded-full border border-[#C6A76B]/30">
-                    باقات واضحة وشفافة
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-[#C6A76B] bg-[#C6A76B]/15 px-3 py-1 rounded-full border border-[#C6A76B]/30 inline-block">
+                    باقات الأسعار — إطلاق مجاني ١٠٠٪
                 </span>
                 <h1 class="font-cairo text-3xl sm:text-5xl font-extrabold text-[#292521] mt-3">
-                    استثمر في ذكرى زفاف تدوم للأبد
+                    احتفل بليلة العمر مع تجربة زفّة الكاملة مجاناً
                 </h1>
-                <p class="text-base text-[#292521]/70 mt-3">
-                    وفر آلاف الجنيهات مقارنة بالطباعة الورقية التقليدية، مع تحكم فوري وتأكيد حضور تفاعلي يريحك وييسر على ضيوفك
+                <p class="text-base text-[#292521]/70 mt-3 leading-relaxed">
+                    بمناسبة الإطلاق الرسمي لمنصة زفّة في مصر والمملكة العربية السعودية، نهدي جميع العرسان وصولاً كاملاً وغير محدود لكافة المميزات والقوالب الملكية مجاناً دون أي رسوم أو بطاقة ائتمان.
                 </p>
             </div>
 
-            <!-- Pricing Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                @foreach($plans as $plan)
-                    <div class="rounded-3xl p-8 sm:p-10 transition-all flex flex-col justify-between relative {{ $plan->slug === 'premium' ? 'bg-[#292521] text-white shadow-2xl border-2 border-[#C6A76B]' : 'bg-white text-[#292521] shadow-wedding border border-[#E8DED0]' }}">
-                        
-                        @if($plan->slug === 'premium')
-                            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white px-4 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-md flex items-center gap-1.5">
-                                <x-app-icon name="crown" class="w-3.5 h-3.5" />
-                                <span>الأكثر اختياراً للعرسان</span>
-                            </div>
-                        @endif
+            <!-- 100% Free Launch Banner -->
+            <div class="max-w-4xl mx-auto mb-10 rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-xl border border-emerald-500/40 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div class="space-y-2 text-center sm:text-right">
+                    <div class="inline-flex items-center gap-2 bg-white/15 px-3 py-1 rounded-full text-xs font-bold text-emerald-100">
+                        <x-app-icon name="sparkles" class="w-4 h-4 text-[#C6A76B]" />
+                        <span>عرض خاص للإصدار الأول (Release 1)</span>
+                    </div>
+                    <h2 class="font-cairo text-xl sm:text-2xl font-extrabold">
+                        هدية الإطلاق المجاني ١٠٠٪ في مصر والسعودية
+                    </h2>
+                    <p class="text-xs sm:text-sm text-emerald-50/90 leading-relaxed max-w-2xl">
+                        جميع القوالب الستة الفاخرة، تخصيص الألوان والخطوط، موسيقى الخلفية، تأكيدات الحضور غير المحدودة (RSVP)، وتصدير قوائم الضيوف إلى Excel/CSV متاحة الآن مجاناً بالكامل دون الحاجة لبطاقة بنكية.
+                    </p>
+                </div>
+                <a href="{{ auth()->check() ? route('dashboard.invitations.create') : route('register') }}"
+                   class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white font-bold text-sm shadow-lg hover:opacity-95 transition whitespace-nowrap flex items-center gap-2 shrink-0">
+                    <span>ابدأ تصميم دعوتك مجاناً الآن</span>
+                    <x-app-icon name="arrow-left" class="w-4 h-4" />
+                </a>
+            </div>
 
-                        <div class="space-y-6">
+            <!-- All-Access Release 1 Free Card -->
+            <div class="max-w-2xl mx-auto">
+                <div class="rounded-3xl p-8 sm:p-10 transition-all flex flex-col justify-between relative bg-[#292521] text-white shadow-2xl border-2 border-[#C6A76B]">
+                    <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white px-4 py-1 rounded-full text-xs font-black tracking-wider shadow-md flex items-center gap-1.5 whitespace-nowrap">
+                        <x-app-icon name="crown" class="w-3.5 h-3.5" />
+                        <span>جميع المميزات مفتوحة مجاناً في الإصدار الأول</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
-                                <h3 class="font-cairo text-2xl font-bold {{ $plan->slug === 'premium' ? 'text-white' : 'text-[#292521]' }}">
-                                    {{ $plan->name_ar }}
+                                <h3 class="font-cairo text-2xl font-bold text-white">
+                                    الباقة الملكية الشاملة (الإطلاق المجاني)
                                 </h3>
-                                <p class="text-xs {{ $plan->slug === 'premium' ? 'text-[#E8DED0]/70' : 'text-[#292521]/60' }} mt-1">
-                                    {{ $plan->slug === 'premium' ? 'التجربة الملكية المتكاملة مع الدعم والموسيقى وتصدير البيانات' : 'تجربة مبسطة لتجربة المنصة ومشاركة أول دعوة' }}
+                                <p class="text-xs text-[#E8DED0]/75 mt-1">
+                                    تجربة زفّة المتكاملة لعرسان مصر والسعودية بدون أي قيود أو اشتراكات
                                 </p>
                             </div>
 
-                            <!-- Price -->
-                            <div class="flex items-baseline gap-2">
-                                <span class="font-cairo text-4xl sm:text-5xl font-extrabold {{ $plan->slug === 'premium' ? 'text-[#C6A76B]' : 'text-[#292521]' }}">
-                                    {{ $plan->price == 0 ? 'مجاناً' : number_format($plan->price) }}
+                            <div class="flex items-baseline gap-2 shrink-0">
+                                <span class="font-cairo text-4xl sm:text-5xl font-extrabold text-[#C6A76B]">
+                                    مجاناً
                                 </span>
-                                @if($plan->price > 0)
-                                    <span class="text-sm font-bold {{ $plan->slug === 'premium' ? 'text-[#E8DED0]/70' : 'text-[#292521]/60' }}">
-                                        {{ $plan->currency }} / تدفع لمرة واحدة للدعوة
-                                    </span>
-                                @endif
+                                <span class="text-xs font-bold text-emerald-300 bg-emerald-500/20 px-2.5 py-1 rounded-full border border-emerald-400/30">
+                                    0 ج.م / ر.س
+                                </span>
                             </div>
-
-                            <!-- Features list -->
-                            <ul class="space-y-3.5 text-sm pt-4 border-t {{ $plan->slug === 'premium' ? 'border-white/10 text-[#E8DED0]/90' : 'border-[#E8DED0] text-[#292521]/80' }}">
-                                @foreach($plan->features ?? [] as $feat)
-                                    <li class="flex items-center gap-3">
-                                        <div class="w-5 h-5 rounded-full {{ $plan->slug === 'premium' ? 'bg-[#C6A76B]/20 text-[#C6A76B]' : 'bg-emerald-100 text-emerald-600' }} flex items-center justify-center shrink-0">
-                                            <x-app-icon name="check" class="w-3.5 h-3.5" />
-                                        </div>
-                                        <span>{{ $feat }}</span>
-                                    </li>
-                                @endforeach
-                            </ul>
                         </div>
 
-                        <div class="pt-8">
-                            <a href="{{ route('register') }}" 
-                               class="w-full py-4 px-6 rounded-2xl font-bold text-center text-sm shadow-md transition flex items-center justify-center gap-2 {{ $plan->slug === 'premium' ? 'bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white hover:opacity-95' : 'bg-[#292521] text-white hover:bg-[#3D3731]' }}">
-                                <span>{{ $plan->price == 0 ? 'ابدأ مجاناً' : 'اشترك وصمم دعوتك الملكية' }}</span>
-                                <x-app-icon name="arrow-left" class="w-4 h-4" />
-                            </a>
-                        </div>
+                        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-sm pt-6 border-t border-white/10 text-[#E8DED0]/90">
+                            <li class="flex items-center gap-3">
+                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
+                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
+                                </div>
+                                <span>جميع القوالب الستة الفاخرة مفتوحة مجاناً</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
+                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
+                                </div>
+                                <span>تخصيص كامل للألوان والخطوط العربية</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
+                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
+                                </div>
+                                <span>إضافة موسيقى خلفية وألبوم صور تفاعلي</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
+                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
+                                </div>
+                                <span>تأكيدات حضور RSVP غير محدودة</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
+                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
+                                </div>
+                                <span>تصدير قائمة الضيوف الآمن إلى Excel / CSV</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
+                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
+                                </div>
+                                <span>دعم توقيت القاهرة والرياض ومشاركة واتساب</span>
+                            </li>
+                        </ul>
                     </div>
-                @endforeach
+
+                    <div class="pt-8">
+                        <a href="{{ auth()->check() ? route('dashboard.invitations.create') : route('register') }}"
+                           class="w-full py-4 px-6 rounded-2xl font-bold text-center text-sm shadow-md transition flex items-center justify-center gap-2 bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white hover:opacity-95">
+                            <span>ابدأ تصميم دعوتك مجاناً الآن</span>
+                            <x-app-icon name="arrow-left" class="w-4 h-4" />
+                        </a>
+                        <p class="text-[11px] text-center text-[#E8DED0]/60 mt-3">
+                            لا يتطلب بطاقة ائتمان • حساب مجاني خلال ٣٠ ثانية
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Guarantee Box -->
-            <div class="max-w-xl mx-auto mt-16 p-6 rounded-2xl bg-white border border-[#C6A76B]/30 text-center text-xs text-[#292521]/70 flex items-center justify-center gap-3">
+            <div class="max-w-xl mx-auto mt-12 p-6 rounded-2xl bg-white border border-[#C6A76B]/30 text-center text-xs text-[#292521]/70 flex items-center justify-center gap-3">
                 <x-app-icon name="shield-check" class="w-6 h-6 text-[#C6A76B] shrink-0" />
-                <span>ضمان الرضا الكامل: إذا احتجت لأي مساعدة في تنسيق دعوتك أو إعداد الرابط، فريق زفّة متاح عبر واتساب لخدمتك على مدار الساعة.</span>
+                <span>دعم مجاني كامل: إذا احتجت لأي مساعدة في تنسيق دعوتك أو مشاركتها، فريق زفّة متاح عبر واتساب لخدمتك في مصر والسعودية.</span>
             </div>
         </div>
     </div>

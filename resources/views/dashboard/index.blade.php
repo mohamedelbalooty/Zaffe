@@ -72,15 +72,21 @@
 
         <!-- Invitations List Section -->
         <div class="bg-white rounded-3xl border border-[#E8DED0] shadow-sm p-6 sm:p-8 space-y-6">
-            <div class="flex items-center justify-between pb-4 border-b border-[#E8DED0]">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#E8DED0]">
                 <div>
                     <h2 class="font-cairo text-xl font-bold text-[#292521]">دعوات الزفاف الخاصة بك</h2>
                     <p class="text-xs text-[#292521]/60 mt-0.5">تحكم في محتوى ومظهر ومشاركة بطاقاتك الرقمية</p>
                 </div>
-                <a href="{{ route('dashboard.invitations.index') }}" class="text-xs font-bold text-[#C6A76B] hover:underline flex items-center gap-1">
-                    <span>عرض الكل</span>
-                    <x-app-icon name="arrow-left" class="w-3.5 h-3.5" />
-                </a>
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-[#292521]/80 bg-[#FAF7F2] px-3 py-1.5 rounded-full border border-[#E8DED0]">
+                        <x-app-icon name="eye" class="w-3.5 h-3.5 text-[#C6A76B]" />
+                        <span>{{ $totalViews ?? 0 }} مشاهدة</span>
+                    </span>
+                    <a href="{{ route('dashboard.invitations.index') }}" class="text-xs font-bold text-[#C6A76B] hover:underline flex items-center gap-1">
+                        <span>عرض الكل</span>
+                        <x-app-icon name="arrow-left" class="w-3.5 h-3.5" />
+                    </a>
+                </div>
             </div>
 
             @if($invitations->isEmpty())
@@ -128,9 +134,10 @@
                             </div>
 
                             <!-- Mini RSVP stats bar -->
-                            <div class="p-3 rounded-xl bg-white border border-[#E8DED0] flex items-center justify-between text-xs">
+                            <div class="p-3 rounded-xl bg-white border border-[#E8DED0] flex flex-wrap items-center justify-between gap-2 text-xs">
                                 <span class="text-[#292521]/70">تأكيدات الحضور:</span>
                                 <div class="flex items-center gap-3 font-bold">
+                                    <span class="text-[#292521]/70 font-cairo" title="المشاهدات">👁️ {{ $invitation->view_count ?? 0 }}</span>
                                     <span class="text-emerald-600 font-cairo">✓ {{ $invitation->rsvps->where('attendance_status', 'attending')->sum('guest_count') }} فرد</span>
                                     <span class="text-rose-500 font-cairo">✕ {{ $invitation->rsvps->where('attendance_status', 'declined')->count() }}</span>
                                     <a href="{{ route('dashboard.invitations.guests', $invitation->id) }}" class="text-[#C6A76B] hover:underline font-semibold text-[11px]">
