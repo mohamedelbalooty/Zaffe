@@ -56,6 +56,9 @@ class RsvpForm extends Component
     #[Locked]
     public ?string $issuedPassCode = null;
 
+    #[Locked]
+    public bool $passPreviouslyIssued = false;
+
     public function mount(int $invitationId, int $maxGuests = 5, ?int $guestId = null): void
     {
         $this->invitationId = $invitationId;
@@ -200,6 +203,39 @@ class RsvpForm extends Component
                 ->first()
             : null;
 
+        if ($linkedGuest && $linkedGuest->checked_in_at !== null) {
+            $this->addError('guest_name', 'تم تسجيل دخول هذه البطاقة مسبقاً عند البوابة ولا يمكن تعديل بيانات الحضور بعد الدخول.');
+
+            return;
+        }
+
+        if (! $linkedGuest && $normalizedPhone !== null) {
+            $rosterMatch = InvitationGuest::query()
+                ->where('invitation_id', $invitation->id)
+                ->where('phone', $normalizedPhone)
+                ->where('is_self_registered', false)
+                ->first();
+
+            if ($rosterMatch) {
+                $this->addError('phone', 'هذا الرقم مسجل في قائمة ضيوف الحفل الخاصة — يرجى استخدام رابط الدعوة الشخصي المرسل إليك عبر واتساب أو التواصل مع أصحاب الحفل.');
+
+                return;
+            }
+
+            $checkedInSelfMatch = InvitationGuest::query()
+                ->where('invitation_id', $invitation->id)
+                ->where('phone', $normalizedPhone)
+                ->where('is_self_registered', true)
+                ->whereNotNull('checked_in_at')
+                ->first();
+
+            if ($checkedInSelfMatch) {
+                $this->addError('phone', 'تم استخدام بطاقة الدخول لهذا الرقم مسبقاً عند البوابة ولا يمكن تعديل بيانات الحضور.');
+
+                return;
+            }
+        }
+
         $isAttending = $this->attendance_status === 'attending';
         $childrenCount = $isAttending ? max(0, (int) $this->children_count) : 0;
 
@@ -215,6 +251,18 @@ class RsvpForm extends Component
             $rsvpRecord = RsvpResponse::where('invitation_id', $invitation->id)
                 ->where('phone', $normalizedPhone)
                 ->first();
+        }
+
+        if (! $linkedGuest && $rsvpRecord && $rsvpRecord->invitation_guest_id) {
+            $boundGuest = InvitationGuest::query()
+                ->where('invitation_id', $invitation->id)
+                ->find($rsvpRecord->invitation_guest_id);
+
+            if ($boundGuest && (! $boundGuest->is_self_registered || $boundGuest->checked_in_at !== null)) {
+                $this->addError('phone', 'تعذر تعديل هذا الحجز عبر النموذج العام — يرجى استخدام رابط الدعوة الشخصي أو التواصل مع أصحاب الحفل.');
+
+                return;
+            }
         }
 
         if ($rsvpRecord) {
@@ -248,6 +296,7 @@ class RsvpForm extends Component
 
         // Sync pre-invited guest or auto-issue QR pass when mode supports QR passes
         $guestPass = null;
+        $updatedExistingOpenPass = false;
         if ($linkedGuest) {
             $linkedGuest->update([
                 'name' => $this->guest_name,
@@ -267,6 +316,7 @@ class RsvpForm extends Component
                 $existingGuestPass = InvitationGuest::query()
                     ->where('invitation_id', $invitation->id)
                     ->where('phone', $normalizedPhone)
+                    ->where('is_self_registered', true)
                     ->first();
             }
 
@@ -281,6 +331,7 @@ class RsvpForm extends Component
                 ]);
                 $rsvpRecord->update(['invitation_guest_id' => $existingGuestPass->id]);
                 $guestPass = $existingGuestPass->fresh();
+                $updatedExistingOpenPass = true;
             } elseif ($invitation->supportsQrPass() && $isAttending) {
                 $guestPass = InvitationGuest::create([
                     'invitation_id' => $invitation->id,
@@ -293,17 +344,25 @@ class RsvpForm extends Component
                     'confirmed_adults' => $this->guest_count,
                     'confirmed_children' => $childrenCount,
                     'rsvp_response_id' => $rsvpRecord->id,
+                    'is_self_registered' => true,
                 ]);
                 $rsvpRecord->update(['invitation_guest_id' => $guestPass->id]);
             }
         }
 
-        if ($guestPass && $invitation->supportsQrPass() && $isAttending) {
+        if ($updatedExistingOpenPass) {
+            // Never expose existing bearer QR credentials via unauthenticated phone lookup
+            $this->issuedPassUrl = null;
+            $this->issuedPassCode = null;
+            $this->passPreviouslyIssued = $invitation->supportsQrPass() && $isAttending;
+        } elseif ($guestPass && $invitation->supportsQrPass() && $isAttending) {
             $this->issuedPassUrl = $guestPass->getPassUrl();
             $this->issuedPassCode = $guestPass->pass_code;
+            $this->passPreviouslyIssued = false;
         } else {
             $this->issuedPassUrl = null;
             $this->issuedPassCode = null;
+            $this->passPreviouslyIssued = false;
         }
 
         // Dispatch notifications gracefully (errors in mail delivery must not fail submission)
@@ -328,6 +387,11 @@ class RsvpForm extends Component
         $this->reset(['guest_name', 'phone', 'email', 'message', 'dietary_notes', 'selected_dietary', 'isSubmitted']);
         $this->guest_count = 1;
         $this->children_count = 0;
+        $this->passPreviouslyIssued = false;
+        if (! $this->guestId) {
+            $this->issuedPassUrl = null;
+            $this->issuedPassCode = null;
+        }
         $invitation = Invitation::find($this->invitationId);
         $this->phone_country = ($invitation && $invitation->timezone === 'Asia/Riyadh') ? 'SA' : 'EG';
         $this->attendance_status = 'attending';

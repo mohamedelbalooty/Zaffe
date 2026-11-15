@@ -38,6 +38,10 @@
                         <span>فتح وحفظ بطاقة الدخول للطباعة</span>
                     </a>
                 </div>
+            @elseif($attendance_status === 'attending' && $passPreviouslyIssued)
+                <p class="text-xs text-[#8A6D3B] bg-[#FAF7F2] border border-[#C6A76B]/30 rounded-xl px-4 py-3 max-w-md mx-auto leading-relaxed">
+                    تم تحديث تأكيد الحضور بنجاح. لحماية خصوصية بطاقتك، يرجى الاحتفاظ ببطاقة الدخول الصادرة لك مسبقاً أو مراجعة أصحاب الحفل لإعادة مشاركتها.
+                </p>
             @endif
 
             <div class="pt-4">

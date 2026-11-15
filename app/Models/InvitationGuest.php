@@ -45,6 +45,7 @@ class InvitationGuest extends Model
         'confirmed_adults',
         'confirmed_children',
         'rsvp_response_id',
+        'is_self_registered',
         'invited_at',
         'reminded_at',
         'checked_in_at',
@@ -53,11 +54,17 @@ class InvitationGuest extends Model
         'notes',
     ];
 
+    protected $hidden = [
+        'invite_token',
+        'qr_token',
+    ];
+
     protected $casts = [
         'max_adults' => 'integer',
         'max_children' => 'integer',
         'confirmed_adults' => 'integer',
         'confirmed_children' => 'integer',
+        'is_self_registered' => 'boolean',
         'checked_in_count' => 'integer',
         'invited_at' => 'datetime',
         'reminded_at' => 'datetime',

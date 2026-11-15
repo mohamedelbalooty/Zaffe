@@ -24,17 +24,19 @@ class Invitation extends Model
     protected static function booted(): void
     {
         static::saving(function (Invitation $invitation): void {
-            if ($invitation->isDirty('invitation_mode') && ! $invitation->isDirty('is_rsvp_enabled')) {
+            if ($invitation->isDirty('invitation_mode')) {
                 $invitation->is_rsvp_enabled = in_array(
-                    $invitation->invitation_mode,
+                    $invitation->effectiveMode(),
                     [self::MODE_RSVP_QR, self::MODE_RSVP_ONLY],
                     true
                 );
-            } elseif ($invitation->isDirty('is_rsvp_enabled') && ! $invitation->isDirty('invitation_mode')) {
+            } elseif ($invitation->isDirty('is_rsvp_enabled')) {
+                $mode = $invitation->effectiveMode();
                 if (! $invitation->is_rsvp_enabled
-                    && in_array($invitation->invitation_mode ?: self::MODE_RSVP_QR, [self::MODE_RSVP_QR, self::MODE_RSVP_ONLY], true)) {
+                    && in_array($mode, [self::MODE_RSVP_QR, self::MODE_RSVP_ONLY], true)) {
                     $invitation->invitation_mode = self::MODE_ANNOUNCEMENT;
-                } elseif ($invitation->is_rsvp_enabled && $invitation->invitation_mode === self::MODE_ANNOUNCEMENT) {
+                } elseif ($invitation->is_rsvp_enabled
+                    && ! in_array($mode, [self::MODE_RSVP_QR, self::MODE_RSVP_ONLY], true)) {
                     $invitation->invitation_mode = self::MODE_RSVP_QR;
                 }
             }
@@ -296,17 +298,25 @@ class Invitation extends Model
         $attending = $guests->where('rsvp_status', InvitationGuest::STATUS_ATTENDING);
         $declined = $guests->where('rsvp_status', InvitationGuest::STATUS_DECLINED);
         $pending = $guests->whereIn('rsvp_status', [InvitationGuest::STATUS_PENDING, InvitationGuest::STATUS_TENTATIVE]);
+        $activeGuests = $guests->reject(fn (InvitationGuest $g) => $g->rsvp_status === InvitationGuest::STATUS_DECLINED);
         $checkedIn = $guests->filter(fn (InvitationGuest $g) => $g->checked_in_at !== null);
 
-        $attendingAdults = (int) $attending->sum(fn (InvitationGuest $g) => $g->confirmed_adults > 0 ? $g->confirmed_adults : $g->max_adults);
-        $attendingChildren = (int) $attending->sum('confirmed_children');
+        $attendingAdults = (int) $attending->sum(
+            fn (InvitationGuest $g) => ($g->confirmed_adults + $g->confirmed_children) > 0
+                ? $g->confirmed_adults
+                : $g->max_adults
+        );
+        $attendingChildren = (int) $attending->sum(
+            fn (InvitationGuest $g) => ($g->confirmed_adults + $g->confirmed_children) > 0
+                ? $g->confirmed_children
+                : $g->max_children
+        );
         $attendingHeads = $attendingAdults + $attendingChildren;
         $checkedInHeads = (int) $checkedIn->sum(fn (InvitationGuest $g) => $g->checked_in_count > 0 ? $g->checked_in_count : 1);
 
-        $expectedTotalHeads = $attendingHeads > 0
-            ? $attendingHeads
-            : (int) $guests->reject(fn (InvitationGuest $g) => $g->rsvp_status === InvitationGuest::STATUS_DECLINED)
-                ->sum(fn (InvitationGuest $g) => $g->getAllocatedTotal());
+        $remainingPool = ($this->effectiveMode() === self::MODE_QR_ONLY || $attending->isEmpty())
+            ? $activeGuests->filter(fn (InvitationGuest $g) => $g->checked_in_at === null)
+            : $attending->filter(fn (InvitationGuest $g) => $g->checked_in_at === null);
 
         return [
             'total_invited' => $guests->count(),
@@ -318,8 +328,8 @@ class Invitation extends Model
             'pending_parties' => $pending->count(),
             'checked_in_parties' => $checkedIn->count(),
             'checked_in_heads' => $checkedInHeads,
-            'remaining_parties' => max(0, $attending->count() - $checkedIn->count()),
-            'remaining_heads' => max(0, $expectedTotalHeads - $checkedInHeads),
+            'remaining_parties' => $remainingPool->count(),
+            'remaining_heads' => (int) $remainingPool->sum(fn (InvitationGuest $g) => $g->getExpectedPartySize()),
         ];
     }
 }

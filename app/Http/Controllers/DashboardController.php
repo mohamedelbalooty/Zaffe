@@ -220,10 +220,12 @@ class DashboardController extends Controller
 
         $rsvps = $query->paginate(20)->withQueryString();
 
+        $attendingRsvps = $invitation->rsvps()->where('attendance_status', 'attending');
+
         $stats = [
             'total' => $invitation->rsvps()->count(),
-            'attending' => $invitation->rsvps()->where('attendance_status', 'attending')->count(),
-            'total_guests' => $invitation->rsvps()->where('attendance_status', 'attending')->sum('guest_count'),
+            'attending' => (clone $attendingRsvps)->count(),
+            'total_guests' => (int) (clone $attendingRsvps)->sum('guest_count') + (int) (clone $attendingRsvps)->sum('children_count'),
             'declined' => $invitation->rsvps()->where('attendance_status', 'declined')->count(),
         ];
 
@@ -256,6 +258,7 @@ class DashboardController extends Controller
                 'البريد الإلكتروني',
                 'حالة الحضور',
                 'عدد الحضور / المرافقين',
+                'عدد الأطفال',
                 'الرسالة أو التهنئة',
                 'ملاحظات غذائية',
                 'تاريخ التأكيد',
@@ -270,6 +273,7 @@ class DashboardController extends Controller
                     CsvSanitizer::cell($rsvp->email ?? '—'),
                     $rsvp->attendance_status === 'attending' ? 'حضور مؤكد' : ($rsvp->attendance_status === 'declined' ? 'اعتذار' : 'غير محدد'),
                     $rsvp->guest_count,
+                    $rsvp->children_count ?? 0,
                     CsvSanitizer::cell($rsvp->message ?? '—'),
                     CsvSanitizer::cell($rsvp->dietary_notes ?? '—'),
                     $rsvp->created_at->format('Y-m-d H:i'),
@@ -306,7 +310,7 @@ class DashboardController extends Controller
                 'المقاعد (أطفال)',
                 'كود الدخول',
                 'حالة الرد',
-                'تم الإرسال',
+                'بدء المشاركة (واتساب)',
                 'تم الدخول',
                 'عدد الحاضرين فعلياً',
                 'البوابة',

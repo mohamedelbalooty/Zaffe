@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\InvitationGate;
 use App\Models\InvitationGuest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -46,6 +47,10 @@ class GateScanner extends Component
             abort(403, 'الدعوة غير منشورة أو غير متاحة حالياً.');
         }
 
+        if (! $gate->invitation->supportsQrPass()) {
+            abort(403, 'نظام بطاقات الدخول غير مفعّل في نمط هذه الدعوة.');
+        }
+
         $this->gateId = $gate->id;
         $this->invitationId = $gate->invitation_id;
         $this->gateToken = $gateToken;
@@ -68,12 +73,24 @@ class GateScanner extends Component
             abort(403, 'الدعوة غير منشورة حالياً.');
         }
 
+        if (! $gate->invitation->supportsQrPass()) {
+            abort(403, 'نظام بطاقات الدخول غير مفعّل في نمط هذه الدعوة.');
+        }
+
         return $gate;
     }
 
     public function scanPayload(string $payload): void
     {
         $gate = $this->resolveActiveGate();
+        $failRateKey = 'gate-fail:'.$gate->id.':'.request()->ip();
+
+        if (RateLimiter::tooManyAttempts($failRateKey, 20)) {
+            $this->setFeedback('invalid', 'تم تسجيل محاولات كثيرة غير صحيحة — يرجى الانتظار دقيقة قبل المحاولة مجدداً.');
+
+            return;
+        }
+
         $trimmed = trim($payload);
 
         if ($trimmed === '') {
@@ -100,18 +117,30 @@ class GateScanner extends Component
             ->first();
 
         if (! $guest) {
+            RateLimiter::hit($failRateKey, 60);
             $this->setFeedback('invalid', 'هذا الرمز غير مسجل في قائمة ضيوف هذا الحفل.');
 
             return;
         }
 
+        RateLimiter::clear($failRateKey);
         $this->performAtomicCheckIn($gate, $guest);
     }
 
     public function checkInByCode(): void
     {
         $gate = $this->resolveActiveGate();
-        $code = strtoupper(trim($this->passCodeInput));
+        $failRateKey = 'gate-fail:'.$gate->id.':'.request()->ip();
+
+        if (RateLimiter::tooManyAttempts($failRateKey, 20)) {
+            $this->passCodeInput = '';
+            $this->setFeedback('invalid', 'تم تسجيل محاولات كثيرة غير صحيحة — يرجى الانتظار دقيقة قبل المحاولة مجدداً.');
+
+            return;
+        }
+
+        $rawInput = trim($this->passCodeInput);
+        $code = strtoupper($rawInput);
 
         if ($code === '') {
             $this->setFeedback('invalid', 'يرجى إدخال كود التحقق المكوّن من 6 أحرف.');
@@ -121,20 +150,22 @@ class GateScanner extends Component
 
         $guest = InvitationGuest::query()
             ->where('invitation_id', $gate->invitation_id)
-            ->where(function ($q) use ($code): void {
+            ->where(function ($q) use ($code, $rawInput): void {
                 $q->where('pass_code', $code)
-                    ->orWhere('qr_token', trim($this->passCodeInput));
+                    ->orWhere('qr_token', $rawInput);
             })
             ->first();
 
         $this->passCodeInput = '';
 
         if (! $guest) {
+            RateLimiter::hit($failRateKey, 60);
             $this->setFeedback('invalid', 'لم يتم العثور على ضيف بهذا الكود في هذا الحفل.');
 
             return;
         }
 
+        RateLimiter::clear($failRateKey);
         $this->performAtomicCheckIn($gate, $guest);
     }
 
@@ -209,10 +240,11 @@ class GateScanner extends Component
             return;
         }
 
-        $adults = $guest->rsvp_status === InvitationGuest::STATUS_ATTENDING && $guest->confirmed_adults > 0
+        $hasConfirmedParty = ($guest->confirmed_adults + $guest->confirmed_children) > 0;
+        $adults = $guest->rsvp_status === InvitationGuest::STATUS_ATTENDING && $hasConfirmedParty
             ? $guest->confirmed_adults
             : $guest->max_adults;
-        $children = $guest->rsvp_status === InvitationGuest::STATUS_ATTENDING
+        $children = $guest->rsvp_status === InvitationGuest::STATUS_ATTENDING && $hasConfirmedParty
             ? $guest->confirmed_children
             : $guest->max_children;
 

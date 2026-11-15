@@ -124,7 +124,12 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 font-bold text-sm text-[#292521]">
-                                        {{ $rsvp->guest_count }}
+                                        {{ $rsvp->guest_count + ($rsvp->children_count ?? 0) }}
+                                        @if(($rsvp->children_count ?? 0) > 0)
+                                            <span class="block text-[10px] font-medium text-[#292521]/60">
+                                                {{ $rsvp->guest_count }} بالغين · {{ $rsvp->children_count }} أطفال
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-[#292521]/80 max-w-xs">
                                         @if($rsvp->dietary_notes)

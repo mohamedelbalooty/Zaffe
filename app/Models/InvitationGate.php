@@ -22,6 +22,10 @@ class InvitationGate extends Model
         'created_by_user_id',
     ];
 
+    protected $hidden = [
+        'access_token',
+    ];
+
     protected $casts = [
         'is_active' => 'boolean',
         'scan_count' => 'integer',

@@ -439,11 +439,229 @@ class SmartGuestAndQrCheckInTest extends TestCase
             ->get(InvitationGuestResource::getUrl('index'))
             ->assertOk()
             ->assertSee('ضيف إداري')
-            ->assertSee($guest->pass_code);
+            ->assertSee($guest->pass_code)
+            ->assertDontSee($guest->qr_token)
+            ->assertDontSee($guest->invite_token);
 
         $this->actingAs($this->admin)
             ->get(InvitationGuestResource::getUrl('view', ['record' => $guest]))
             ->assertOk()
-            ->assertSee('ضيف إداري');
+            ->assertSee('ضيف إداري')
+            ->assertDontSee($guest->qr_token)
+            ->assertDontSee($guest->invite_token);
+    }
+
+    public function test_open_rsvp_cannot_hijack_pre_invited_guest_quota_or_pass_by_phone(): void
+    {
+        $vip = InvitationGuest::create([
+            'invitation_id' => $this->invitation->id,
+            'name' => 'الأمير خالد',
+            'phone' => '+966501112233',
+            'category' => InvitationGuest::CATEGORY_VIP,
+            'max_adults' => 1,
+            'max_children' => 0,
+        ]);
+
+        // Unauthenticated attacker tries using VIP's phone on the open RSVP form
+        Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id])
+            ->set('guest_name', 'مهاجم')
+            ->set('phone', '0501112233')
+            ->set('phone_country', 'SA')
+            ->set('attendance_status', 'declined')
+            ->set('guest_count', 5)
+            ->call('submit')
+            ->assertHasErrors(['phone'])
+            ->assertSet('issuedPassUrl', null)
+            ->assertSet('issuedPassCode', null);
+
+        $vip->refresh();
+        $this->assertSame('الأمير خالد', $vip->name);
+        $this->assertSame(InvitationGuest::STATUS_PENDING, $vip->rsvp_status);
+        $this->assertSame(1, $vip->max_adults);
+
+        // Even AFTER VIP confirms via their secret ?g= token, open form cannot overwrite or leak their pass
+        Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id, 'guestId' => $vip->id])
+            ->set('guest_name', 'الأمير خالد')
+            ->set('attendance_status', 'attending')
+            ->set('guest_count', 1)
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id])
+            ->set('guest_name', 'مهاجم ثانٍ')
+            ->set('phone', '0501112233')
+            ->set('phone_country', 'SA')
+            ->set('attendance_status', 'declined')
+            ->call('submit')
+            ->assertHasErrors(['phone'])
+            ->assertSet('issuedPassUrl', null);
+
+        $this->assertSame(InvitationGuest::STATUS_ATTENDING, $vip->fresh()->rsvp_status);
+    }
+
+    public function test_open_rsvp_re_submission_does_not_leak_existing_qr_or_allow_post_checkin_edits(): void
+    {
+        // First open RSVP creates self-registered pass and shows pass URL once
+        $first = Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id])
+            ->set('guest_name', 'نورة السالم')
+            ->set('phone', '0509998877')
+            ->set('phone_country', 'SA')
+            ->set('attendance_status', 'attending')
+            ->set('guest_count', 2)
+            ->set('children_count', 1)
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $this->assertNotNull($first->get('issuedPassUrl'));
+        $selfGuest = InvitationGuest::where('invitation_id', $this->invitation->id)->where('phone', '+966509998877')->firstOrFail();
+        $this->assertTrue($selfGuest->is_self_registered);
+
+        // Second open submission with same phone updates headcount WITHOUT re-disclosing bearer pass credentials
+        Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id])
+            ->set('guest_name', 'نورة السالم')
+            ->set('phone', '0509998877')
+            ->set('phone_country', 'SA')
+            ->set('attendance_status', 'attending')
+            ->set('guest_count', 3)
+            ->call('submit')
+            ->assertHasNoErrors()
+            ->assertSet('issuedPassUrl', null)
+            ->assertSet('issuedPassCode', null)
+            ->assertSet('passPreviouslyIssued', true);
+
+        // Once checked in at gate, neither open RSVP nor ?g= link may mutate attendance state
+        $selfGuest->update(['checked_in_at' => now(), 'checked_in_count' => 3]);
+
+        Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id, 'guestId' => $selfGuest->id])
+            ->set('guest_name', 'نورة السالم')
+            ->set('attendance_status', 'declined')
+            ->call('submit')
+            ->assertHasErrors(['guest_name']);
+
+        Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id])
+            ->set('guest_name', 'نورة السالم')
+            ->set('phone', '0509998877')
+            ->set('phone_country', 'SA')
+            ->set('attendance_status', 'declined')
+            ->call('submit')
+            ->assertHasErrors(['phone']);
+
+        $this->assertSame(InvitationGuest::STATUS_ATTENDING, $selfGuest->fresh()->rsvp_status);
+    }
+
+    public function test_invitation_mode_prevails_on_simultaneous_save_and_blocks_gates_when_qr_disabled(): void
+    {
+        // Passing contradictory is_rsvp_enabled alongside invitation_mode resolves from invitation_mode
+        $this->invitation->update([
+            'invitation_mode' => Invitation::MODE_QR_ONLY,
+            'is_rsvp_enabled' => true,
+        ]);
+        $this->assertFalse($this->invitation->fresh()->is_rsvp_enabled);
+
+        $gate = InvitationGate::create([
+            'invitation_id' => $this->invitation->id,
+            'name' => 'بوابة 1',
+            'is_active' => true,
+        ]);
+        $guest = InvitationGuest::create([
+            'invitation_id' => $this->invitation->id,
+            'name' => 'ضيف وضع QR',
+            'max_adults' => 2,
+        ]);
+
+        $this->get($gate->getPortalUrl())->assertOk();
+        $this->get($guest->getPassUrl())->assertOk();
+
+        // Switching to rsvp_only preserves guest records while blocking both /pass and /gate
+        $this->invitation->update(['invitation_mode' => Invitation::MODE_RSVP_ONLY]);
+
+        $this->assertDatabaseHas('invitation_guests', ['id' => $guest->id]);
+        $this->get($guest->getPassUrl())->assertNotFound();
+        $this->get($gate->getPortalUrl())->assertForbidden();
+    }
+
+    public function test_guest_checkin_stats_and_dashboard_children_counts_stay_accurate(): void
+    {
+        $attendingA = InvitationGuest::create([
+            'invitation_id' => $this->invitation->id,
+            'name' => 'عائلة أولى',
+            'max_adults' => 2,
+            'max_children' => 1,
+            'rsvp_status' => InvitationGuest::STATUS_ATTENDING,
+            'confirmed_adults' => 2,
+            'confirmed_children' => 1,
+            'checked_in_at' => now(),
+            'checked_in_count' => 3,
+        ]);
+        InvitationGuest::create([
+            'invitation_id' => $this->invitation->id,
+            'name' => 'عائلة ثانية',
+            'max_adults' => 3,
+            'max_children' => 1,
+            'rsvp_status' => InvitationGuest::STATUS_ATTENDING,
+            'confirmed_adults' => 3,
+            'confirmed_children' => 1,
+        ]);
+        // Walk-in pending VIP also checked in at gate — must NOT subtract from attending remaining count
+        InvitationGuest::create([
+            'invitation_id' => $this->invitation->id,
+            'name' => 'ضيف غير مؤكد مسبقاً',
+            'max_adults' => 2,
+            'rsvp_status' => InvitationGuest::STATUS_PENDING,
+            'checked_in_at' => now(),
+            'checked_in_count' => 2,
+        ]);
+
+        $stats = $this->invitation->guestCheckInStats();
+        $this->assertSame(1, $stats['remaining_parties']);
+        $this->assertSame(4, $stats['remaining_heads']);
+        $this->assertSame(5, $stats['checked_in_heads']);
+
+        // Dashboard guests summary & CSV include children_count
+        Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id])
+            ->set('guest_name', 'ضيف مع أطفال')
+            ->set('phone', '01055544332')
+            ->set('phone_country', 'EG')
+            ->set('attendance_status', 'attending')
+            ->set('guest_count', 2)
+            ->set('children_count', 3)
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $this->actingAs($this->couple)
+            ->get(route('dashboard.invitations.guests', $this->invitation->id))
+            ->assertOk()
+            ->assertSee('5');
+
+        $csv = $this->actingAs($this->couple)
+            ->get(route('dashboard.invitations.guests.export', $this->invitation->id))
+            ->assertOk()
+            ->streamedContent();
+        $this->assertStringContainsString('عدد الأطفال', $csv);
+    }
+
+    public function test_capability_urls_emit_privacy_headers_and_models_hide_secret_tokens(): void
+    {
+        $gate = InvitationGate::create([
+            'invitation_id' => $this->invitation->id,
+            'name' => 'بوابة الخصوصية',
+            'is_active' => true,
+        ]);
+        $guest = InvitationGuest::create([
+            'invitation_id' => $this->invitation->id,
+            'name' => 'ضيف الخصوصية',
+            'rsvp_status' => InvitationGuest::STATUS_ATTENDING,
+            'confirmed_adults' => 1,
+        ]);
+
+        $this->assertArrayNotHasKey('qr_token', $guest->toArray());
+        $this->assertArrayNotHasKey('invite_token', $guest->toArray());
+        $this->assertArrayNotHasKey('access_token', $gate->toArray());
+
+        foreach ([$guest->getPassUrl(), $gate->getPortalUrl(), $guest->getPersonalInviteUrl()] as $url) {
+            $response = $this->get($url)->assertOk();
+            $response->assertHeader('Referrer-Policy', 'no-referrer');
+            $response->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+        }
     }
 }

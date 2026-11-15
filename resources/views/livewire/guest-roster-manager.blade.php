@@ -318,7 +318,7 @@
                                        wire:click="markInvited({{ $guest->id }})"
                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-bold hover:bg-emerald-700 transition">
                                         <x-app-icon name="whatsapp" class="w-3.5 h-3.5" />
-                                        <span>{{ $guest->invited_at ? 'تذكير واتساب' : 'إرسال دعوة' }}</span>
+                                        <span>{{ $guest->invited_at ? 'مشاركة تذكير (واتساب)' : 'مشاركة عبر واتساب' }}</span>
                                     </a>
                                     <button type="button" @click="copyLink('{{ $guest->getPersonalInviteUrl() }}')"
                                             class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-[#E8DED0] bg-white text-[#292521] text-[11px] font-bold hover:bg-[#FAF7F2] cursor-pointer">
@@ -327,7 +327,7 @@
                                     </button>
                                 </div>
                                 @if($guest->invited_at)
-                                    <span class="block text-[10px] text-emerald-700 mt-1">أُرسلت: {{ $guest->invited_at->diffForHumans() }}</span>
+                                    <span class="block text-[10px] text-emerald-700 mt-1">تم فتح واتساب: {{ $guest->invited_at->diffForHumans() }}</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-left">

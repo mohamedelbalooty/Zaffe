@@ -70,4 +70,56 @@ class QrCodeServiceTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $service->renderSvg('');
     }
+
+    public function test_rejects_payload_exceeding_version_10_capacity(): void
+    {
+        $service = app(QrCodeService::class);
+
+        $this->expectException(InvalidArgumentException::class);
+        $service->encodeMatrix(str_repeat('A', 214));
+    }
+
+    public function test_encodes_all_version_1_to_10_boundaries_with_4_module_quiet_zone(): void
+    {
+        $service = app(QrCodeService::class);
+
+        $expectedVersions = [
+            1 => 1, 14 => 1,
+            15 => 2, 26 => 2,
+            27 => 3, 42 => 3,
+            43 => 4, 62 => 4,
+            63 => 5, 84 => 5,
+            85 => 6, 106 => 6,
+            107 => 7, 122 => 7,
+            123 => 8, 152 => 8,
+            153 => 9, 180 => 9,
+            181 => 10, 213 => 10,
+        ];
+
+        foreach ($expectedVersions as $byteLength => $version) {
+            $payload = str_repeat('Z', $byteLength);
+            $matrix = $service->encodeMatrix($payload);
+            $dim = 17 + (4 * $version);
+
+            $this->assertCount($dim, $matrix, "Failed matrix dimension for {$byteLength} bytes (V{$version})");
+            $svg = $service->renderSvg($payload);
+            $totalViewBox = $dim + 8;
+            $this->assertStringContainsString("viewBox=\"0 0 {$totalViewBox} {$totalViewBox}\"", $svg);
+        }
+    }
+
+    public function test_escapes_svg_attributes_safely(): void
+    {
+        $service = app(QrCodeService::class);
+        $svg = $service->renderSvg(
+            'https://zaffe.app/pass/abc123def456',
+            200,
+            '#111827',
+            '#FFFFFF',
+            'Guest "<script>alert(1)</script>"'
+        );
+
+        $this->assertStringNotContainsString('<script>', $svg);
+        $this->assertStringContainsString('&lt;script&gt;', $svg);
+    }
 }

@@ -81,9 +81,10 @@
                 <input type="text" wire:model="passCodeInput" dir="ltr" maxlength="48"
                        placeholder="أدخل كود البطاقة (مثال: K7P9MX)"
                        class="flex-1 min-h-[44px] px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white font-mono text-sm tracking-widest uppercase focus:border-[#C6A76B] outline-none">
-                <button type="submit"
-                        class="min-h-[44px] px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer shrink-0">
-                    تحقق وسجّل الدخول
+                <button type="submit" wire:loading.attr="disabled" wire:target="checkInByCode"
+                        class="min-h-[44px] px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-xs font-bold transition cursor-pointer shrink-0">
+                    <span wire:loading.remove wire:target="checkInByCode">تحقق وسجّل الدخول</span>
+                    <span wire:loading wire:target="checkInByCode">جاري التحقق...</span>
                 </button>
             </form>
         </div>
@@ -145,14 +146,25 @@
                 stream: null,
                 timer: null,
                 lastScanned: '',
+                processingScan: false,
                 async toggleCamera() {
                     if (this.cameraActive) {
                         this.stopCamera();
                         return;
                     }
                     this.cameraNotice = '';
-                    if (!('BarcodeDetector' in window) || !navigator.mediaDevices?.getUserMedia) {
-                        this.cameraNotice = 'مسح الكاميرا التلقائي غير مدعوم في هذا المتصفح — يمكنك المسح بكاميرا الهاتف الأصلية لفتح رابط البطاقة أو استخدام البحث السريع وكود التحقق أدناه.';
+                    const hasBarcodeApi = 'BarcodeDetector' in window;
+                    let supportsQr = hasBarcodeApi;
+                    if (hasBarcodeApi && typeof BarcodeDetector.getSupportedFormats === 'function') {
+                        try {
+                            const formats = await BarcodeDetector.getSupportedFormats();
+                            supportsQr = Array.isArray(formats) && formats.includes('qr_code');
+                        } catch (e) {
+                            supportsQr = false;
+                        }
+                    }
+                    if (!supportsQr || !navigator.mediaDevices?.getUserMedia) {
+                        this.cameraNotice = 'المسح المباشر بالكاميرا غير مدعوم في هذا المتصفح (مثل Safari على iOS) — استخدم متصفح Chrome على أندرويد أو سطح المكتب، أو أدخل كود التحقق المكوّن من 6 أحرف / ابحث بالاسم أدناه لتأكيد الدخول.';
                         return;
                     }
                     try {
@@ -161,23 +173,35 @@
                         this.cameraActive = true;
                         const detector = new BarcodeDetector({ formats: ['qr_code'] });
                         this.timer = setInterval(async () => {
-                            if (!this.cameraActive || this.$refs.video.readyState < 2) return;
+                            if (!this.cameraActive || this.processingScan || this.$refs.video.readyState < 2) return;
                             try {
                                 const codes = await detector.detect(this.$refs.video);
                                 if (codes.length > 0 && codes[0].rawValue && codes[0].rawValue !== this.lastScanned) {
                                     this.lastScanned = codes[0].rawValue;
-                                    this.$wire.scanPayload(codes[0].rawValue);
-                                    setTimeout(() => { this.lastScanned = ''; }, 3000);
+                                    this.processingScan = true;
+                                    try {
+                                        await this.$wire.scanPayload(codes[0].rawValue);
+                                    } finally {
+                                        this.processingScan = false;
+                                        setTimeout(() => { this.lastScanned = ''; }, 3000);
+                                    }
                                 }
-                            } catch (e) {}
+                            } catch (e) {
+                                this.processingScan = false;
+                            }
                         }, 450);
                     } catch (err) {
-                        this.cameraNotice = 'تعذر الوصول إلى الكاميرا. يرجى السماح بصلاحية الكاميرا أو استخدام كود التحقق اليدوي.';
+                        this.stopCamera();
+                        this.cameraNotice = 'تعذر الوصول إلى الكاميرا. يرجى السماح بصلاحية الكاميرا في إعدادات المتصفح أو استخدام كود التحقق اليدوي والبحث السريع أدناه.';
                     }
                 },
                 stopCamera() {
                     this.cameraActive = false;
-                    if (this.timer) clearInterval(this.timer);
+                    this.processingScan = false;
+                    if (this.timer) {
+                        clearInterval(this.timer);
+                        this.timer = null;
+                    }
                     if (this.stream) {
                         this.stream.getTracks().forEach(t => t.stop());
                         this.stream = null;

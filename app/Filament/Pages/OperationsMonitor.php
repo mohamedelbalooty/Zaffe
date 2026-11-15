@@ -51,7 +51,8 @@ class OperationsMonitor extends Page
         $draftInvitations = Invitation::where('status', 'draft')->count();
         $archivedInvitations = Invitation::where('status', 'archived')->count();
         $totalRsvps = RsvpResponse::count();
-        $confirmedHeads = (int) RsvpResponse::where('attendance_status', 'attending')->sum('guest_count');
+        $confirmedHeads = (int) RsvpResponse::where('attendance_status', 'attending')->sum('guest_count')
+            + (int) RsvpResponse::where('attendance_status', 'attending')->sum('children_count');
 
         $avgRsvpsPerPublished = $publishedInvitations > 0
             ? round($totalRsvps / $publishedInvitations, 1)

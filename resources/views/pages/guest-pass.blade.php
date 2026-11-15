@@ -27,10 +27,15 @@
                         <span class="px-2.5 py-1 rounded-full bg-[#FAF7F2] border border-[#E8DED0] text-[#292521] font-bold">
                             {{ \App\Models\InvitationGuest::categoryLabel($guest->category, 'ar') }}
                         </span>
+                        @php
+                            $hasConfirmed = ($guest->confirmed_adults + $guest->confirmed_children) > 0;
+                            $displayAdults = $guest->rsvp_status === 'attending' && $hasConfirmed ? $guest->confirmed_adults : $guest->max_adults;
+                            $displayChildren = $guest->rsvp_status === 'attending' && $hasConfirmed ? $guest->confirmed_children : $guest->max_children;
+                        @endphp
                         <span class="px-2.5 py-1 rounded-full bg-[#C6A76B]/15 text-[#8A6D3B] font-bold">
-                            البالغون: {{ $guest->rsvp_status === 'attending' && $guest->confirmed_adults > 0 ? $guest->confirmed_adults : $guest->max_adults }}
-                            @if(($guest->rsvp_status === 'attending' ? $guest->confirmed_children : $guest->max_children) > 0)
-                                · الأطفال: {{ $guest->rsvp_status === 'attending' ? $guest->confirmed_children : $guest->max_children }}
+                            البالغون: {{ $displayAdults }}
+                            @if($displayChildren > 0)
+                                · الأطفال: {{ $displayChildren }}
                             @endif
                         </span>
                     </div>

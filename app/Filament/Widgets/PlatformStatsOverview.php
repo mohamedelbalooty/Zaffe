@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Invitation;
+use App\Models\InvitationGate;
 use App\Models\InvitationGuest;
 use App\Models\InvitationTemplate;
 use App\Models\RsvpResponse;
@@ -19,11 +20,13 @@ class PlatformStatsOverview extends StatsOverviewWidget
         $usersCount = User::count();
         $invitationsCount = Invitation::count();
         $publishedCount = Invitation::where('status', 'published')->count();
-        $confirmedGuests = (int) RsvpResponse::where('attendance_status', 'attending')->sum('guest_count');
+        $confirmedGuests = (int) RsvpResponse::where('attendance_status', 'attending')->sum('guest_count')
+            + (int) RsvpResponse::where('attendance_status', 'attending')->sum('children_count');
         $templatesCount = InvitationTemplate::availableForSelection()->count();
         $failedJobs = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
         $preInvitedCount = Schema::hasTable('invitation_guests') ? InvitationGuest::count() : 0;
         $checkedInCount = Schema::hasTable('invitation_guests') ? InvitationGuest::whereNotNull('checked_in_at')->count() : 0;
+        $activeGatesCount = Schema::hasTable('invitation_gates') ? InvitationGate::where('is_active', true)->count() : 0;
 
         return [
             Stat::make(__('admin.stats.users'), $usersCount)
@@ -42,7 +45,7 @@ class PlatformStatsOverview extends StatsOverviewWidget
                 ->color('warning'),
 
             Stat::make(__('admin.stats.checkin_passes'), $preInvitedCount)
-                ->description(__('admin.stats.checkin_passes_desc', ['count' => $checkedInCount]))
+                ->description(__('admin.stats.checkin_passes_desc', ['count' => $checkedInCount, 'gates' => $activeGatesCount]))
                 ->descriptionIcon('heroicon-m-qr-code')
                 ->color('primary'),
 
