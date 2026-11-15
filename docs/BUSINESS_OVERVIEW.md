@@ -147,12 +147,16 @@ erDiagram
 | **Interactive Wedding Countdown** | Real-time countdown clock to wedding moment (days, hours, minutes, seconds) | Guests | **Fully Implemented** `[VERIFIED]` | `views/templates/partials/countdown.blade.php` (Alpine.js) |
 | **Audio / Background Music** | Floating toggleable background music audio player with loop | Guests | **Fully Implemented** `[VERIFIED]` | `views/templates/partials/music_player.blade.php` |
 | **Live RSVP Submission** | Interactive RSVP form with guest cap, deadline check, duplicate resolution | Guests | **Fully Implemented** `[VERIFIED]` | `app/Livewire/RsvpForm.php`, `views/livewire/rsvp-form.blade.php` |
+| **Invitation Modes (4 Workflows)** | `rsvp_qr`, `rsvp_only`, `qr_only`, and `announcement` modes across Editor & Public Cards | Couples / Guests | **Fully Implemented** `[VERIFIED]` | `Invitation`, `InvitationEditor`, `templates/partials/access_section.blade.php` |
+| **Pre-Invited Guest Roster & Bulk CSV Import** | Named guest list, adult/child quotas, categories, bulk CSV/text import & formula-safe roster export | Couples | **Fully Implemented** `[VERIFIED]` | `GuestRosterManager`, `DashboardController::exportRosterCsv()` |
+| **Personal Invite Links & Pure-PHP QR Passes** | `?g=` personalized invitation experience + printable/mobile single-use QR entry pass `/pass/{qrToken}` | Couples / Guests | **Fully Implemented** `[VERIFIED]` | `QrCodeService`, `GuestPassController`, `RsvpForm` |
+| **Zero-App Gatekeeper Check-In Portal** | Named venue gates (`/gate/{gateToken}`), camera QR + manual `pass_code` scan, atomic single-use check-in | Couples / Ushers | **Fully Implemented** `[VERIFIED]` | `GateScanner`, `InvitationGate`, `livewire/gate-scanner.blade.php` |
 | **RSVP Guest Management** | View RSVP responses, search by name/phone/notes, filter by status | Couples | **Fully Implemented** `[VERIFIED]` | `DashboardController::guests()`, `views/dashboard/guests.blade.php` |
 | **Excel/CSV Guest Export** | Streamed CSV download with UTF-8 BOM and formula injection protection | Couples | **Fully Implemented** `[VERIFIED]` | `DashboardController::exportGuestsCsv()` |
 | **Customer Profile Management** | Update name, email, phone, and password | Couples | **Fully Implemented** `[VERIFIED]` | `DashboardController::updateProfile()`, `views/dashboard/profile.blade.php` |
-| **Super Admin Panel (Filament v5)** | Full CRUD for users, invitations, templates, categories, plans, settings, stats | Admin (`role=admin`) | **Fully Implemented** `[VERIFIED]` | `app/Filament/*`, `AdminPanelProvider.php` |
+| **Super Admin Panel (Filament v5)** | Full CRUD for users, invitations, templates, categories, guest passes (`InvitationGuestResource`), settings, stats | Admin (`role=admin`) | **Fully Implemented** `[VERIFIED]` | `app/Filament/*`, `AdminPanelProvider.php` |
 | **Payment Gateway Integration** | Subscription plan purchase & checkout (Paymob / Fawry / Stripe) | Couples | **Planned / Not Implemented** `[VERIFIED]` | Models exist; no checkout routes or payment webhooks exist |
-| **Automated WhatsApp / SMS Bot** | Send automated SMS/WhatsApp RSVP reminders to guests via Twilio or Meta | System / Couples | **Planned / Not Implemented** `[VERIFIED]` | Currently relies on user-initiated WhatsApp link sharing |
+| **Automated WhatsApp / SMS Bot** | Send automated SMS/WhatsApp RSVP reminders to guests via Twilio or Meta | System / Couples | **Planned / Not Implemented** `[VERIFIED]` | Currently relies on per-guest & user-initiated WhatsApp link sharing |
 
 ---
 

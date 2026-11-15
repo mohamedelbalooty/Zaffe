@@ -204,6 +204,19 @@ flowchart TD
 
 ---
 
+### Milestone 6 — Competitive Leadership (Hayhom Counter-Strategy, R1 Free Tier)
+
+#### Feature F16 — Smart Guest List, Invitation Modes & Zero-App QR Check-In (`ZAFFE-018`)
+- **Branch:** `feature/ZAFFE-018-smart-guests-and-qr-checkin` | **Priority:** `P0` (`RICE 96.9`) | **Complexity:** `L` | **Status:** `Implemented & Verified`
+- **Scope:**
+  - Four invitation modes (`rsvp_qr`, `rsvp_only`, `qr_only`, `announcement`) synchronized with `is_rsvp_enabled`.
+  - Pre-invited guest roster with bulk CSV/line import, adult/child seating quotas, categories, and formula-sanitized CSV export.
+  - Personalized `?g={invite_token}` invitation links, auto-issued pure-PHP ISO/IEC 18004 QR SVG passes (`/pass/{qrToken}`), and per-guest WhatsApp invite/reminder tracking.
+  - Zero-app multi-gate browser Gatekeeper Portal (`/gate/{gateToken}`) with `BarcodeDetector` camera scanning, manual `pass_code`, live search, and atomic single-use check-in lock.
+  - Filament v5 Admin visibility via `InvitationGuestResource`, `InvitationForm`, `InvitationsTable`, and `PlatformStatsOverview`.
+
+---
+
 ### Post-Release 1 — Deferred Monetization
 
 #### Feature F11 — Monetization & Subscription System (Paymob)

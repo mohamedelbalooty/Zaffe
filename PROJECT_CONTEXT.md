@@ -1,8 +1,8 @@
 # PROJECT CONTEXT — Zaffe (زفّــة)
 
 > **Single Source of Truth for Technical & Product Architecture**  
-> **Repository:** `e:\GithubProjects\Zaffe` | **Last Verified:** 2026-11-14  
-> **Status:** Release 1 Engineering Complete (Staging Release Candidate) | **Primary Language:** Arabic (`ar`), with English (`en`) support.
+> **Repository:** `e:\GithubProjects\Zaffe` | **Last Verified:** 2026-11-15  
+> **Status:** Release 1 Engineering Complete (Staging Release Candidate + `F16` Smart Guests & QR Check-In on `feature/ZAFFE-018-smart-guests-and-qr-checkin`) | **Primary Language:** Arabic (`ar`), with English (`en`) support.
 
 ---
 
@@ -66,7 +66,9 @@ For deep dives into specific topics, consult the specialized guides in `docs/`:
 - **`Invitation` (`invitations`):** Core wedding record. BelongsTo `User`, BelongsTo `InvitationTemplate`, HasMany `InvitationSection`, HasMany `InvitationPhoto`, HasMany `RsvpResponse`.
 - **`InvitationSection` (`invitation_sections`):** Modular blocks (`countdown`, `timeline`, `gallery`, `dress_code`).
 - **`InvitationPhoto` (`invitation_photos`):** Gallery images with storage URL resolvers.
-- **`RsvpResponse` (`rsvp_responses`):** Guest attendance tracking (`attending`, `declined`, `tentative`), guest counts, messages, and dietary notes.
+- **`RsvpResponse` (`rsvp_responses`):** Guest attendance tracking (`attending`, `declined`, `tentative`), adult/child counts (`guest_count`, `children_count`), messages, dietary notes, and optional link to `invitation_guest_id`.
+- **`InvitationGuest` (`invitation_guests`):** Pre-invited guest roster entries (`general`, `vip`, `family_groom`, `family_bride`, `kids`) with adult/child quotas, unique `invite_token` & `qr_token`, 6-char `pass_code`, WhatsApp invite/reminder timestamps, and single-use door check-in tracking.
+- **`InvitationGate` (`invitation_gates`):** Named venue check-in gates with secret `64`-char `access_token`, active status toggle, and scan audit counters (`scan_count`, `last_scan_at`).
 - **`SubscriptionPlan` & `UserSubscription`:** Legacy/future tier schema preserved in DB; **Release 1 is 100% Free** (zero tier limits, `/admin/subscription-plans` returns `403` via `SubscriptionPlanResource::canAccess(): false`). Full monetization (`F11`) is deferred Post-Release 1 (`docs/engineering/briefs/F11_DEFERRED_MONETIZATION_NOTE.md`).
 - **`PlatformSetting`:** Key-value store for global settings.
 
@@ -105,7 +107,8 @@ For deep dives into specific topics, consult the specialized guides in `docs/`:
   - Public wedding rendering with timezone-aware countdown ISO targets, OpenGraph/Twitter previews, and session-deduplicated `view_count` (`F05`).
   - Interactive RSVP submission with validation, E.164 deduplication, and rate limiting (`F06`).
   - RSVP guest list management with search, dietary badges, status filters, and formula-sanitized UTF-8 BOM CSV export (`F07`).
-  - Filament v5 Super Admin panel at `/admin` with full Model Policy coverage, `KeyValue` JSON style editing, moderation actions, live `PlatformSetting` customer wiring, `OperationsMonitor` (`/admin/operations-monitor`), and Release 1 subscription resource lockout (`F09` + `ZAFFE-017`).
+  - Smart guest roster, 4 invitation modes (`rsvp_qr`, `rsvp_only`, `qr_only`, `announcement`), personalized `?g=` links, pure-PHP ISO/IEC 18004 QR SVG passes (`/pass/{qrToken}`), per-guest WhatsApp invite/reminder links, bulk CSV roster import/export, and zero-app multi-gate Gatekeeper Portal (`/gate/{gateToken}`) with atomic single-use check-in lock (`F16` / `ZAFFE-018`; product strategy in `docs/product/`).
+  - Filament v5 Super Admin panel at `/admin` with full Model Policy coverage (including `InvitationGuestResource`), `KeyValue` JSON style editing, moderation actions, live `PlatformSetting` customer wiring, `OperationsMonitor` (`/admin/operations-monitor`), and Release 1 subscription resource lockout (`F09` + `ZAFFE-017` + `F16`).
   - Production hardening (`SecurityHeaders` middleware, named composite database indexes, and `docs/DEPLOYMENT_CHECKLIST.md`) (`F12`).
 - **Deferred Post-Release 1 (`F11`):**
   - Online payment checkout & webhook integration (Paymob / Fawry) and commercial tier gating (`docs/engineering/briefs/F11_DEFERRED_MONETIZATION_NOTE.md`).

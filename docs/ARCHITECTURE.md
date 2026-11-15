@@ -265,14 +265,50 @@ erDiagram
     rsvp_responses {
         bigint id PK
         bigint invitation_id FK
+        bigint invitation_guest_id FK
         string guest_name
         string phone
         string email
         string attendance_status "attending | declined | tentative"
         integer guest_count
+        integer children_count
         text message
         string dietary_notes
         string ip_address
+        timestamps created_at_updated_at
+    }
+    invitation_gates {
+        bigint id PK
+        bigint invitation_id FK
+        string name
+        string access_token UK
+        boolean is_active
+        integer scan_count
+        timestamp last_scan_at
+        bigint created_by_user_id FK
+        timestamps created_at_updated_at
+    }
+    invitation_guests {
+        bigint id PK
+        bigint invitation_id FK
+        string name
+        string phone
+        string category "general | vip | family_groom | family_bride | kids"
+        integer max_adults
+        integer max_children
+        string invite_token UK
+        string qr_token UK
+        string pass_code
+        string rsvp_status
+        integer confirmed_adults
+        integer confirmed_children
+        bigint rsvp_response_id FK
+        timestamp invited_at
+        timestamp reminded_at
+        timestamp checked_in_at
+        integer checked_in_count
+        bigint checked_in_by_gate_id FK
+        text notes
         timestamps created_at_updated_at
     }
 
@@ -313,6 +349,11 @@ erDiagram
     invitations ||--o{ invitation_sections : "cascades on delete"
     invitations ||--o{ invitation_photos : "cascades on delete"
     invitations ||--o{ rsvp_responses : "cascades on delete"
+    invitations ||--o{ invitation_gates : "cascades on delete"
+    invitations ||--o{ invitation_guests : "cascades on delete"
+    invitation_guests ||--o| rsvp_responses : "links optional guest pass"
+    invitation_gates ||--o{ invitation_guests : "records check-in gate"
+    users ||--o{ invitation_gates : "created_by_user_id"
     users ||--o{ user_subscriptions : "cascades on delete"
     subscription_plans ||--o{ user_subscriptions : "cascades on delete"
 ```
@@ -347,10 +388,13 @@ erDiagram
 | `/dashboard/invitations` | `POST` | `DashboardController` | `auth` | Stores new invitation and auto-generates slug |
 | `/dashboard/invitations/{id}/editor` | `GET` | `InvitationEditor` | `auth`, Livewire | Full-screen visual studio editor |
 | `/dashboard/invitations/{id}` | `DELETE` | `DashboardController` | `auth` | Soft or hard deletion of user invitation |
-| `/dashboard/invitations/{id}/guests` | `GET` | `DashboardController` | `auth` | Searchable guest RSVP table & summary stats |
-| `/dashboard/invitations/{id}/guests/export`| `GET` | `DashboardController` | `auth` | Streamed UTF-8 BOM CSV export of guest list |
+| `/dashboard/invitations/{id}/guests` | `GET` | `DashboardController` | `auth` | Searchable guest RSVP table, pre-invited roster & gate manager |
+| `/dashboard/invitations/{id}/guests/export`| `GET` | `DashboardController` | `auth` | Streamed UTF-8 BOM CSV export of RSVP responses |
+| `/dashboard/invitations/{id}/guests/roster-export` | `GET` | `DashboardController` | `auth` | Streamed UTF-8 BOM CSV export of pre-invited roster & check-in state |
 | `/dashboard/profile` | `GET`, `PUT` | `DashboardController` | `auth` | User profile update (name, email, password) |
-| `/invitation/{slug}` | `GET` | `InvitationController` | `show` | Public wedding card view; enforces draft privacy |
+| `/invitation/{slug}` | `GET` | `InvitationController` | `show` | Public wedding card view (supports optional `?g={inviteToken}`); enforces draft privacy |
+| `/pass/{qrToken}` | `GET` | `GuestPassController` | `__invoke` | High-contrast single-use QR entry pass view for confirmed/invited guests |
+| `/gate/{gateToken}` | `GET` | `GateScanner` | `Livewire` | Zero-app mobile/desktop door check-in portal (`throttle:60,1`) |
 | `/admin/*` | Multi | Filament Panel Provider | `auth`, `canAccessPanel`| Super admin management suite |
 
 ---

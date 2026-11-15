@@ -236,3 +236,18 @@ graph TD
   - `[PARTIAL]` SQLite local/testing environment. MySQL 8.4 runtime test execution required.
   - `[ACTIVE DIRECTIVE]` Cost efficiency prioritized: Database queues and file/database caching used initially; Redis only when workload justifies it.
   - `[IMPROVEMENT_NEEDED]` Storage privacy: Prevent predictable public path access to unpublished draft photos.
+
+---
+
+### F16 — Smart Guest List, Invitation Modes & Zero-App QR Check-In `[ACTIVE - R1]`
+- **Domain Mission:** Deliver free self-service guest roster management, 4 flexible invitation modes, personalized invite links, single-use QR entry passes, and a zero-app browser Gatekeeper Portal for Egypt & Saudi Arabia.
+- **Components & Files:**
+  - Models & Policies: `InvitationGuest`, `InvitationGate`, `Invitation`, `RsvpResponse`, `InvitationGuestPolicy`, `InvitationGatePolicy`
+  - Services & Controllers: `App\Services\QrCodeService` (pure-PHP ISO/IEC 18004 Byte-mode QR SVG encoder), `GuestPassController`, `InvitationController`, `DashboardController::exportRosterCsv()`
+  - Livewire & Views: `InvitationEditor`, `RsvpForm`, `GuestRosterManager`, `GateScanner`, `templates/partials/access_section.blade.php`, `pages/guest-pass.blade.php`
+  - Filament v5 Admin: `InvitationGuestResource`, `InvitationForm`, `InvitationsTable`, `PlatformStatsOverview`
+- **Capability Audit:**
+  - `[COMPLETE]` 4 invitation modes (`rsvp_qr`, `rsvp_only`, `qr_only`, `announcement`) synchronized bidirectionally with `is_rsvp_enabled`.
+  - `[COMPLETE]` Bulk CSV/line roster import & formula-safe roster CSV export (`CsvSanitizer::cell()`), adult/child quota enforcement, and per-guest WhatsApp `wa.me` share + `invited_at`/`reminded_at` tracking.
+  - `[COMPLETE]` Public pass (`/pass/{qrToken}`) & multi-gate usher scanner (`/gate/{gateToken}`) with `BarcodeDetector` camera UI, manual 6-char `pass_code`, live search, and atomic `DB::transaction` `whereNull('checked_in_at')` check-in lock.
+  - `[TESTED]` `QrCodeServiceTest` + `SmartGuestAndQrCheckInTest` + Chrome DevTools live `BarcodeDetector` QR decode verification.
