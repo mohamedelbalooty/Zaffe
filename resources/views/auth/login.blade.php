@@ -16,15 +16,17 @@
                 <p class="text-sm text-[#292521]/60 mt-2">أهلاً بك مجدداً في استوديو دعوات زفّة</p>
             </div>
 
-            <!-- Demo Quick Fill Pill -->
-            <div class="mb-6 p-3 rounded-2xl bg-[#FAF7F2] border border-[#C6A76B]/30 text-xs text-[#292521]/80 flex items-center justify-between">
-                <span>حساب تجريبي للعروسين:</span>
-                <button type="button" 
-                        onclick="document.getElementById('email').value='couple@zaffe.app'; document.getElementById('password').value='password123';"
-                        class="text-[#C6A76B] font-bold hover:underline">
-                    تعبئة تلقائية (couple@zaffe.app)
-                </button>
-            </div>
+            @if(app()->environment(['local', 'testing']))
+                <!-- Demo Quick Fill Pill -->
+                <div class="mb-6 p-3 rounded-2xl bg-[#FAF7F2] border border-[#C6A76B]/30 text-xs text-[#292521]/80 flex items-center justify-between">
+                    <span>حساب تجريبي للعروسين:</span>
+                    <button type="button" 
+                            onclick="document.getElementById('email').value='couple@zaffe.app'; document.getElementById('password').value='password123';"
+                            class="text-[#C6A76B] font-bold hover:underline">
+                        تعبئة تلقائية (couple@zaffe.app)
+                    </button>
+                </div>
+            @endif
 
             <!-- Form -->
             <form method="POST" action="{{ route('login') }}" class="space-y-5">

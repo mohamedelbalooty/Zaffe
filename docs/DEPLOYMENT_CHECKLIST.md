@@ -168,7 +168,27 @@ Verify active runtime protections:
 - `App\Http\Middleware\SecurityHeaders` emits `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, and `X-XSS-Protection: 1; mode=block`.
 - Filament `/admin/subscription-plans` returns `403 Forbidden` in Release 1 (`SubscriptionPlanResource::canAccess()` returns `false`).
 - Force HTTPS (`301` redirect) and HSTS at Nginx/Cloudflare edge.
-- Rotate seeded admin credentials (`admin@zaffe.app`) immediately after initial setup and remove test accounts (`couple@zaffe.app`).
+
+### 6.1 Super Admin Provisioning, Authorization & Session Behavior
+
+- **First Administrator Creation:** Production seeding intentionally creates **no** user accounts (`DatabaseSeeder` restricts demo users and sample wedding data strictly to `local` and `testing` environments). Create the initial Super Admin interactively on the server:
+  ```bash
+  php artisan zaffe:create-admin
+  ```
+- **Additional Administrators:** Provision additional Super Admins using `php artisan zaffe:create-admin` or through the `/admin/users` resource while signed in as an existing Super Admin.
+- **Safe Provisioning Rules:**
+  - `php artisan zaffe:create-admin` validates the email format, enforces a minimum 12-character password (with mixed-case letters, numbers, and symbols), rejects weak/demo passwords, requires confirmation, and refuses to overwrite existing user accounts.
+  - Never hardcode or document a default production administrator password.
+  - Avoid running `php artisan make:filament-user` directly, as it does not assign `role = 'admin'` and will leave the created user with `role = 'user'` (resulting in HTTP `403` on `/admin`).
+- **Admin Authorization Rules:**
+  - `App\Models\User` implements `FilamentUser`; `canAccessPanel()` delegates to `isAdmin()` (`$this->role === 'admin'`).
+  - Domain CRUD in `/admin` is further guarded by Laravel policies (`UserPolicy`, `InvitationPolicy`, `InvitationTemplatePolicy`), and regular customer accounts (`role = 'user'`) are strictly denied access (`403 Forbidden`).
+- **Customer / Admin Session Behavior:**
+  - The Customer Studio (`/dashboard`) and Filament Super Admin (`/admin`) share the `'web'` session guard.
+  - If a browser session is currently logged in as a regular couple (`role = 'user'`), visiting `/admin` will return **HTTP 403 Forbidden** rather than redirecting to `/admin/login`. Log out of the customer account (or use a separate browser session/profile) before signing in at `/admin/login`.
+- **Demo Account Restrictions:**
+  - Demo accounts and sample wedding content in `DatabaseSeeder` are restricted exclusively to `local` and `testing` environments (`app()->environment(['local', 'testing'])`), and the login page demo quick-fill helper is hidden in `staging` and `production`.
+  - Release 1 ships all 6 invitation templates free (`is_premium = false`) with no premium gating.
 
 ---
 
