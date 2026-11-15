@@ -18,31 +18,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Super Admin User
-        $admin = User::updateOrCreate(
-            ['email' => 'admin@zaffe.app'],
-            [
-                'name' => 'مدير منصة زفّة',
-                'phone' => '+201000000001',
-                'password' => Hash::make('password123'),
-                'role' => 'admin',
-                'avatar_url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-            ]
-        );
-
-        // 2. Demo Couple User
-        $couple = User::updateOrCreate(
-            ['email' => 'couple@zaffe.app'],
-            [
-                'name' => 'أحمد وسارة (العروسان)',
-                'phone' => '+201123456789',
-                'password' => Hash::make('password123'),
-                'role' => 'user',
-                'avatar_url' => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=200&q=80',
-            ]
-        );
-
-        // 3. Template Categories
+        // 1. Template Categories (baseline catalog)
         $categories = [
             [
                 'slug' => 'luxury',
@@ -96,10 +72,10 @@ class DatabaseSeeder extends Seeder
 
         $categoryModels = [];
         foreach ($categories as $cat) {
-            $categoryModels[$cat['slug']] = TemplateCategory::updateOrCreate(['slug' => $cat['slug']], $cat);
+            $categoryModels[$cat['slug']] = TemplateCategory::firstOrCreate(['slug' => $cat['slug']], $cat);
         }
 
-        // 4. Invitation Templates (6 rich templates)
+        // 2. Invitation Templates (6 rich templates)
         $templates = [
             [
                 'category_id' => $categoryModels['luxury']->id,
@@ -186,7 +162,7 @@ class DatabaseSeeder extends Seeder
                     'border_style' => 'arabesque-lattice',
                     'ornament_style' => 'islamic_star',
                 ],
-                'is_premium' => true,
+                'is_premium' => false,
                 'sort_order' => 4,
             ],
             [
@@ -208,7 +184,7 @@ class DatabaseSeeder extends Seeder
                     'border_style' => 'stardust-glow',
                     'ornament_style' => 'constellation',
                 ],
-                'is_premium' => true,
+                'is_premium' => false,
                 'sort_order' => 5,
             ],
             [
@@ -237,11 +213,101 @@ class DatabaseSeeder extends Seeder
 
         $templateModels = [];
         foreach ($templates as $tmpl) {
-            $templateModels[$tmpl['slug']] = InvitationTemplate::updateOrCreate(['slug' => $tmpl['slug']], $tmpl);
+            $templateModels[$tmpl['slug']] = InvitationTemplate::firstOrCreate(['slug' => $tmpl['slug']], $tmpl);
         }
 
-        // 5. Create Demo Published Invitation
-        $invitation = Invitation::updateOrCreate(
+        // 3. Subscription Plans (baseline schema records; dormant in Release 1)
+        SubscriptionPlan::firstOrCreate(
+            ['slug' => 'free'],
+            [
+                'name_ar' => 'الباقة المجانية التجريبية',
+                'name_en' => 'Starter Free',
+                'price' => 0,
+                'currency' => 'EGP',
+                'features' => [
+                    'دعوة زفاف رقمية واحدة',
+                    'قوالب قياسية محددة',
+                    'إدارة حتى 30 تأكيد حضور RSVP',
+                    'رابط مخصص للدعوة',
+                ],
+                'is_active' => true,
+                'sort_order' => 1,
+            ]
+        );
+
+        SubscriptionPlan::firstOrCreate(
+            ['slug' => 'premium'],
+            [
+                'name_ar' => 'باقة الزفاف الملكية (الأكثر طلباً)',
+                'name_en' => 'Royal Wedding Pro',
+                'price' => 799,
+                'currency' => 'EGP',
+                'features' => [
+                    'كل القوالب الفاخرة والملكية',
+                    'تأكيدات حضور RSVP غير محدودة',
+                    'مشاركة فورية مخصصة عبر واتساب',
+                    'ألبوم صور عالي الدقة وتنزيل قائمة الضيوف كملف Excel/CSV',
+                    'موسيقى خلفية مخصصة',
+                    'تخصيص كامل للألوان والخطوط',
+                    'دعم فني مخصص على مدار الساعة',
+                ],
+                'is_active' => true,
+                'sort_order' => 2,
+            ]
+        );
+
+        // 4. Platform Settings (preserve any existing operator configuration)
+        $defaultSettings = [
+            'site_name_ar' => 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة',
+            'site_name_en' => 'Zaffe — Luxury Digital Wedding Invitations',
+            'contact_email' => 'support@zaffe.app',
+            'contact_phone' => '+20 100 000 0000',
+            'whatsapp_support' => '+201000000000',
+        ];
+
+        foreach ($defaultSettings as $key => $value) {
+            PlatformSetting::firstOrCreate(
+                ['key' => $key],
+                ['value' => (string) $value, 'group' => 'general']
+            );
+        }
+
+        // 5. Demo accounts & sample wedding content are restricted strictly to local/testing.
+        if (app()->environment(['local', 'testing'])) {
+            $this->seedDemoData($templateModels);
+        }
+    }
+
+    /**
+     * Seed local/testing demo accounts and sample invitation data without overwriting existing records.
+     *
+     * @param  array<string, InvitationTemplate>  $templateModels
+     */
+    protected function seedDemoData(array $templateModels): void
+    {
+        User::firstOrCreate(
+            ['email' => 'admin@zaffe.app'],
+            [
+                'name' => 'مدير منصة زفّة',
+                'phone' => '+201000000001',
+                'password' => Hash::make('password123'),
+                'role' => 'admin',
+                'avatar_url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+            ]
+        );
+
+        $couple = User::firstOrCreate(
+            ['email' => 'couple@zaffe.app'],
+            [
+                'name' => 'أحمد وسارة (العروسان)',
+                'phone' => '+201123456789',
+                'password' => Hash::make('password123'),
+                'role' => 'user',
+                'avatar_url' => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=200&q=80',
+            ]
+        );
+
+        $invitation = Invitation::firstOrCreate(
             ['slug' => 'ahmed-and-sarah'],
             [
                 'user_id' => $couple->id,
@@ -270,8 +336,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Sections for Ahmed & Sarah
-        InvitationSection::updateOrCreate(
+        InvitationSection::firstOrCreate(
             ['invitation_id' => $invitation->id, 'section_type' => 'countdown'],
             [
                 'title_ar' => 'العد التنازلي لليلتنا المميزة',
@@ -282,7 +347,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        InvitationSection::updateOrCreate(
+        InvitationSection::firstOrCreate(
             ['invitation_id' => $invitation->id, 'section_type' => 'timeline'],
             [
                 'title_ar' => 'برنامج الحفل',
@@ -300,7 +365,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        InvitationSection::updateOrCreate(
+        InvitationSection::firstOrCreate(
             ['invitation_id' => $invitation->id, 'section_type' => 'gallery'],
             [
                 'title_ar' => 'ألبوم ذكرياتنا الجميلة',
@@ -317,7 +382,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        InvitationSection::updateOrCreate(
+        InvitationSection::firstOrCreate(
             ['invitation_id' => $invitation->id, 'section_type' => 'dress_code'],
             [
                 'title_ar' => 'قواعد الأناقة واللباس (Dress Code)',
@@ -331,17 +396,15 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Invitation Photos
-        InvitationPhoto::updateOrCreate(
+        InvitationPhoto::firstOrCreate(
             ['invitation_id' => $invitation->id, 'image_path' => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80'],
             ['caption' => 'جلسة تصوير الخطوبة على ضفاف النيل', 'is_cover' => true, 'sort_order' => 1]
         );
-        InvitationPhoto::updateOrCreate(
+        InvitationPhoto::firstOrCreate(
             ['invitation_id' => $invitation->id, 'image_path' => 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80'],
             ['caption' => 'معاً نبدأ أجمل حكاية', 'is_cover' => false, 'sort_order' => 2]
         );
 
-        // Demo RSVP responses
         $demoRsvps = [
             [
                 'guest_name' => 'د. حسام الشربيني وعائلته',
@@ -386,57 +449,10 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($demoRsvps as $rsvp) {
-            RsvpResponse::updateOrCreate(
+            RsvpResponse::firstOrCreate(
                 ['invitation_id' => $invitation->id, 'guest_name' => $rsvp['guest_name']],
                 array_merge($rsvp, ['invitation_id' => $invitation->id])
             );
         }
-
-        // 6. Subscription Plans
-        SubscriptionPlan::updateOrCreate(
-            ['slug' => 'free'],
-            [
-                'name_ar' => 'الباقة المجانية التجريبية',
-                'name_en' => 'Starter Free',
-                'price' => 0,
-                'currency' => 'EGP',
-                'features' => [
-                    'دعوة زفاف رقمية واحدة',
-                    'قوالب قياسية محددة',
-                    'إدارة حتى 30 تأكيد حضور RSVP',
-                    'رابط مخصص للدعوة',
-                ],
-                'is_active' => true,
-                'sort_order' => 1,
-            ]
-        );
-
-        SubscriptionPlan::updateOrCreate(
-            ['slug' => 'premium'],
-            [
-                'name_ar' => 'باقة الزفاف الملكية (الأكثر طلباً)',
-                'name_en' => 'Royal Wedding Pro',
-                'price' => 799,
-                'currency' => 'EGP',
-                'features' => [
-                    'كل القوالب الفاخرة والملكية',
-                    'تأكيدات حضور RSVP غير محدودة',
-                    'مشاركة فورية مخصصة عبر واتساب',
-                    'ألبوم صور عالي الدقة وتنزيل قائمة الضيوف كملف Excel/CSV',
-                    'موسيقى خلفية مخصصة',
-                    'تخصيص كامل للألوان والخطوط',
-                    'دعم فني مخصص على مدار الساعة',
-                ],
-                'is_active' => true,
-                'sort_order' => 2,
-            ]
-        );
-
-        // 7. Platform Settings
-        PlatformSetting::set('site_name_ar', 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة');
-        PlatformSetting::set('site_name_en', 'Zaffe — Luxury Digital Wedding Invitations');
-        PlatformSetting::set('contact_email', 'support@zaffe.app');
-        PlatformSetting::set('contact_phone', '+20 100 000 0000');
-        PlatformSetting::set('whatsapp_support', '+201000000000');
     }
 }
