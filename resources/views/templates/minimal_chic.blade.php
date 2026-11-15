@@ -139,6 +139,7 @@
         @include('templates.partials.music_player', [
             'invitation' => $invitation,
             'primaryColor' => $primaryColor,
+            'isPreview' => $isPreview ?? false,
         ])
 
         <!-- Platform Watermark -->

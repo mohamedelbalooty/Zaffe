@@ -292,7 +292,7 @@ class DatabaseSeeder extends Seeder
                 'phone' => '+201000000001',
                 'password' => Hash::make('password123'),
                 'role' => 'admin',
-                'avatar_url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+                'avatar_url' => '/images/templates/royal-gold.webp',
             ]
         );
 
@@ -303,7 +303,7 @@ class DatabaseSeeder extends Seeder
                 'phone' => '+201123456789',
                 'password' => Hash::make('password123'),
                 'role' => 'user',
-                'avatar_url' => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=200&q=80',
+                'avatar_url' => '/images/templates/floral-romance.webp',
             ]
         );
 
@@ -322,7 +322,7 @@ class DatabaseSeeder extends Seeder
                 'venue_map_url' => 'https://maps.google.com/?q=Four+Seasons+Hotel+Cairo+at+Nile+Plaza',
                 'welcome_message' => 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n«وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً»',
                 'invitation_message' => 'يسرنا ويسعدنا مشاركتكم فرحتنا وتلبية دعوتنا في ليلة العمر التي تكتمل بوجودكم ودفء لقائكم. دعوتكم تسعدنا وحضوركم يزين ليلتنا بالبهجة والسرور.',
-                'cover_photo' => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80',
+                'cover_photo' => '/images/templates/royal-gold.webp',
                 'status' => 'published',
                 'is_rsvp_enabled' => true,
                 'rsvp_deadline' => now()->addDays(35)->toDateString(),
@@ -358,7 +358,7 @@ class DatabaseSeeder extends Seeder
                         ['time' => '08:30 م', 'title' => 'الزفّة ودخول العروسين', 'desc' => 'اللحظة المنتظرة وزفة المحبة'],
                         ['time' => '09:30 م', 'title' => 'مأدبة العشاء الفاخرة', 'desc' => 'بوفيه مفتوح مع أشهى الأطباق الشرقية والغربية'],
                         ['time' => '11:00 م', 'title' => 'تقطيع كعكة الزفاف والاحتفال', 'desc' => 'الرقص والتقاط أجمل الصور التذكارية'],
-                    ]
+                    ],
                 ],
                 'sort_order' => 2,
                 'is_enabled' => true,
@@ -372,10 +372,10 @@ class DatabaseSeeder extends Seeder
                 'title_en' => 'Our Sweet Moments',
                 'content' => [
                     'photos' => [
-                        'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80',
-                        'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80',
-                        'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=800&q=80',
-                    ]
+                        '/images/templates/royal-gold.webp',
+                        '/images/templates/floral-romance.webp',
+                        '/images/templates/islamic-elegance.webp',
+                    ],
                 ],
                 'sort_order' => 3,
                 'is_enabled' => true,
@@ -389,7 +389,7 @@ class DatabaseSeeder extends Seeder
                 'title_en' => 'Dress Code',
                 'content' => [
                     'title' => 'ملابس رسمية أنيقة (Black Tie / Formal Evening)',
-                    'notes' => 'نرجو من ضيوفنا الكرام الالتزام بالملابس الرسمية المسائية، ونطلب بكل لطف تجنب ارتداء اللون الأبيض لتتألق به العروس وحدها.'
+                    'notes' => 'نرجو من ضيوفنا الكرام الالتزام بالملابس الرسمية المسائية، ونطلب بكل لطف تجنب ارتداء اللون الأبيض لتتألق به العروس وحدها.',
                 ],
                 'sort_order' => 4,
                 'is_enabled' => true,
@@ -397,11 +397,11 @@ class DatabaseSeeder extends Seeder
         );
 
         InvitationPhoto::firstOrCreate(
-            ['invitation_id' => $invitation->id, 'image_path' => 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80'],
-            ['caption' => 'جلسة تصوير الخطوبة على ضفاف النيل', 'is_cover' => true, 'sort_order' => 1]
+            ['invitation_id' => $invitation->id, 'image_path' => '/images/templates/royal-gold.webp'],
+            ['caption' => 'بطاقة الزفاف الملكية', 'is_cover' => true, 'sort_order' => 1]
         );
         InvitationPhoto::firstOrCreate(
-            ['invitation_id' => $invitation->id, 'image_path' => 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80'],
+            ['invitation_id' => $invitation->id, 'image_path' => '/images/templates/floral-romance.webp'],
             ['caption' => 'معاً نبدأ أجمل حكاية', 'is_cover' => false, 'sort_order' => 2]
         );
 

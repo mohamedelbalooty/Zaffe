@@ -16,10 +16,10 @@
         <div class="rounded-3xl p-8 sm:p-12 shadow-2xl relative border border-[#E6C687]/40 text-center space-y-6"
              style="background-color: {{ $cardColor }};">
             
-            <div class="text-[#E6C687] text-sm font-semibold tracking-widest flex items-center justify-center gap-2">
-                <span>✦</span>
+            <div class="text-[#E6C687] text-sm font-semibold tracking-widest flex items-center justify-center gap-2.5">
+                <x-app-icon name="stars" class="w-4 h-4" />
                 <span>ليلة من ألف ليلة وليلة</span>
-                <span>✦</span>
+                <x-app-icon name="stars" class="w-4 h-4" />
             </div>
 
             @if($invitation->welcome_message)
@@ -72,8 +72,9 @@
                         @endif
                     </div>
                 @endif
-                <div class="text-sm font-bold text-slate-200 pt-1">
-                    📍 {{ $invitation->venue_name }}
+                <div class="flex items-center justify-center gap-2 text-sm font-bold text-slate-200 pt-1">
+                    <x-app-icon name="map-pin" class="w-4 h-4 text-[#E6C687] shrink-0" />
+                    <span>{{ $invitation->venue_name }}</span>
                 </div>
                 @if($invitation->venue_map_url)
                     <div class="pt-2">
@@ -139,6 +140,7 @@
         @include('templates.partials.music_player', [
             'invitation' => $invitation,
             'primaryColor' => $primaryColor,
+            'isPreview' => $isPreview ?? false,
         ])
 
         <!-- Platform Watermark -->

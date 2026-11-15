@@ -39,28 +39,28 @@
          }"
          x-init="update(); setInterval(() => update(), 1000);">
         
-        <h3 class="font-cairo text-base sm:text-lg font-bold mb-4" style="color: {{ $primaryColor }};">
-            ⏳ المتبقي حتى ليلة العمر
+        <h3 class="font-cairo text-base sm:text-lg font-bold mb-5 inline-flex items-center justify-center gap-2" style="color: {{ $primaryColor }};">
+            <x-app-icon name="hourglass" class="w-5 h-5" />
+            <span>المتبقي حتى ليلة العمر</span>
         </h3>
 
         <div class="grid grid-cols-4 gap-2 sm:gap-4 max-w-md mx-auto">
-            <div class="p-3 rounded-2xl border" style="background-color: {{ $bgColor }}; border-color: {{ $primaryColor }}20;">
-                <span class="font-cairo text-2xl sm:text-3xl font-black block" style="color: {{ $primaryColor }};" x-text="days">0</span>
+            <div class="p-3 rounded-2xl border shadow-sm" style="background-color: {{ $bgColor }}; border-color: {{ $primaryColor }}30;">
+                <span class="font-cairo text-2xl sm:text-3xl font-black block leading-tight" style="color: {{ $primaryColor }};" x-text="days">0</span>
                 <span class="text-xs opacity-70">يوم</span>
             </div>
-            <div class="p-3 rounded-2xl border" style="background-color: {{ $bgColor }}; border-color: {{ $primaryColor }}20;">
-                <span class="font-cairo text-2xl sm:text-3xl font-black block" style="color: {{ $primaryColor }};" x-text="hours">0</span>
+            <div class="p-3 rounded-2xl border shadow-sm" style="background-color: {{ $bgColor }}; border-color: {{ $primaryColor }}30;">
+                <span class="font-cairo text-2xl sm:text-3xl font-black block leading-tight" style="color: {{ $primaryColor }};" x-text="hours">0</span>
                 <span class="text-xs opacity-70">ساعة</span>
             </div>
-            <div class="p-3 rounded-2xl border" style="background-color: {{ $bgColor }}; border-color: {{ $primaryColor }}20;">
-                <span class="font-cairo text-2xl sm:text-3xl font-black block" style="color: {{ $primaryColor }};" x-text="minutes">0</span>
+            <div class="p-3 rounded-2xl border shadow-sm" style="background-color: {{ $bgColor }}; border-color: {{ $primaryColor }}30;">
+                <span class="font-cairo text-2xl sm:text-3xl font-black block leading-tight" style="color: {{ $primaryColor }};" x-text="minutes">0</span>
                 <span class="text-xs opacity-70">دقيقة</span>
             </div>
-            <div class="p-3 rounded-2xl border" style="background-color: {{ $bgColor }}; border-color: {{ $primaryColor }}20;">
-                <span class="font-cairo text-2xl sm:text-3xl font-black block" style="color: {{ $primaryColor }};" x-text="seconds">0</span>
+            <div class="p-3 rounded-2xl border shadow-sm" style="background-color: {{ $bgColor }}; border-color: {{ $primaryColor }}30;">
+                <span class="font-cairo text-2xl sm:text-3xl font-black block leading-tight" style="color: {{ $primaryColor }};" x-text="seconds">0</span>
                 <span class="text-xs opacity-70">ثانية</span>
             </div>
         </div>
     </div>
 @endif
-

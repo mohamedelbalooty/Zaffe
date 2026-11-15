@@ -17,9 +17,9 @@
 @if($isEnabled && !empty($content))
     <div class="rounded-3xl p-6 sm:p-8 shadow-xl border text-center space-y-3 transition-all"
          style="background-color: {{ $cardColor }}; border-color: {{ $primaryColor }}40;">
-        <div class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl shadow-sm"
-             style="background-color: {{ $bgColor }}; color: {{ $primaryColor }};">
-            👔
+        <div class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center shadow-sm border"
+             style="background-color: {{ $bgColor }}; color: {{ $primaryColor }}; border-color: {{ $primaryColor }}30;">
+            <x-app-icon name="shirt" class="w-6 h-6" />
         </div>
         <h3 class="font-cairo text-lg font-bold" style="color: {{ $primaryColor }};">
             {{ $dressCodeSection?->title_ar ?: 'قواعد الأناقة واللباس (Dress Code)' }}

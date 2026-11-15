@@ -6,13 +6,13 @@
             </div>
             
             <h3 class="font-cairo text-2xl font-bold text-[#292521]">
-                {{ $attendance_status === 'attending' ? 'تم تأكيد حضورك بنجاح! 🎉' : 'شكراً لك، نعتز باعتذارك الرقيق 🤍' }}
+                {{ $attendance_status === 'attending' ? 'تم تأكيد حضورك بنجاح' : 'شكراً لك، نعتز باعتذارك اللطيف' }}
             </h3>
 
             <p class="text-sm text-[#292521]/75 max-w-md mx-auto leading-relaxed">
                 {{ $attendance_status === 'attending' 
-                    ? 'شكراً لك يا ' . $guest_name . '، نحن في غاية الشوق للقائك ومشاركتنا فرحة هذا اليوم الكبير!' 
-                    : 'شكراً يا ' . $guest_name . ' لمشاركتنا التهنئة. دعواتكم الصادقة للعروسين بالبركة والتوفيق تعني لنا الكثير.' }}
+                    ? 'شكراً لك يا ' . $guest_name . '، يسعدنا تشريفك ومشاركتنا فرحة هذا اليوم السعيد.' 
+                    : 'شكراً يا ' . $guest_name . ' لمشاركتنا التهنئة. دعواتكم الصادقة للعروسين بالتوفيق والبركة تعني لنا الكثير.' }}
             </p>
 
             <div class="pt-4">
@@ -34,13 +34,13 @@
                 <div class="grid grid-cols-2 gap-3">
                     <label class="cursor-pointer border-2 rounded-2xl p-3 flex items-center justify-center gap-2 text-xs font-bold transition {{ $attendance_status === 'attending' ? 'border-[#C6A76B] bg-[#C6A76B]/10 text-[#292521]' : 'border-[#E8DED0] hover:bg-[#FAF7F2]' }}">
                         <input type="radio" wire:model.live="attendance_status" value="attending" class="hidden">
-                        <span class="text-emerald-600">✓</span>
+                        <x-app-icon name="check" class="w-4 h-4 text-emerald-600 shrink-0" />
                         <span>بكل سرور، سأحضر</span>
                     </label>
 
                     <label class="cursor-pointer border-2 rounded-2xl p-3 flex items-center justify-center gap-2 text-xs font-bold transition {{ $attendance_status === 'declined' ? 'border-rose-400 bg-rose-50 text-rose-900' : 'border-[#E8DED0] hover:bg-[#FAF7F2]' }}">
                         <input type="radio" wire:model.live="attendance_status" value="declined" class="hidden">
-                        <span class="text-rose-500">✕</span>
+                        <x-app-icon name="x" class="w-4 h-4 text-rose-500 shrink-0" />
                         <span>أعتذر بكل لطف</span>
                     </label>
                 </div>
@@ -62,8 +62,8 @@
                 <label for="rsvp_phone" class="block text-xs font-bold text-[#292521] mb-1.5">رقم الهاتف أو الواتساب (اختياري للتذكير)</label>
                 <div class="flex items-center gap-2">
                     <select wire:model.live="phone_country" class="px-3 py-3 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none font-bold shrink-0">
-                        <option value="EG">🇪🇬 +20 (مصر)</option>
-                        <option value="SA">🇸🇦 +966 (السعودية)</option>
+                        <option value="SA">+966 (السعودية)</option>
+                        <option value="EG">+20 (مصر)</option>
                     </select>
                     <input type="tel" id="rsvp_phone" wire:model="phone" dir="ltr"
                            class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] focus:ring-2 focus:ring-[#C6A76B]/20 outline-none text-right"

@@ -19,12 +19,12 @@
             
             <!-- Floral Garland Header Accent -->
             <div class="text-center pb-6">
-                <div class="inline-flex items-center justify-center gap-2 text-xl" style="color: {{ $primaryColor }};">
-                    <span>🌸</span>
+                <div class="inline-flex items-center justify-center gap-3" style="color: {{ $primaryColor }};">
+                    <x-app-icon name="flower-2" class="w-5 h-5" />
                     <span class="w-16 h-px bg-current opacity-40"></span>
-                    <span>🌿</span>
+                    <x-app-icon name="leaf" class="w-4 h-4" />
                     <span class="w-16 h-px bg-current opacity-40"></span>
-                    <span>🌸</span>
+                    <x-app-icon name="flower-2" class="w-5 h-5" />
                 </div>
             </div>
 
@@ -87,8 +87,9 @@
                             @endif
                         </div>
                     @endif
-                    <div class="text-sm font-bold pt-2 opacity-90">
-                        📍 {{ $invitation->venue_name }}
+                    <div class="flex items-center justify-center gap-2 text-sm font-bold pt-2 opacity-90">
+                        <x-app-icon name="map-pin" class="w-4 h-4 shrink-0" style="color: {{ $primaryColor }};" />
+                        <span>{{ $invitation->venue_name }}</span>
                     </div>
                     @if($invitation->venue_address)
                         <div class="text-xs opacity-70 max-w-sm mx-auto">{{ $invitation->venue_address }}</div>
@@ -159,6 +160,7 @@
         @include('templates.partials.music_player', [
             'invitation' => $invitation,
             'primaryColor' => $primaryColor,
+            'isPreview' => $isPreview ?? false,
         ])
 
         <!-- Platform Watermark -->

@@ -16,18 +16,26 @@
     <div class="max-w-2xl mx-auto relative z-10 space-y-10">
         
         <!-- Main Royal Invitation Card -->
-        <div class="rounded-3xl p-8 sm:p-12 shadow-2xl relative border-2"
+        <div class="rounded-3xl p-8 sm:p-12 shadow-royal-card relative border-2"
              style="background-color: {{ $cardColor }}; border-color: {{ $primaryColor }};">
             
-            <!-- Corner Decorative Ornaments -->
-            <div class="absolute top-3 right-3 text-xs opacity-60" style="color: {{ $primaryColor }};">❖</div>
-            <div class="absolute top-3 left-3 text-xs opacity-60" style="color: {{ $primaryColor }};">❖</div>
-            <div class="absolute bottom-3 right-3 text-xs opacity-60" style="color: {{ $primaryColor }};">❖</div>
-            <div class="absolute bottom-3 left-3 text-xs opacity-60" style="color: {{ $primaryColor }};">❖</div>
+            <!-- Corner Geometric SVG Ornaments -->
+            <div class="absolute top-3 right-3 opacity-70" style="color: {{ $primaryColor }};">
+                <x-app-icon name="gem" class="w-4 h-4" />
+            </div>
+            <div class="absolute top-3 left-3 opacity-70" style="color: {{ $primaryColor }};">
+                <x-app-icon name="gem" class="w-4 h-4" />
+            </div>
+            <div class="absolute bottom-3 right-3 opacity-70" style="color: {{ $primaryColor }};">
+                <x-app-icon name="gem" class="w-4 h-4" />
+            </div>
+            <div class="absolute bottom-3 left-3 opacity-70" style="color: {{ $primaryColor }};">
+                <x-app-icon name="gem" class="w-4 h-4" />
+            </div>
 
-            <!-- Inner Gold Border -->
+            <!-- Inner Gold Double Border -->
             <div class="border border-dashed p-6 sm:p-8 rounded-2xl text-center space-y-6"
-                 style="border-color: {{ $primaryColor }}60;">
+                 style="border-color: {{ $primaryColor }}65;">
                 
                 <!-- Bismillah / Welcome verse -->
                 @if($invitation->welcome_message)
@@ -190,6 +198,7 @@
         @include('templates.partials.music_player', [
             'invitation' => $invitation,
             'primaryColor' => $primaryColor,
+            'isPreview' => $isPreview ?? false,
         ])
 
         <!-- Platform Watermark -->

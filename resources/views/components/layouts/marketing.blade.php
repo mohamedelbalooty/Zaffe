@@ -23,7 +23,7 @@
                     </div>
                     <div class="flex flex-col">
                         <span class="font-cairo text-2xl font-extrabold tracking-tight text-[#292521]">
-                            زفّــة <span class="text-[#C6A76B] text-lg font-normal">| Zaffe</span>
+                            {{ \App\Models\PlatformSetting::get('site_name_ar', 'زفّــة') }} <span class="text-[#C6A76B] text-lg font-normal">| {{ \App\Models\PlatformSetting::get('site_name_en', 'Zaffe') }}</span>
                         </span>
                         <span class="text-[11px] text-[#292521]/60 font-medium -mt-1">دعوات زفاف رقمية فاخرة</span>
                     </div>
@@ -123,11 +123,12 @@
                         <span class="font-cairo text-2xl font-bold text-white tracking-tight">زفّــة</span>
                     </div>
                     <p class="text-sm text-[#E8DED0]/70 leading-relaxed">
-                        المنصة الأولى في مصر والشرق الأوسط لابتكار دعوات الزفاف الرقمية التفاعلية بكل أناقة وبساطة، لمشاركة أحلى اللحظات مع أحبائكم بلمسة عصرية لا تُنسى.
+                        المنصة الرائدة في المملكة العربية السعودية ومصر لابتكار دعوات الزفاف الرقمية التفاعلية بكل أناقة وخصوصية، لمشاركة أجمل اللحظات مع أحبائكم بلمسة عصرية لا تُنسى.
                     </p>
                     <div class="flex items-center gap-3 pt-2 text-[#C6A76B]">
-                        <span class="text-xs bg-[#C6A76B]/15 px-3 py-1 rounded-full border border-[#C6A76B]/30 font-semibold">
-                            🇪🇬 صُنع بفخر في مصر
+                        <span class="inline-flex items-center gap-1.5 text-xs bg-[#C6A76B]/15 px-3 py-1 rounded-full border border-[#C6A76B]/30 font-semibold">
+                            <x-app-icon name="crown" class="w-3.5 h-3.5 text-[#C6A76B]" />
+                            <span>صُنع بفخر للعرسان في السعودية ومصر والخليج</span>
                         </span>
                     </div>
                 </div>
@@ -168,11 +169,12 @@
                     <ul class="space-y-2.5 text-sm text-[#E8DED0]/80">
                         <li class="flex items-center gap-2">
                             <x-app-icon name="whatsapp" class="w-4 h-4 text-emerald-400" />
-                            <a href="https://wa.me/201000000000" target="_blank" class="hover:text-emerald-400 transition" dir="ltr">+20 100 000 0000</a>
+                            <a href="{{ \App\Models\PlatformSetting::whatsappUrl() }}" target="_blank" class="hover:text-emerald-400 transition" dir="ltr">{{ \App\Models\PlatformSetting::get('contact_phone', '+20 100 000 0000') }}</a>
                         </li>
                         <li class="flex items-center gap-2">
                             <x-app-icon name="mail" class="w-4 h-4 text-[#C6A76B]" />
-                            <a href="mailto:support@zaffe.app" class="hover:text-[#C6A76B] transition">support@zaffe.app</a>
+                            @php($supportEmail = \App\Models\PlatformSetting::get('contact_email', 'support@zaffe.app'))
+                            <a href="mailto:{{ $supportEmail }}" class="hover:text-[#C6A76B] transition">{{ $supportEmail }}</a>
                         </li>
                         <li class="flex items-center gap-2 text-xs text-[#E8DED0]/60">
                             <x-app-icon name="clock" class="w-4 h-4 text-[#C6A76B]" />
@@ -183,7 +185,7 @@
             </div>
 
             <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-[#E8DED0]/60 gap-4">
-                <p>© {{ date('Y') }} زفّــة (Zaffe). جميع الحقوق محفوظة لشركاء العمر في مصر والوطن العربي.</p>
+                <p>© {{ date('Y') }} زفّــة (Zaffe). جميع الحقوق محفوظة لشركاء العمر في السعودية ومصر والعالم العربي.</p>
                 <div class="flex items-center gap-6">
                     <a href="{{ route('about') }}" class="hover:text-[#C6A76B] transition">الشروط والأحكام</a>
                     <a href="{{ route('about') }}" class="hover:text-[#C6A76B] transition">سياسة الخصوصية</a>

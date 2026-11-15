@@ -8,6 +8,7 @@ use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -16,7 +17,9 @@ class PublicInvitationTest extends TestCase
     use RefreshDatabase;
 
     private User $owner;
+
     private InvitationTemplate $template;
+
     private Invitation $invitation;
 
     protected function setUp(): void
@@ -246,5 +249,68 @@ class PublicInvitationTest extends TestCase
             ->set('digits', 'latin')
             ->assertSee('Monday, 14 December 2026')
             ->assertSee('At 8:00 PM');
+    }
+
+    public function test_frontend_design_skill_is_installed_in_workspace(): void
+    {
+        $agentSkillPath = base_path('.agents/skills/frontend-design/SKILL.md');
+        $claudeSkillPath = base_path('.claude/skills/frontend-design/SKILL.md');
+
+        $this->assertFileExists($agentSkillPath);
+        $this->assertFileExists($claudeSkillPath);
+
+        $content = file_get_contents($agentSkillPath);
+        $this->assertIsString($content);
+        $this->assertStringContainsString('name: frontend-design', $content);
+        $this->assertFileExists(base_path('.agents/skills/frontend-design/references/zaffe-luxury-design-system.md'));
+    }
+
+    public function test_views_and_seeder_contain_zero_external_unsplash_urls_and_template_emojis(): void
+    {
+        $seederContent = file_get_contents(database_path('seeders/DatabaseSeeder.php'));
+        $this->assertIsString($seederContent);
+        $this->assertStringNotContainsString('unsplash.com', $seederContent);
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            $contents = file_get_contents($file->getPathname());
+            $this->assertIsString($contents);
+            $this->assertStringNotContainsString(
+                'unsplash.com',
+                $contents,
+                "External Unsplash URL found in {$file->getRelativePathname()}"
+            );
+        }
+
+        $forbiddenEmojis = ['📍', '⏳', '👔', '🌸', '🌿', '💍', '🎉'];
+        foreach (File::allFiles(resource_path('views/templates')) as $file) {
+            $contents = file_get_contents($file->getPathname());
+            $this->assertIsString($contents);
+
+            foreach ($forbiddenEmojis as $emoji) {
+                $this->assertStringNotContainsString(
+                    $emoji,
+                    $contents,
+                    "Forbidden emoji {$emoji} found in template {$file->getRelativePathname()}"
+                );
+            }
+        }
+    }
+
+    public function test_public_invitation_renders_open_gate_only_when_music_url_is_set(): void
+    {
+        $this->invitation->update(['music_url' => null]);
+
+        $withoutMusic = $this->get(route('invitation.show', $this->invitation->slug));
+        $withoutMusic->assertOk();
+        $withoutMusic->assertDontSee('data-open-invitation-gate', false);
+        $withoutMusic->assertDontSee('شاشة فتح الدعوة');
+
+        $this->invitation->update(['music_url' => '/storage/music/royal-zaffe.mp3']);
+
+        $withMusic = $this->get(route('invitation.show', $this->invitation->slug));
+        $withMusic->assertOk();
+        $withMusic->assertSee('data-open-invitation-gate', false);
+        $withMusic->assertSee('شاشة فتح الدعوة');
+        $withMusic->assertSee('اضغط لفتح الدعوة وتشغيل الزفّة');
     }
 }

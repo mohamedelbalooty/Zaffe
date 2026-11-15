@@ -85,8 +85,9 @@
                             @endif
                         </div>
                     @endif
-                    <div class="text-sm font-bold pt-1 text-slate-800">
-                        📍 {{ $invitation->venue_name }}
+                    <div class="flex items-center justify-center gap-2 text-sm font-bold pt-1 text-slate-800">
+                        <x-app-icon name="map-pin" class="w-4 h-4 shrink-0" style="color: {{ $primaryColor }};" />
+                        <span>{{ $invitation->venue_name }}</span>
                     </div>
                     @if($invitation->venue_map_url)
                         <div class="pt-2">
@@ -154,6 +155,7 @@
         @include('templates.partials.music_player', [
             'invitation' => $invitation,
             'primaryColor' => $primaryColor,
+            'isPreview' => $isPreview ?? false,
         ])
 
         <!-- Platform Watermark -->
