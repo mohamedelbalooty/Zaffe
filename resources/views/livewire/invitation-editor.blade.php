@@ -418,32 +418,55 @@
                 <!-- 6. RSVP & Settings Tab -->
                 @if($activeTab === 'rsvp')
                     <div class="space-y-4">
-                        <h3 class="font-cairo text-base font-bold text-[#C6A76B]">إعدادات تأكيد الحضور (RSVP)</h3>
+                        <h3 class="font-cairo text-base font-bold text-[#C6A76B]">نظام الدعوة وبوابة الدخول</h3>
 
-                        <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-4">
-                            <label class="flex items-center justify-between gap-3 cursor-pointer">
-                                <div>
-                                    <span class="text-xs font-bold text-white block">تفعيل تأكيد الحضور (RSVP)</span>
-                                    <span class="text-[11px] text-[#E8DED0]/60">السماح للضيوف بتأكيد حضورهم عبر الدعوة</span>
-                                </div>
-                                <input type="checkbox" wire:model.live="is_rsvp_enabled" class="w-5 h-5 rounded text-[#C6A76B] focus:ring-[#C6A76B] shrink-0">
-                            </label>
+                        <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                            <p class="text-[11px] text-[#E8DED0]/70">اختر آلية تأكيد الحضور وإصدار بطاقات الدخول (QR) مجاناً لجميع ضيوفك:</p>
+
+                            <div class="grid grid-cols-1 gap-2">
+                                @php
+                                    $modes = [
+                                        ['key' => 'rsvp_qr', 'icon' => 'qr-code', 'title' => 'تأكيد الحضور + كود دخول QR ذكي', 'desc' => 'الأفضل لحفلات الزفاف الرسمية: يؤكد الضيف حضوره ويستلم بطاقة QR شخصية'],
+                                        ['key' => 'rsvp_only', 'icon' => 'check-circle', 'title' => 'تأكيد الحضور فقط (بدون باركود)', 'desc' => 'استمارة تأكيد الحضور والمرافقين والوجبات دون كود دخول'],
+                                        ['key' => 'qr_only', 'icon' => 'shield-check', 'title' => 'كود دخول QR فقط (بدون استمارة رد)', 'desc' => 'ترسل بطاقة الدخول المباشرة لكل مدعو من قائمة الضيوف'],
+                                        ['key' => 'announcement', 'icon' => 'sparkles', 'title' => 'دعوة للعرض فقط (بدون رد أو باركود)', 'desc' => 'مناسبة للإعلانات وحفظ التاريخ والضيافة المفتوحة'],
+                                    ];
+                                @endphp
+                                @foreach($modes as $m)
+                                    <label class="cursor-pointer rounded-xl border p-3 flex items-start gap-2.5 transition {{ $invitation_mode === $m['key'] ? 'border-[#C6A76B] bg-[#C6A76B]/15' : 'border-white/10 bg-black/20 hover:bg-white/5' }}">
+                                        <input type="radio" wire:model.live="invitation_mode" value="{{ $m['key'] }}" class="sr-only">
+                                        <x-app-icon :name="$m['icon']" class="w-4 h-4 mt-0.5 text-[#C6A76B] shrink-0" />
+                                        <span class="block">
+                                            <span class="block text-xs font-bold text-white">{{ $m['title'] }}</span>
+                                            <span class="block text-[11px] text-[#E8DED0]/65 mt-0.5">{{ $m['desc'] }}</span>
+                                        </span>
+                                    </label>
+                                @endforeach
+                            </div>
 
                             @if($is_rsvp_enabled)
                                 <div class="pt-3 border-t border-white/10 space-y-3">
                                     <div>
                                         <label class="block text-xs font-bold text-white mb-1">أقصى عدد مرافقين مسموح للضيف الواحد</label>
-                                        <input type="number" min="1" max="10" wire:model.live="max_guests_per_rsvp" 
+                                        <input type="number" min="1" max="10" wire:model.live="max_guests_per_rsvp"
                                                class="w-full px-3.5 py-2 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
                                     </div>
 
                                     <div>
                                         <label class="block text-xs font-bold text-white mb-1">الموعد النهائي لتأكيد الحضور (Deadline)</label>
-                                        <input type="date" wire:model.live="rsvp_deadline" 
+                                        <input type="date" wire:model.live="rsvp_deadline"
                                                class="w-full px-3.5 py-2 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
                                     </div>
                                 </div>
                             @endif
+
+                            <div class="pt-3 border-t border-white/10">
+                                <a href="{{ route('dashboard.invitations.guests', $invitation->id) }}"
+                                   class="w-full inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#C6A76B] text-[#1A1612] text-xs font-bold hover:opacity-90 transition">
+                                    <x-app-icon name="users" class="w-4 h-4" />
+                                    <span>إدارة المدعوين وبوابات الدخول (QR)</span>
+                                </a>
+                            </div>
                         </div>
 
                         <!-- Sections Toggles -->

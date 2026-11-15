@@ -29,6 +29,11 @@ return [
             'singular' => 'تأكيد حضور',
             'plural' => 'تأكيدات الحضور',
         ],
+        'invitation_guests' => [
+            'navigation' => 'قوائم المدعوين وبطاقات QR',
+            'singular' => 'بطاقة مدعو',
+            'plural' => 'قوائم المدعوين وبطاقات QR',
+        ],
         'platform_settings' => [
             'navigation' => 'إعدادات المنصة',
             'singular' => 'إعداد منصة',
@@ -79,7 +84,16 @@ return [
         'style_key' => 'مفتاح التنسيق',
         'style_value' => 'القيمة',
         'status' => 'الحالة',
+        'invitation_mode' => 'وضع الدعوة',
         'is_rsvp_enabled' => 'تفعيل تأكيد الحضور',
+        'guests_count' => 'المدعوون المسجلون',
+        'pass_code' => 'كود الدخول',
+        'guest_category' => 'فئة الضيف',
+        'max_adults' => 'أقصى بالغين',
+        'max_children' => 'أقصى أطفال',
+        'checked_in_at' => 'وقت الدخول',
+        'checked_in_gate' => 'بوابة الدخول',
+        'invited_at' => 'تاريخ الإرسال',
         'rsvp_deadline' => 'آخر موعد لتأكيد الحضور',
         'max_guests_per_rsvp' => 'الحد الأقصى للضيوف لكل رد',
         'view_count' => 'المشاهدات',
@@ -126,6 +140,19 @@ return [
             'published' => 'منشورة',
             'archived' => 'مؤرشفة',
         ],
+        'invitation_modes' => [
+            'rsvp_qr' => 'تأكيد الحضور + كود QR',
+            'rsvp_only' => 'تأكيد الحضور فقط',
+            'qr_only' => 'كود دخول QR فقط',
+            'announcement' => 'للعرض فقط (بدون رد أو باركود)',
+        ],
+        'guest_categories' => [
+            'general' => 'عام',
+            'vip' => 'كبار الشخصيات (VIP)',
+            'family_groom' => 'أهل العريس',
+            'family_bride' => 'أهل العروس',
+            'kids' => 'دعوة أطفال',
+        ],
         'timezones' => [
             'Africa/Cairo' => 'القاهرة (Africa/Cairo)',
             'Asia/Riyadh' => 'الرياض (Asia/Riyadh)',
@@ -156,6 +183,7 @@ return [
 
     'sections' => [
         'rsvp_details' => 'تفاصيل تأكيد الحضور',
+        'guest_pass_details' => 'تفاصيل المدعو وبطاقة الدخول',
     ],
 
     'stats' => [
@@ -165,6 +193,8 @@ return [
         'invitations_desc' => ':count دعوة منشورة أونلاين',
         'confirmed_guests' => 'إجمالي الضيوف المؤكدين',
         'confirmed_guests_desc' => 'تأكيدات الحضور عبر RSVP',
+        'checkin_passes' => 'بطاقات المدعوين (QR)',
+        'checkin_passes_desc' => ':count ضيف سجّل دخوله عند البوابات',
         'templates' => 'قوالب وتصاميم الزفاف',
         'templates_desc' => 'قوالب متاحة ضمن فئات نشطة',
         'failed_jobs' => 'المهام الفاشلة (الطابور)',

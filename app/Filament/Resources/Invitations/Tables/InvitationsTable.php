@@ -59,6 +59,21 @@ class InvitationsTable
                 IconColumn::make('is_rsvp_enabled')
                     ->label(__('admin.fields.is_rsvp_enabled'))
                     ->boolean(),
+                TextColumn::make('invitation_mode')
+                    ->label(__('admin.fields.invitation_mode'))
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => __('admin.options.invitation_modes.'.($state ?: 'rsvp_qr')))
+                    ->color(fn (?string $state): string => match ($state) {
+                        'rsvp_qr' => 'success',
+                        'rsvp_only' => 'info',
+                        'qr_only' => 'warning',
+                        default => 'gray',
+                    }),
+                TextColumn::make('guests_count')
+                    ->counts('guests')
+                    ->label(__('admin.fields.guests_count'))
+                    ->numeric()
+                    ->sortable(),
                 TextColumn::make('rsvps_count')
                     ->counts('rsvps')
                     ->label(__('admin.fields.rsvps_count'))
@@ -83,6 +98,9 @@ class InvitationsTable
                 SelectFilter::make('status')
                     ->label(__('admin.fields.status'))
                     ->options(fn (): array => __('admin.options.statuses')),
+                SelectFilter::make('invitation_mode')
+                    ->label(__('admin.fields.invitation_mode'))
+                    ->options(fn (): array => __('admin.options.invitation_modes')),
                 SelectFilter::make('timezone')
                     ->label(__('admin.fields.timezone'))
                     ->options(fn (): array => __('admin.options.timezones')),

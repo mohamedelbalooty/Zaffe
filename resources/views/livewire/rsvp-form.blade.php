@@ -15,6 +15,31 @@
                     : 'شكراً يا ' . $guest_name . ' لمشاركتنا التهنئة. دعواتكم الصادقة للعروسين بالتوفيق والبركة تعني لنا الكثير.' }}
             </p>
 
+            @if($attendance_status === 'attending' && $issuedPassUrl)
+                <div class="pt-2 flex flex-col items-center gap-3">
+                    <div class="inline-flex flex-col items-center p-4 rounded-2xl bg-[#FAF7F2] border border-[#C6A76B]/35 shadow-sm">
+                        <span class="text-xs font-bold text-[#8A6D3B] mb-2">بطاقة الدخول الخاصة بكم (صالح لمرة واحدة عند البوابة)</span>
+                        <div class="bg-white p-2 rounded-xl border border-[#E8DED0]">
+                            {!! app(\App\Services\QrCodeService::class)->renderSvg($issuedPassUrl, 185, '#111827', '#FFFFFF', 'بطاقة الدخول ' . $guest_name) !!}
+                        </div>
+                        @if($issuedPassCode)
+                            <div class="mt-2.5 flex items-center gap-2 text-xs">
+                                <span class="text-[#292521]/60">كود الدخول البديل:</span>
+                                <span dir="ltr" class="font-mono font-black tracking-widest text-[#292521] bg-white px-2.5 py-1 rounded-lg border border-[#E8DED0]">
+                                    {{ $issuedPassCode }}
+                                </span>
+                            </div>
+                        @endif
+                    </div>
+
+                    <a href="{{ $issuedPassUrl }}" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292521] text-white text-xs font-bold hover:opacity-90 transition">
+                        <x-app-icon name="qr-code" class="w-4 h-4" />
+                        <span>فتح وحفظ بطاقة الدخول للطباعة</span>
+                    </a>
+                </div>
+            @endif
+
             <div class="pt-4">
                 <button wire:click="resetForm" class="text-xs text-[#C6A76B] font-bold hover:underline">
                     تعديل ردك أو إرسال رد إضافي
@@ -26,6 +51,14 @@
             <div class="text-center pb-3 border-b border-[#E8DED0]">
                 <h3 class="font-cairo text-xl sm:text-2xl font-bold text-[#292521]">تأكيد الحضور (RSVP)</h3>
                 <p class="text-xs text-[#292521]/60 mt-1">يسعدنا تأكيد حضوركم لمساعدتنا في ترتيب مقاعد القاعة والضيافة</p>
+                @if($guestId)
+                    <div class="mt-2 inline-flex flex-wrap items-center justify-center gap-2 text-[11px] font-bold text-[#8A6D3B] bg-[#C6A76B]/10 px-3 py-1 rounded-full">
+                        <span>المقاعد المخصصة لك: حتى {{ $maxGuests }} بالغين</span>
+                        @if($maxChildren > 0)
+                            <span>و {{ $maxChildren }} أطفال</span>
+                        @endif
+                    </div>
+                @endif
             </div>
 
             <!-- Attendance Choice -->
@@ -76,18 +109,32 @@
 
             @if($attendance_status === 'attending')
                 <!-- Guest Count -->
-                <div>
-                    <label class="block text-xs font-bold text-[#292521] mb-1.5">إجمالي عدد الحضور (شاملاً حضرتك والمرافقين)</label>
-                    <div class="flex items-center gap-3">
+                <div class="{{ $maxChildren > 0 ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : '' }}">
+                    <div>
+                        <label class="block text-xs font-bold text-[#292521] mb-1.5">عدد البالغين (شاملاً حضرتك)</label>
                         <select wire:model="guest_count" class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none font-bold">
                             @for($i = 1; $i <= $maxGuests; $i++)
                                 <option value="{{ $i }}">{{ $i }} {{ $i == 1 ? 'فرد واحد' : ($i == 2 ? 'فردان' : 'أفراد') }}</option>
                             @endfor
                         </select>
+                        @error('guest_count')
+                            <span class="text-xs text-rose-600 mt-1 block">{{ $message }}</span>
+                        @enderror
                     </div>
-                    @error('guest_count')
-                        <span class="text-xs text-rose-600 mt-1 block">{{ $message }}</span>
-                    @enderror
+
+                    @if($maxChildren > 0)
+                        <div>
+                            <label class="block text-xs font-bold text-[#292521] mb-1.5">عدد الأطفال المرافقين</label>
+                            <select wire:model="children_count" class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none font-bold">
+                                @for($c = 0; $c <= $maxChildren; $c++)
+                                    <option value="{{ $c }}">{{ $c === 0 ? 'بدون أطفال' : $c . ($c === 1 ? ' طفل' : ' أطفال') }}</option>
+                                @endfor
+                            </select>
+                            @error('children_count')
+                                <span class="text-xs text-rose-600 mt-1 block">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Dietary Preferences -->

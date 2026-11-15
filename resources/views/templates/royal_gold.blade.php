@@ -179,11 +179,12 @@
         ])
 
         <!-- RSVP Form Section -->
-        @if($invitation->is_rsvp_enabled && !$isPreview)
-            <div id="rsvp-section" class="scroll-mt-10">
-                <livewire:rsvp-form :invitation-id="$invitation->id" :max-guests="$invitation->max_guests_per_rsvp" />
-            </div>
-        @endif
+        <!-- RSVP & Entry Pass Section -->
+        @include('templates.partials.access_section', [
+            'invitation' => $invitation,
+            'personalGuest' => $personalGuest ?? null,
+            'isPreview' => $isPreview ?? false,
+        ])
 
         <!-- WhatsApp Sharing & Copy Link Box -->
         @if(!$isPreview)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invitation;
+use App\Models\InvitationGuest;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Models\RsvpResponse;
@@ -272,6 +273,63 @@ class DashboardController extends Controller
                     CsvSanitizer::cell($rsvp->message ?? '—'),
                     CsvSanitizer::cell($rsvp->dietary_notes ?? '—'),
                     $rsvp->created_at->format('Y-m-d H:i'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+    public function exportRosterCsv(int $id)
+    {
+        $invitation = Auth::user()->invitations()->findOrFail($id);
+        $guests = $invitation->guests()->with('checkedInGate')->orderBy('name')->get();
+
+        $filename = 'zaffe-roster-'.$invitation->slug.'-'.date('Y-m-d').'.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ];
+
+        $callback = function () use ($guests, $invitation): void {
+            $file = fopen('php://output', 'w');
+            fwrite($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, [
+                'اسم الضيف',
+                'رقم الهاتف',
+                'الفئة',
+                'المقاعد (بالغين)',
+                'المقاعد (أطفال)',
+                'كود الدخول',
+                'حالة الرد',
+                'تم الإرسال',
+                'تم الدخول',
+                'عدد الحاضرين فعلياً',
+                'البوابة',
+                'رابط الدعوة الشخصي',
+            ]);
+
+            $tz = $invitation->timezone ?: 'Africa/Cairo';
+
+            foreach ($guests as $guest) {
+                $phoneDisplay = $guest->phone ? PhoneService::formatForDisplay($guest->phone) : '—';
+                fputcsv($file, [
+                    CsvSanitizer::cell($guest->name),
+                    CsvSanitizer::cell($phoneDisplay),
+                    CsvSanitizer::cell(InvitationGuest::categoryLabel($guest->category, 'ar')),
+                    $guest->max_adults,
+                    $guest->max_children,
+                    CsvSanitizer::cell($guest->pass_code),
+                    CsvSanitizer::cell($guest->rsvp_status),
+                    $guest->invited_at ? $guest->invited_at->timezone($tz)->format('Y-m-d H:i') : 'لا',
+                    $guest->checked_in_at ? $guest->checked_in_at->timezone($tz)->format('Y-m-d H:i') : 'لا',
+                    $guest->checked_in_count,
+                    CsvSanitizer::cell($guest->checkedInGate?->name ?? '—'),
+                    CsvSanitizer::cell($guest->getPersonalInviteUrl()),
                 ]);
             }
 

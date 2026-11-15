@@ -29,6 +29,11 @@ return [
             'singular' => 'RSVP Response',
             'plural' => 'RSVP Responses',
         ],
+        'invitation_guests' => [
+            'navigation' => 'Guests & QR Passes',
+            'singular' => 'Guest Pass',
+            'plural' => 'Guests & QR Passes',
+        ],
         'platform_settings' => [
             'navigation' => 'Platform Settings',
             'singular' => 'Platform Setting',
@@ -79,7 +84,16 @@ return [
         'style_key' => 'Style Key',
         'style_value' => 'Style Value',
         'status' => 'Status',
+        'invitation_mode' => 'Invitation Mode',
         'is_rsvp_enabled' => 'RSVP Enabled',
+        'guests_count' => 'Pre-Invited Guests',
+        'pass_code' => 'Pass Code',
+        'guest_category' => 'Category',
+        'max_adults' => 'Max Adults',
+        'max_children' => 'Max Children',
+        'checked_in_at' => 'Checked In At',
+        'checked_in_gate' => 'Check-In Gate',
+        'invited_at' => 'Invited At',
         'rsvp_deadline' => 'RSVP Deadline',
         'max_guests_per_rsvp' => 'Max Guests Per RSVP',
         'view_count' => 'Views',
@@ -126,6 +140,19 @@ return [
             'published' => 'Published',
             'archived' => 'Archived',
         ],
+        'invitation_modes' => [
+            'rsvp_qr' => 'RSVP + QR Entry Pass',
+            'rsvp_only' => 'RSVP Only',
+            'qr_only' => 'Direct QR Pass Only',
+            'announcement' => 'Announcement / Card Only',
+        ],
+        'guest_categories' => [
+            'general' => 'General',
+            'vip' => 'VIP',
+            'family_groom' => "Groom's Family",
+            'family_bride' => "Bride's Family",
+            'kids' => 'Kids Invited',
+        ],
         'timezones' => [
             'Africa/Cairo' => 'Cairo (Africa/Cairo)',
             'Asia/Riyadh' => 'Riyadh (Asia/Riyadh)',
@@ -156,6 +183,7 @@ return [
 
     'sections' => [
         'rsvp_details' => 'RSVP Details',
+        'guest_pass_details' => 'Guest Roster & QR Pass Details',
     ],
 
     'stats' => [
@@ -165,6 +193,8 @@ return [
         'invitations_desc' => ':count invitations published online',
         'confirmed_guests' => 'Confirmed Guests',
         'confirmed_guests_desc' => 'Total attending guests via RSVP',
+        'checkin_passes' => 'Guest Roster & QR Passes',
+        'checkin_passes_desc' => ':count guests checked in at doors',
         'templates' => 'Wedding Templates',
         'templates_desc' => 'Templates available in active categories',
         'failed_jobs' => 'Failed Jobs (Queue)',

@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Invitation;
+use App\Models\InvitationGuest;
 use App\Models\InvitationTemplate;
 use App\Models\RsvpResponse;
 use App\Models\User;
@@ -21,6 +22,8 @@ class PlatformStatsOverview extends StatsOverviewWidget
         $confirmedGuests = (int) RsvpResponse::where('attendance_status', 'attending')->sum('guest_count');
         $templatesCount = InvitationTemplate::availableForSelection()->count();
         $failedJobs = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
+        $preInvitedCount = Schema::hasTable('invitation_guests') ? InvitationGuest::count() : 0;
+        $checkedInCount = Schema::hasTable('invitation_guests') ? InvitationGuest::whereNotNull('checked_in_at')->count() : 0;
 
         return [
             Stat::make(__('admin.stats.users'), $usersCount)
@@ -37,6 +40,11 @@ class PlatformStatsOverview extends StatsOverviewWidget
                 ->description(__('admin.stats.confirmed_guests_desc'))
                 ->descriptionIcon('heroicon-m-check-badge')
                 ->color('warning'),
+
+            Stat::make(__('admin.stats.checkin_passes'), $preInvitedCount)
+                ->description(__('admin.stats.checkin_passes_desc', ['count' => $checkedInCount]))
+                ->descriptionIcon('heroicon-m-qr-code')
+                ->color('primary'),
 
             Stat::make(__('admin.stats.templates'), $templatesCount)
                 ->description(__('admin.stats.templates_desc'))
