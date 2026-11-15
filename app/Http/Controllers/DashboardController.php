@@ -7,6 +7,7 @@ use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Models\RsvpResponse;
 use App\Services\PhoneService;
+use App\Support\CsvSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
@@ -58,7 +59,7 @@ class DashboardController extends Controller
     public function create(Request $request)
     {
         $selectedTemplateId = $request->query('template_id');
-        $templates = InvitationTemplate::where('is_active', true)->orderBy('sort_order')->get();
+        $templates = InvitationTemplate::availableForSelection()->orderBy('sort_order')->get();
 
         return view('dashboard.create', compact('templates', 'selectedTemplateId'));
     }
@@ -84,24 +85,29 @@ class DashboardController extends Controller
             'venue_name.required' => 'اسم قاعة الحفل مطلوب.',
         ]);
 
-        $template = InvitationTemplate::findOrFail($validated['template_id']);
+        $template = InvitationTemplate::availableForSelection()->find($validated['template_id']);
+        if (! $template) {
+            return back()
+                ->withErrors(['template_id' => 'القالب المختار غير متاح حالياً.'])
+                ->withInput();
+        }
 
         // Generate unique slug
-        $baseSlug = Str::slug($validated['groom_name'] . '-and-' . $validated['bride_name']);
+        $baseSlug = Str::slug($validated['groom_name'].'-and-'.$validated['bride_name']);
         if (empty($baseSlug)) {
-            $baseSlug = 'wedding-' . Str::random(6);
+            $baseSlug = 'wedding-'.Str::random(6);
         }
         $slug = $baseSlug;
         $counter = 1;
         while (Invitation::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
+            $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
 
         $invitation = Invitation::create([
             'user_id' => Auth::id(),
             'template_id' => $template->id,
-            'title' => ($validated['title'] ?? null) ?: ('حفل زفاف ' . $validated['groom_name'] . ' و ' . $validated['bride_name']),
+            'title' => ($validated['title'] ?? null) ?: ('حفل زفاف '.$validated['groom_name'].' و '.$validated['bride_name']),
             'slug' => $slug,
             'groom_name' => $validated['groom_name'],
             'bride_name' => $validated['bride_name'],
@@ -180,7 +186,7 @@ class DashboardController extends Controller
         $storageUrl = $disk->url('');
 
         $relativePath = $pathOrUrl;
-        if (!empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
+        if (! empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
             $relativePath = substr($relativePath, strlen($storageUrl));
         } elseif (str_starts_with($relativePath, '/storage/')) {
             $relativePath = substr($relativePath, strlen('/storage/'));
@@ -188,7 +194,7 @@ class DashboardController extends Controller
 
         $relativePath = ltrim($relativePath, '/');
 
-        if (!empty($relativePath) && $disk->exists($relativePath)) {
+        if (! empty($relativePath) && $disk->exists($relativePath)) {
             $disk->delete($relativePath);
         }
     }
@@ -206,8 +212,8 @@ class DashboardController extends Controller
         if ($search = $request->query('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('guest_name', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('message', 'like', "%{$search}%");
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('message', 'like', "%{$search}%");
             });
         }
 
@@ -228,7 +234,7 @@ class DashboardController extends Controller
         $invitation = Auth::user()->invitations()->findOrFail($id);
         $rsvps = $invitation->rsvps()->get();
 
-        $filename = 'rsvp-guests-' . $invitation->slug . '-' . date('Y-m-d') . '.csv';
+        $filename = 'rsvp-guests-'.$invitation->slug.'-'.date('Y-m-d').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -241,7 +247,7 @@ class DashboardController extends Controller
         $callback = function () use ($rsvps) {
             $file = fopen('php://output', 'w');
             // Write UTF-8 BOM for Excel Arabic support
-            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             fputcsv($file, [
                 'اسم الضيف',
@@ -254,28 +260,17 @@ class DashboardController extends Controller
                 'تاريخ التأكيد',
             ]);
 
-            $sanitize = function ($value) {
-                if (!is_string($value) || $value === '') {
-                    return $value;
-                }
-                $trimmed = ltrim($value);
-                if ($trimmed !== '' && in_array($trimmed[0], ['=', '+', '-', '@', "\t", "\r"])) {
-                    return "'" . $value;
-                }
-                return $value;
-            };
-
             foreach ($rsvps as $rsvp) {
                 $phoneDisplay = $rsvp->phone ? PhoneService::formatForDisplay($rsvp->phone) : '—';
 
                 fputcsv($file, [
-                    $sanitize($rsvp->guest_name),
-                    $sanitize($phoneDisplay),
-                    $sanitize($rsvp->email ?? '—'),
+                    CsvSanitizer::cell($rsvp->guest_name),
+                    CsvSanitizer::cell($phoneDisplay),
+                    CsvSanitizer::cell($rsvp->email ?? '—'),
                     $rsvp->attendance_status === 'attending' ? 'حضور مؤكد' : ($rsvp->attendance_status === 'declined' ? 'اعتذار' : 'غير محدد'),
                     $rsvp->guest_count,
-                    $sanitize($rsvp->message ?? '—'),
-                    $sanitize($rsvp->dietary_notes ?? '—'),
+                    CsvSanitizer::cell($rsvp->message ?? '—'),
+                    CsvSanitizer::cell($rsvp->dietary_notes ?? '—'),
                     $rsvp->created_at->format('Y-m-d H:i'),
                 ]);
             }
@@ -289,6 +284,7 @@ class DashboardController extends Controller
     public function profile()
     {
         $user = Auth::user();
+
         return view('dashboard.profile', compact('user'));
     }
 
@@ -298,7 +294,7 @@ class DashboardController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'phone' => ['nullable', 'string', 'max:30'],
             'phone_country' => ['nullable', 'string', 'in:EG,SA'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
@@ -306,11 +302,11 @@ class DashboardController extends Controller
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
-        $user->phone = !empty($validated['phone'])
+        $user->phone = ! empty($validated['phone'])
             ? PhoneService::normalize($validated['phone'], $request->input('phone_country', 'EG'))
             : null;
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $user->password = bcrypt($validated['password']);
         }
 

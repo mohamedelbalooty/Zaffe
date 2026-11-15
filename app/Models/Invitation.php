@@ -7,10 +7,31 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Invitation extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Invitation $invitation): void {
+            $isLocalPath = static fn (?string $path): bool => filled($path)
+                && ! str_starts_with($path, 'http://')
+                && ! str_starts_with($path, 'https://')
+                && ! str_starts_with($path, '/images/');
+
+            if ($isLocalPath($invitation->cover_photo)) {
+                Storage::disk('public')->delete($invitation->cover_photo);
+            }
+
+            foreach ($invitation->photos()->get(['image_path']) as $photo) {
+                if ($isLocalPath($photo->image_path)) {
+                    Storage::disk('public')->delete($photo->image_path);
+                }
+            }
+        });
+    }
 
     protected $fillable = [
         'user_id',
@@ -81,7 +102,7 @@ class Invitation extends Model
 
     public function getPublicUrlAttribute(): string
     {
-        return url('/invitation/' . $this->slug);
+        return url('/invitation/'.$this->slug);
     }
 
     public function getEffectiveStylesAttribute(): array
@@ -110,24 +131,24 @@ class Invitation extends Model
     {
         $url = $this->public_url;
         if ($lang === 'en') {
-            return "We are delighted to invite you to share in our special day ❤️\n\n" .
-                "Wedding of {$this->groom_name} & {$this->bride_name}\n" .
-                "Date: " . $this->wedding_date->format('M d, Y') . "\n" .
-                "Venue: {$this->venue_name}\n\n" .
-                "Please view your invitation & confirm attendance here:\n" . $url;
+            return "We are delighted to invite you to share in our special day ❤️\n\n".
+                "Wedding of {$this->groom_name} & {$this->bride_name}\n".
+                'Date: '.$this->wedding_date->format('M d, Y')."\n".
+                "Venue: {$this->venue_name}\n\n".
+                "Please view your invitation & confirm attendance here:\n".$url;
         }
 
-        return "يسعدنا ويشرفنا دعوتكم لمشاركتنا أجمل أيام حياتنا وبدء فصل جديد معاً ❤️\n\n" .
-            "حفل زفاف: {$this->groom_name} و {$this->bride_name}\n" .
-            "الموعد: " . InvitationDateFormatter::formatGregorianDate($this, 'ar') . "\n" .
-            "المكان: {$this->venue_name}\n\n" .
-            "تفاصيل الدعوة وتأكيد الحضور:\n" . $url;
+        return "يسعدنا ويشرفنا دعوتكم لمشاركتنا أجمل أيام حياتنا وبدء فصل جديد معاً ❤️\n\n".
+            "حفل زفاف: {$this->groom_name} و {$this->bride_name}\n".
+            'الموعد: '.InvitationDateFormatter::formatGregorianDate($this, 'ar')."\n".
+            "المكان: {$this->venue_name}\n\n".
+            "تفاصيل الدعوة وتأكيد الحضور:\n".$url;
     }
 
     public function getWhatsAppShareUrl(string $lang = 'ar'): string
     {
         $text = $this->getWhatsAppShareText($lang);
-        return 'https://api.whatsapp.com/send?text=' . rawurlencode($text);
+
+        return 'https://api.whatsapp.com/send?text='.rawurlencode($text);
     }
 }
-

@@ -85,8 +85,8 @@ For deep dives into specific topics, consult the specialized guides in `docs/`:
    - Rate limiting: Max 10 RSVP submissions per minute per IP.
 3. **Data Security & Injection Defense:**
    - Livewire `InvitationEditor` secures all mutations behind strict ownership validation (`getAuthorizedInvitation()`).
-   - CSV export sanitizes formulas starting with `=`, `+`, `-`, `@`, `\t`, or `\r` (after `ltrim`) with a leading `'` and includes UTF-8 BOM for Microsoft Excel.
-   - Explicit Laravel Model Policies (`InvitationPolicy`, `InvitationTemplatePolicy`, `UserPolicy`) guard domain models and Filament resources.
+   - CSV export sanitizes formulas starting with `=`, `+`, `-`, `@`, `\t`, or `\r` (after `ltrim`) via `App\Support\CsvSanitizer::cell()` with a leading `'` and includes UTF-8 BOM for Microsoft Excel.
+   - Explicit Laravel Model Policies (`InvitationPolicy`, `InvitationTemplatePolicy`, `UserPolicy`, `TemplateCategoryPolicy`, `RsvpResponsePolicy`, `PlatformSettingPolicy`, `SubscriptionPlanPolicy`) guard domain models and Filament resources. `UserPolicy` prevents self-deletion and last-admin deletion; `RsvpResponsePolicy` restricts Filament to read-only inspection, formula-safe CSV export, and spam deletion.
    - Global HTTP `SecurityHeaders` middleware (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `X-XSS-Protection`) hardens web responses.
 
 ---
@@ -105,7 +105,7 @@ For deep dives into specific topics, consult the specialized guides in `docs/`:
   - Public wedding rendering with timezone-aware countdown ISO targets, OpenGraph/Twitter previews, and session-deduplicated `view_count` (`F05`).
   - Interactive RSVP submission with validation, E.164 deduplication, and rate limiting (`F06`).
   - RSVP guest list management with search, dietary badges, status filters, and formula-sanitized UTF-8 BOM CSV export (`F07`).
-  - Filament v5 Super Admin panel at `/admin` with Model Policies and Release 1 subscription resource lockout (`F09`).
+  - Filament v5 Super Admin panel at `/admin` with full Model Policy coverage, `KeyValue` JSON style editing, moderation actions, live `PlatformSetting` customer wiring, `OperationsMonitor` (`/admin/operations-monitor`), and Release 1 subscription resource lockout (`F09` + `ZAFFE-017`).
   - Production hardening (`SecurityHeaders` middleware, named composite database indexes, and `docs/DEPLOYMENT_CHECKLIST.md`) (`F12`).
 - **Deferred Post-Release 1 (`F11`):**
   - Online payment checkout & webhook integration (Paymob / Fawry) and commercial tier gating (`docs/engineering/briefs/F11_DEFERRED_MONETIZATION_NOTE.md`).

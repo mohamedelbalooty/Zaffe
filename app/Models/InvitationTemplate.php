@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -47,6 +48,17 @@ class InvitationTemplate extends Model
         return $this->hasMany(Invitation::class, 'template_id');
     }
 
+    public function scopeAvailableForSelection(Builder $query): Builder
+    {
+        return $query
+            ->where('is_active', true)
+            ->where(function (Builder $categoryScope): void {
+                $categoryScope
+                    ->whereNull('category_id')
+                    ->orWhereHas('category', fn (Builder $categoryQuery): Builder => $categoryQuery->where('is_active', true));
+            });
+    }
+
     public function getNameAttribute(): string
     {
         return app()->getLocale() === 'en' ? ($this->name_en ?: $this->name_ar) : $this->name_ar;
@@ -57,4 +69,3 @@ class InvitationTemplate extends Model
         return app()->getLocale() === 'en' ? ($this->description_en ?: $this->description_ar) : $this->description_ar;
     }
 }
-

@@ -18,7 +18,24 @@ class InvitationTemplateResource extends Resource
 {
     protected static ?string $model = InvitationTemplate::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
+
+    protected static ?int $navigationSort = 4;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.resources.invitation_templates.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('admin.resources.invitation_templates.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('admin.resources.invitation_templates.plural');
+    }
 
     public static function form(Schema $schema): Schema
     {

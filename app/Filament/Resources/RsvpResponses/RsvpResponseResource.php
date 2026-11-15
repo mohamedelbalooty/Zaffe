@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\RsvpResponses;
 
-use App\Filament\Resources\RsvpResponses\Pages\CreateRsvpResponse;
-use App\Filament\Resources\RsvpResponses\Pages\EditRsvpResponse;
 use App\Filament\Resources\RsvpResponses\Pages\ListRsvpResponses;
-use App\Filament\Resources\RsvpResponses\Schemas\RsvpResponseForm;
+use App\Filament\Resources\RsvpResponses\Pages\ViewRsvpResponse;
+use App\Filament\Resources\RsvpResponses\Schemas\RsvpResponseInfolist;
 use App\Filament\Resources\RsvpResponses\Tables\RsvpResponsesTable;
 use App\Models\RsvpResponse;
 use BackedEnum;
@@ -18,11 +17,28 @@ class RsvpResponseResource extends Resource
 {
     protected static ?string $model = RsvpResponse::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
-    public static function form(Schema $schema): Schema
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationLabel(): string
     {
-        return RsvpResponseForm::configure($schema);
+        return __('admin.resources.rsvp_responses.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('admin.resources.rsvp_responses.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('admin.resources.rsvp_responses.plural');
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return RsvpResponseInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table
@@ -41,8 +57,7 @@ class RsvpResponseResource extends Resource
     {
         return [
             'index' => ListRsvpResponses::route('/'),
-            'create' => CreateRsvpResponse::route('/create'),
-            'edit' => EditRsvpResponse::route('/{record}/edit'),
+            'view' => ViewRsvpResponse::route('/{record}'),
         ];
     }
 }

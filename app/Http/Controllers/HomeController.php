@@ -13,7 +13,7 @@ class HomeController extends Controller
     public function index()
     {
         $featuredTemplates = InvitationTemplate::with('category')
-            ->where('is_active', true)
+            ->availableForSelection()
             ->orderBy('sort_order')
             ->take(6)
             ->get();
@@ -36,7 +36,7 @@ class HomeController extends Controller
         $categorySlug = $request->query('category');
         $search = $request->query('search');
 
-        $query = InvitationTemplate::with('category')->where('is_active', true);
+        $query = InvitationTemplate::with('category')->availableForSelection();
 
         if ($categorySlug && $categorySlug !== 'all') {
             $query->whereHas('category', function ($q) use ($categorySlug) {
@@ -47,8 +47,8 @@ class HomeController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name_ar', 'like', "%{$search}%")
-                  ->orWhere('name_en', 'like', "%{$search}%")
-                  ->orWhere('description_ar', 'like', "%{$search}%");
+                    ->orWhere('name_en', 'like', "%{$search}%")
+                    ->orWhere('description_ar', 'like', "%{$search}%");
             });
         }
 
@@ -61,13 +61,13 @@ class HomeController extends Controller
     public function previewTemplate(string $slug)
     {
         $template = InvitationTemplate::where('slug', $slug)
-            ->where('is_active', true)
+            ->availableForSelection()
             ->firstOrFail();
 
         // Sample wedding invitation data for previewing this template
         $previewData = (object) [
             'id' => 0,
-            'title' => 'معاينة: حفل زفاف ' . $template->name_ar,
+            'title' => 'معاينة: حفل زفاف '.$template->name_ar,
             'slug' => $template->slug,
             'groom_name' => 'عمر عبد الرحمن الشناوي',
             'bride_name' => 'نور مصطفى الألفي',
@@ -94,13 +94,13 @@ class HomeController extends Controller
                 'font_family' => 'Tajawal',
             ],
             'sections' => collect([
-                (object)[
+                (object) [
                     'section_type' => 'countdown',
                     'title_ar' => 'العد التنازلي للزفاف',
                     'content' => ['target_date' => now()->addDays(30)->toIso8601String()],
                     'is_enabled' => true,
                 ],
-                (object)[
+                (object) [
                     'section_type' => 'timeline',
                     'title_ar' => 'مواعيد الليلة السعيدة',
                     'content' => [
@@ -108,7 +108,7 @@ class HomeController extends Controller
                             ['time' => '08:00 م', 'title' => 'استقبال الضيوف الكرام', 'desc' => 'الترحيب والمشروبات المنعشة'],
                             ['time' => '09:00 م', 'title' => 'الزفّة ودخول العروسين', 'desc' => 'دخول أسطوري وزفة المحبة'],
                             ['time' => '10:00 م', 'title' => 'مأدبة العشاء', 'desc' => 'أشهى الأطباق'],
-                        ]
+                        ],
                     ],
                     'is_enabled' => true,
                 ],
@@ -122,6 +122,7 @@ class HomeController extends Controller
     public function pricing()
     {
         $plans = SubscriptionPlan::where('is_active', true)->orderBy('sort_order')->get();
+
         return view('pages.pricing', compact('plans'));
     }
 
@@ -140,4 +141,3 @@ class HomeController extends Controller
         return view('pages.faq');
     }
 }
-

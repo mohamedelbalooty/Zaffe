@@ -7,7 +7,6 @@ use App\Models\InvitationPhoto;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -18,56 +17,87 @@ class InvitationEditor extends Component
 
     #[Locked]
     public int $invitationId;
+
     public string $activeTab = 'basics'; // basics, content, design, media, sections, share
+
     public string $previewDevice = 'mobile'; // mobile, tablet, desktop
+
     public string $saveStatus = 'تم الحفظ تلقائياً ✓';
 
     // Basic Wedding Details
     public string $groom_name = '';
+
     public string $bride_name = '';
+
     public string $title = '';
+
     public string $slug = '';
+
     public string $wedding_date = '';
+
     public string $wedding_time = '';
+
     public string $timezone = 'Africa/Cairo';
+
     public string $venue_name = '';
+
     public string $venue_address = '';
+
     public string $venue_map_url = '';
+
     public string $welcome_message = '';
+
     public string $invitation_message = '';
+
     public string $status = 'draft';
+
     public bool $is_rsvp_enabled = true;
+
     public int $max_guests_per_rsvp = 5;
+
     public ?string $rsvp_deadline = '';
+
     public ?string $music_url = '';
+
     public int $template_id;
 
     // Design Customization
     public string $primary_color = '#C6A76B';
+
     public string $secondary_color = '#292521';
+
     public string $background_color = '#FAF7F2';
+
     public string $font_family = 'Tajawal';
+
     public string $invitation_locale = 'ar';
+
     public string $digits = 'latin';
+
     public bool $show_hijri = true;
 
     // Media
     public ?string $cover_photo = null;
+
     public $new_cover_photo;
+
     public $new_gallery_photo;
 
     // Sections toggles
     public bool $section_countdown = true;
+
     public bool $section_timeline = true;
+
     public bool $section_gallery = true;
+
     public bool $section_dress_code = true;
 
     public function mount(int $id)
     {
         $invitation = Invitation::with(['template', 'sections', 'photos'])->findOrFail($id);
-        
+
         // Ownership authorization check
-        if ($invitation->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+        if ($invitation->user_id !== auth()->id() && ! auth()->user()->isAdmin()) {
             abort(403, 'غير مصرح لك بتعديل هذه الدعوة.');
         }
 
@@ -111,9 +141,10 @@ class InvitationEditor extends Component
     protected function getAuthorizedInvitation(): Invitation
     {
         $invitation = Invitation::findOrFail($this->invitationId);
-        if ($invitation->user_id !== auth()->id() && !auth()->user()?->isAdmin()) {
+        if ($invitation->user_id !== auth()->id() && ! auth()->user()?->isAdmin()) {
             abort(403, 'غير مصرح لك بتعديل هذه الدعوة.');
         }
+
         return $invitation;
     }
 
@@ -136,7 +167,7 @@ class InvitationEditor extends Component
 
         $path = $this->new_cover_photo->store('invitations/covers', 'public');
         $this->cover_photo = Storage::disk('public')->url($path);
-        
+
         $this->saveChanges();
     }
 
@@ -149,7 +180,7 @@ class InvitationEditor extends Component
         ]);
 
         $path = $this->new_gallery_photo->store('invitations/gallery', 'public');
-        
+
         InvitationPhoto::create([
             'invitation_id' => $invitation->id,
             'image_path' => Storage::disk('public')->url($path),
@@ -164,7 +195,7 @@ class InvitationEditor extends Component
     {
         $invitation = $this->getAuthorizedInvitation();
         $photo = InvitationPhoto::where('invitation_id', $invitation->id)->findOrFail($photoId);
-        
+
         $this->deleteStorageFile($photo->image_path);
 
         $photo->delete();
@@ -181,7 +212,7 @@ class InvitationEditor extends Component
         $storageUrl = $disk->url('');
 
         $relativePath = $pathOrUrl;
-        if (!empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
+        if (! empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
             $relativePath = substr($relativePath, strlen($storageUrl));
         } elseif (str_starts_with($relativePath, '/storage/')) {
             $relativePath = substr($relativePath, strlen('/storage/'));
@@ -189,7 +220,7 @@ class InvitationEditor extends Component
 
         $relativePath = ltrim($relativePath, '/');
 
-        if (!empty($relativePath) && $disk->exists($relativePath)) {
+        if (! empty($relativePath) && $disk->exists($relativePath)) {
             $disk->delete($relativePath);
         }
     }
@@ -198,11 +229,11 @@ class InvitationEditor extends Component
     {
         $this->getAuthorizedInvitation();
         $template = InvitationTemplate::where('id', $templateId)
-            ->where('is_active', true)
+            ->availableForSelection()
             ->firstOrFail();
         $this->template_id = $template->id;
-        
-        if (!empty($template->default_styles)) {
+
+        if (! empty($template->default_styles)) {
             $this->primary_color = $template->default_styles['primary_color'] ?? $this->primary_color;
             $this->secondary_color = $template->default_styles['secondary_color'] ?? $this->secondary_color;
             $this->background_color = $template->default_styles['background_color'] ?? $this->background_color;
@@ -238,7 +269,7 @@ class InvitationEditor extends Component
         $invitation->update([
             'groom_name' => $this->groom_name,
             'bride_name' => $this->bride_name,
-            'title' => $this->title ?: 'حفل زفاف ' . $this->groom_name . ' و ' . $this->bride_name,
+            'title' => $this->title ?: 'حفل زفاف '.$this->groom_name.' و '.$this->bride_name,
             'wedding_date' => $this->wedding_date,
             'wedding_time' => $this->wedding_time ?: null,
             'timezone' => $this->timezone ?: 'Africa/Cairo',
@@ -285,7 +316,7 @@ class InvitationEditor extends Component
     {
         $invitation = $this->getAuthorizedInvitation();
         $invitation->load(['template', 'sections', 'photos']);
-        $templates = InvitationTemplate::where('is_active', true)->orderBy('sort_order')->get();
+        $templates = InvitationTemplate::availableForSelection()->orderBy('sort_order')->get();
 
         $previewStyles = [
             'primary_color' => $this->primary_color,
@@ -329,7 +360,6 @@ class InvitationEditor extends Component
             'invitation' => $invitation,
             'previewObject' => $previewObject,
             'templates' => $templates,
-        ])->layout('layouts.base', ['title' => 'محرر الدعوة: ' . $invitation->title . ' — زفّة']);
+        ])->layout('layouts.base', ['title' => 'محرر الدعوة: '.$invitation->title.' — زفّة']);
     }
 }
-

@@ -122,7 +122,7 @@ erDiagram
    - Fields: `name_ar`, `name_en`, `slug`, `price`, `currency`, `features` (JSON), `is_active`, `sort_order`.
 
 9. **`PlatformSetting` (`platform_settings` table)**
-   - Key-value configuration store for site-wide settings (`site_name_ar`, `contact_email`, `whatsapp_support`).
+   - Cached key-value configuration store (`site_name_ar`, `site_name_en`, `contact_email`, `contact_phone`, `whatsapp_support`) consumed dynamically across public marketing layouts, SEO defaults, and `/contact`.
 
 ---
 

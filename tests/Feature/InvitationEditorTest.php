@@ -19,8 +19,11 @@ class InvitationEditorTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private InvitationTemplate $template1;
+
     private InvitationTemplate $template2;
+
     private Invitation $invitation;
 
     protected function setUp(): void
@@ -203,5 +206,24 @@ class InvitationEditorTest extends TestCase
         $component->call('deleteGalleryPhoto', $photo->id);
 
         $this->assertDatabaseMissing('invitation_photos', ['id' => $photo->id]);
+    }
+
+    public function test_owner_can_edit_content_texts_and_see_responsive_pane_controls(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(InvitationEditor::class, ['id' => $this->invitation->id])
+            ->assertSee('التعديل والإعدادات')
+            ->assertSee('معاينة الدعوة الحية')
+            ->set('activeTab', 'content')
+            ->assertSee('نصوص وكلمات الدعوة')
+            ->set('welcome_message', 'بسم الله الرحمن الرحيم')
+            ->set('invitation_message', 'نتشرف بدعوتكم لحضور حفل زفافنا')
+            ->call('saveChanges')
+            ->assertSee('بسم الله الرحمن الرحيم')
+            ->assertSee('نتشرف بدعوتكم لحضور حفل زفافنا');
+
+        $this->invitation->refresh();
+        $this->assertSame('بسم الله الرحمن الرحيم', $this->invitation->welcome_message);
+        $this->assertSame('نتشرف بدعوتكم لحضور حفل زفافنا', $this->invitation->invitation_message);
     }
 }

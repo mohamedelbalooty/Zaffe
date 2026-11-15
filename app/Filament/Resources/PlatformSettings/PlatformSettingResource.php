@@ -18,7 +18,24 @@ class PlatformSettingResource extends Resource
 {
     protected static ?string $model = PlatformSetting::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
+
+    protected static ?int $navigationSort = 6;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.resources.platform_settings.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('admin.resources.platform_settings.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('admin.resources.platform_settings.plural');
+    }
 
     public static function form(Schema $schema): Schema
     {

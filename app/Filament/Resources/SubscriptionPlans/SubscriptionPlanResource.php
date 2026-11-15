@@ -18,7 +18,22 @@ class SubscriptionPlanResource extends Resource
 {
     protected static ?string $model = SubscriptionPlan::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.resources.subscription_plans.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('admin.resources.subscription_plans.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('admin.resources.subscription_plans.plural');
+    }
 
     protected static bool $shouldRegisterNavigation = false;
 

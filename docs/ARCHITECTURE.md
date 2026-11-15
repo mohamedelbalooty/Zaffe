@@ -70,15 +70,20 @@ graph TD
 E:\GithubProjects\Zaffe
 ├── app/
 │   ├── Filament/                  # Filament v5 Super Admin Panel
+│   │   ├── Pages/
+│   │   │   └── OperationsMonitor.php      # Sanitized Release 1 funnel, mailer & queue health monitor
 │   │   ├── Resources/             # Admin Resource CRUDs (Users, Invitations, Templates, etc.)
 │   │   │   ├── Invitations/
 │   │   │   ├── InvitationTemplates/
 │   │   │   ├── PlatformSettings/
-│   │   │   ├── RsvpResponses/
-│   │   │   ├── SubscriptionPlans/
+│   │   │   ├── RsvpResponses/             # Read-only monitoring, CSV export & spam moderation
+│   │   │   ├── SubscriptionPlans/         # Disabled in Release 1 (F11 deferred)
 │   │   │   ├── TemplateCategories/
 │   │   │   └── Users/
 │   │   └── Widgets/               # Admin Dashboard Analytics (PlatformStatsOverview)
+│   ├── Policies/                  # Explicit authorization policies for all domain models
+│   ├── Support/
+│   │   └── CsvSanitizer.php       # Shared CSV formula injection neutralization helper
 │   ├── Http/
 │   │   ├── Controllers/           # Standard HTTP Request Handlers
 │   │   │   ├── AuthController.php         # Registration, Login, Logout, Throttle

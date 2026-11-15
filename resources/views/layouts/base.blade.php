@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة' }}</title>
+    @php($siteNameAr = \App\Models\PlatformSetting::get('site_name_ar', 'زفّة'))
+    <title>{{ $title ?? $siteNameAr . ' — منصة دعوات الزفاف الرقمية الفاخرة' }}</title>
     <meta name="description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">
 
     <!-- Open Graph / WhatsApp / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ $title ?? 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة' }}">
+    <meta property="og:title" content="{{ $title ?? $siteNameAr . ' — منصة دعوات الزفاف الرقمية الفاخرة' }}">
     <meta property="og:description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">
     <meta property="og:image" content="{{ $ogImage ?? asset('images/og-zaffe.jpg') }}">
 

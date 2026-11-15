@@ -209,15 +209,15 @@ graph TD
 ---
 
 ### F09 — Admin & Platform Management `[ACTIVE - R1]`
-- **Domain Mission:** Filament v5 Super Admin backoffice for system oversight, template curation, and platform health.
+- **Domain Mission:** Filament v5 Super Admin backoffice for system oversight, template/category curation, invitation moderation, RSVP operational monitoring, dynamic site settings, and platform health.
 - **Components & Files:**
-  - Resources: `app/Filament/Resources/` (`Users`, `Invitations`, `InvitationTemplates`, `TemplateCategories`, `PlatformSettings`, `RsvpResponses`)
-  - Widget: `app/Filament/Widgets/PlatformStatsOverview.php`
+  - Resources: `app/Filament/Resources/` (`Users`, `Invitations`, `InvitationTemplates`, `TemplateCategories`, `PlatformSettings`, `RsvpResponses`, plus locked `SubscriptionPlans`)
+  - Pages & Widget: `app/Filament/Pages/OperationsMonitor.php`, `app/Filament/Widgets/PlatformStatsOverview.php`
+  - Policies: `app/Policies/` (`UserPolicy`, `InvitationPolicy`, `InvitationTemplatePolicy`, `TemplateCategoryPolicy`, `RsvpResponsePolicy`, `PlatformSettingPolicy`, `SubscriptionPlanPolicy`)
 - **Capability Audit:**
-  - `[VERIFIED]` Gated access for `role = 'admin'`.
-  - `[VERIFIED]` Resource CRUD and platform overview stats.
-  - `[ACTIVE DIRECTIVE]` Subscription and billing management excluded from Release 1 operational flows.
-  - `[IMPROVEMENT_NEEDED]` Explicit Laravel Policies bound to Filament resources.
+  - `[VERIFIED]` Gated access for `role = 'admin'` with explicit Policies on all 7 resources (including self/last-admin deletion protection and read-only/export/spam-delete enforcement on `RsvpResponse`).
+  - `[VERIFIED]` `PlatformSetting` cache invalidation and live wiring across marketing layouts and `/contact`, plus `OperationsMonitor` queue/mailer health inspection without secret exposure.
+  - `[ACTIVE DIRECTIVE]` Subscription and billing management (`F11`) excluded from Release 1 operational flows (`SubscriptionPlanResource::canAccess(): false`).
 
 ---
 

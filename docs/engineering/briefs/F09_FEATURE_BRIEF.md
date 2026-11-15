@@ -24,9 +24,17 @@ Harden the Filament v5 Super Admin backoffice (`/admin`) with explicit Laravel M
 1. **Admin Panel Gating:**
    - Only `User` records with `$user->isAdmin()` (`role === 'admin'`) can access `/admin`. Non-admin users receive 403 Forbidden.
 2. **Laravel Model Policies:**
-   - `App\Policies\InvitationPolicy`: Owners can view, create, update, and delete their own invitations; admins have full oversight across all invitations and bulk deletion.
+   - `App\Policies\InvitationPolicy`: Owners can view, create, update, and delete their own invitations; admins have full oversight across all invitations and bulk deletion. Deleting an invitation also cleans up stored local cover/gallery files on disk (`Invitation::booted()`).
    - `App\Policies\InvitationTemplatePolicy`: Strictly restricted to admins (`$user->isAdmin()`) for CRUD and bulk operations.
-   - `App\Policies\UserPolicy`: Strictly restricted to admins (`$user->isAdmin()`) for user administration.
+   - `App\Policies\UserPolicy`: Strictly restricted to admins (`$user->isAdmin()`) for user administration, with self-deletion and last-admin deletion protection.
+   - `App\Policies\TemplateCategoryPolicy`: Strictly restricted to admins (`$user->isAdmin()`).
+   - `App\Policies\RsvpResponsePolicy`: Admins and invitation owners can view records; `create` and `update` return `false` to protect the integrity of original guest RSVP responses; admins can delete spam records and export formula-safe CSVs.
+   - `App\Policies\PlatformSettingPolicy`: Strictly restricted to admins (`$user->isAdmin()`).
+   - `App\Policies\SubscriptionPlanPolicy`: All abilities return `false` during Release 1.
+3. **Admin ↔ Customer Live Integration & Operational Monitoring:**
+   - `PlatformSetting` (`site_name_ar`, `site_name_en`, `contact_email`, `contact_phone`, `whatsapp_support`) is cached with invalidation on save/delete and consumed dynamically across marketing layouts and `/contact`.
+   - `InvitationTemplate::availableForSelection()` enforces both `is_active = true` on templates and active parent category status (`category.is_active = true`) across `/templates`, previews, creation, and `InvitationEditor::changeTemplate()`.
+   - `InvitationForm` & `InvitationTemplateForm` use `KeyValue` for `custom_styles` / `default_styles` array editing (preventing double-encoded JSON string corruption), `UserForm` makes password optional on edit and constrains `role` to `user`/`admin`, and `OperationsMonitor` (`/admin/operations-monitor`) surfaces sanitized Release 1 funnel metrics, mailer/queue status, and failed jobs without exposing secrets.
 3. **Deferred F11 Isolation:**
    - `SubscriptionPlanResource` sets `protected static bool $shouldRegisterNavigation = false;` and `public static function canAccess(): bool { return false; }`.
    - Future Paymob monetization architecture is documented in `docs/engineering/briefs/F11_DEFERRED_MONETIZATION_NOTE.md`.

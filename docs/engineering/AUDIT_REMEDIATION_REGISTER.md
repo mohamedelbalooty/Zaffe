@@ -20,7 +20,7 @@
 | **SCAL-02** | Database Driver for Background Queues | Low | **Approved Lightweight Strategy `[IMPLEMENTED]`** | **F10 / F12** | `database` queue active (`ShouldQueue`) + Supervisor config in `DEPLOYMENT_CHECKLIST.md` |
 | **DEV-01** | Windows Winget Composer Corruption | Low | **Mitigated `[DOCUMENTED]`** | **Development** | Standalone `composer.phar` / `herd-lite` PHP; `ext-intl` documented for Filament |
 
-> **Release 1 Status Note (2026-11-14):** Milestones 1–5 (`F01`–`F10`, `F12`) completed all Release 1 engineering remediations, adding HTTP `SecurityHeaders` middleware (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `X-XSS-Protection`) and composite query indexes (`F12`). Detailed section headings below reflect original sprint-planning snapshots where superseded by this summary table.
+> **Release 1 Status Note (2026-11-15):** Milestones 1–5 (`F01`–`F10`, `F12`) and `ZAFFE-017` completed all Release 1 engineering remediations, adding HTTP `SecurityHeaders` middleware, composite query indexes (`F12`), complete Filament v5 Super Admin Policies, `KeyValue` style editors, live `PlatformSetting` customer integration, and `OperationsMonitor` (`/admin/operations-monitor`). See `docs/engineering/ZAFFE_017_ADMIN_FEATURE_COVERAGE_AUDIT.md` and `ZAFFE_017_FINAL_QA_AND_ADMIN_COVERAGE_REPORT.md` for full matrix details.
 
 ---
 

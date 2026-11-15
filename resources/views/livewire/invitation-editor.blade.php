@@ -1,28 +1,29 @@
-<div class="h-screen flex flex-col bg-[#1E1B18] text-[#E8DED0] overflow-hidden font-tajawal text-right">
+<div x-data="{ mobilePane: 'editor' }"
+     class="h-screen h-dvh flex flex-col bg-[#1E1B18] text-[#E8DED0] overflow-hidden font-tajawal text-right">
     <!-- Top Editor Header Toolbar -->
-    <header class="h-16 bg-[#292521] border-b border-[#C6A76B]/30 px-4 sm:px-6 flex items-center justify-between z-40 shrink-0">
+    <header class="min-h-14 sm:min-h-16 bg-[#292521] border-b border-[#C6A76B]/30 px-3 sm:px-6 py-2 flex items-center justify-between gap-2 sm:gap-3 z-40 shrink-0">
         <!-- Left/Start: Back & Title -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 sm:gap-4 min-w-0 flex-1 lg:flex-initial">
             <a href="{{ route('dashboard.invitations.index') }}" 
-               class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition flex items-center gap-1.5 text-xs font-bold">
+               class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition flex items-center gap-1.5 text-xs font-bold shrink-0">
                 <x-app-icon name="arrow-right" class="w-4 h-4 text-[#C6A76B]" />
                 <span class="hidden sm:inline">لوحة التحكم</span>
             </a>
 
-            <div class="h-5 w-px bg-white/15 hidden sm:block"></div>
+            <div class="h-5 w-px bg-white/15 hidden sm:block shrink-0"></div>
 
-            <div class="flex items-center gap-2">
-                <h2 class="font-cairo text-sm sm:text-base font-bold text-white truncate max-w-[200px] sm:max-w-xs">
+            <div class="flex items-center gap-2 min-w-0">
+                <h2 class="font-cairo text-xs sm:text-base font-bold text-white truncate max-w-[140px] sm:max-w-[220px] xl:max-w-xs">
                     {{ $title ?: 'تعديل دعوة الزفاف' }}
                 </h2>
                 
                 @if($status === 'published')
-                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 items-center gap-1 whitespace-nowrap shrink-0">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                         <span>منشورة أونلاين</span>
                     </span>
                 @else
-                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 whitespace-nowrap shrink-0">
                         مسودة خاصة
                     </span>
                 @endif
@@ -30,7 +31,7 @@
         </div>
 
         <!-- Center: Device Preview Switcher -->
-        <div class="hidden md:flex items-center bg-black/40 p-1 rounded-xl border border-white/10">
+        <div class="hidden lg:flex items-center bg-black/40 p-1 rounded-xl border border-white/10 shrink-0">
             <button wire:click="$set('previewDevice', 'mobile')"
                     class="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition {{ $previewDevice === 'mobile' ? 'bg-[#C6A76B] text-white shadow-sm' : 'text-[#E8DED0]/60 hover:text-white' }}">
                 <span>📱 هاتف</span>
@@ -46,78 +47,101 @@
         </div>
 
         <!-- Right/End: Auto-save status, Publish Toggle, View Public Link -->
-        <div class="flex items-center gap-3">
-            <span class="text-xs text-[#C6A76B] font-medium hidden lg:inline">
+        <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <span class="text-xs text-[#C6A76B] font-medium hidden xl:inline whitespace-nowrap">
                 {{ $saveStatus }}
             </span>
 
             @if($status === 'published')
                 <a href="{{ $invitation->public_url }}" target="_blank"
-                   class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 transition">
+                   class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap">
                     <x-app-icon name="external-link" class="w-4 h-4 text-[#C6A76B]" />
                     <span class="hidden sm:inline">معاينة الرابط</span>
                 </a>
             @endif
 
             <button wire:click="togglePublish" 
-                    class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-md transition flex items-center gap-1.5 {{ $status === 'published' ? 'bg-amber-600/80 hover:bg-amber-600 text-white' : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:opacity-95' }}">
+                    class="px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-md transition flex items-center gap-1.5 whitespace-nowrap {{ $status === 'published' ? 'bg-amber-600/80 hover:bg-amber-600 text-white' : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:opacity-95' }}">
                 @if($status === 'published')
-                    <span>إلغاء النشر</span>
+                    <span class="hidden sm:inline">إلغاء النشر</span>
+                    <span class="sm:hidden">مسودة</span>
                 @else
                     <x-app-icon name="sparkles" class="w-4 h-4" />
-                    <span>نشر الدعوة الآن</span>
+                    <span class="hidden sm:inline">نشر الدعوة الآن</span>
+                    <span class="sm:hidden">نشر</span>
                 @endif
             </button>
 
             <button wire:click="saveChanges" 
-                    class="px-4 py-2 rounded-xl bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white text-xs sm:text-sm font-bold shadow-md hover:opacity-95 transition flex items-center gap-1.5">
+                    class="px-2.5 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white text-xs sm:text-sm font-bold shadow-md hover:opacity-95 transition flex items-center gap-1.5 whitespace-nowrap">
                 <x-app-icon name="check" class="w-4 h-4" />
                 <span class="hidden sm:inline">حفظ</span>
             </button>
         </div>
     </header>
 
+    <!-- Mobile / Tablet Pane Switcher -->
+    <div class="lg:hidden bg-[#231F1B] border-b border-[#C6A76B]/20 px-3 py-2 flex items-center justify-between gap-2 shrink-0">
+        <div class="flex-1 grid grid-cols-2 gap-1.5 bg-black/30 p-1 rounded-xl border border-white/10">
+            <button type="button"
+                    @click="mobilePane = 'editor'"
+                    :class="mobilePane === 'editor' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:text-white'"
+                    class="py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                <x-app-icon name="edit" class="w-3.5 h-3.5" />
+                <span>التعديل والإعدادات</span>
+            </button>
+            <button type="button"
+                    @click="mobilePane = 'preview'"
+                    :class="mobilePane === 'preview' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:text-white'"
+                    class="py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                <x-app-icon name="eye" class="w-3.5 h-3.5" />
+                <span>معاينة الدعوة الحية</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Main Workspace Split Pane -->
     <div class="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
         
         <!-- Controls Sidebar -->
-        <div class="w-full lg:w-[480px] bg-[#292521] border-l border-[#C6A76B]/20 flex flex-col shrink-0 overflow-hidden">
+        <div :class="mobilePane === 'editor' ? 'flex flex-1 min-h-0 lg:flex-none' : 'hidden lg:flex'"
+             class="w-full lg:w-[400px] xl:w-[460px] bg-[#292521] lg:border-l border-[#C6A76B]/20 flex-col lg:shrink-0 min-h-0 overflow-hidden">
             <!-- Sidebar Navigation Tabs -->
-            <div class="flex items-center border-b border-[#E8DED0]/10 overflow-x-auto p-2 gap-1 scrollbar-none bg-black/20 shrink-0">
+            <div class="flex flex-wrap items-center border-b border-[#E8DED0]/10 p-2 gap-1.5 bg-black/20 shrink-0">
                 <button wire:click="$set('activeTab', 'basics')"
-                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'basics' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
+                        class="px-3 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'basics' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
                     البيانات الأساسية
                 </button>
                 <button wire:click="$set('activeTab', 'content')"
-                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'content' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
+                        class="px-3 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'content' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
                     نصوص الدعوة
                 </button>
                 <button wire:click="$set('activeTab', 'design')"
-                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'design' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
+                        class="px-3 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'design' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
                     الألوان والخطوط
                 </button>
                 <button wire:click="$set('activeTab', 'media')"
-                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'media' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
+                        class="px-3 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'media' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
                     الصور والألبوم
                 </button>
                 <button wire:click="$set('activeTab', 'templates')"
-                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'templates' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
+                        class="px-3 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'templates' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
                     تبديل القالب
                 </button>
                 <button wire:click="$set('activeTab', 'rsvp')"
-                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'rsvp' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
+                        class="px-3 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $activeTab === 'rsvp' ? 'bg-[#C6A76B] text-[#292521] shadow-sm' : 'text-[#E8DED0]/70 hover:bg-white/5' }}">
                     إعدادات الحضور
                 </button>
             </div>
 
             <!-- Tab Content Pane (Scrollable) -->
-            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <div class="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-6">
                 <!-- 1. Basics Tab -->
                 @if($activeTab === 'basics')
                     <div class="space-y-4">
                         <h3 class="font-cairo text-base font-bold text-[#C6A76B]">بيانات العروسين وحفل الزفاف</h3>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-white mb-1.5">اسم العريس</label>
                                 <input type="text" wire:model.live.debounce.300ms="groom_name" 
@@ -136,7 +160,7 @@
                                    class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-[#C6A76B] outline-none">
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-white mb-1.5">تاريخ الحفل</label>
                                 <input type="date" wire:model.live="wedding_date" 
@@ -158,7 +182,7 @@
                             </select>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-white mb-1.5">لغة الدعوة</label>
                                 <select wire:model.live="invitation_locale"
@@ -177,9 +201,9 @@
                             </div>
                         </div>
 
-                        <label class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 cursor-pointer">
+                        <label class="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/5 border border-white/10 cursor-pointer">
                             <span class="text-xs font-bold text-white">عرض التاريخ الهجري (تقويم أم القرى)</span>
-                            <input type="checkbox" wire:model.live="show_hijri" class="w-4 h-4 rounded text-[#C6A76B]">
+                            <input type="checkbox" wire:model.live="show_hijri" class="w-4 h-4 rounded text-[#C6A76B] shrink-0">
                         </label>
 
                         <div>
@@ -240,10 +264,10 @@
                         <!-- Color Presets -->
                         <div>
                             <label class="block text-xs font-bold text-white mb-2">اللون الأساسي (ألوان العناوين والزخارف)</label>
-                            <div class="flex items-center gap-3">
-                                <input type="color" wire:model.live="primary_color" class="w-12 h-10 rounded-lg cursor-pointer bg-transparent border-0">
+                            <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                                <input type="color" wire:model.live="primary_color" class="w-12 h-10 rounded-lg cursor-pointer bg-transparent border-0 shrink-0">
                                 <input type="text" wire:model.live="primary_color" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-mono w-28 uppercase">
-                                <div class="flex gap-2">
+                                <div class="flex flex-wrap gap-2">
                                     <button type="button" wire:click="$set('primary_color', '#C6A76B')" class="w-7 h-7 rounded-full bg-[#C6A76B] border border-white/20 shadow-sm" title="ذهبي"></button>
                                     <button type="button" wire:click="$set('primary_color', '#D9828A')" class="w-7 h-7 rounded-full bg-[#D9828A] border border-white/20 shadow-sm" title="وردي"></button>
                                     <button type="button" wire:click="$set('primary_color', '#0F4C3A')" class="w-7 h-7 rounded-full bg-[#0F4C3A] border border-white/20 shadow-sm" title="زمردي"></button>
@@ -255,10 +279,10 @@
 
                         <div>
                             <label class="block text-xs font-bold text-white mb-2">لون خلفية الدعوة</label>
-                            <div class="flex items-center gap-3">
-                                <input type="color" wire:model.live="background_color" class="w-12 h-10 rounded-lg cursor-pointer bg-transparent border-0">
+                            <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                                <input type="color" wire:model.live="background_color" class="w-12 h-10 rounded-lg cursor-pointer bg-transparent border-0 shrink-0">
                                 <input type="text" wire:model.live="background_color" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-mono w-28 uppercase">
-                                <div class="flex gap-2">
+                                <div class="flex flex-wrap gap-2">
                                     <button type="button" wire:click="$set('background_color', '#FAF7F2')" class="w-7 h-7 rounded-full bg-[#FAF7F2] border border-white/20 shadow-sm" title="عاجي"></button>
                                     <button type="button" wire:click="$set('background_color', '#FDF8F7')" class="w-7 h-7 rounded-full bg-[#FDF8F7] border border-white/20 shadow-sm" title="باستيل"></button>
                                     <button type="button" wire:click="$set('background_color', '#FAFAFA')" class="w-7 h-7 rounded-full bg-[#FAFAFA] border border-white/20 shadow-sm" title="أبيض"></button>
@@ -270,7 +294,7 @@
                         <!-- Font Family -->
                         <div>
                             <label class="block text-xs font-bold text-white mb-2">نوع الخط العربي المعتمد</label>
-                            <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold">
                                 <label class="p-3 rounded-xl border cursor-pointer transition flex items-center justify-between {{ $font_family === 'Tajawal' ? 'border-[#C6A76B] bg-[#C6A76B]/10 text-white' : 'border-white/10 hover:bg-white/5 text-[#E8DED0]/80' }}">
                                     <input type="radio" wire:model.live="font_family" value="Tajawal" class="hidden">
                                     <span class="font-tajawal">خط تجوال (Tajawal)</span>
@@ -312,7 +336,7 @@
                             @endif
 
                             <input type="file" wire:model="new_cover_photo" accept="image/*"
-                                   class="text-xs text-[#E8DED0]/80 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#C6A76B] file:text-white hover:file:opacity-90">
+                                   class="w-full max-w-full text-xs text-[#E8DED0]/80 file:mr-0 file:ml-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#C6A76B] file:text-white hover:file:opacity-90">
                             
                             <div wire:loading wire:target="new_cover_photo" class="text-xs text-[#C6A76B]">
                                 جاري رفع صورة الغلاف...
@@ -323,19 +347,19 @@
                         <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
                             <label class="block text-xs font-bold text-white">إضافة صور إلى ألبوم الفرح</label>
                             <input type="file" wire:model="new_gallery_photo" accept="image/*"
-                                   class="text-xs text-[#E8DED0]/80 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#292521] file:border file:border-[#C6A76B] file:text-[#C6A76B]">
+                                   class="w-full max-w-full text-xs text-[#E8DED0]/80 file:mr-0 file:ml-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#292521] file:border file:border-[#C6A76B] file:text-[#C6A76B]">
                             
                             <div wire:loading wire:target="new_gallery_photo" class="text-xs text-[#C6A76B]">
                                 جاري رفع الصورة إلى الألبوم...
                             </div>
 
                             <!-- List existing photos -->
-                            <div class="grid grid-cols-3 gap-2 pt-2">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
                                 @foreach($invitation->photos as $p)
                                     <div class="relative group rounded-xl overflow-hidden h-24 border border-white/10">
                                         <img src="{{ $p->url }}" alt="Gallery photo" class="w-full h-full object-cover">
                                         <button wire:click="deleteGalleryPhoto({{ $p->id }})" 
-                                                class="absolute top-1 left-1 p-1 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow">
+                                                class="absolute top-1 left-1 p-1 bg-red-600 text-white rounded-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition shadow">
                                             <x-app-icon name="trash" class="w-3.5 h-3.5" />
                                         </button>
                                     </div>
@@ -351,7 +375,7 @@
                         <h3 class="font-cairo text-base font-bold text-[#C6A76B]">اختر قالب الدعوة</h3>
                         <p class="text-xs text-[#E8DED0]/70">يمكنك تبديل مظهر القالب بضغطة زر واحدة وستظهر التغييرات فوراً في المعاينة الحية:</p>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 min-[380px]:grid-cols-2 gap-3">
                             @foreach($templates as $tmpl)
                                 @php
                                     $primaryColor = $tmpl->default_styles['primary_color'] ?? '#C6A76B';
@@ -397,12 +421,12 @@
                         <h3 class="font-cairo text-base font-bold text-[#C6A76B]">إعدادات تأكيد الحضور (RSVP)</h3>
 
                         <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-4">
-                            <label class="flex items-center justify-between cursor-pointer">
+                            <label class="flex items-center justify-between gap-3 cursor-pointer">
                                 <div>
                                     <span class="text-xs font-bold text-white block">تفعيل تأكيد الحضور (RSVP)</span>
                                     <span class="text-[11px] text-[#E8DED0]/60">السماح للضيوف بتأكيد حضورهم عبر الدعوة</span>
                                 </div>
-                                <input type="checkbox" wire:model.live="is_rsvp_enabled" class="w-5 h-5 rounded text-[#C6A76B] focus:ring-[#C6A76B]">
+                                <input type="checkbox" wire:model.live="is_rsvp_enabled" class="w-5 h-5 rounded text-[#C6A76B] focus:ring-[#C6A76B] shrink-0">
                             </label>
 
                             @if($is_rsvp_enabled)
@@ -448,15 +472,37 @@
         </div>
 
         <!-- Live Preview Stage Area -->
-        <div class="flex-1 overflow-y-auto flex items-center justify-center p-4 sm:p-8 bg-[#161413]">
-            <!-- Live Preview Wrapper Container -->
-            <div class="transition-all duration-300 {{ $previewDevice === 'mobile' ? 'max-w-md w-full rounded-[2.5rem] shadow-2xl border-4 border-[#3D3731] overflow-hidden my-4' : ($previewDevice === 'tablet' ? 'max-w-2xl w-full rounded-3xl shadow-2xl border-4 border-[#3D3731] overflow-hidden my-4' : 'w-full max-w-4xl rounded-2xl shadow-2xl border border-zinc-800 overflow-hidden my-4') }}">
-                
-                @include($invitation->template->view_name ?? 'templates.royal_gold', [
-                    'invitation' => $previewObject,
-                    'isPreview' => true,
-                ])
+        <div :class="mobilePane === 'preview' ? 'flex flex-1 min-h-0' : 'hidden lg:flex'"
+             class="flex-1 min-h-0 flex-col bg-[#161413] overflow-hidden">
+            <!-- Mobile / Tablet Device Switcher -->
+            <div class="lg:hidden flex items-center justify-center p-2.5 border-b border-white/10 bg-[#1E1B18] shrink-0">
+                <div class="flex items-center bg-black/40 p-1 rounded-xl border border-white/10">
+                    <button type="button" wire:click="$set('previewDevice', 'mobile')"
+                            class="px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition {{ $previewDevice === 'mobile' ? 'bg-[#C6A76B] text-white shadow-sm' : 'text-[#E8DED0]/60 hover:text-white' }}">
+                        <span>📱 هاتف</span>
+                    </button>
+                    <button type="button" wire:click="$set('previewDevice', 'tablet')"
+                            class="px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition {{ $previewDevice === 'tablet' ? 'bg-[#C6A76B] text-white shadow-sm' : 'text-[#E8DED0]/60 hover:text-white' }}">
+                        <span>📟 تابلت</span>
+                    </button>
+                    <button type="button" wire:click="$set('previewDevice', 'desktop')"
+                            class="px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition {{ $previewDevice === 'desktop' ? 'bg-[#C6A76B] text-white shadow-sm' : 'text-[#E8DED0]/60 hover:text-white' }}">
+                        <span>💻 شاشة كاملة</span>
+                    </button>
+                </div>
+            </div>
 
+            <!-- Scrollable Preview Canvas -->
+            <div class="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 lg:p-8">
+                <!-- Live Preview Wrapper Container -->
+                <div class="mx-auto transition-all duration-300 {{ $previewDevice === 'mobile' ? 'max-w-md w-full rounded-2xl sm:rounded-[2.5rem] shadow-2xl border-4 border-[#3D3731] overflow-hidden my-2 sm:my-4' : ($previewDevice === 'tablet' ? 'max-w-2xl w-full rounded-2xl sm:rounded-3xl shadow-2xl border-4 border-[#3D3731] overflow-hidden my-2 sm:my-4' : 'w-full max-w-4xl rounded-xl sm:rounded-2xl shadow-2xl border border-zinc-800 overflow-hidden my-2 sm:my-4') }}">
+                    
+                    @include($invitation->template->view_name ?? 'templates.royal_gold', [
+                        'invitation' => $previewObject,
+                        'isPreview' => true,
+                    ])
+
+                </div>
             </div>
         </div>
     </div>

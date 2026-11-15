@@ -18,26 +18,32 @@
                 <div class="bg-white rounded-3xl p-8 shadow-wedding border border-[#C6A76B]/25 space-y-6">
                     <h3 class="font-cairo text-xl font-bold text-[#292521]">قنوات التواصل الفوري</h3>
                     
-                    <a href="https://wa.me/201000000000" target="_blank" 
+                    @php
+                        $contactEmail = \App\Models\PlatformSetting::get('contact_email', 'support@zaffe.app');
+                        $contactPhone = \App\Models\PlatformSetting::get('contact_phone', '+20 100 000 0000');
+                        $whatsappUrl = \App\Models\PlatformSetting::whatsappUrl();
+                    @endphp
+
+                    <a href="{{ $whatsappUrl }}" target="_blank" 
                        class="flex items-center gap-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 hover:bg-emerald-100 transition">
                         <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0">
                             <x-app-icon name="whatsapp" class="w-6 h-6" />
                         </div>
                         <div>
                             <span class="text-xs font-semibold text-emerald-700 block">واتساب مخصص للمساعدة</span>
-                            <span class="text-base font-bold" dir="ltr">+20 100 000 0000</span>
+                            <span class="text-base font-bold" dir="ltr">{{ $contactPhone }}</span>
                         </div>
                     </a>
 
-                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-[#FAF7F2] border border-[#E8DED0]">
+                    <a href="mailto:{{ $contactEmail }}" class="flex items-center gap-4 p-4 rounded-2xl bg-[#FAF7F2] border border-[#E8DED0] hover:border-[#C6A76B] transition">
                         <div class="w-12 h-12 rounded-xl bg-[#C6A76B] text-white flex items-center justify-center shrink-0">
                             <x-app-icon name="mail" class="w-6 h-6" />
                         </div>
                         <div>
                             <span class="text-xs font-semibold text-[#292521]/60 block">البريد الإلكتروني</span>
-                            <span class="text-base font-bold text-[#292521]">support@zaffe.app</span>
+                            <span class="text-base font-bold text-[#292521]">{{ $contactEmail }}</span>
                         </div>
-                    </div>
+                    </a>
 
                     <div class="flex items-center gap-4 p-4 rounded-2xl bg-[#FAF7F2] border border-[#E8DED0]">
                         <div class="w-12 h-12 rounded-xl bg-[#292521] text-white flex items-center justify-center shrink-0">

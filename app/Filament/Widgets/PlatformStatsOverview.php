@@ -8,6 +8,8 @@ use App\Models\RsvpResponse;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PlatformStatsOverview extends StatsOverviewWidget
 {
@@ -16,29 +18,35 @@ class PlatformStatsOverview extends StatsOverviewWidget
         $usersCount = User::count();
         $invitationsCount = Invitation::count();
         $publishedCount = Invitation::where('status', 'published')->count();
-        $confirmedGuests = RsvpResponse::where('attendance_status', 'attending')->sum('guest_count');
-        $templatesCount = InvitationTemplate::where('is_active', true)->count();
+        $confirmedGuests = (int) RsvpResponse::where('attendance_status', 'attending')->sum('guest_count');
+        $templatesCount = InvitationTemplate::availableForSelection()->count();
+        $failedJobs = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
 
         return [
-            Stat::make('المستخدمين المسجلين', $usersCount)
-                ->description('إجمالي حسابات العرسان والمدراء')
+            Stat::make(__('admin.stats.users'), $usersCount)
+                ->description(__('admin.stats.users_desc'))
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('primary'),
 
-            Stat::make('دعوات الزفاف', $invitationsCount)
-                ->description("{$publishedCount} دعوة منشورة أونلاين")
+            Stat::make(__('admin.stats.invitations'), $invitationsCount)
+                ->description(__('admin.stats.invitations_desc', ['count' => $publishedCount]))
                 ->descriptionIcon('heroicon-m-heart')
                 ->color('success'),
 
-            Stat::make('إجمالي الضيوف المؤكدين', $confirmedGuests)
-                ->description('تأكيدات الحضور عبر RSVP')
+            Stat::make(__('admin.stats.confirmed_guests'), $confirmedGuests)
+                ->description(__('admin.stats.confirmed_guests_desc'))
                 ->descriptionIcon('heroicon-m-check-badge')
                 ->color('warning'),
 
-            Stat::make('قوالب وتصاميم الزفاف', $templatesCount)
-                ->description('قوالب ملكية متاحة للتخصيص')
+            Stat::make(__('admin.stats.templates'), $templatesCount)
+                ->description(__('admin.stats.templates_desc'))
                 ->descriptionIcon('heroicon-m-sparkles')
                 ->color('info'),
+
+            Stat::make(__('admin.stats.failed_jobs'), $failedJobs)
+                ->description(__('admin.stats.failed_jobs_desc'))
+                ->descriptionIcon('heroicon-m-signal')
+                ->color($failedJobs > 0 ? 'danger' : 'success'),
         ];
     }
 }
