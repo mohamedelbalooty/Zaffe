@@ -13,12 +13,14 @@
         ? $invitation->wedding_date 
         : ($invitation->wedding_date?->format('Y-m-d') ?? now()->addDays(30)->format('Y-m-d'));
     $timeString = !empty($invitation->wedding_time) ? substr($invitation->wedding_time, 0, 5) : '20:00';
-    $tz = !empty($invitation->timezone) ? $invitation->timezone : 'Africa/Cairo';
+    $tz = !empty($invitation->timezone) && in_array($invitation->timezone, timezone_identifiers_list(), true)
+        ? $invitation->timezone
+        : 'Africa/Cairo';
 
     try {
         $targetDate = \Carbon\Carbon::parse($dateString . ' ' . $timeString, $tz)->toIso8601String();
     } catch (\Throwable $e) {
-        $targetDate = \Carbon\Carbon::now($tz)->addDays(30)->toIso8601String();
+        $targetDate = \Carbon\Carbon::now('Africa/Cairo')->addDays(30)->toIso8601String();
     }
 @endphp
 

@@ -49,6 +49,7 @@ class InvitationEditor extends Component
 
     public string $invitation_message = '';
 
+    #[Locked]
     public string $status = 'draft';
 
     public bool $is_rsvp_enabled = true;
@@ -280,6 +281,27 @@ class InvitationEditor extends Component
     public function saveChanges()
     {
         $invitation = $this->getAuthorizedInvitation();
+
+        $this->validate([
+            'groom_name' => ['required', 'string', 'max:255'],
+            'bride_name' => ['required', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'wedding_date' => ['required', 'date'],
+            'wedding_time' => ['nullable', 'string', 'max:20'],
+            'timezone' => ['required', 'string', 'in:Africa/Cairo,Asia/Riyadh'],
+            'venue_name' => ['required', 'string', 'max:255'],
+            'venue_address' => ['nullable', 'string', 'max:500'],
+            'venue_map_url' => ['nullable', 'url:http,https', 'max:500'],
+            'welcome_message' => ['nullable', 'string', 'max:2000'],
+            'invitation_message' => ['nullable', 'string', 'max:2000'],
+            'music_url' => ['nullable', 'url:http,https', 'max:500'],
+            'max_guests_per_rsvp' => ['required', 'integer', 'min:1', 'max:20'],
+            'rsvp_deadline' => ['nullable', 'date'],
+            'primary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'secondary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'background_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'font_family' => ['required', 'string', 'in:Tajawal,Cairo,Amiri,Playfair Display'],
+        ]);
 
         $customStyles = array_merge($invitation->custom_styles ?? [], [
             'primary_color' => $this->primary_color,

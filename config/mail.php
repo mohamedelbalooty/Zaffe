@@ -72,7 +72,7 @@ return [
             // ],
         ],
 
-        'resend' => [
+        'resend_api' => [
             'transport' => 'resend',
         ],
 
