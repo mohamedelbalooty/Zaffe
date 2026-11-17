@@ -21,6 +21,9 @@
             </a>
         </div>
 
+        <!-- Unified Smart Guest Roster, Personalized Links, QR Passes & Door Gates -->
+        <livewire:guest-roster-manager :invitation-id="$invitation->id" />
+
         <!-- RSVP Statistics Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white rounded-3xl p-5 border border-[#E8DED0] shadow-sm">
@@ -121,7 +124,12 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 font-bold text-sm text-[#292521]">
-                                        {{ $rsvp->guest_count }}
+                                        {{ $rsvp->guest_count + ($rsvp->children_count ?? 0) }}
+                                        @if(($rsvp->children_count ?? 0) > 0)
+                                            <span class="block text-[10px] font-medium text-[#292521]/60">
+                                                {{ $rsvp->guest_count }} بالغين · {{ $rsvp->children_count }} أطفال
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-[#292521]/80 max-w-xs">
                                         @if($rsvp->dietary_notes)

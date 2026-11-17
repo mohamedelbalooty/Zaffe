@@ -92,6 +92,13 @@ class InvitationForm
                     ->required()
                     ->default('draft')
                     ->native(false),
+                Select::make('invitation_mode')
+                    ->label(__('admin.fields.invitation_mode'))
+                    ->options(fn (): array => __('admin.options.invitation_modes'))
+                    ->required()
+                    ->default('rsvp_qr')
+                    ->native(false)
+                    ->live(),
                 Toggle::make('is_rsvp_enabled')
                     ->label(__('admin.fields.is_rsvp_enabled'))
                     ->default(true)

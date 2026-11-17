@@ -12,11 +12,13 @@ class RsvpResponse extends Model
 
     protected $fillable = [
         'invitation_id',
+        'invitation_guest_id',
         'guest_name',
         'phone',
         'email',
         'attendance_status',
         'guest_count',
+        'children_count',
         'message',
         'dietary_notes',
         'ip_address',
@@ -26,6 +28,7 @@ class RsvpResponse extends Model
     {
         return [
             'guest_count' => 'integer',
+            'children_count' => 'integer',
         ];
     }
 
@@ -33,5 +36,9 @@ class RsvpResponse extends Model
     {
         return $this->belongsTo(Invitation::class);
     }
-}
 
+    public function guest(): BelongsTo
+    {
+        return $this->belongsTo(InvitationGuest::class, 'invitation_guest_id');
+    }
+}

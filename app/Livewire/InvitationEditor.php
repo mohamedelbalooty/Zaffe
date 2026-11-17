@@ -53,6 +53,8 @@ class InvitationEditor extends Component
 
     public bool $is_rsvp_enabled = true;
 
+    public string $invitation_mode = Invitation::MODE_RSVP_QR;
+
     public int $max_guests_per_rsvp = 5;
 
     public ?string $rsvp_deadline = '';
@@ -115,7 +117,8 @@ class InvitationEditor extends Component
         $this->welcome_message = $invitation->welcome_message ?? '';
         $this->invitation_message = $invitation->invitation_message ?? '';
         $this->status = $invitation->status;
-        $this->is_rsvp_enabled = $invitation->is_rsvp_enabled;
+        $this->invitation_mode = $invitation->effectiveMode();
+        $this->is_rsvp_enabled = $invitation->allowsRsvp();
         $this->max_guests_per_rsvp = $invitation->max_guests_per_rsvp;
         $this->rsvp_deadline = $invitation->rsvp_deadline ? $invitation->rsvp_deadline->format('Y-m-d') : '';
         $this->music_url = $invitation->music_url ?? '';
@@ -146,6 +149,28 @@ class InvitationEditor extends Component
         }
 
         return $invitation;
+    }
+
+    public function updatedInvitationMode(string $value): void
+    {
+        if (! in_array($value, Invitation::modes(), true)) {
+            $this->invitation_mode = Invitation::MODE_RSVP_QR;
+        }
+
+        $this->is_rsvp_enabled = in_array(
+            $this->invitation_mode,
+            [Invitation::MODE_RSVP_QR, Invitation::MODE_RSVP_ONLY],
+            true
+        );
+    }
+
+    public function updatedIsRsvpEnabled(bool $value): void
+    {
+        if (! $value && in_array($this->invitation_mode, [Invitation::MODE_RSVP_QR, Invitation::MODE_RSVP_ONLY], true)) {
+            $this->invitation_mode = Invitation::MODE_ANNOUNCEMENT;
+        } elseif ($value && $this->invitation_mode === Invitation::MODE_ANNOUNCEMENT) {
+            $this->invitation_mode = Invitation::MODE_RSVP_QR;
+        }
     }
 
     public function updated($propertyName)
@@ -282,6 +307,7 @@ class InvitationEditor extends Component
             'music_url' => $this->music_url ?: null,
             'status' => $this->status,
             'is_rsvp_enabled' => $this->is_rsvp_enabled,
+            'invitation_mode' => $this->invitation_mode,
             'max_guests_per_rsvp' => $this->max_guests_per_rsvp,
             'rsvp_deadline' => $this->rsvp_deadline ?: null,
             'template_id' => $this->template_id,
@@ -347,6 +373,7 @@ class InvitationEditor extends Component
             'cover_photo' => $this->cover_photo,
             'music_url' => $this->music_url,
             'is_rsvp_enabled' => $this->is_rsvp_enabled,
+            'invitation_mode' => $this->invitation_mode,
             'max_guests_per_rsvp' => $this->max_guests_per_rsvp,
             'template' => $invitation->template,
             'custom_styles' => $previewStyles,

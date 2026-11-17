@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GuestPassController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvitationController;
+use App\Livewire\GateScanner;
 use App\Livewire\InvitationEditor;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +43,7 @@ Route::get('/lang/{locale}', function (string $locale) {
     if (in_array($locale, ['ar', 'en'])) {
         session(['locale' => $locale]);
     }
+
     return back();
 })->name('lang.switch');
 
@@ -53,7 +56,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 */
 Route::middleware('auth')->prefix('dashboard')->name('dashboard')->group(function () {
     Route::get('/', [DashboardController::class, 'index']);
-    
+
     // Invitations Management
     Route::get('/invitations', [DashboardController::class, 'invitations'])->name('.invitations.index');
     Route::get('/invitations/create', [DashboardController::class, 'create'])->name('.invitations.create');
@@ -62,10 +65,11 @@ Route::middleware('auth')->prefix('dashboard')->name('dashboard')->group(functio
     Route::post('/invitations/{id}/toggle-publish', [DashboardController::class, 'togglePublish'])->name('.invitations.toggle-publish');
     Route::post('/invitations/{id}/archive', [DashboardController::class, 'archive'])->name('.invitations.archive');
     Route::delete('/invitations/{id}', [DashboardController::class, 'destroy'])->name('.invitations.destroy');
-    
+
     // RSVP Guest Management
     Route::get('/invitations/{id}/guests', [DashboardController::class, 'guests'])->name('.invitations.guests');
     Route::get('/invitations/{id}/guests/export', [DashboardController::class, 'exportGuestsCsv'])->name('.invitations.guests.export');
+    Route::get('/invitations/{id}/guests/roster-export', [DashboardController::class, 'exportRosterCsv'])->name('.invitations.guests.roster-export');
 
     // Profile & Settings
     Route::get('/profile', [DashboardController::class, 'profile'])->name('.profile');
@@ -74,7 +78,13 @@ Route::middleware('auth')->prefix('dashboard')->name('dashboard')->group(functio
 
 /*
 |--------------------------------------------------------------------------
-| Public Invitation Page
+| Public Invitation, Guest QR Pass & Gatekeeper Check-In Pages
 |--------------------------------------------------------------------------
 */
 Route::get('/invitation/{slug}', [InvitationController::class, 'show'])->name('invitation.show');
+Route::get('/pass/{qrToken}', [GuestPassController::class, 'show'])
+    ->middleware('throttle:60,1')
+    ->name('guest.pass');
+Route::get('/gate/{gateToken}', GateScanner::class)
+    ->middleware('throttle:60,1')
+    ->name('gate.portal');
