@@ -8,6 +8,13 @@
       "skillPath": ".claude/skills/backend-development/SKILL.md",
       "computedHash": "746dbc248d2ac18a317ca49513b4be50f4f8b8e4f39d362cce93ec15886b296f"
     },
+    "code-review": {
+      "source": "mattpocock/skills",
+      "commit": "5863806dd4e15c63174bee4e7515a4256792ecfa",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/code-review/SKILL.md",
+      "computedHash": "ce86b40a3d1648a0018b712f0c70704e6c2316b2a9b9e915ab116916a31273dc"
+    },
     "copywriting": {
       "source": "coreyhaines31/marketingskills",
       "commit": "1f837447b20bb6f0e72d87b80ece1c221c362c7d",
@@ -28,6 +35,13 @@
       "sourceType": "github",
       "skillPath": ".agents/skills/impeccable/SKILL.md",
       "computedHash": "077889e9782761360c17acbc2522af320d0dd0f928b09cd90884fa304f443a34"
+    },
+    "seo-audit": {
+      "source": "coreyhaines31/marketingskills",
+      "commit": "1f837447b20bb6f0e72d87b80ece1c221c362c7d",
+      "sourceType": "github",
+      "skillPath": "skills/seo-audit/SKILL.md",
+      "computedHash": "37ac5512c83e37dea45ba4a1d8075623812df56db712b2461509d79b5599881e"
     }
   }
 }
