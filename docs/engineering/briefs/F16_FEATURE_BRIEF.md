@@ -1,10 +1,10 @@
 # F16 (`ZAFFE-018`) — Smart Guest List, Invitation Modes & Zero-App QR Door Check-In
 
 - **Feature ID:** `F16` (`ZAFFE-018`)
-- **Branch:** `feature/ZAFFE-018-smart-guests-and-qr-checkin` (branched from `dev`)
-- **Status:** Approved for Stage D Implementation
+- **Canonical Full Branch:** `feature/ZAFFE-018-smart-guests-and-qr-checkin` *(Manual Owner Approval Required for Part B)*
+- **Status:** Split Delivery — **Part A** (Smart Guest Roster, 4 Modes, `?g=` Links & QR Pass Generation) active in `dev`; **Part B** (QR Scanning & Gatekeeper Check-In `/gate/{gateToken}`) **isolated** on `feature/ZAFFE-018-smart-guests-and-qr-checkin` via `chore/ZAFFE-019-isolate-qr-checkin-from-dev` (see [QR_FEATURE_ISOLATION_POLICY.md](file:///e:/GithubProjects/Zaffe/docs/engineering/QR_FEATURE_ISOLATION_POLICY.md)).
 - **Priority / RICE:** `#1` (`RICE 96.9`, Reach `10`, Impact `2.5`, Confidence `95%`, Effort `0.25`)
-- **Release Target:** Release 1 (100% Free Self-Service — `$0` OpEx, zero new external paid dependencies)
+- **Release Target:** Release 1 Part A active; Part B held pending Product Owner manual merge approval.
 
 ---
 
@@ -58,7 +58,8 @@ Replace the single boolean UI in the Invitation Editor with a clear 4-mode selec
   - Guest name, couple names, event venue/date, personal `?g={invite_token}` link (plus `/pass/{qr_token}` hint).
 - Marks `invited_at` on initial send and `reminded_at` on reminder click, giving visibility into who was notified without needing paid WhatsApp Business APIs.
 
-### 2.6 Multi-Gate Zero-App Gatekeeper Portal (`/gate/{gateToken}`)
+### 2.6 Multi-Gate Zero-App Gatekeeper Portal (`/gate/{gateToken}`) `[ISOLATED — OWNER MANUAL MERGE ONLY]`
+- **Isolation Rule:** All Gatekeeper Portal (`GateScanner`), gate creation/revocation (`InvitationGate`), `BarcodeDetector` camera scanning, manual `pass_code` check-in, and `checked_in_at` attendance recording capabilities remain **strictly isolated** on `feature/ZAFFE-018-smart-guests-and-qr-checkin` and are **not active** in `dev`. See [QR_FEATURE_ISOLATION_POLICY.md](file:///e:/GithubProjects/Zaffe/docs/engineering/QR_FEATURE_ISOLATION_POLICY.md).
 - Couples create named venue gates (`"البوابة الرئيسية"`, `"قاعة النساء"`, `"مدخل كبار الشخصيات"`), copy their secret `64`-character tokenized URL, toggle `is_active`, or revoke/delete at any time from `/dashboard/invitations/{id}/guests`.
 - Ushers open `/gate/{gateToken}` directly in any mobile browser (no Zaffe account or app install needed):
   - Live entrance KPIs: **Confirmed Parties**, **Total Expected Heads (Adults + Children)**, **Checked-In Guests**, **Remaining**.

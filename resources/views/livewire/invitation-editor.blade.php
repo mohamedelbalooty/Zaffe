@@ -418,17 +418,17 @@
                 <!-- 6. RSVP & Settings Tab -->
                 @if($activeTab === 'rsvp')
                     <div class="space-y-4">
-                        <h3 class="font-cairo text-base font-bold text-[#C6A76B]">نظام الدعوة وبوابة الدخول</h3>
+                        <h3 class="font-cairo text-base font-bold text-[#C6A76B]">نظام الدعوة وتأكيد الحضور</h3>
 
                         <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                            <p class="text-[11px] text-[#E8DED0]/70">اختر آلية تأكيد الحضور وإصدار بطاقات الدخول (QR) مجاناً لجميع ضيوفك:</p>
+                            <p class="text-[11px] text-[#E8DED0]/70">اختر آلية تأكيد الحضور وإصدار بطاقات الضيوف (QR) مجاناً لجميع ضيوفك:</p>
 
                             <div class="grid grid-cols-1 gap-2">
                                 @php
                                     $modes = [
-                                        ['key' => 'rsvp_qr', 'icon' => 'qr-code', 'title' => 'تأكيد الحضور + كود دخول QR ذكي', 'desc' => 'الأفضل لحفلات الزفاف الرسمية: يؤكد الضيف حضوره ويستلم بطاقة QR شخصية'],
-                                        ['key' => 'rsvp_only', 'icon' => 'check-circle', 'title' => 'تأكيد الحضور فقط (بدون باركود)', 'desc' => 'استمارة تأكيد الحضور والمرافقين والوجبات دون كود دخول'],
-                                        ['key' => 'qr_only', 'icon' => 'shield-check', 'title' => 'كود دخول QR فقط (بدون استمارة رد)', 'desc' => 'ترسل بطاقة الدخول المباشرة لكل مدعو من قائمة الضيوف'],
+                                        ['key' => 'rsvp_qr', 'icon' => 'qr-code', 'title' => 'تأكيد الحضور + بطاقة QR شخصية', 'desc' => 'الأفضل لحفلات الزفاف الرسمية: يؤكد الضيف حضوره ويستلم بطاقة QR شخصية'],
+                                        ['key' => 'rsvp_only', 'icon' => 'check-circle', 'title' => 'تأكيد الحضور فقط (بدون باركود)', 'desc' => 'استمارة تأكيد الحضور والمرافقين والوجبات دون بطاقة QR'],
+                                        ['key' => 'qr_only', 'icon' => 'shield-check', 'title' => 'بطاقة دعوة QR فقط (بدون استمارة رد)', 'desc' => 'ترسل بطاقة QR المباشرة لكل مدعو من قائمة الضيوف'],
                                         ['key' => 'announcement', 'icon' => 'sparkles', 'title' => 'دعوة للعرض فقط (بدون رد أو باركود)', 'desc' => 'مناسبة للإعلانات وحفظ التاريخ والضيافة المفتوحة'],
                                     ];
                                 @endphp
@@ -464,7 +464,7 @@
                                 <a href="{{ route('dashboard.invitations.guests', $invitation->id) }}"
                                    class="w-full inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#C6A76B] text-[#1A1612] text-xs font-bold hover:opacity-90 transition">
                                     <x-app-icon name="users" class="w-4 h-4" />
-                                    <span>إدارة المدعوين وبوابات الدخول (QR)</span>
+                                    <span>إدارة قائمة المدعوين وبطاقات QR</span>
                                 </a>
                             </div>
                         </div>

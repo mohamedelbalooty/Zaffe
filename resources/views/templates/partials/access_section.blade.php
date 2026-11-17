@@ -46,28 +46,22 @@
                         @endif
                     </p>
 
-                    @if($personalGuest->isCheckedIn())
-                        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold">
-                            تم تسجيل دخولكم بنجاح عند البوابة بتاريخ {{ $personalGuest->checked_in_at->timezone($invitation->timezone ?: 'Africa/Cairo')->format('Y-m-d H:i') }}
+                    <div class="inline-flex flex-col items-center p-4 rounded-2xl bg-white border border-[#E8DED0] shadow-sm">
+                        {!! $inlineQrSvg !!}
+                        <div class="mt-3 flex items-center gap-2 text-xs">
+                            <span class="text-[#292521]/60">كود البطاقة الشخصي:</span>
+                            <span dir="ltr" class="font-mono font-black tracking-widest text-[#292521] bg-[#FAF7F2] px-2.5 py-1 rounded-lg border border-[#E8DED0]">
+                                {{ $personalGuest->pass_code }}
+                            </span>
                         </div>
-                    @else
-                        <div class="inline-flex flex-col items-center p-4 rounded-2xl bg-white border border-[#E8DED0] shadow-sm">
-                            {!! $inlineQrSvg !!}
-                            <div class="mt-3 flex items-center gap-2 text-xs">
-                                <span class="text-[#292521]/60">كود الدخول البديل:</span>
-                                <span dir="ltr" class="font-mono font-black tracking-widest text-[#292521] bg-[#FAF7F2] px-2.5 py-1 rounded-lg border border-[#E8DED0]">
-                                    {{ $personalGuest->pass_code }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="pt-1">
-                            <a href="{{ $personalGuest->getPassUrl() }}"
-                               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292521] text-white text-xs font-bold hover:opacity-90 transition">
-                                <x-app-icon name="download" class="w-4 h-4" />
-                                <span>فتح وحفظ بطاقة الدخول</span>
-                            </a>
-                        </div>
-                    @endif
+                    </div>
+                    <div class="pt-1">
+                        <a href="{{ $personalGuest->getPassUrl() }}"
+                           class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292521] text-white text-xs font-bold hover:opacity-90 transition">
+                            <x-app-icon name="download" class="w-4 h-4" />
+                            <span>فتح وحفظ بطاقة الدعوة</span>
+                        </a>
+                    </div>
                 </div>
             @else
                 <div class="bg-white/95 backdrop-blur-md rounded-3xl p-6 border border-[#C6A76B]/30 shadow-lg text-center space-y-2">

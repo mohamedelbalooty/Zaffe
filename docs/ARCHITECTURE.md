@@ -388,13 +388,13 @@ erDiagram
 | `/dashboard/invitations` | `POST` | `DashboardController` | `auth` | Stores new invitation and auto-generates slug |
 | `/dashboard/invitations/{id}/editor` | `GET` | `InvitationEditor` | `auth`, Livewire | Full-screen visual studio editor |
 | `/dashboard/invitations/{id}` | `DELETE` | `DashboardController` | `auth` | Soft or hard deletion of user invitation |
-| `/dashboard/invitations/{id}/guests` | `GET` | `DashboardController` | `auth` | Searchable guest RSVP table, pre-invited roster & gate manager |
+| `/dashboard/invitations/{id}/guests` | `GET` | `DashboardController` | `auth` | Searchable guest RSVP table & pre-invited smart guest roster |
 | `/dashboard/invitations/{id}/guests/export`| `GET` | `DashboardController` | `auth` | Streamed UTF-8 BOM CSV export of RSVP responses |
-| `/dashboard/invitations/{id}/guests/roster-export` | `GET` | `DashboardController` | `auth` | Streamed UTF-8 BOM CSV export of pre-invited roster & check-in state |
+| `/dashboard/invitations/{id}/guests/roster-export` | `GET` | `DashboardController` | `auth` | Streamed UTF-8 BOM CSV export of pre-invited guest roster |
 | `/dashboard/profile` | `GET`, `PUT` | `DashboardController` | `auth` | User profile update (name, email, password) |
 | `/invitation/{slug}` | `GET` | `InvitationController` | `show` | Public wedding card view (supports optional `?g={inviteToken}`); enforces draft privacy |
-| `/pass/{qrToken}` | `GET` | `GuestPassController` | `__invoke` | High-contrast single-use QR entry pass view for confirmed/invited guests |
-| `/gate/{gateToken}` | `GET` | `GateScanner` | `Livewire` | Zero-app mobile/desktop door check-in portal (`throttle:60,1`) |
+| `/pass/{qrToken}` | `GET` | `GuestPassController` | `show` | High-contrast personal QR pass view for confirmed/invited guests (`throttle:60,1`) |
+| `/gate/{gateToken}` *(Isolated)* | `GET` | `GateScanner` | `Livewire` | **Isolated on `feature/ZAFFE-018-smart-guests-and-qr-checkin`** — not active in `dev` (`QR_FEATURE_ISOLATION_POLICY.md`) |
 | `/admin/*` | Multi | Filament Panel Provider | `auth`, `canAccessPanel`| Super admin management suite |
 
 ---

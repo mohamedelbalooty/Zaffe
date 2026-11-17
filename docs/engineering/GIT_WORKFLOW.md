@@ -85,6 +85,20 @@ All work branches must follow standardized prefixes with their tracking ticket /
 3. **No Empty Branches:** Do not create placeholders or batch-create empty feature branches. Create a feature branch only when its active implementation starts.
 4. **Lifecycle Termination:** Once a feature branch passes all Quality Gates and is merged into `dev`, its branch may be safely pruned locally and remotely.
 
+### 3.3 Protected & Manual-Only Merge Branches (`OWNER ONLY`)
+
+The branches listed below must **never** be merged or promoted into `dev`, `staging`, or `production` automatically by AI agents, scripts, GitHub Auto-Merge, or automated workflows. Only the Product Owner may explicitly authorize and manually execute a merge after reviewing the Pull Request:
+
+| Branch Name | Restriction | Reason / Governance Policy |
+| :--- | :--- | :--- |
+| `feature/ZAFFE-018-smart-guests-and-qr-checkin` | **No Agent/Automated Merge — Product Owner Manual Only** | Contains **QR Scanning & Gatekeeper Check-In** (`/gate/{gateToken}`, `GateScanner`, `InvitationGate`, single-use `checked_in_at` verification). See [QR_FEATURE_ISOLATION_POLICY.md](file:///e:/GithubProjects/Zaffe/docs/engineering/QR_FEATURE_ISOLATION_POLICY.md). |
+| `feature/ZAFFE-015-short-urls-and-og-tags` | **No Agent/Automated Merge or PR — Owner Manual Only** | Short public `/i/` codes, OG image caching, and async WebP media pipeline reserved exclusively for manual owner PR/merge. |
+| `feature/ZAFFE-017-create-invitation-wizard` | **On Hold — Adoption Undecided (`DO NOT MERGE`)** | Experimental country-first wizard held pending explicit Product Owner adoption decision. |
+
+> [!CAUTION]
+> **Permanent QR Check-In Isolation Policy:**  
+> QR Check-in and Gatekeeper functionality must never be promoted into dev, staging, or production automatically. Only the product owner may explicitly authorize and execute the merge after reviewing the feature Pull Request.
+
 ---
 
 ## 4. Git Safety Preflight Protocol
@@ -117,8 +131,9 @@ git log -n 5 --oneline
 
 ### 5.1 Step 1: Feature to `dev`
 - **Prerequisite:** Feature branch passes all 7 steps of the Feature Execution Workflow (Code-Level, Business-Level, Security, and Automated Tests).
-- **Method:** Pull Request against `dev`.
+- **Method:** Pull Request against `dev` (**only authorized and manually merged by the Product Owner** for restricted branches listed in Section 3.3, including `feature/ZAFFE-018-smart-guests-and-qr-checkin` and `feature/ZAFFE-015-short-urls-and-og-tags`).
 - **Merge Strategy:** Rebase & merge or Squash & merge (with clean conventional commit summary).
+- **Automated Merge Prohibition:** GitHub Auto-Merge and agent-driven `git merge` / `gh pr merge` are strictly prohibited for QR Check-In and protected branches. Even a 100% passing test suite is not permission to merge.
 
 ### 5.2 Step 2: `dev` to `staging`
 - **Prerequisite:** All features targeted for the upcoming release milestone are integrated into `dev`.
@@ -175,9 +190,9 @@ All commits must follow the **Conventional Commits** specification:
 
 When pushing to GitHub / GitLab, configure the following repository protection rules:
 
-| Rule Target | Required Approvals | Status Checks Required | Dismiss Stale Reviews | Require Signed Commits | Disallow Force Push & Deletion |
+| Rule Target | Required Approvals | Status Checks Required | Dismiss Stale Reviews | Conversation Resolution | Disallow Force Push & Deletion |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `production` | 1 Senior Reviewer | CI Test Suite (`php artisan test`, `npm run build`) | Yes | Recommended | **Enforced** |
-| `staging` | 1 Reviewer | CI Test Suite | Yes | Optional | **Enforced** |
-| `dev` | None (Direct PR check) | CI Test Suite | Yes | Optional | **Enforced** |
+| `production` | 1 Senior Reviewer (Owner) | CI Test Suite (`php artisan test`, `npm run build`) | Yes | Yes | **Enforced** |
+| `staging` | 1 Reviewer (Owner) | CI Test Suite | Yes | Yes | **Enforced** |
+| `dev` | 1 Reviewer (Owner) | CI Test Suite (when configured) | Yes | Yes | **Enforced** (`allow_auto_merge: false`) |
 

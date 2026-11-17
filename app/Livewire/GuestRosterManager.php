@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Invitation;
-use App\Models\InvitationGate;
 use App\Models\InvitationGuest;
 use App\Services\PhoneService;
 use App\Services\QrCodeService;
@@ -54,9 +53,6 @@ class GuestRosterManager extends Component
 
     // Preview pass modal
     public ?int $previewGuestId = null;
-
-    // Gate management
-    public string $gateName = '';
 
     public function mount(int $invitationId): void
     {
@@ -241,28 +237,6 @@ class GuestRosterManager extends Component
         }
     }
 
-    public function toggleCheckIn(int $guestId): void
-    {
-        $invitation = $this->getAuthorizedInvitation();
-        $guest = InvitationGuest::query()
-            ->where('invitation_id', $invitation->id)
-            ->findOrFail($guestId);
-
-        if ($guest->isCheckedIn()) {
-            $guest->update([
-                'checked_in_at' => null,
-                'checked_in_count' => 0,
-                'checked_in_by_gate_id' => null,
-            ]);
-        } else {
-            $guest->update([
-                'checked_in_at' => now(),
-                'checked_in_count' => $guest->getExpectedPartySize(),
-                'checked_in_by_gate_id' => null,
-            ]);
-        }
-    }
-
     public function deleteGuest(int $guestId): void
     {
         $invitation = $this->getAuthorizedInvitation();
@@ -274,46 +248,6 @@ class GuestRosterManager extends Component
         if ($this->previewGuestId === $guestId) {
             $this->previewGuestId = null;
         }
-    }
-
-    public function createGate(): void
-    {
-        $invitation = $this->getAuthorizedInvitation();
-
-        $this->validate([
-            'gateName' => ['required', 'string', 'min:2', 'max:100'],
-        ], [
-            'gateName.required' => 'يرجى كتابة اسم البوابة (مثال: البوابة الرئيسية أو قاعة النساء).',
-        ]);
-
-        InvitationGate::create([
-            'invitation_id' => $invitation->id,
-            'name' => trim($this->gateName),
-            'is_active' => true,
-            'created_by_user_id' => Auth::id(),
-        ]);
-
-        $this->gateName = '';
-        session()->flash('gate_notice', 'تم إنشاء رابط البوابة بنجاح ويمكن مشاركته مع مستقبل الضيوف فوراً.');
-    }
-
-    public function toggleGate(int $gateId): void
-    {
-        $invitation = $this->getAuthorizedInvitation();
-        $gate = InvitationGate::query()
-            ->where('invitation_id', $invitation->id)
-            ->findOrFail($gateId);
-
-        $gate->update(['is_active' => ! $gate->is_active]);
-    }
-
-    public function deleteGate(int $gateId): void
-    {
-        $invitation = $this->getAuthorizedInvitation();
-        InvitationGate::query()
-            ->where('invitation_id', $invitation->id)
-            ->whereKey($gateId)
-            ->delete();
     }
 
     public function openPassPreview(int $guestId): void
@@ -345,7 +279,7 @@ class GuestRosterManager extends Component
     {
         $invitation = $this->getAuthorizedInvitation();
 
-        $query = $invitation->guests()->with('checkedInGate');
+        $query = $invitation->guests();
 
         if ($this->filterStatus === 'pending') {
             $query->where('rsvp_status', InvitationGuest::STATUS_PENDING);
@@ -353,10 +287,6 @@ class GuestRosterManager extends Component
             $query->where('rsvp_status', InvitationGuest::STATUS_ATTENDING);
         } elseif ($this->filterStatus === 'declined') {
             $query->where('rsvp_status', InvitationGuest::STATUS_DECLINED);
-        } elseif ($this->filterStatus === 'checked_in') {
-            $query->whereNotNull('checked_in_at');
-        } elseif ($this->filterStatus === 'not_checked_in') {
-            $query->whereNull('checked_in_at');
         }
 
         if ($this->filterCategory !== 'all') {
@@ -373,8 +303,7 @@ class GuestRosterManager extends Component
         }
 
         $guests = $query->get();
-        $gates = $invitation->gates()->get();
-        $stats = $invitation->guestCheckInStats();
+        $stats = $invitation->guestRosterStats();
 
         $previewGuest = $this->previewGuestId
             ? $invitation->guests()->find($this->previewGuestId)
@@ -385,14 +314,13 @@ class GuestRosterManager extends Component
                 200,
                 '#111827',
                 '#FFFFFF',
-                'بطاقة الدخول '.$previewGuest->name
+                'بطاقة الدعوة '.$previewGuest->name
             )
             : null;
 
         return view('livewire.guest-roster-manager', [
             'invitation' => $invitation,
             'guests' => $guests,
-            'gates' => $gates,
             'stats' => $stats,
             'previewGuest' => $previewGuest,
             'previewQrSvg' => $previewQrSvg,

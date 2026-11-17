@@ -289,7 +289,7 @@ class DashboardController extends Controller
     public function exportRosterCsv(int $id)
     {
         $invitation = Auth::user()->invitations()->findOrFail($id);
-        $guests = $invitation->guests()->with('checkedInGate')->orderBy('name')->get();
+        $guests = $invitation->guests()->orderBy('name')->get();
 
         $filename = 'zaffe-roster-'.$invitation->slug.'-'.date('Y-m-d').'.csv';
 
@@ -308,12 +308,9 @@ class DashboardController extends Controller
                 'الفئة',
                 'المقاعد (بالغين)',
                 'المقاعد (أطفال)',
-                'كود الدخول',
+                'كود البطاقة',
                 'حالة الرد',
                 'بدء المشاركة (واتساب)',
-                'تم الدخول',
-                'عدد الحاضرين فعلياً',
-                'البوابة',
                 'رابط الدعوة الشخصي',
             ]);
 
@@ -330,9 +327,6 @@ class DashboardController extends Controller
                     CsvSanitizer::cell($guest->pass_code),
                     CsvSanitizer::cell($guest->rsvp_status),
                     $guest->invited_at ? $guest->invited_at->timezone($tz)->format('Y-m-d H:i') : 'لا',
-                    $guest->checked_in_at ? $guest->checked_in_at->timezone($tz)->format('Y-m-d H:i') : 'لا',
-                    $guest->checked_in_count,
-                    CsvSanitizer::cell($guest->checkedInGate?->name ?? '—'),
                     CsvSanitizer::cell($guest->getPersonalInviteUrl()),
                 ]);
             }

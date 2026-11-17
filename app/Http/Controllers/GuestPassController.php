@@ -11,7 +11,7 @@ class GuestPassController extends Controller
     public function show(string $qrToken, QrCodeService $qrCodeService)
     {
         $guest = InvitationGuest::query()
-            ->with(['invitation.template', 'checkedInGate'])
+            ->with(['invitation.template'])
             ->where('qr_token', $qrToken)
             ->firstOrFail();
 

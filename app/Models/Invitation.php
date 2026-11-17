@@ -128,11 +128,6 @@ class Invitation extends Model
         return $this->hasMany(InvitationGuest::class)->latest();
     }
 
-    public function gates(): HasMany
-    {
-        return $this->hasMany(InvitationGate::class)->latest();
-    }
-
     public static function modes(): array
     {
         return [
@@ -150,9 +145,9 @@ class Invitation extends Model
 
         return match ($mode) {
             self::MODE_RSVP_ONLY => $isEn ? 'RSVP Confirmation Only' : 'تأكيد الحضور فقط (بدون باركود)',
-            self::MODE_QR_ONLY => $isEn ? 'Direct QR Entry Pass Only' : 'كود دخول QR فقط (بدون استمارة رد)',
+            self::MODE_QR_ONLY => $isEn ? 'Direct QR Pass Only' : 'بطاقة دعوة QR فقط (بدون استمارة رد)',
             self::MODE_ANNOUNCEMENT => $isEn ? 'Announcement / Card Only' : 'دعوة للعرض فقط (بدون رد أو باركود)',
-            default => $isEn ? 'RSVP + Single-Use QR Entry Pass' : 'تأكيد الحضور + كود دخول QR ذكي',
+            default => $isEn ? 'RSVP + Personal QR Pass' : 'تأكيد الحضور + بطاقة QR شخصية',
         };
     }
 
@@ -283,7 +278,7 @@ class Invitation extends Model
     /**
      * @return array<string, int>
      */
-    public function guestCheckInStats(): array
+    public function guestRosterStats(): array
     {
         $guests = $this->guests()->get([
             'rsvp_status',
@@ -291,15 +286,11 @@ class Invitation extends Model
             'max_children',
             'confirmed_adults',
             'confirmed_children',
-            'checked_in_at',
-            'checked_in_count',
         ]);
 
         $attending = $guests->where('rsvp_status', InvitationGuest::STATUS_ATTENDING);
         $declined = $guests->where('rsvp_status', InvitationGuest::STATUS_DECLINED);
         $pending = $guests->whereIn('rsvp_status', [InvitationGuest::STATUS_PENDING, InvitationGuest::STATUS_TENTATIVE]);
-        $activeGuests = $guests->reject(fn (InvitationGuest $g) => $g->rsvp_status === InvitationGuest::STATUS_DECLINED);
-        $checkedIn = $guests->filter(fn (InvitationGuest $g) => $g->checked_in_at !== null);
 
         $attendingAdults = (int) $attending->sum(
             fn (InvitationGuest $g) => ($g->confirmed_adults + $g->confirmed_children) > 0
@@ -312,11 +303,6 @@ class Invitation extends Model
                 : $g->max_children
         );
         $attendingHeads = $attendingAdults + $attendingChildren;
-        $checkedInHeads = (int) $checkedIn->sum(fn (InvitationGuest $g) => $g->checked_in_count > 0 ? $g->checked_in_count : 1);
-
-        $remainingPool = ($this->effectiveMode() === self::MODE_QR_ONLY || $attending->isEmpty())
-            ? $activeGuests->filter(fn (InvitationGuest $g) => $g->checked_in_at === null)
-            : $attending->filter(fn (InvitationGuest $g) => $g->checked_in_at === null);
 
         return [
             'total_invited' => $guests->count(),
@@ -326,10 +312,6 @@ class Invitation extends Model
             'attending_heads' => $attendingHeads,
             'declined_parties' => $declined->count(),
             'pending_parties' => $pending->count(),
-            'checked_in_parties' => $checkedIn->count(),
-            'checked_in_heads' => $checkedInHeads,
-            'remaining_parties' => $remainingPool->count(),
-            'remaining_heads' => (int) $remainingPool->sum(fn (InvitationGuest $g) => $g->getExpectedPartySize()),
         ];
     }
 }

@@ -3,12 +3,10 @@
 namespace Tests\Feature;
 
 use App\Filament\Resources\InvitationGuests\InvitationGuestResource;
-use App\Livewire\GateScanner;
 use App\Livewire\GuestRosterManager;
 use App\Livewire\InvitationEditor;
 use App\Livewire\RsvpForm;
 use App\Models\Invitation;
-use App\Models\InvitationGate;
 use App\Models\InvitationGuest;
 use App\Models\InvitationTemplate;
 use App\Models\User;
@@ -105,7 +103,7 @@ class SmartGuestAndQrCheckInTest extends TestCase
             ->set('guest_count', 3)
             ->call('submit')
             ->assertSet('isSubmitted', true)
-            ->assertSee('بطاقة الدخول الخاصة بكم');
+            ->assertSee('بطاقة الدعوة الشخصية الخاصة بكم');
 
         $guest = InvitationGuest::where('invitation_id', $this->invitation->id)->first();
         $this->assertNotNull($guest);
@@ -232,7 +230,7 @@ class SmartGuestAndQrCheckInTest extends TestCase
             ->assertDontSee('د. مازن السعيد');
     }
 
-    public function test_owner_can_manage_roster_and_gates_while_non_owner_is_forbidden(): void
+    public function test_owner_can_manage_roster_while_non_owner_is_forbidden(): void
     {
         Livewire::actingAs($this->otherCouple)
             ->test(GuestRosterManager::class, ['invitationId' => $this->invitation->id])
@@ -247,9 +245,6 @@ class SmartGuestAndQrCheckInTest extends TestCase
             ->set('maxAdults', 3)
             ->set('maxChildren', 2)
             ->call('addGuest')
-            ->assertHasNoErrors()
-            ->set('gateName', 'مدخل الشخصيات')
-            ->call('createGate')
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('invitation_guests', [
@@ -259,12 +254,6 @@ class SmartGuestAndQrCheckInTest extends TestCase
             'category' => InvitationGuest::CATEGORY_VIP,
             'max_adults' => 3,
             'max_children' => 2,
-        ]);
-
-        $this->assertDatabaseHas('invitation_gates', [
-            'invitation_id' => $this->invitation->id,
-            'name' => 'مدخل الشخصيات',
-            'is_active' => true,
         ]);
     }
 
@@ -312,108 +301,6 @@ class SmartGuestAndQrCheckInTest extends TestCase
         $body = $exportResponse->streamedContent();
         $this->assertStringContainsString('اسم الضيف', $body);
         $this->assertStringContainsString('منى الشريف', $body);
-    }
-
-    public function test_gatekeeper_portal_enforces_atomic_single_use_checkin_cross_event_isolation_and_revocation(): void
-    {
-        $gate1 = InvitationGate::create([
-            'invitation_id' => $this->invitation->id,
-            'name' => 'البوابة الرئيسية',
-            'is_active' => true,
-            'created_by_user_id' => $this->couple->id,
-        ]);
-
-        $gate2 = InvitationGate::create([
-            'invitation_id' => $this->invitation->id,
-            'name' => 'قاعة النساء',
-            'is_active' => true,
-            'created_by_user_id' => $this->couple->id,
-        ]);
-
-        $guestA = InvitationGuest::create([
-            'invitation_id' => $this->invitation->id,
-            'name' => 'الأستاذ ناصر',
-            'category' => InvitationGuest::CATEGORY_VIP,
-            'max_adults' => 2,
-            'max_children' => 0,
-            'rsvp_status' => InvitationGuest::STATUS_ATTENDING,
-            'confirmed_adults' => 2,
-        ]);
-
-        $guestB = InvitationGuest::create([
-            'invitation_id' => $this->invitation->id,
-            'name' => 'السيدة نورة',
-            'category' => InvitationGuest::CATEGORY_FAMILY_BRIDE,
-            'max_adults' => 3,
-            'max_children' => 1,
-            'rsvp_status' => InvitationGuest::STATUS_ATTENDING,
-            'confirmed_adults' => 3,
-            'confirmed_children' => 1,
-        ]);
-
-        // Unrelated wedding guest
-        $otherInvitation = Invitation::create([
-            'user_id' => $this->otherCouple->id,
-            'template_id' => $this->template->id,
-            'title' => 'حفل زفاف آخر',
-            'slug' => 'other-event-'.uniqid(),
-            'groom_name' => 'كريم',
-            'bride_name' => 'ياسمين',
-            'wedding_date' => now()->addDays(20),
-            'timezone' => 'Africa/Cairo',
-            'venue_name' => 'قاعة الأوبرا',
-            'status' => 'published',
-        ]);
-        $outsider = InvitationGuest::create([
-            'invitation_id' => $otherInvitation->id,
-            'name' => 'ضيف غريب',
-            'max_adults' => 1,
-        ]);
-
-        // Public gatekeeper route opens without login
-        $this->get($gate1->getPortalUrl())
-            ->assertOk()
-            ->assertSee('البوابة الرئيسية');
-
-        // 1. Cross-invitation scan rejected
-        Livewire::test(GateScanner::class, ['gateToken' => $gate1->access_token])
-            ->call('scanPayload', $outsider->getPassUrl())
-            ->assertSet('scanState', 'invalid');
-        $this->assertNull($outsider->fresh()->checked_in_at);
-
-        // 2. First valid QR URL scan succeeds at Gate 1
-        Livewire::test(GateScanner::class, ['gateToken' => $gate1->access_token])
-            ->call('scanPayload', $guestA->getPassUrl())
-            ->assertSet('scanState', 'success')
-            ->assertSet('scanGuestName', 'الأستاذ ناصر');
-
-        $guestA->refresh();
-        $this->assertNotNull($guestA->checked_in_at);
-        $this->assertSame(2, $guestA->checked_in_count);
-        $this->assertSame($gate1->id, $guestA->checked_in_by_gate_id);
-        $this->assertSame(1, $gate1->fresh()->scan_count);
-
-        // 3. Second scan of SAME QR at Gate 2 is blocked as duplicate!
-        Livewire::test(GateScanner::class, ['gateToken' => $gate2->access_token])
-            ->call('scanPayload', $guestA->getPassUrl())
-            ->assertSet('scanState', 'duplicate')
-            ->assertSee('البوابة الرئيسية');
-
-        $this->assertSame(0, $gate2->fresh()->scan_count);
-        $this->assertSame($gate1->id, $guestA->fresh()->checked_in_by_gate_id);
-
-        // 4. 6-character manual pass_code check-in works at Gate 2
-        Livewire::test(GateScanner::class, ['gateToken' => $gate2->access_token])
-            ->set('passCodeInput', strtolower($guestB->pass_code))
-            ->call('checkInByCode')
-            ->assertSet('scanState', 'success');
-
-        $this->assertNotNull($guestB->fresh()->checked_in_at);
-        $this->assertSame(4, $guestB->fresh()->checked_in_count);
-
-        // 5. Revoking Gate 1 returns 403 immediately
-        $gate1->update(['is_active' => false]);
-        $this->get($gate1->getPortalUrl())->assertForbidden();
     }
 
     public function test_filament_admin_resource_allows_super_admin_and_blocks_couples(): void
@@ -499,7 +386,7 @@ class SmartGuestAndQrCheckInTest extends TestCase
         $this->assertSame(InvitationGuest::STATUS_ATTENDING, $vip->fresh()->rsvp_status);
     }
 
-    public function test_open_rsvp_re_submission_does_not_leak_existing_qr_or_allow_post_checkin_edits(): void
+    public function test_open_rsvp_re_submission_does_not_leak_existing_qr(): void
     {
         // First open RSVP creates self-registered pass and shows pass URL once
         $first = Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id])
@@ -528,28 +415,9 @@ class SmartGuestAndQrCheckInTest extends TestCase
             ->assertSet('issuedPassUrl', null)
             ->assertSet('issuedPassCode', null)
             ->assertSet('passPreviouslyIssued', true);
-
-        // Once checked in at gate, neither open RSVP nor ?g= link may mutate attendance state
-        $selfGuest->update(['checked_in_at' => now(), 'checked_in_count' => 3]);
-
-        Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id, 'guestId' => $selfGuest->id])
-            ->set('guest_name', 'نورة السالم')
-            ->set('attendance_status', 'declined')
-            ->call('submit')
-            ->assertHasErrors(['guest_name']);
-
-        Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id])
-            ->set('guest_name', 'نورة السالم')
-            ->set('phone', '0509998877')
-            ->set('phone_country', 'SA')
-            ->set('attendance_status', 'declined')
-            ->call('submit')
-            ->assertHasErrors(['phone']);
-
-        $this->assertSame(InvitationGuest::STATUS_ATTENDING, $selfGuest->fresh()->rsvp_status);
     }
 
-    public function test_invitation_mode_prevails_on_simultaneous_save_and_blocks_gates_when_qr_disabled(): void
+    public function test_invitation_mode_prevails_on_simultaneous_save_and_blocks_pass_when_qr_disabled(): void
     {
         // Passing contradictory is_rsvp_enabled alongside invitation_mode resolves from invitation_mode
         $this->invitation->update([
@@ -558,31 +426,24 @@ class SmartGuestAndQrCheckInTest extends TestCase
         ]);
         $this->assertFalse($this->invitation->fresh()->is_rsvp_enabled);
 
-        $gate = InvitationGate::create([
-            'invitation_id' => $this->invitation->id,
-            'name' => 'بوابة 1',
-            'is_active' => true,
-        ]);
         $guest = InvitationGuest::create([
             'invitation_id' => $this->invitation->id,
             'name' => 'ضيف وضع QR',
             'max_adults' => 2,
         ]);
 
-        $this->get($gate->getPortalUrl())->assertOk();
         $this->get($guest->getPassUrl())->assertOk();
 
-        // Switching to rsvp_only preserves guest records while blocking both /pass and /gate
+        // Switching to rsvp_only preserves guest records while blocking /pass
         $this->invitation->update(['invitation_mode' => Invitation::MODE_RSVP_ONLY]);
 
         $this->assertDatabaseHas('invitation_guests', ['id' => $guest->id]);
         $this->get($guest->getPassUrl())->assertNotFound();
-        $this->get($gate->getPortalUrl())->assertForbidden();
     }
 
-    public function test_guest_checkin_stats_and_dashboard_children_counts_stay_accurate(): void
+    public function test_guest_roster_stats_and_dashboard_children_counts_stay_accurate(): void
     {
-        $attendingA = InvitationGuest::create([
+        InvitationGuest::create([
             'invitation_id' => $this->invitation->id,
             'name' => 'عائلة أولى',
             'max_adults' => 2,
@@ -590,8 +451,6 @@ class SmartGuestAndQrCheckInTest extends TestCase
             'rsvp_status' => InvitationGuest::STATUS_ATTENDING,
             'confirmed_adults' => 2,
             'confirmed_children' => 1,
-            'checked_in_at' => now(),
-            'checked_in_count' => 3,
         ]);
         InvitationGuest::create([
             'invitation_id' => $this->invitation->id,
@@ -602,20 +461,18 @@ class SmartGuestAndQrCheckInTest extends TestCase
             'confirmed_adults' => 3,
             'confirmed_children' => 1,
         ]);
-        // Walk-in pending VIP also checked in at gate — must NOT subtract from attending remaining count
         InvitationGuest::create([
             'invitation_id' => $this->invitation->id,
-            'name' => 'ضيف غير مؤكد مسبقاً',
+            'name' => 'ضيف بانتظار الرد',
             'max_adults' => 2,
             'rsvp_status' => InvitationGuest::STATUS_PENDING,
-            'checked_in_at' => now(),
-            'checked_in_count' => 2,
         ]);
 
-        $stats = $this->invitation->guestCheckInStats();
-        $this->assertSame(1, $stats['remaining_parties']);
-        $this->assertSame(4, $stats['remaining_heads']);
-        $this->assertSame(5, $stats['checked_in_heads']);
+        $stats = $this->invitation->guestRosterStats();
+        $this->assertSame(3, $stats['total_invited']);
+        $this->assertSame(2, $stats['attending_parties']);
+        $this->assertSame(7, $stats['attending_heads']);
+        $this->assertSame(1, $stats['pending_parties']);
 
         // Dashboard guests summary & CSV include children_count
         Livewire::test(RsvpForm::class, ['invitationId' => $this->invitation->id])
@@ -642,11 +499,6 @@ class SmartGuestAndQrCheckInTest extends TestCase
 
     public function test_capability_urls_emit_privacy_headers_and_models_hide_secret_tokens(): void
     {
-        $gate = InvitationGate::create([
-            'invitation_id' => $this->invitation->id,
-            'name' => 'بوابة الخصوصية',
-            'is_active' => true,
-        ]);
         $guest = InvitationGuest::create([
             'invitation_id' => $this->invitation->id,
             'name' => 'ضيف الخصوصية',
@@ -656,9 +508,8 @@ class SmartGuestAndQrCheckInTest extends TestCase
 
         $this->assertArrayNotHasKey('qr_token', $guest->toArray());
         $this->assertArrayNotHasKey('invite_token', $guest->toArray());
-        $this->assertArrayNotHasKey('access_token', $gate->toArray());
 
-        foreach ([$guest->getPassUrl(), $gate->getPortalUrl(), $guest->getPersonalInviteUrl()] as $url) {
+        foreach ([$guest->getPassUrl(), $guest->getPersonalInviteUrl()] as $url) {
             $response = $this->get($url)->assertOk();
             $response->assertHeader('Referrer-Policy', 'no-referrer');
             $response->assertHeader('X-Robots-Tag', 'noindex, nofollow');

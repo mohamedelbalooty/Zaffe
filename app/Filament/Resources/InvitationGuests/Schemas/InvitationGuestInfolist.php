@@ -41,13 +41,6 @@ class InvitationGuestInfolist
                             ->label(__('admin.fields.invited_at'))
                             ->dateTime()
                             ->placeholder('—'),
-                        TextEntry::make('checked_in_at')
-                            ->label(__('admin.fields.checked_in_at'))
-                            ->dateTime()
-                            ->placeholder('—'),
-                        TextEntry::make('checkedInGate.name')
-                            ->label(__('admin.fields.checked_in_gate'))
-                            ->placeholder('—'),
                     ]),
             ]);
     }

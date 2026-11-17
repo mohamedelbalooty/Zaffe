@@ -5,7 +5,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuestPassController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvitationController;
-use App\Livewire\GateScanner;
 use App\Livewire\InvitationEditor;
 use Illuminate\Support\Facades\Route;
 
@@ -78,13 +77,10 @@ Route::middleware('auth')->prefix('dashboard')->name('dashboard')->group(functio
 
 /*
 |--------------------------------------------------------------------------
-| Public Invitation, Guest QR Pass & Gatekeeper Check-In Pages
+| Public Invitation & Guest QR Pass Pages
 |--------------------------------------------------------------------------
 */
 Route::get('/invitation/{slug}', [InvitationController::class, 'show'])->name('invitation.show');
 Route::get('/pass/{qrToken}', [GuestPassController::class, 'show'])
     ->middleware('throttle:60,1')
     ->name('guest.pass');
-Route::get('/gate/{gateToken}', GateScanner::class)
-    ->middleware('throttle:60,1')
-    ->name('gate.portal');

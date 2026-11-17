@@ -48,9 +48,6 @@ class InvitationGuest extends Model
         'is_self_registered',
         'invited_at',
         'reminded_at',
-        'checked_in_at',
-        'checked_in_count',
-        'checked_in_by_gate_id',
         'notes',
     ];
 
@@ -65,10 +62,8 @@ class InvitationGuest extends Model
         'confirmed_adults' => 'integer',
         'confirmed_children' => 'integer',
         'is_self_registered' => 'boolean',
-        'checked_in_count' => 'integer',
         'invited_at' => 'datetime',
         'reminded_at' => 'datetime',
-        'checked_in_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -147,11 +142,6 @@ class InvitationGuest extends Model
         return $this->belongsTo(RsvpResponse::class);
     }
 
-    public function checkedInGate(): BelongsTo
-    {
-        return $this->belongsTo(InvitationGate::class, 'checked_in_by_gate_id');
-    }
-
     public function getPersonalInviteUrl(): string
     {
         return route('invitation.show', ['slug' => $this->invitation->slug])
@@ -181,11 +171,6 @@ class InvitationGuest extends Model
         }
 
         return $this->getAllocatedTotal();
-    }
-
-    public function isCheckedIn(): bool
-    {
-        return $this->checked_in_at !== null;
     }
 
     public function canReceiveQrPass(): bool
