@@ -143,9 +143,9 @@ return [
             'archived' => 'مؤرشفة',
         ],
         'invitation_modes' => [
-            'rsvp_qr' => 'تأكيد الحضور + كود QR',
+            'rsvp_qr' => 'تأكيد الحضور + بطاقة QR شخصية',
             'rsvp_only' => 'تأكيد الحضور فقط',
-            'qr_only' => 'كود دخول QR فقط',
+            'qr_only' => 'بطاقة دعوة QR فقط',
             'announcement' => 'للعرض فقط (بدون رد أو باركود)',
         ],
         'guest_categories' => [
@@ -196,7 +196,7 @@ return [
         'confirmed_guests' => 'إجمالي الضيوف المؤكدين',
         'confirmed_guests_desc' => 'تأكيدات الحضور عبر RSVP',
         'checkin_passes' => 'بطاقات المدعوين (QR)',
-        'checkin_passes_desc' => ':count ضيف سجّل دخوله · :gates بوابة نشطة',
+        'checkin_passes_desc' => ':count بطاقة حضور مؤكدة',
         'templates' => 'قوالب وتصاميم الزفاف',
         'templates_desc' => 'قوالب متاحة ضمن فئات نشطة',
         'failed_jobs' => 'المهام الفاشلة (الطابور)',

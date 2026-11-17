@@ -46,19 +46,7 @@
                     <div class="p-5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 space-y-2">
                         <x-app-icon name="x" class="w-8 h-8 mx-auto text-rose-500" />
                         <p class="text-sm font-bold">تم تسجيل الاعتذار عن الحضور</p>
-                        <p class="text-xs text-rose-700/80">تم إلغاء تفعيل كود الدخول تلقائياً بناءً على ردكم.</p>
-                    </div>
-                @elseif($guest->isCheckedIn())
-                    <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-2">
-                        <x-app-icon name="check-circle" class="w-9 h-9 mx-auto text-emerald-600" />
-                        <p class="text-sm font-black">تم تسجيل الدخول بنجاح</p>
-                        <p class="text-xs text-emerald-700">
-                            الوقت: {{ $guest->checked_in_at->timezone($invitation->timezone ?: 'Africa/Cairo')->format('Y-m-d H:i') }}
-                            @if($guest->checkedInGate)
-                                — عبر {{ $guest->checkedInGate->name }}
-                            @endif
-                        </p>
-                        <p class="text-[11px] text-emerald-700/80">بطاقة صالحة للاستخدام مرة واحدة فقط عند بوابة القاعة.</p>
+                        <p class="text-xs text-rose-700/80">تم إلغاء تفعيل بطاقة الدعوة تلقائياً بناءً على ردكم.</p>
                     </div>
                 @elseif($qrSvg)
                     <div class="inline-flex flex-col items-center p-4 rounded-2xl bg-white border-2 border-[#C6A76B]/30 shadow-inner">
@@ -66,18 +54,18 @@
                             {!! $qrSvg !!}
                         </div>
                         <div class="mt-3 pt-3 border-t border-[#E8DED0] w-full flex items-center justify-between gap-4 text-xs">
-                            <span class="text-[#292521]/60 font-bold">كود التحقق البديل:</span>
+                            <span class="text-[#292521]/60 font-bold">كود البطاقة الشخصي:</span>
                             <span dir="ltr" class="font-mono text-base font-black tracking-widest text-[#292521] bg-[#FAF7F2] px-3 py-1 rounded-lg border border-[#E8DED0]">
                                 {{ $guest->pass_code }}
                             </span>
                         </div>
                     </div>
                     <p class="text-xs text-[#292521]/70 leading-relaxed">
-                        يُرجى إبراز رمز QR أعلاه لمستقبل الضيوف عند بوابة القاعة. يُستخدم هذا الكود للدخول مرة واحدة فقط.
+                        بطاقة دعوة إلكترونية شخصية برمز QR لحفظ تفاصيل الحفل والمقاعد المخصصة وموقع القاعة.
                     </p>
                 @else
                     <div class="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-2">
-                        <p class="text-sm font-bold">يرجى تأكيد الحضور أولاً لإصدار كود الدخول</p>
+                        <p class="text-sm font-bold">يرجى تأكيد الحضور أولاً لإصدار بطاقة الدعوة الشخصية</p>
                         <a href="{{ $guest->getPersonalInviteUrl() }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 underline">
                             الانتقال لصفحة الدعوة وتأكيد الحضور
                         </a>
@@ -86,7 +74,7 @@
 
                 <!-- Venue & Action Buttons -->
                 <div class="pt-2 border-t border-[#E8DED0] flex flex-wrap items-center justify-center gap-2 print:hidden">
-                    @if($qrSvg && ! $guest->isCheckedIn())
+                    @if($qrSvg)
                         <button type="button" onclick="window.print()"
                                 class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#292521] text-white text-xs font-bold hover:opacity-90 transition cursor-pointer">
                             <x-app-icon name="download" class="w-4 h-4" />

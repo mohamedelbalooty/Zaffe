@@ -239,15 +239,16 @@ graph TD
 
 ---
 
-### F16 — Smart Guest List, Invitation Modes & Zero-App QR Check-In `[ACTIVE - R1]`
-- **Domain Mission:** Deliver free self-service guest roster management, 4 flexible invitation modes, personalized invite links, single-use QR entry passes, and a zero-app browser Gatekeeper Portal for Egypt & Saudi Arabia.
-- **Components & Files:**
-  - Models & Policies: `InvitationGuest`, `InvitationGate`, `Invitation`, `RsvpResponse`, `InvitationGuestPolicy`, `InvitationGatePolicy`
+### F16 — Smart Guest List, Invitation Modes & QR Pass Generation `[ACTIVE - R1]` *(Gatekeeper Check-In Isolated)*
+- **Domain Mission:** Deliver free self-service guest roster management, 4 flexible invitation modes, personalized invite links, and personal QR passes for Egypt & Saudi Arabia. QR Scanning & Gatekeeper Check-In (`/gate/{gateToken}`) is isolated on `feature/ZAFFE-018-smart-guests-and-qr-checkin` pending explicit Product Owner merge approval (see [QR_FEATURE_ISOLATION_POLICY.md](file:///e:/GithubProjects/Zaffe/docs/engineering/QR_FEATURE_ISOLATION_POLICY.md)).
+- **Components & Files (Active in `dev`):**
+  - Models & Policies: `InvitationGuest`, `Invitation`, `RsvpResponse`, `InvitationGuestPolicy`
   - Services & Controllers: `App\Services\QrCodeService` (pure-PHP ISO/IEC 18004 Byte-mode QR SVG encoder), `GuestPassController`, `InvitationController`, `DashboardController::exportRosterCsv()`
-  - Livewire & Views: `InvitationEditor`, `RsvpForm`, `GuestRosterManager`, `GateScanner`, `templates/partials/access_section.blade.php`, `pages/guest-pass.blade.php`
+  - Livewire & Views: `InvitationEditor`, `RsvpForm`, `GuestRosterManager`, `templates/partials/access_section.blade.php`, `pages/guest-pass.blade.php`
   - Filament v5 Admin: `InvitationGuestResource`, `InvitationForm`, `InvitationsTable`, `PlatformStatsOverview`
 - **Capability Audit:**
   - `[COMPLETE]` 4 invitation modes (`rsvp_qr`, `rsvp_only`, `qr_only`, `announcement`) synchronized bidirectionally with `is_rsvp_enabled`.
   - `[COMPLETE]` Bulk CSV/line roster import & formula-safe roster CSV export (`CsvSanitizer::cell()`), adult/child quota enforcement, and per-guest WhatsApp `wa.me` share + `invited_at`/`reminded_at` tracking.
-  - `[COMPLETE]` Public pass (`/pass/{qrToken}`) & multi-gate usher scanner (`/gate/{gateToken}`) with `BarcodeDetector` camera UI, manual 6-char `pass_code`, live search, and atomic `DB::transaction` `whereNull('checked_in_at')` check-in lock.
-  - `[TESTED]` `QrCodeServiceTest` + `SmartGuestAndQrCheckInTest` + Chrome DevTools live `BarcodeDetector` QR decode verification.
+  - `[COMPLETE]` Public pass (`/pass/{qrToken}`) & `?g=` personalized invitation links with pure-PHP QR SVG rendering.
+  - `[ISOLATED — OWNER MANUAL ONLY]` Zero-app multi-gate usher scanner (`/gate/{gateToken}`, `GateScanner`, `InvitationGate`, `BarcodeDetector` camera UI, atomic single-use check-in lock) remains exclusively on `feature/ZAFFE-018-smart-guests-and-qr-checkin` and must never be auto-merged.
+  - `[TESTED]` `QrCodeServiceTest` + `SmartGuestAndQrCheckInTest` + `QrCheckInIsolationTest`.

@@ -18,13 +18,13 @@
             @if($attendance_status === 'attending' && $issuedPassUrl)
                 <div class="pt-2 flex flex-col items-center gap-3">
                     <div class="inline-flex flex-col items-center p-4 rounded-2xl bg-[#FAF7F2] border border-[#C6A76B]/35 shadow-sm">
-                        <span class="text-xs font-bold text-[#8A6D3B] mb-2">بطاقة الدخول الخاصة بكم (صالح لمرة واحدة عند البوابة)</span>
+                        <span class="text-xs font-bold text-[#8A6D3B] mb-2">بطاقة الدعوة الشخصية الخاصة بكم (QR Pass)</span>
                         <div class="bg-white p-2 rounded-xl border border-[#E8DED0]">
-                            {!! app(\App\Services\QrCodeService::class)->renderSvg($issuedPassUrl, 185, '#111827', '#FFFFFF', 'بطاقة الدخول ' . $guest_name) !!}
+                            {!! app(\App\Services\QrCodeService::class)->renderSvg($issuedPassUrl, 185, '#111827', '#FFFFFF', 'بطاقة الدعوة ' . $guest_name) !!}
                         </div>
                         @if($issuedPassCode)
                             <div class="mt-2.5 flex items-center gap-2 text-xs">
-                                <span class="text-[#292521]/60">كود الدخول البديل:</span>
+                                <span class="text-[#292521]/60">كود البطاقة الشخصي:</span>
                                 <span dir="ltr" class="font-mono font-black tracking-widest text-[#292521] bg-white px-2.5 py-1 rounded-lg border border-[#E8DED0]">
                                     {{ $issuedPassCode }}
                                 </span>

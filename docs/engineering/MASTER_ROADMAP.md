@@ -206,14 +206,15 @@ flowchart TD
 
 ### Milestone 6 — Competitive Leadership (Hayhom Counter-Strategy, R1 Free Tier)
 
-#### Feature F16 — Smart Guest List, Invitation Modes & Zero-App QR Check-In (`ZAFFE-018`)
-- **Branch:** `feature/ZAFFE-018-smart-guests-and-qr-checkin` | **Priority:** `P0` (`RICE 96.9`) | **Complexity:** `L` | **Status:** `Implemented & Verified`
-- **Scope:**
+#### Feature F16 — Smart Guest List, Invitation Modes & QR Pass Generation (`ZAFFE-018` / `ZAFFE-019`)
+- **Active in `dev` (`F16` Part A):**
   - Four invitation modes (`rsvp_qr`, `rsvp_only`, `qr_only`, `announcement`) synchronized with `is_rsvp_enabled`.
   - Pre-invited guest roster with bulk CSV/line import, adult/child seating quotas, categories, and formula-sanitized CSV export.
-  - Personalized `?g={invite_token}` invitation links, auto-issued pure-PHP ISO/IEC 18004 QR SVG passes (`/pass/{qrToken}`), and per-guest WhatsApp invite/reminder tracking.
-  - Zero-app multi-gate browser Gatekeeper Portal (`/gate/{gateToken}`) with `BarcodeDetector` camera scanning, manual `pass_code`, live search, and atomic single-use check-in lock.
+  - Personalized `?g={invite_token}` invitation links, pure-PHP ISO/IEC 18004 QR SVG passes (`/pass/{qrToken}`), and per-guest WhatsApp invite/reminder tracking.
   - Filament v5 Admin visibility via `InvitationGuestResource`, `InvitationForm`, `InvitationsTable`, and `PlatformStatsOverview`.
+- **Isolated on `feature/ZAFFE-018-smart-guests-and-qr-checkin` (`F16` Part B — Owner Manual Only):**
+  - Zero-app multi-gate browser Gatekeeper Portal (`/gate/{gateToken}`, `GateScanner`, `InvitationGate`, `BarcodeDetector` camera scanning, manual `pass_code` check-in, and atomic single-use `checked_in_at` check-in lock).
+  - Governed by [QR_FEATURE_ISOLATION_POLICY.md](file:///e:/GithubProjects/Zaffe/docs/engineering/QR_FEATURE_ISOLATION_POLICY.md); must never be promoted into `dev`, `staging`, or `production` automatically.
 
 ---
 

@@ -101,6 +101,8 @@ Release 1 must maintain near-zero fixed infrastructure overhead:
 | **F09** | Admin & Platform Management | **Active — Release 1** | **Milestone 4** (Step 10) |
 | **F11** | Monetization & Subscription System | **DEFERRED — Post Release 1** | Post-Launch |
 | **F12** | Production Readiness & Performance | **Active — Release 1** | **Milestone 5** (Step 11) |
+| **F16 (Part A)** | Smart Guest Roster, 4 Invitation Modes & QR Pass Generation | **Active — Release 1** | **Milestone 6** |
+| **F16 (Part B)** | QR Scanning & Gatekeeper Check-In (`/gate/{gateToken}`) | **ISOLATED — Owner Manual Merge Only** (`feature/ZAFFE-018-smart-guests-and-qr-checkin`) | Held Pending PO Approval |
 
 ---
 

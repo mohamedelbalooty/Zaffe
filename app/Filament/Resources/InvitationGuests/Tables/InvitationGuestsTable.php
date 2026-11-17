@@ -8,7 +8,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class InvitationGuestsTable
@@ -50,14 +49,11 @@ class InvitationGuestsTable
                 TextColumn::make('max_children')
                     ->label(__('admin.fields.max_children'))
                     ->numeric(),
-                TextColumn::make('checked_in_at')
-                    ->label(__('admin.fields.checked_in_at'))
+                TextColumn::make('invited_at')
+                    ->label(__('admin.fields.invited_at'))
                     ->dateTime()
                     ->placeholder('—')
                     ->sortable(),
-                TextColumn::make('checkedInGate.name')
-                    ->label(__('admin.fields.checked_in_gate'))
-                    ->placeholder('—'),
             ])
             ->filters([
                 SelectFilter::make('rsvp_status')
@@ -71,9 +67,6 @@ class InvitationGuestsTable
                 SelectFilter::make('category')
                     ->label(__('admin.fields.guest_category'))
                     ->options(fn (): array => __('admin.options.guest_categories')),
-                TernaryFilter::make('checked_in_at')
-                    ->label(__('admin.fields.checked_in_at'))
-                    ->nullable(),
                 SelectFilter::make('invitation_id')
                     ->relationship('invitation', 'title')
                     ->searchable()

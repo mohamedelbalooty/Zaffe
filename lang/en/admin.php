@@ -143,7 +143,7 @@ return [
             'archived' => 'Archived',
         ],
         'invitation_modes' => [
-            'rsvp_qr' => 'RSVP + QR Entry Pass',
+            'rsvp_qr' => 'RSVP + Personal QR Pass',
             'rsvp_only' => 'RSVP Only',
             'qr_only' => 'Direct QR Pass Only',
             'announcement' => 'Announcement / Card Only',
@@ -196,7 +196,7 @@ return [
         'confirmed_guests' => 'Confirmed Guests',
         'confirmed_guests_desc' => 'Total attending guests via RSVP',
         'checkin_passes' => 'Guest Roster & QR Passes',
-        'checkin_passes_desc' => ':count checked in · :gates active gates',
+        'checkin_passes_desc' => ':count confirmed guest passes',
         'templates' => 'Wedding Templates',
         'templates_desc' => 'Templates available in active categories',
         'failed_jobs' => 'Failed Jobs (Queue)',

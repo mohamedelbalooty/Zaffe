@@ -203,12 +203,6 @@ class RsvpForm extends Component
                 ->first()
             : null;
 
-        if ($linkedGuest && $linkedGuest->checked_in_at !== null) {
-            $this->addError('guest_name', 'تم تسجيل دخول هذه البطاقة مسبقاً عند البوابة ولا يمكن تعديل بيانات الحضور بعد الدخول.');
-
-            return;
-        }
-
         if (! $linkedGuest && $normalizedPhone !== null) {
             $rosterMatch = InvitationGuest::query()
                 ->where('invitation_id', $invitation->id)
@@ -218,19 +212,6 @@ class RsvpForm extends Component
 
             if ($rosterMatch) {
                 $this->addError('phone', 'هذا الرقم مسجل في قائمة ضيوف الحفل الخاصة — يرجى استخدام رابط الدعوة الشخصي المرسل إليك عبر واتساب أو التواصل مع أصحاب الحفل.');
-
-                return;
-            }
-
-            $checkedInSelfMatch = InvitationGuest::query()
-                ->where('invitation_id', $invitation->id)
-                ->where('phone', $normalizedPhone)
-                ->where('is_self_registered', true)
-                ->whereNotNull('checked_in_at')
-                ->first();
-
-            if ($checkedInSelfMatch) {
-                $this->addError('phone', 'تم استخدام بطاقة الدخول لهذا الرقم مسبقاً عند البوابة ولا يمكن تعديل بيانات الحضور.');
 
                 return;
             }
@@ -258,7 +239,7 @@ class RsvpForm extends Component
                 ->where('invitation_id', $invitation->id)
                 ->find($rsvpRecord->invitation_guest_id);
 
-            if ($boundGuest && (! $boundGuest->is_self_registered || $boundGuest->checked_in_at !== null)) {
+            if ($boundGuest && ! $boundGuest->is_self_registered) {
                 $this->addError('phone', 'تعذر تعديل هذا الحجز عبر النموذج العام — يرجى استخدام رابط الدعوة الشخصي أو التواصل مع أصحاب الحفل.');
 
                 return;

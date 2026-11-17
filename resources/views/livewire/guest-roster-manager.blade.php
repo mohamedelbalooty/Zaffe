@@ -21,12 +21,12 @@
                 <a href="{{ route('dashboard.invitations.guests.roster-export', $invitation->id) }}"
                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#292521] text-white text-xs font-bold hover:opacity-90 transition">
                     <x-app-icon name="download" class="w-4 h-4" />
-                    <span>تصدير القائمة ونتائج الدخول</span>
+                    <span>تصدير قائمة المدعوين (CSV)</span>
                 </a>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div class="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#E8DED0]">
                 <span class="block text-[11px] text-[#292521]/60 font-bold">المدعوون المسجلون</span>
                 <span class="block text-xl font-black text-[#292521] mt-1">{{ $stats['total_invited'] }}</span>
@@ -42,14 +42,6 @@
             <div class="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200/70">
                 <span class="block text-[11px] text-rose-800/75 font-bold">معتذرون</span>
                 <span class="block text-xl font-black text-rose-700 mt-1">{{ $stats['declined_parties'] }}</span>
-            </div>
-            <div class="p-3.5 rounded-2xl bg-sky-50/70 border border-sky-200/70">
-                <span class="block text-[11px] text-sky-900/75 font-bold">حضروا القاعة</span>
-                <span class="block text-xl font-black text-sky-700 mt-1">{{ $stats['checked_in_parties'] }} <span class="text-xs font-bold">({{ $stats['checked_in_heads'] }})</span></span>
-            </div>
-            <div class="p-3.5 rounded-2xl bg-[#292521] text-white">
-                <span class="block text-[11px] text-white/70 font-bold">المتوقع وصولهم</span>
-                <span class="block text-xl font-black text-[#E5C98B] mt-1">{{ $stats['remaining_heads'] }}</span>
             </div>
         </div>
     </div>
@@ -100,126 +92,65 @@
         </div>
     @endif
 
-    <!-- Add Single Guest Form & Door Gates Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Add Single Pre-Invited Guest -->
-        <div class="lg:col-span-2 bg-white rounded-3xl border border-[#E8DED0] p-5 sm:p-6 shadow-sm space-y-4">
-            <h3 class="font-cairo text-base font-bold text-[#292521]">إضافة مدعو إلى القائمة المخصصة</h3>
-            <form wire:submit="addGuest" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <div class="sm:col-span-5">
-                    <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">اسم الضيف / العائلة</label>
-                    <input type="text" wire:model="guestName" placeholder="مثال: د. طارق المنصور وعائلته"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none">
-                    @error('guestName') <span class="text-[11px] text-rose-600 block mt-0.5">{{ $message }}</span> @enderror
-                </div>
+    <!-- Add Single Pre-Invited Guest -->
+    <div class="bg-white rounded-3xl border border-[#E8DED0] p-5 sm:p-6 shadow-sm space-y-4">
+        <h3 class="font-cairo text-base font-bold text-[#292521]">إضافة مدعو إلى القائمة المخصصة</h3>
+        <form wire:submit="addGuest" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <div class="sm:col-span-5">
+                <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">اسم الضيف / العائلة</label>
+                <input type="text" wire:model="guestName" placeholder="مثال: د. طارق المنصور وعائلته"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none">
+                @error('guestName') <span class="text-[11px] text-rose-600 block mt-0.5">{{ $message }}</span> @enderror
+            </div>
 
-                <div class="sm:col-span-4">
-                    <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">الجوال / الواتساب (اختياري)</label>
-                    <div class="flex gap-1.5">
-                        <select wire:model="guestPhoneCountry" class="px-2 py-2.5 rounded-xl border border-[#E8DED0] text-xs font-bold bg-[#FAF7F2]">
-                            <option value="SA">+966</option>
-                            <option value="EG">+20</option>
-                        </select>
-                        <input type="tel" wire:model="guestPhone" dir="ltr" placeholder="501234567"
-                               class="w-full px-3 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none">
-                    </div>
-                    @error('guestPhone') <span class="text-[11px] text-rose-600 block mt-0.5">{{ $message }}</span> @enderror
-                </div>
-
-                <div class="sm:col-span-3">
-                    <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">الفئة</label>
-                    <select wire:model="guestCategory" class="w-full px-3 py-2.5 rounded-xl border border-[#E8DED0] text-xs font-bold bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none">
-                        @foreach(\App\Models\InvitationGuest::categories() as $cat)
-                            <option value="{{ $cat }}">{{ \App\Models\InvitationGuest::categoryLabel($cat, 'ar') }}</option>
-                        @endforeach
+            <div class="sm:col-span-4">
+                <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">الجوال / الواتساب (اختياري)</label>
+                <div class="flex gap-1.5">
+                    <select wire:model="guestPhoneCountry" class="px-2 py-2.5 rounded-xl border border-[#E8DED0] text-xs font-bold bg-[#FAF7F2]">
+                        <option value="SA">+966</option>
+                        <option value="EG">+20</option>
                     </select>
+                    <input type="tel" wire:model="guestPhone" dir="ltr" placeholder="501234567"
+                           class="w-full px-3 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none">
                 </div>
-
-                <div class="sm:col-span-2">
-                    <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">بالغون</label>
-                    <input type="number" min="1" max="20" wire:model="maxAdults"
-                           class="w-full px-3 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none text-center font-bold">
-                </div>
-
-                <div class="sm:col-span-2">
-                    <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">أطفال</label>
-                    <input type="number" min="0" max="20" wire:model="maxChildren"
-                           class="w-full px-3 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none text-center font-bold">
-                </div>
-
-                <div class="sm:col-span-5">
-                    <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">ملاحظات داخلية (اختياري)</label>
-                    <input type="text" wire:model="guestNotes" placeholder="مثال: طاولة VIP 1"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none">
-                </div>
-
-                <div class="sm:col-span-3 flex items-end">
-                    <button type="submit"
-                            class="w-full py-2.5 px-4 rounded-xl bg-[#292521] text-white text-xs font-bold hover:opacity-90 transition inline-flex items-center justify-center gap-1.5 cursor-pointer">
-                        <x-app-icon name="plus" class="w-4 h-4" />
-                        <span>إضافة المدعو</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Zero-App Venue Door Gates -->
-        <div class="bg-white rounded-3xl border border-[#E8DED0] p-5 sm:p-6 shadow-sm space-y-4">
-            <div>
-                <h3 class="font-cairo text-base font-bold text-[#292521] flex items-center gap-1.5">
-                    <x-app-icon name="shield-check" class="w-4 h-4 text-[#C6A76B]" />
-                    <span>بوابات الاستقبال وفحص QR</span>
-                </h3>
-                <p class="text-[11px] text-[#292521]/65 mt-0.5">أنشئ رابطاً لمستقبل الضيوف يعمل مباشرة من متصفح الجوال دون تحميل تطبيق أو تسجيل دخول.</p>
+                @error('guestPhone') <span class="text-[11px] text-rose-600 block mt-0.5">{{ $message }}</span> @enderror
             </div>
 
-            <form wire:submit="createGate" class="flex gap-2">
-                <input type="text" wire:model="gateName" placeholder="مثال: قاعة النساء / البوابة 1"
-                       class="flex-1 px-3 py-2 rounded-xl border border-[#E8DED0] text-xs bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none">
-                <button type="submit" class="px-3.5 py-2 rounded-xl bg-[#C6A76B] text-[#1A1612] text-xs font-bold hover:opacity-90 transition shrink-0 cursor-pointer">
-                    إنشاء بوابة
+            <div class="sm:col-span-3">
+                <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">الفئة</label>
+                <select wire:model="guestCategory" class="w-full px-3 py-2.5 rounded-xl border border-[#E8DED0] text-xs font-bold bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none">
+                    @foreach(\App\Models\InvitationGuest::categories() as $cat)
+                        <option value="{{ $cat }}">{{ \App\Models\InvitationGuest::categoryLabel($cat, 'ar') }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="sm:col-span-2">
+                <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">بالغون</label>
+                <input type="number" min="1" max="20" wire:model="maxAdults"
+                       class="w-full px-3 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none text-center font-bold">
+            </div>
+
+            <div class="sm:col-span-2">
+                <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">أطفال</label>
+                <input type="number" min="0" max="20" wire:model="maxChildren"
+                       class="w-full px-3 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none text-center font-bold">
+            </div>
+
+            <div class="sm:col-span-5">
+                <label class="block text-[11px] font-bold text-[#292521]/70 mb-1">ملاحظات داخلية (اختياري)</label>
+                <input type="text" wire:model="guestNotes" placeholder="مثال: طاولة VIP 1"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none">
+            </div>
+
+            <div class="sm:col-span-3 flex items-end">
+                <button type="submit"
+                        class="w-full py-2.5 px-4 rounded-xl bg-[#292521] text-white text-xs font-bold hover:opacity-90 transition inline-flex items-center justify-center gap-1.5 cursor-pointer">
+                    <x-app-icon name="plus" class="w-4 h-4" />
+                    <span>إضافة المدعو</span>
                 </button>
-            </form>
-            @error('gateName') <span class="text-[11px] text-rose-600 block">{{ $message }}</span> @enderror
-            @if(session('gate_notice'))
-                <p class="text-[11px] text-emerald-700 font-bold">{{ session('gate_notice') }}</p>
-            @endif
-
-            <div class="space-y-2 max-h-60 overflow-y-auto">
-                @forelse($gates as $gate)
-                    <div class="p-3 rounded-2xl border {{ $gate->is_active ? 'border-[#E8DED0] bg-[#FAF7F2]/70' : 'border-rose-200 bg-rose-50/40' }} space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-xs font-bold text-[#292521]">{{ $gate->name }}</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $gate->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700' }}">
-                                {{ $gate->is_active ? 'نشطة' : 'موقوفة' }} · {{ $gate->scan_count }} دخول
-                            </span>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
-                            <button type="button" @click="copyLink('{{ $gate->getPortalUrl() }}')"
-                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-[#E8DED0] text-[#292521] font-bold hover:bg-[#FAF7F2] cursor-pointer">
-                                <x-app-icon name="copy" class="w-3 h-3" />
-                                <span x-text="copiedUrl === '{{ $gate->getPortalUrl() }}' ? 'تم النسخ' : 'نسخ رابط الماسح'"></span>
-                            </button>
-                            <a href="{{ $gate->getPortalUrl() }}" target="_blank" rel="noopener noreferrer"
-                               class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#292521] text-white font-bold hover:opacity-90">
-                                <x-app-icon name="external-link" class="w-3 h-3" />
-                                <span>فتح</span>
-                            </a>
-                            <button type="button" wire:click="toggleGate({{ $gate->id }})"
-                                    class="px-2 py-1 rounded-lg border border-[#E8DED0] text-[#292521]/75 hover:bg-white cursor-pointer">
-                                {{ $gate->is_active ? 'إيقاف' : 'تفعيل' }}
-                            </button>
-                            <button type="button" wire:click="deleteGate({{ $gate->id }})"
-                                    class="p-1 text-rose-500 hover:text-rose-700 cursor-pointer" title="حذف البوابة">
-                                <x-app-icon name="trash" class="w-3.5 h-3.5" />
-                            </button>
-                        </div>
-                    </div>
-                @empty
-                    <p class="text-xs text-[#292521]/50 text-center py-3">لم يتم إنشاء بوابات استقبال بعد.</p>
-                @endforelse
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Roster Filter & Table -->
@@ -232,8 +163,6 @@
                         'pending' => 'بانتظار الرد',
                         'attending' => 'مؤكد',
                         'declined' => 'معتذر',
-                        'checked_in' => 'دخل القاعة',
-                        'not_checked_in' => 'لم يدخل بعد',
                     ];
                 @endphp
                 @foreach($statusTabs as $tabKey => $tabLabel)
@@ -263,7 +192,7 @@
                         <th class="px-4 py-3">الضيف</th>
                         <th class="px-4 py-3">الفئة / المقاعد</th>
                         <th class="px-4 py-3">حالة الرد</th>
-                        <th class="px-4 py-3">كود الدخول والدخول الفعلي</th>
+                        <th class="px-4 py-3">كود البطاقة</th>
                         <th class="px-4 py-3">إرسال ومتابعة</th>
                         <th class="px-4 py-3 text-left">إجراءات</th>
                     </tr>
@@ -296,20 +225,10 @@
                                     <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">بانتظار الرد</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 space-y-1">
+                            <td class="px-4 py-3">
                                 <span dir="ltr" class="inline-block font-mono font-black text-xs px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#E8DED0]">
                                     {{ $guest->pass_code }}
                                 </span>
-                                @if($guest->isCheckedIn())
-                                    <span class="block text-[11px] font-bold text-emerald-700">
-                                        تم الدخول ({{ $guest->checked_in_at->timezone($invitation->timezone ?: 'Africa/Cairo')->format('H:i') }})
-                                        @if($guest->checkedInGate)
-                                            · {{ $guest->checkedInGate->name }}
-                                        @endif
-                                    </span>
-                                @else
-                                    <span class="block text-[11px] text-[#292521]/50">لم يسجل دخول بعد</span>
-                                @endif
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex flex-wrap items-center gap-1.5">
@@ -335,10 +254,6 @@
                                     <button type="button" wire:click="openPassPreview({{ $guest->id }})"
                                             class="px-2.5 py-1 rounded-lg bg-[#C6A76B]/15 text-[#8A6D3B] font-bold hover:bg-[#C6A76B]/25 cursor-pointer">
                                         بطاقة QR
-                                    </button>
-                                    <button type="button" wire:click="toggleCheckIn({{ $guest->id }})"
-                                            class="px-2.5 py-1 rounded-lg border border-[#E8DED0] text-[#292521] font-bold hover:bg-[#FAF7F2] cursor-pointer">
-                                        {{ $guest->isCheckedIn() ? 'إلغاء الدخول' : 'تسجيل دخول' }}
                                     </button>
                                     <button type="button" wire:click="deleteGuest({{ $guest->id }})"
                                             class="p-1.5 text-rose-500 hover:text-rose-700 cursor-pointer" title="حذف الضيف">

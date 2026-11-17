@@ -21,7 +21,7 @@
             </a>
         </div>
 
-        <!-- Unified Smart Guest Roster, Personalized Links, QR Passes & Door Gates -->
+        <!-- Unified Smart Guest Roster, Personalized Links & QR Passes -->
         <livewire:guest-roster-manager :invitation-id="$invitation->id" />
 
         <!-- RSVP Statistics Cards -->

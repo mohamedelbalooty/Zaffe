@@ -74,16 +74,6 @@ class InvitationsTable
                     ->label(__('admin.fields.guests_count'))
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('checked_in_guests_count')
-                    ->counts(['guests as checked_in_guests_count' => fn ($q) => $q->whereNotNull('checked_in_at')])
-                    ->label(__('admin.fields.checked_in_guests_count'))
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('active_gates_count')
-                    ->counts(['gates as active_gates_count' => fn ($q) => $q->where('is_active', true)])
-                    ->label(__('admin.fields.active_gates_count'))
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('rsvps_count')
                     ->counts('rsvps')
                     ->label(__('admin.fields.rsvps_count'))
