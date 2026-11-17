@@ -38,7 +38,13 @@
                         <!-- Left Info -->
                         <div class="flex items-center gap-4">
                             <div class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-[#C6A76B]/30 shadow-sm">
-                                <img src="{{ $invitation->cover_photo ?: $invitation->template?->thumbnail }}" alt="Cover" class="w-full h-full object-cover">
+                                <img src="{{ $invitation->cover_photo ?: $invitation->template?->thumbnail }}"
+                                     alt="Cover"
+                                     width="{{ $invitation->cover_photo_width ?? 64 }}"
+                                     height="{{ $invitation->cover_photo_height ?? 64 }}"
+                                     loading="lazy"
+                                     decoding="async"
+                                     class="w-full h-full object-cover">
                             </div>
 
                             <div class="space-y-1">

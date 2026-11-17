@@ -52,7 +52,14 @@
                     <div class="py-2">
                         <div class="w-36 h-36 sm:w-44 sm:h-44 mx-auto rounded-full p-1.5 shadow-xl overflow-hidden border-2"
                              style="border-color: {{ $goldColor }};">
-                            <img src="{{ $invitation->cover_photo }}" alt="Couple" class="w-full h-full object-cover rounded-full">
+                            <img src="{{ $invitation->cover_photo }}"
+                                 alt="Couple"
+                                 @if(!empty($invitation->cover_photo_width) && !empty($invitation->cover_photo_height))
+                                     width="{{ $invitation->cover_photo_width }}"
+                                     height="{{ $invitation->cover_photo_height }}"
+                                 @endif
+                                 decoding="async"
+                                 class="w-full h-full object-cover rounded-full">
                         </div>
                     </div>
                 @endif

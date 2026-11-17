@@ -30,6 +30,8 @@ class Invitation extends Model
         'welcome_message',
         'invitation_message',
         'cover_photo',
+        'cover_photo_width',
+        'cover_photo_height',
         'music_url',
         'custom_styles',
         'status',
@@ -48,6 +50,8 @@ class Invitation extends Model
             'is_rsvp_enabled' => 'boolean',
             'max_guests_per_rsvp' => 'integer',
             'view_count' => 'integer',
+            'cover_photo_width' => 'integer',
+            'cover_photo_height' => 'integer',
         ];
     }
 

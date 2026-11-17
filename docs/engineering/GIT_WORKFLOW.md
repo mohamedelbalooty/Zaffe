@@ -85,6 +85,14 @@ All work branches must follow standardized prefixes with their tracking ticket /
 3. **No Empty Branches:** Do not create placeholders or batch-create empty feature branches. Create a feature branch only when its active implementation starts.
 4. **Lifecycle Termination:** Once a feature branch passes all Quality Gates and is merged into `dev`, its branch may be safely pruned locally and remotely.
 
+### 3.3 Manual-Only Merge & Pull Request Branches (`OWNER ONLY`)
+
+Do **not** merge or open Pull Requests for the branch below via AI agents, scripts, or automated workflows. Only the repository owner may manually merge or create a Pull Request for it:
+
+| Branch Name | Restriction | Reason / Governance Rule |
+| :--- | :--- | :--- |
+| `feature/ZAFFE-015-short-urls-and-og-tags` | **No Agent/Automated Merge or PR — Owner Manual Only** | Includes short public `/i/` codes, OG image caching, and the async WebP cover/gallery image pipeline. Never run `git merge` into `dev` (or any other branch) and never create a Pull Request for this branch; **only the repository owner performs merges and Pull Requests manually**. |
+
 ---
 
 ## 4. Git Safety Preflight Protocol
@@ -117,7 +125,7 @@ git log -n 5 --oneline
 
 ### 5.1 Step 1: Feature to `dev`
 - **Prerequisite:** Feature branch passes all 7 steps of the Feature Execution Workflow (Code-Level, Business-Level, Security, and Automated Tests).
-- **Method:** Pull Request against `dev`.
+- **Method:** Pull Request against `dev` (**only initiated manually by the repository owner** for restricted branches listed in Section 3.3, including `feature/ZAFFE-015-short-urls-and-og-tags`).
 - **Merge Strategy:** Rebase & merge or Squash & merge (with clean conventional commit summary).
 
 ### 5.2 Step 2: `dev` to `staging`

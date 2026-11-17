@@ -6,6 +6,7 @@ use App\Models\Invitation;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Models\RsvpResponse;
+use App\Services\InvitationImageService;
 use App\Services\OgImageService;
 use App\Services\PhoneService;
 use Illuminate\Http\Request;
@@ -126,11 +127,12 @@ class DashboardController extends Controller
     {
         $invitation = Auth::user()->invitations()->with('photos')->findOrFail($id);
 
-        $this->deleteStorageFile($invitation->cover_photo);
+        $imageService = app(InvitationImageService::class);
+        $imageService->deleteStorageFile($invitation->cover_photo);
         app(OgImageService::class)->cleanupForInvitation($invitation->id);
 
         foreach ($invitation->photos as $photo) {
-            $this->deleteStorageFile($photo->image_path);
+            $imageService->deleteStorageFile($photo->image_path, $photo->thumbnail_path);
         }
 
         $invitation->delete();
@@ -162,27 +164,9 @@ class DashboardController extends Controller
         return back()->with('success', 'تم أرشفة الدعوة بنجاح.');
     }
 
-    protected function deleteStorageFile(?string $pathOrUrl): void
+    protected function deleteStorageFile(?string $pathOrUrl, ?string $thumbnailPathOrUrl = null): void
     {
-        if (empty($pathOrUrl)) {
-            return;
-        }
-
-        $disk = Storage::disk('public');
-        $storageUrl = $disk->url('');
-
-        $relativePath = $pathOrUrl;
-        if (!empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
-            $relativePath = substr($relativePath, strlen($storageUrl));
-        } elseif (str_starts_with($relativePath, '/storage/')) {
-            $relativePath = substr($relativePath, strlen('/storage/'));
-        }
-
-        $relativePath = ltrim($relativePath, '/');
-
-        if (!empty($relativePath) && $disk->exists($relativePath)) {
-            $disk->delete($relativePath);
-        }
+        app(InvitationImageService::class)->deleteStorageFile($pathOrUrl, $thumbnailPathOrUrl);
     }
 
     public function guests(int $id, Request $request)

@@ -69,6 +69,11 @@
                              style="border-color: {{ $primaryColor }};">
                             <img src="{{ $invitation->cover_photo }}" 
                                  alt="{{ $invitation->groom_name }} & {{ $invitation->bride_name }}" 
+                                 @if(!empty($invitation->cover_photo_width) && !empty($invitation->cover_photo_height))
+                                     width="{{ $invitation->cover_photo_width }}"
+                                     height="{{ $invitation->cover_photo_height }}"
+                                 @endif
+                                 decoding="async"
                                  class="w-full h-full object-cover rounded-full">
                         </div>
                     </div>

@@ -299,48 +299,267 @@
                 <!-- 4. Media Tab -->
                 @if($activeTab === 'media')
                     <div class="space-y-6">
-                        <h3 class="font-cairo text-base font-bold text-[#C6A76B]">صور العروسين وألبوم الذكريات</h3>
-
-                        <!-- Cover photo -->
-                        <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                            <label class="block text-xs font-bold text-white">صورة الغلاف / صورة العروسين الرئيسية</label>
-                            
-                            @if($cover_photo)
-                                <div class="w-32 h-32 rounded-2xl overflow-hidden border-2 border-[#C6A76B] shadow-md mb-2">
-                                    <img src="{{ $cover_photo }}" alt="Cover" class="w-full h-full object-cover">
-                                </div>
-                            @endif
-
-                            <input type="file" wire:model="new_cover_photo" accept="image/*"
-                                   class="text-xs text-[#E8DED0]/80 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#C6A76B] file:text-white hover:file:opacity-90">
-                            
-                            <div wire:loading wire:target="new_cover_photo" class="text-xs text-[#C6A76B]">
-                                جاري رفع صورة الغلاف...
-                            </div>
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-cairo text-base font-bold text-[#C6A76B]">صور العروسين وألبوم الذكريات</h3>
+                            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[#E8DED0]/80">
+                                JPG / PNG / WebP • حتى {{ $maxImageSizeMb }} ميجابايت
+                            </span>
                         </div>
 
-                        <!-- Gallery Photos -->
-                        <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                            <label class="block text-xs font-bold text-white">إضافة صور إلى ألبوم الفرح</label>
-                            <input type="file" wire:model="new_gallery_photo" accept="image/*"
-                                   class="text-xs text-[#E8DED0]/80 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#292521] file:border file:border-[#C6A76B] file:text-[#C6A76B]">
-                            
-                            <div wire:loading wire:target="new_gallery_photo" class="text-xs text-[#C6A76B]">
-                                جاري رفع الصورة إلى الألبوم...
+                        <!-- Cover photo Drag-and-Drop Zone -->
+                        <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3"
+                             x-data="{
+                                 dragging: false,
+                                 uploading: false,
+                                 progress: 0,
+                                 previewUrl: null,
+                                 clientError: '',
+                                 maxBytes: {{ $maxImageSizeMb }} * 1024 * 1024,
+                                 allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+                                 handleCoverFiles(fileList) {
+                                     this.clientError = '';
+                                     const file = fileList && fileList[0];
+                                     if (!file) return;
+                                     if (!this.allowedTypes.includes(file.type)) {
+                                         this.clientError = 'صيغة الصورة غير مدعومة. يرجى اختيار JPG أو PNG أو WebP.';
+                                         return;
+                                     }
+                                     if (file.size > this.maxBytes) {
+                                         this.clientError = 'الحد الأقصى ٥ ميجابايت لحجم الصورة.';
+                                         return;
+                                     }
+                                     if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
+                                     this.previewUrl = URL.createObjectURL(file);
+                                     this.uploading = true;
+                                     this.progress = 0;
+                                     $wire.upload(
+                                         'new_cover_photo',
+                                         file,
+                                         () => { this.uploading = false; this.progress = 100; },
+                                         () => { this.uploading = false; this.progress = 0; this.clientError = 'تعذر رفع الصورة. الحد الأقصى ٥ ميجابايت.'; },
+                                         (event) => { this.progress = event.detail.progress; }
+                                     );
+                                 }
+                             }"
+                             x-on:livewire-upload-start="uploading = true; progress = 0"
+                             x-on:livewire-upload-finish="uploading = false; progress = 100"
+                             x-on:livewire-upload-error="uploading = false; progress = 0"
+                             x-on:livewire-upload-progress="progress = $event.detail.progress">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-xs font-bold text-white">صورة الغلاف / صورة العروسين الرئيسية</label>
+                                @if($cover_photo)
+                                    <button type="button"
+                                            wire:click="removeCoverPhoto"
+                                            x-on:click="if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = null; }"
+                                            class="inline-flex items-center gap-1 text-[11px] font-bold text-rose-400 hover:text-rose-300 transition">
+                                        <x-app-icon name="trash" class="w-3.5 h-3.5" />
+                                        <span>إزالة الغلاف</span>
+                                    </button>
+                                @endif
                             </div>
 
-                            <!-- List existing photos -->
-                            <div class="grid grid-cols-3 gap-2 pt-2">
-                                @foreach($invitation->photos as $p)
-                                    <div class="relative group rounded-xl overflow-hidden h-24 border border-white/10">
-                                        <img src="{{ $p->url }}" alt="Gallery photo" class="w-full h-full object-cover">
-                                        <button wire:click="deleteGalleryPhoto({{ $p->id }})" 
-                                                class="absolute top-1 left-1 p-1 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition shadow">
-                                            <x-app-icon name="trash" class="w-3.5 h-3.5" />
-                                        </button>
+                            @if($cover_photo)
+                                <div class="relative w-36 h-36 rounded-2xl overflow-hidden border-2 border-[#C6A76B] shadow-md">
+                                    <img :src="previewUrl || '{{ $cover_photo }}'"
+                                         alt="صورة الغلاف"
+                                         @if($cover_photo_width && $cover_photo_height)
+                                             width="{{ $cover_photo_width }}"
+                                             height="{{ $cover_photo_height }}"
+                                         @endif
+                                         class="w-full h-full object-cover">
+                                </div>
+                            @else
+                                <template x-if="previewUrl">
+                                    <div class="relative w-36 h-36 rounded-2xl overflow-hidden border-2 border-[#C6A76B] shadow-md">
+                                        <img :src="previewUrl" alt="معاينة الغلاف" class="w-full h-full object-cover">
                                     </div>
-                                @endforeach
+                                </template>
+                            @endif
+
+                            <div @click="$refs.coverInput.click()"
+                                 @dragover.prevent="dragging = true"
+                                 @dragleave.prevent="dragging = false"
+                                 @drop.prevent="dragging = false; handleCoverFiles($event.dataTransfer.files)"
+                                 :class="dragging ? 'border-[#C6A76B] bg-[#C6A76B]/15' : 'border-white/20 hover:border-[#C6A76B]/60 bg-black/20'"
+                                 class="rounded-2xl border-2 border-dashed p-5 text-center cursor-pointer transition space-y-2">
+                                <input type="file"
+                                       x-ref="coverInput"
+                                       accept="image/jpeg,image/png,image/webp"
+                                       @change="handleCoverFiles($event.target.files); $event.target.value = ''"
+                                       class="sr-only">
+                                <div class="w-10 h-10 rounded-full bg-[#C6A76B]/15 border border-[#C6A76B]/30 mx-auto flex items-center justify-center text-[#C6A76B]">
+                                    <x-app-icon name="upload" class="w-5 h-5" />
+                                </div>
+                                <p class="text-xs font-bold text-white">اسحب صورة الغلاف وأفلتها هنا، أو اضغط للاختيار</p>
+                                <p class="text-[11px] text-[#E8DED0]/60">يتم تحويلها تلقائياً إلى WebP خفيف (الحد الأقصى ٥ ميجابايت)</p>
                             </div>
+
+                            <!-- Upload Progress Bar -->
+                            <div x-show="uploading" x-cloak class="space-y-1.5">
+                                <div class="flex items-center justify-between text-[11px] text-[#C6A76B] font-bold">
+                                    <span>جاري رفع صورة الغلاف...</span>
+                                    <span x-text="progress + '%'"></span>
+                                </div>
+                                <div class="w-full h-2 rounded-full bg-black/40 overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-[#C6A76B] to-[#E6C687] transition-all duration-150"
+                                         :style="'width: ' + progress + '%'"></div>
+                                </div>
+                            </div>
+
+                            @if($coverProcessing)
+                                <p class="text-[11px] text-[#C6A76B]">جاري تجهيز نسخة WebP المحسّنة في الخلفية...</p>
+                            @endif
+
+                            <p x-show="clientError" x-text="clientError" x-cloak class="text-xs text-rose-400 font-semibold"></p>
+                            @error('new_cover_photo')
+                                <p class="text-xs text-rose-400 font-semibold">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Gallery Photos Drag-and-Drop Zone (Multi-file) -->
+                        @php
+                            $galleryCount = $invitation->photos->count();
+                            $remainingSlots = max(0, $maxGalleryPhotos - $galleryCount);
+                        @endphp
+                        <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3"
+                             x-data="{
+                                 dragging: false,
+                                 uploading: false,
+                                 progress: 0,
+                                 previews: [],
+                                 clientError: '',
+                                 maxBytes: {{ $maxImageSizeMb }} * 1024 * 1024,
+                                 remainingSlots: {{ $remainingSlots }},
+                                 allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+                                 clearPreviews() {
+                                     this.previews.forEach(p => URL.revokeObjectURL(p.url));
+                                     this.previews = [];
+                                 },
+                                 handleGalleryFiles(fileList) {
+                                     this.clientError = '';
+                                     const incoming = Array.from(fileList || []);
+                                     if (!incoming.length) return;
+                                     if (this.remainingSlots <= 0) {
+                                         this.clientError = 'تم الوصول للحد الأقصى ({{ $maxGalleryPhotos }} صورة) لألبوم هذه الدعوة.';
+                                         return;
+                                     }
+                                     if (incoming.length > this.remainingSlots) {
+                                         this.clientError = 'يمكنك إضافة ' + this.remainingSlots + ' صور إضافية فقط (الحد الأقصى {{ $maxGalleryPhotos }} صورة).';
+                                         return;
+                                     }
+                                     for (const file of incoming) {
+                                         if (!this.allowedTypes.includes(file.type)) {
+                                             this.clientError = 'صيغة الصورة غير مدعومة. يرجى اختيار JPG أو PNG أو WebP.';
+                                             return;
+                                         }
+                                         if (file.size > this.maxBytes) {
+                                             this.clientError = 'الحد الأقصى ٥ ميجابايت لحجم الصورة الواحدة.';
+                                             return;
+                                         }
+                                     }
+                                     this.clearPreviews();
+                                     this.previews = incoming.map(f => ({ name: f.name, url: URL.createObjectURL(f) }));
+                                     this.uploading = true;
+                                     this.progress = 0;
+                                     $wire.uploadMultiple(
+                                         'new_gallery_photos',
+                                         incoming,
+                                         () => { this.uploading = false; this.progress = 100; this.clearPreviews(); },
+                                         () => { this.uploading = false; this.progress = 0; this.clearPreviews(); this.clientError = 'تعذر رفع الصور. الحد الأقصى ٥ ميجابايت.'; },
+                                         (event) => { this.progress = event.detail.progress; }
+                                     );
+                                 }
+                             }"
+                             x-on:livewire-upload-start="uploading = true; progress = 0"
+                             x-on:livewire-upload-finish="uploading = false; progress = 100"
+                             x-on:livewire-upload-error="uploading = false; progress = 0"
+                             x-on:livewire-upload-progress="progress = $event.detail.progress">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-xs font-bold text-white">ألبوم صور الفرح (يدعم اختيار عدة صور)</label>
+                                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-black/30 text-[#C6A76B] border border-[#C6A76B]/30">
+                                    {{ $galleryCount }} / {{ $maxGalleryPhotos }}
+                                </span>
+                            </div>
+
+                            <div @click="if (remainingSlots > 0) $refs.galleryInput.click()"
+                                 @dragover.prevent="dragging = true"
+                                 @dragleave.prevent="dragging = false"
+                                 @drop.prevent="dragging = false; handleGalleryFiles($event.dataTransfer.files)"
+                                 :class="[
+                                     remainingSlots <= 0 ? 'opacity-50 cursor-not-allowed border-white/10 bg-black/20' : 'cursor-pointer',
+                                     dragging && remainingSlots > 0 ? 'border-[#C6A76B] bg-[#C6A76B]/15' : 'border-white/20 hover:border-[#C6A76B]/60 bg-black/20'
+                                 ]"
+                                 class="rounded-2xl border-2 border-dashed p-5 text-center transition space-y-2">
+                                <input type="file"
+                                       x-ref="galleryInput"
+                                       multiple
+                                       accept="image/jpeg,image/png,image/webp"
+                                       :disabled="remainingSlots <= 0"
+                                       @change="handleGalleryFiles($event.target.files); $event.target.value = ''"
+                                       class="sr-only">
+                                <div class="w-10 h-10 rounded-full bg-[#C6A76B]/15 border border-[#C6A76B]/30 mx-auto flex items-center justify-center text-[#C6A76B]">
+                                    <x-app-icon name="camera" class="w-5 h-5" />
+                                </div>
+                                <p class="text-xs font-bold text-white">اسحب صور الألبوم وأفلتها هنا، أو اضغط لاختيار عدة صور</p>
+                                <p class="text-[11px] text-[#E8DED0]/60">الحد الأقصى ٥ ميجابايت للصورة • حتى {{ $maxGalleryPhotos }} صورة للألبوم</p>
+                            </div>
+
+                            <!-- Multi-file Upload Progress Bar -->
+                            <div x-show="uploading" x-cloak class="space-y-1.5">
+                                <div class="flex items-center justify-between text-[11px] text-[#C6A76B] font-bold">
+                                    <span>جاري رفع الصور إلى الألبوم...</span>
+                                    <span x-text="progress + '%'"></span>
+                                </div>
+                                <div class="w-full h-2 rounded-full bg-black/40 overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-[#C6A76B] to-[#E6C687] transition-all duration-150"
+                                         :style="'width: ' + progress + '%'"></div>
+                                </div>
+                            </div>
+
+                            <!-- Instant Client Previews While Uploading -->
+                            <div x-show="previews.length > 0" x-cloak class="grid grid-cols-3 gap-2 pt-1">
+                                <template x-for="(item, idx) in previews" :key="idx">
+                                    <div class="relative rounded-xl overflow-hidden h-24 border border-[#C6A76B]/50 opacity-80">
+                                        <img :src="item.url" :alt="item.name" class="w-full h-full object-cover">
+                                        <span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/70 text-[10px] text-white">جاري الرفع</span>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <p x-show="clientError" x-text="clientError" x-cloak class="text-xs text-rose-400 font-semibold"></p>
+                            @error('new_gallery_photo')
+                                <p class="text-xs text-rose-400 font-semibold">{{ $message }}</p>
+                            @enderror
+                            @error('new_gallery_photos')
+                                <p class="text-xs text-rose-400 font-semibold">{{ $message }}</p>
+                            @enderror
+                            @error('new_gallery_photos.*')
+                                <p class="text-xs text-rose-400 font-semibold">{{ $message }}</p>
+                            @enderror
+
+                            <!-- List existing photos -->
+                            @if($invitation->photos->isNotEmpty())
+                                <div class="grid grid-cols-3 gap-2 pt-2">
+                                    @foreach($invitation->photos as $p)
+                                        <div class="relative group rounded-xl overflow-hidden h-24 border border-white/10">
+                                            <img src="{{ $p->thumbnail_url }}"
+                                                 alt="{{ $p->caption ?: 'صورة الألبوم' }}"
+                                                 @if($p->thumbnail_width && $p->thumbnail_height)
+                                                     width="{{ $p->thumbnail_width }}"
+                                                     height="{{ $p->thumbnail_height }}"
+                                                 @endif
+                                                 loading="lazy"
+                                                 class="w-full h-full object-cover">
+                                            <button type="button"
+                                                    wire:click="deleteGalleryPhoto({{ $p->id }})"
+                                                    title="حذف الصورة"
+                                                    class="absolute top-1 left-1 p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition shadow">
+                                                <x-app-icon name="trash" class="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif

@@ -14,6 +14,11 @@ class InvitationPhoto extends Model
     protected $fillable = [
         'invitation_id',
         'image_path',
+        'thumbnail_path',
+        'width',
+        'height',
+        'thumbnail_width',
+        'thumbnail_height',
         'caption',
         'is_cover',
         'sort_order',
@@ -24,6 +29,10 @@ class InvitationPhoto extends Model
         return [
             'is_cover' => 'boolean',
             'sort_order' => 'integer',
+            'width' => 'integer',
+            'height' => 'integer',
+            'thumbnail_width' => 'integer',
+            'thumbnail_height' => 'integer',
         ];
     }
 
@@ -39,6 +48,19 @@ class InvitationPhoto extends Model
         }
 
         return Storage::disk('public')->url($this->image_path);
+    }
+
+    public function getThumbnailUrlAttribute(): string
+    {
+        if (empty($this->thumbnail_path)) {
+            return $this->url;
+        }
+
+        if (str_starts_with($this->thumbnail_path, 'http://') || str_starts_with($this->thumbnail_path, 'https://')) {
+            return $this->thumbnail_path;
+        }
+
+        return Storage::disk('public')->url($this->thumbnail_path);
     }
 }
 

@@ -42,7 +42,14 @@
             @if($invitation->cover_photo)
                 <div class="py-2">
                     <div class="w-full h-64 sm:h-80 mx-auto rounded-xl overflow-hidden shadow-sm">
-                        <img src="{{ $invitation->cover_photo }}" alt="Couple" class="w-full h-full object-cover">
+                        <img src="{{ $invitation->cover_photo }}"
+                             alt="Couple"
+                             @if(!empty($invitation->cover_photo_width) && !empty($invitation->cover_photo_height))
+                                 width="{{ $invitation->cover_photo_width }}"
+                                 height="{{ $invitation->cover_photo_height }}"
+                             @endif
+                             decoding="async"
+                             class="w-full h-full object-cover">
                     </div>
                 </div>
             @endif

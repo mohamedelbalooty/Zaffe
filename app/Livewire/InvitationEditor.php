@@ -2,13 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Jobs\ProcessInvitationImage;
 use App\Models\Invitation;
 use App\Models\InvitationPhoto;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
+use App\Services\InvitationImageService;
 use App\Services\OgImageService;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -54,8 +55,12 @@ class InvitationEditor extends Component
 
     // Media
     public ?string $cover_photo = null;
+    public ?int $cover_photo_width = null;
+    public ?int $cover_photo_height = null;
+    public bool $coverProcessing = false;
     public $new_cover_photo;
     public $new_gallery_photo;
+    public array $new_gallery_photos = [];
 
     // Sections toggles
     public bool $section_countdown = true;
@@ -92,6 +97,8 @@ class InvitationEditor extends Component
         $this->music_url = $invitation->music_url ?? '';
         $this->template_id = $invitation->template_id;
         $this->cover_photo = $invitation->cover_photo;
+        $this->cover_photo_width = $invitation->cover_photo_width;
+        $this->cover_photo_height = $invitation->cover_photo_height;
 
         $styles = $invitation->effective_styles;
         $this->primary_color = $styles['primary_color'] ?? '#C6A76B';
@@ -120,6 +127,13 @@ class InvitationEditor extends Component
 
     public function updated($propertyName)
     {
+        if (
+            str_starts_with($propertyName, 'new_cover_photo')
+            || str_starts_with($propertyName, 'new_gallery_photo')
+        ) {
+            return;
+        }
+
         $this->saveStatus = 'جاري الحفظ...';
         $this->saveChanges();
     }
@@ -128,72 +142,152 @@ class InvitationEditor extends Component
     {
         $invitation = $this->getAuthorizedInvitation();
 
-        $this->validate([
-            'new_cover_photo' => 'image|max:5120', // 5MB
-        ]);
+        $maxKb = (int) config('invitations.images.max_file_size_kb', 5120);
+        $mimes = implode(',', config('invitations.images.allowed_extensions', ['jpeg', 'jpg', 'png', 'webp']));
+        $mimeTypes = implode(',', config('invitations.images.allowed_mime_types', ['image/jpeg', 'image/png', 'image/webp']));
 
-        // Clean up previous cover photo if stored locally
-        $this->deleteStorageFile($invitation->cover_photo);
+        $this->validate(
+            [
+                'new_cover_photo' => "required|file|mimes:{$mimes}|mimetypes:{$mimeTypes}|max:{$maxKb}",
+            ],
+            [
+                'new_cover_photo.max' => 'الحد الأقصى ٥ ميجابايت لصورة الغلاف.',
+                'new_cover_photo.mimes' => 'صيغة الصورة غير مدعومة. الصيغ المسموح بها: JPG و PNG و WebP.',
+                'new_cover_photo.mimetypes' => 'صيغة الصورة غير مدعومة. الصيغ المسموح بها: JPG و PNG و WebP.',
+                'new_cover_photo.file' => 'يرجى اختيار ملف صورة صالح.',
+            ]
+        );
+
+        $tempDisk = (string) config('invitations.images.temp_disk', 'local');
+        $tempDir = (string) config('invitations.images.temp_dir', 'invitations/tmp');
+        $tempPath = $this->new_cover_photo->store($tempDir, $tempDisk);
+
+        $this->new_cover_photo = null;
+        $this->coverProcessing = config('queue.default') !== 'sync';
+
+        ProcessInvitationImage::dispatch($invitation->id, $tempDisk, $tempPath, 'cover');
+
+        $invitation->refresh();
+        $this->cover_photo = $invitation->cover_photo;
+        $this->cover_photo_width = $invitation->cover_photo_width;
+        $this->cover_photo_height = $invitation->cover_photo_height;
+        $this->saveStatus = $this->coverProcessing ? 'جاري معالجة صورة الغلاف...' : 'تم تحديث صورة الغلاف بنجاح ✓';
+    }
+
+    public function removeCoverPhoto()
+    {
+        $invitation = $this->getAuthorizedInvitation();
+
+        app(InvitationImageService::class)->deleteStorageFile($invitation->cover_photo);
         app(OgImageService::class)->cleanupForInvitation($invitation->id);
 
-        $path = $this->new_cover_photo->store('invitations/covers', 'public');
-        $this->cover_photo = Storage::disk('public')->url($path);
-        
-        $this->saveChanges();
+        $invitation->update([
+            'cover_photo' => null,
+            'cover_photo_width' => null,
+            'cover_photo_height' => null,
+        ]);
+
+        $this->cover_photo = null;
+        $this->cover_photo_width = null;
+        $this->cover_photo_height = null;
+        $this->coverProcessing = false;
+        $this->new_cover_photo = null;
+        $this->saveStatus = 'تم حذف صورة الغلاف ✓';
     }
 
     public function updatedNewGalleryPhoto()
     {
+        if (! $this->new_gallery_photo) {
+            return;
+        }
+
+        $file = $this->new_gallery_photo;
+        $this->new_gallery_photo = null;
+        $this->handleGalleryUploads([$file], 'new_gallery_photo');
+    }
+
+    public function updatedNewGalleryPhotos()
+    {
+        if (empty($this->new_gallery_photos)) {
+            return;
+        }
+
+        $files = $this->new_gallery_photos;
+        $this->new_gallery_photos = [];
+        $this->handleGalleryUploads($files, 'new_gallery_photos');
+    }
+
+    protected function handleGalleryUploads(array $files, string $errorBagKey): void
+    {
         $invitation = $this->getAuthorizedInvitation();
+        $files = array_values(array_filter($files));
+        if (empty($files)) {
+            return;
+        }
 
-        $this->validate([
-            'new_gallery_photo' => 'image|max:5120',
-        ]);
+        $maxPhotos = (int) config('invitations.images.max_gallery_photos', 20);
+        $currentCount = InvitationPhoto::where('invitation_id', $invitation->id)->count();
+        if ($currentCount + count($files) > $maxPhotos) {
+            $remaining = max(0, $maxPhotos - $currentCount);
+            $message = $remaining === 0
+                ? "تم الوصول للحد الأقصى ({$maxPhotos} صورة) لألبوم هذه الدعوة."
+                : "الحد الأقصى لصور الألبوم هو {$maxPhotos} صورة (المتبقي {$remaining}).";
+            $this->addError($errorBagKey, $message);
 
-        $path = $this->new_gallery_photo->store('invitations/gallery', 'public');
-        
-        InvitationPhoto::create([
-            'invitation_id' => $invitation->id,
-            'image_path' => Storage::disk('public')->url($path),
-            'caption' => 'صورة من ألبوم الفرح',
-            'sort_order' => InvitationPhoto::where('invitation_id', $invitation->id)->count() + 1,
-        ]);
+            return;
+        }
 
-        $this->saveStatus = 'تمت إضافة الصورة بنجاح ✓';
+        $maxKb = (int) config('invitations.images.max_file_size_kb', 5120);
+        $mimes = implode(',', config('invitations.images.allowed_extensions', ['jpeg', 'jpg', 'png', 'webp']));
+        $mimeTypes = implode(',', config('invitations.images.allowed_mime_types', ['image/jpeg', 'image/png', 'image/webp']));
+
+        $validator = Validator::make(
+            ['files' => $files],
+            [
+                'files.*' => "required|file|mimes:{$mimes}|mimetypes:{$mimeTypes}|max:{$maxKb}",
+            ],
+            [
+                'files.*.max' => 'الحد الأقصى ٥ ميجابايت لحجم الصورة الواحدة.',
+                'files.*.mimes' => 'صيغة الصورة غير مدعومة. الصيغ المسموح بها: JPG و PNG و WebP.',
+                'files.*.mimetypes' => 'صيغة الصورة غير مدعومة. الصيغ المسموح بها: JPG و PNG و WebP.',
+                'files.*.file' => 'يرجى اختيار ملفات صور صالحة.',
+            ]
+        );
+
+        if ($validator->fails()) {
+            $this->addError($errorBagKey, $validator->errors()->first());
+
+            return;
+        }
+
+        $tempDisk = (string) config('invitations.images.temp_disk', 'local');
+        $tempDir = (string) config('invitations.images.temp_dir', 'invitations/tmp');
+        $nextOrder = (int) InvitationPhoto::where('invitation_id', $invitation->id)->max('sort_order') + 1;
+
+        foreach ($files as $file) {
+            $tempPath = $file->store($tempDir, $tempDisk);
+            ProcessInvitationImage::dispatch($invitation->id, $tempDisk, $tempPath, 'gallery', $nextOrder++);
+        }
+
+        $this->saveStatus = count($files) > 1
+            ? 'تمت إضافة الصور إلى الألبوم بنجاح ✓'
+            : 'تمت إضافة الصورة بنجاح ✓';
     }
 
     public function deleteGalleryPhoto(int $photoId)
     {
         $invitation = $this->getAuthorizedInvitation();
         $photo = InvitationPhoto::where('invitation_id', $invitation->id)->findOrFail($photoId);
-        
-        $this->deleteStorageFile($photo->image_path);
+
+        $this->deleteStorageFile($photo->image_path, $photo->thumbnail_path);
 
         $photo->delete();
         $this->saveStatus = 'تم حذف الصورة ✓';
     }
 
-    protected function deleteStorageFile(?string $pathOrUrl): void
+    protected function deleteStorageFile(?string $pathOrUrl, ?string $thumbnailPathOrUrl = null): void
     {
-        if (empty($pathOrUrl)) {
-            return;
-        }
-
-        $disk = Storage::disk('public');
-        $storageUrl = $disk->url('');
-
-        $relativePath = $pathOrUrl;
-        if (!empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
-            $relativePath = substr($relativePath, strlen($storageUrl));
-        } elseif (str_starts_with($relativePath, '/storage/')) {
-            $relativePath = substr($relativePath, strlen('/storage/'));
-        }
-
-        $relativePath = ltrim($relativePath, '/');
-
-        if (!empty($relativePath) && $disk->exists($relativePath)) {
-            $disk->delete($relativePath);
-        }
+        app(InvitationImageService::class)->deleteStorageFile($pathOrUrl, $thumbnailPathOrUrl);
     }
 
     public function changeTemplate(int $templateId)
@@ -249,7 +343,6 @@ class InvitationEditor extends Component
             'venue_map_url' => $this->venue_map_url ?: null,
             'welcome_message' => $this->welcome_message ?: null,
             'invitation_message' => $this->invitation_message ?: null,
-            'cover_photo' => $this->cover_photo,
             'music_url' => $this->music_url ?: null,
             'status' => $this->status,
             'is_rsvp_enabled' => $this->is_rsvp_enabled,
@@ -287,6 +380,14 @@ class InvitationEditor extends Component
     {
         $invitation = $this->getAuthorizedInvitation();
         $invitation->load(['template', 'sections', 'photos']);
+
+        if ($this->coverProcessing && $invitation->cover_photo && $invitation->cover_photo !== $this->cover_photo) {
+            $this->cover_photo = $invitation->cover_photo;
+            $this->cover_photo_width = $invitation->cover_photo_width;
+            $this->cover_photo_height = $invitation->cover_photo_height;
+            $this->coverProcessing = false;
+        }
+
         $templates = InvitationTemplate::where('is_active', true)->orderBy('sort_order')->get();
 
         $previewStyles = [
@@ -317,6 +418,8 @@ class InvitationEditor extends Component
             'welcome_message' => $this->welcome_message,
             'invitation_message' => $this->invitation_message,
             'cover_photo' => $this->cover_photo,
+            'cover_photo_width' => $this->cover_photo_width,
+            'cover_photo_height' => $this->cover_photo_height,
             'music_url' => $this->music_url,
             'is_rsvp_enabled' => $this->is_rsvp_enabled,
             'max_guests_per_rsvp' => $this->max_guests_per_rsvp,
@@ -332,6 +435,8 @@ class InvitationEditor extends Component
             'invitation' => $invitation,
             'previewObject' => $previewObject,
             'templates' => $templates,
+            'maxGalleryPhotos' => (int) config('invitations.images.max_gallery_photos', 20),
+            'maxImageSizeMb' => (int) ceil(((int) config('invitations.images.max_file_size_kb', 5120)) / 1024),
         ])->layout('layouts.base', ['title' => 'محرر الدعوة: ' . $invitation->title . ' — زفّة']);
     }
 }

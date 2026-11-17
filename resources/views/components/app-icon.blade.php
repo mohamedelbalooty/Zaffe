@@ -18,6 +18,7 @@
         'check' => '<polyline points="20 6 9 17 4 12"/>',
         'check-circle' => '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
         'download' => '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+        'upload' => '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
         'music' => '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
         'flower-2' => '<path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1m0 3a2 2 0 1 1 2 2m-2-2a2 2 0 1 0-2 2m2-2v7m3-11a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3 3a2 2 0 1 1 2 2m-2-2a2 2 0 1 0-2 2m-7-8a3 3 0 1 1-3 3m3-3a3 3 0 1 0 3 3m-3 3a2 2 0 1 1-2 2m2-2a2 2 0 1 0 2 2"/>',
         'moon-star' => '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M20 3v4"/><path d="M22 5h-4"/>',

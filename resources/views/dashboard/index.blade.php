@@ -129,7 +129,13 @@
                                 </div>
 
                                 <div class="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-white shadow-sm">
-                                    <img src="{{ $invitation->cover_photo ?: $invitation->template?->thumbnail }}" alt="Cover" class="w-full h-full object-cover">
+                                    <img src="{{ $invitation->cover_photo ?: $invitation->template?->thumbnail }}"
+                                         alt="Cover"
+                                         width="{{ $invitation->cover_photo_width ?? 48 }}"
+                                         height="{{ $invitation->cover_photo_height ?? 48 }}"
+                                         loading="lazy"
+                                         decoding="async"
+                                         class="w-full h-full object-cover">
                                 </div>
                             </div>
 
