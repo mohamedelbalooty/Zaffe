@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "skills": {
+    "backend-development": {
+      "source": "mrgoonie/claudekit-skills",
+      "commit": "80113d86bc4407f105af40a2c4ea58194f7c370a",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/backend-development/SKILL.md",
+      "computedHash": "746dbc248d2ac18a317ca49513b4be50f4f8b8e4f39d362cce93ec15886b296f"
+    },
+    "copywriting": {
+      "source": "coreyhaines31/marketingskills",
+      "commit": "1f837447b20bb6f0e72d87b80ece1c221c362c7d",
+      "sourceType": "github",
+      "skillPath": "skills/copywriting/SKILL.md",
+      "computedHash": "b948ac03ec661626b8fc198786ecf761a97e0dacf626cb90d3b5016e9e3baf2f"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "commit": "e4bb5d960d87126ff3b3a8af1a104b7db67560ba",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "83485963700bcf11d5bf78118facb301676b69d918fee2e45a95e7f1a2840f6c"
+    },
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "commit": "d41d9860b0094dcb68030657da63461212835aaa",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/impeccable/SKILL.md",
+      "computedHash": "077889e9782761360c17acbc2522af320d0dd0f928b09cd90884fa304f443a34"
+    }
+  }
+}
