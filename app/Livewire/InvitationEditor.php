@@ -7,6 +7,7 @@ use App\Models\InvitationPhoto;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -23,6 +24,8 @@ class InvitationEditor extends Component
     public string $previewDevice = 'mobile'; // mobile, tablet, desktop
 
     public string $saveStatus = 'تم الحفظ تلقائياً ✓';
+
+    public bool $showPublishModal = false;
 
     // Basic Wedding Details
     public string $groom_name = '';
@@ -273,9 +276,26 @@ class InvitationEditor extends Component
     public function togglePublish()
     {
         $this->getAuthorizedInvitation();
-        $this->status = ($this->status === 'published') ? 'draft' : 'published';
-        $this->saveChanges();
-        $this->saveStatus = ($this->status === 'published') ? 'تم نشر الدعوة وأصبحت متاحة للجميع 🎉' : 'تم تحويل الدعوة إلى مسودة';
+        $previousStatus = $this->status;
+        $this->status = ($previousStatus === 'published') ? 'draft' : 'published';
+
+        try {
+            $this->saveChanges();
+        } catch (ValidationException $e) {
+            $this->status = $previousStatus;
+            $this->showPublishModal = false;
+            throw $e;
+        }
+
+        $this->showPublishModal = ($this->status === 'published');
+        $this->saveStatus = ($this->status === 'published')
+            ? 'تم نشر الدعوة وأصبحت متاحة للجميع 🎉'
+            : 'تم تحويل الدعوة إلى مسودة';
+    }
+
+    public function closePublishModal(): void
+    {
+        $this->showPublishModal = false;
     }
 
     public function saveChanges()

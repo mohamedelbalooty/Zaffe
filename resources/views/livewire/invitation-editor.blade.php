@@ -529,4 +529,101 @@
             </div>
         </div>
     </div>
+
+    <!-- Publish & Browse Invitation Link Modal -->
+    @if($showPublishModal && $status === 'published')
+        <div x-data="{ copied: false }"
+             @keydown.escape.window="$wire.closePublishModal()"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="publish-modal-title"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+            <!-- Backdrop Click Target -->
+            <div class="absolute inset-0" wire:click="closePublishModal"></div>
+
+            <!-- Modal Card -->
+            <div class="relative z-10 w-full max-w-md rounded-3xl bg-[#292521] border-2 border-[#C6A76B]/50 shadow-2xl overflow-hidden text-right">
+                <!-- Subtle Gold Top Accent -->
+                <div class="h-1.5 w-full bg-gradient-to-r from-[#C6A76B] via-[#DFC99E] to-[#B59556]"></div>
+
+                <div class="p-6 sm:p-8 space-y-6">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 text-emerald-400 flex items-center justify-center shrink-0">
+                                <x-app-icon name="check-circle" class="w-6 h-6" />
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold text-[#C6A76B] uppercase tracking-wider block">
+                                    دعوتك متاحة الآن
+                                </span>
+                                <h3 id="publish-modal-title" class="font-cairo text-lg sm:text-xl font-extrabold text-white">
+                                    تم نشر الدعوة بنجاح!
+                                </h3>
+                            </div>
+                        </div>
+
+                        <button type="button"
+                                wire:click="closePublishModal"
+                                aria-label="إغلاق"
+                                class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#E8DED0]/70 hover:text-white transition">
+                            <x-app-icon name="x" class="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    <p class="text-xs sm:text-sm text-[#E8DED0]/80 leading-relaxed">
+                        أصبحت بطاقة دعوتك جاهزة الآن للمعاينة والمشاركة مع ضيوفك. يمكنك تصفح الرابط المباشر أو نسخه وإرساله عبر واتساب.
+                    </p>
+
+                    <!-- Invitation Public URL Box -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-[#C6A76B]">رابط الدعوة المباشر</label>
+                        <div class="flex items-center gap-2 p-2 rounded-2xl bg-[#1E1B18] border border-[#C6A76B]/30">
+                            <input type="text"
+                                   readonly
+                                   dir="ltr"
+                                   value="{{ $invitation->public_url }}"
+                                   onclick="this.select()"
+                                   class="flex-1 min-w-0 bg-transparent px-2.5 py-1.5 text-xs text-[#FAF7F2] font-mono outline-none select-all">
+
+                            <button type="button"
+                                    @click="navigator.clipboard.writeText('{{ $invitation->public_url }}'); copied = true; setTimeout(() => copied = false, 2500)"
+                                    class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition flex items-center gap-1.5 shrink-0">
+                                <x-app-icon name="copy" class="w-3.5 h-3.5 text-[#C6A76B]" x-show="!copied" />
+                                <x-app-icon name="check" class="w-3.5 h-3.5 text-emerald-400" x-show="copied" style="display: none;" />
+                                <span x-text="copied ? 'تم النسخ!' : 'نسخ'"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="space-y-2.5 pt-1">
+                        <a href="{{ $invitation->public_url }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2">
+                            <x-app-icon name="external-link" class="w-4 h-4" />
+                            <span>تصفح رابط الدعوة الآن</span>
+                        </a>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <a href="{{ $invitation->getWhatsAppShareUrl() }}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="py-2.5 px-4 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 font-bold text-xs transition flex items-center justify-center gap-1.5">
+                                <x-app-icon name="whatsapp" class="w-4 h-4" />
+                                <span>مشاركة واتساب</span>
+                            </a>
+
+                            <button type="button"
+                                    wire:click="closePublishModal"
+                                    class="py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#E8DED0] font-bold text-xs transition">
+                                متابعة التعديل
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
