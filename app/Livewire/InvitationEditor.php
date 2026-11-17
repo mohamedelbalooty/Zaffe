@@ -7,6 +7,7 @@ use App\Models\InvitationPhoto;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -23,6 +24,8 @@ class InvitationEditor extends Component
     public string $previewDevice = 'mobile'; // mobile, tablet, desktop
 
     public string $saveStatus = 'تم الحفظ تلقائياً ✓';
+
+    public bool $showPublishModal = false;
 
     // Basic Wedding Details
     public string $groom_name = '';
@@ -49,6 +52,7 @@ class InvitationEditor extends Component
 
     public string $invitation_message = '';
 
+    #[Locked]
     public string $status = 'draft';
 
     public bool $is_rsvp_enabled = true;
@@ -272,14 +276,52 @@ class InvitationEditor extends Component
     public function togglePublish()
     {
         $this->getAuthorizedInvitation();
-        $this->status = ($this->status === 'published') ? 'draft' : 'published';
-        $this->saveChanges();
-        $this->saveStatus = ($this->status === 'published') ? 'تم نشر الدعوة وأصبحت متاحة للجميع 🎉' : 'تم تحويل الدعوة إلى مسودة';
+        $previousStatus = $this->status;
+        $this->status = ($previousStatus === 'published') ? 'draft' : 'published';
+
+        try {
+            $this->saveChanges();
+        } catch (ValidationException $e) {
+            $this->status = $previousStatus;
+            $this->showPublishModal = false;
+            throw $e;
+        }
+
+        $this->showPublishModal = ($this->status === 'published');
+        $this->saveStatus = ($this->status === 'published')
+            ? 'تم نشر الدعوة وأصبحت متاحة للجميع 🎉'
+            : 'تم تحويل الدعوة إلى مسودة';
+    }
+
+    public function closePublishModal(): void
+    {
+        $this->showPublishModal = false;
     }
 
     public function saveChanges()
     {
         $invitation = $this->getAuthorizedInvitation();
+
+        $this->validate([
+            'groom_name' => ['required', 'string', 'max:255'],
+            'bride_name' => ['required', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'wedding_date' => ['required', 'date'],
+            'wedding_time' => ['nullable', 'string', 'max:20'],
+            'timezone' => ['required', 'string', 'in:Africa/Cairo,Asia/Riyadh'],
+            'venue_name' => ['required', 'string', 'max:255'],
+            'venue_address' => ['nullable', 'string', 'max:500'],
+            'venue_map_url' => ['nullable', 'url:http,https', 'max:500'],
+            'welcome_message' => ['nullable', 'string', 'max:2000'],
+            'invitation_message' => ['nullable', 'string', 'max:2000'],
+            'music_url' => ['nullable', 'url:http,https', 'max:500'],
+            'max_guests_per_rsvp' => ['required', 'integer', 'min:1', 'max:20'],
+            'rsvp_deadline' => ['nullable', 'date'],
+            'primary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'secondary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'background_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'font_family' => ['required', 'string', 'in:Tajawal,Cairo,Amiri,Playfair Display'],
+        ]);
 
         $customStyles = array_merge($invitation->custom_styles ?? [], [
             'primary_color' => $this->primary_color,

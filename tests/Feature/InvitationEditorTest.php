@@ -169,10 +169,19 @@ class InvitationEditorTest extends TestCase
         $component = Livewire::actingAs($this->user)
             ->test(InvitationEditor::class, ['id' => $this->invitation->id]);
 
-        $component->call('togglePublish');
+        $component->call('togglePublish')
+            ->assertSet('showPublishModal', true)
+            ->assertSee('تم نشر الدعوة بنجاح!')
+            ->assertSee('تصفح رابط الدعوة الآن')
+            ->assertSee($this->invitation->public_url);
         $this->assertSame('published', $this->invitation->fresh()->status);
 
-        $component->call('togglePublish');
+        $component->call('closePublishModal')
+            ->assertSet('showPublishModal', false)
+            ->assertDontSee('تم نشر الدعوة بنجاح!');
+
+        $component->call('togglePublish')
+            ->assertSet('showPublishModal', false);
         $this->assertSame('draft', $this->invitation->fresh()->status);
     }
 

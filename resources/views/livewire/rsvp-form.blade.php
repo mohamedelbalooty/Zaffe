@@ -111,6 +111,17 @@
                 @enderror
             </div>
 
+            <!-- Email (Optional for confirmation receipt) -->
+            <div>
+                <label for="rsvp_email" class="block text-xs font-bold text-[#292521] mb-1.5">البريد الإلكتروني (اختياري لاستلام نسخة التأكيد)</label>
+                <input type="email" id="rsvp_email" wire:model="email" dir="ltr"
+                       class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] focus:ring-2 focus:ring-[#C6A76B]/20 outline-none text-right"
+                       placeholder="guest@example.com">
+                @error('email')
+                    <span class="text-xs text-rose-600 mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
+
             @if($attendance_status === 'attending')
                 <!-- Guest Count -->
                 <div class="{{ $maxChildren > 0 ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : '' }}">

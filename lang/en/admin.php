@@ -329,4 +329,65 @@ return [
             'palette_bar' => 'Selected Palette',
         ],
     ],
+
+    'settings' => [
+        'subheading' => 'Manage Zaffe brand identity and customer support channels displayed across public pages and /contact.',
+        'tabs' => [
+            'general_workspace' => 'Platform Settings',
+            'all_settings' => 'All & Custom Settings',
+        ],
+        'sections' => [
+            'branding' => 'Brand & Site Identity',
+            'branding_desc' => 'Official platform name shown in the navigation bar, browser titles, and social share previews.',
+            'contact' => 'Contact & Support Channels',
+            'contact_desc' => 'Support email, phone number, and WhatsApp line displayed in the site footer and Contact page.',
+            'preview' => 'Live Site Preview',
+            'preview_desc' => 'Updates reactively while you edit before saving.',
+            'custom_table_notice' => 'Browse all stored settings or add custom configuration keys when needed.',
+        ],
+        'actions' => [
+            'save' => 'Save Settings',
+            'saved_title' => 'Platform settings saved',
+            'saved_body' => 'Settings updated and cache cleared; changes are now live on public pages.',
+            'add_custom' => 'Add Custom Setting',
+        ],
+        'fields' => [
+            'setting' => 'Setting',
+            'custom_key' => 'Setting Key (Custom Settings Only)',
+            'custom_key_helper' => 'Programmatic identifier used when adding a new custom setting (e.g. announcement_banner).',
+        ],
+        'preview' => [
+            'navbar_label' => 'Header Brand Preview',
+            'contact_label' => 'Support Channels (/contact)',
+            'whatsapp_link_label' => 'Generated WhatsApp Link',
+            'live_hint' => 'Saving clears the settings cache so changes go live immediately.',
+        ],
+        'items' => [
+            'site_name_ar' => [
+                'label' => 'Platform Name (Arabic)',
+                'description' => 'Displayed in the Arabic header logo, page <title>, and Open Graph tags.',
+                'placeholder' => 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة',
+            ],
+            'site_name_en' => [
+                'label' => 'Platform Name (English)',
+                'description' => 'Displayed next to the Arabic brand in the header and English views.',
+                'placeholder' => 'Zaffe — Luxury Digital Wedding Invitations',
+            ],
+            'contact_email' => [
+                'label' => 'Support Email Address',
+                'description' => 'Public support email shown in the footer and Contact Us page.',
+                'placeholder' => 'support@zaffe.app',
+            ],
+            'contact_phone' => [
+                'label' => 'Display Contact Phone',
+                'description' => 'Human-formatted phone number shown to couples and visitors (EG/KSA).',
+                'placeholder' => '+20 100 000 0000',
+            ],
+            'whatsapp_support' => [
+                'label' => 'WhatsApp Support Number',
+                'description' => 'International E.164 number used to build the direct wa.me chat link.',
+                'placeholder' => '+201000000000',
+            ],
+        ],
+    ],
 ];

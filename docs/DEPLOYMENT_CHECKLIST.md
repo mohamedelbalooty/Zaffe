@@ -73,7 +73,7 @@ Zaffe sends password resets (`ResetPasswordNotification`), couple RSVP alerts (`
 
 ### 3.1 Production `.env` Mail Configuration
 
-> **Configuration Note:** `config/mail.php` currently defines `'resend'` twice (an SMTP block overridden by a `'transport' => 'resend'` API transport block that requires a separate SDK package). Use `MAIL_MAILER=smtp` with Resend SMTP credentials unless the `resend/resend-laravel` transport package is explicitly installed.
+> **Configuration Note:** `config/mail.php` maps `'resend'` to Resend SMTP (`smtp.resend.com`) using `RESEND_API_KEY`, and `'resend_api'` to the API transport (requires `resend/resend-laravel` if used). Use `MAIL_MAILER=smtp` or `MAIL_MAILER=resend` with your verified Resend SMTP credentials.
 
 ```dotenv
 MAIL_MAILER=smtp
@@ -202,6 +202,7 @@ php artisan storage:link
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan filament:assets
 php artisan filament:optimize
 php artisan queue:restart
 ```

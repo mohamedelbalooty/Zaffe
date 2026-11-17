@@ -27,6 +27,37 @@ class NewRsvpNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        $guestUrl = url(route('dashboard.invitations.guests', $this->invitation->id));
+
+        if (app()->getLocale() === 'en') {
+            $statusLabelsEn = [
+                'attending' => 'Confirmed Attending',
+                'declined' => 'Respectfully Declined',
+                'tentative' => 'Tentative',
+            ];
+            $statusTextEn = $statusLabelsEn[$this->rsvp->attendance_status] ?? $this->rsvp->attendance_status;
+
+            $mail = (new MailMessage)
+                ->subject("New RSVP: {$this->rsvp->guest_name} — {$this->invitation->title}")
+                ->greeting("Hello {$notifiable->name}!")
+                ->line("Guest **{$this->rsvp->guest_name}** has responded to your wedding invitation ({$this->invitation->title}).")
+                ->line("**Attendance Status:** {$statusTextEn}")
+                ->line("**Guest Count:** {$this->rsvp->guest_count}")
+                ->line('**Phone:** '.($this->rsvp->phone ?: '—'));
+
+            if (! empty($this->rsvp->message)) {
+                $mail->line("**Guest Wishes:** \"{$this->rsvp->message}\"");
+            }
+
+            if (! empty($this->rsvp->dietary_notes)) {
+                $mail->line("**Dietary Notes:** {$this->rsvp->dietary_notes}");
+            }
+
+            return $mail
+                ->action('View & Manage Guest List', $guestUrl)
+                ->salutation('Warm wishes, The Zaffe Team');
+        }
+
         $statusLabels = [
             'attending' => 'مؤكد الحضور (بكل سرور 🎉)',
             'declined' => 'اعتذر عن الحضور',
@@ -34,7 +65,6 @@ class NewRsvpNotification extends Notification implements ShouldQueue
         ];
 
         $statusText = $statusLabels[$this->rsvp->attendance_status] ?? $this->rsvp->attendance_status;
-        $guestUrl = url(route('dashboard.invitations.guests', $this->invitation->id));
 
         $mail = (new MailMessage)
             ->subject("تأكيد حضور جديد: {$this->rsvp->guest_name} — {$this->invitation->title}")
@@ -44,11 +74,11 @@ class NewRsvpNotification extends Notification implements ShouldQueue
             ->line("**عدد الحضور والمرافقين:** {$this->rsvp->guest_count}")
             ->line("**رقم الهاتف:** {$this->rsvp->phone}");
 
-        if (!empty($this->rsvp->message)) {
+        if (! empty($this->rsvp->message)) {
             $mail->line("**تهنئة الضيف:** \"{$this->rsvp->message}\"");
         }
 
-        if (!empty($this->rsvp->dietary_notes)) {
+        if (! empty($this->rsvp->dietary_notes)) {
             $mail->line("**ملاحظات خاصة:** {$this->rsvp->dietary_notes}");
         }
 
@@ -70,4 +100,3 @@ class NewRsvpNotification extends Notification implements ShouldQueue
         ];
     }
 }
-

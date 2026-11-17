@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PlatformSettingCatalog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
@@ -59,10 +60,10 @@ class PlatformSetting extends Model
      */
     public static function whatsappUrl(string $fallback = '201000000000'): string
     {
-        $raw = (string) static::get('whatsapp_support', $fallback);
-        $digits = preg_replace('/\D+/', '', $raw) ?: $fallback;
-
-        return 'https://wa.me/'.$digits;
+        return PlatformSettingCatalog::whatsappPreviewUrl(
+            (string) static::get('whatsapp_support', $fallback),
+            $fallback,
+        );
     }
 
     public static function set(string $key, mixed $value, string $group = 'general'): void

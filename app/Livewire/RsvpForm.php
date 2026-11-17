@@ -128,7 +128,9 @@ class RsvpForm extends Component
             'phone' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255'],
             'attendance_status' => ['required', 'in:attending,declined,tentative'],
-            'guest_count' => ['required', 'integer', 'min:1', 'max:'.$max],
+            'guest_count' => $this->attendance_status === 'declined'
+                ? ['nullable', 'integer', 'min:0', 'max:'.$max]
+                : ['required', 'integer', 'min:1', 'max:'.$max],
             'children_count' => ['nullable', 'integer', 'min:0', 'max:'.$maxChildren],
             'message' => ['nullable', 'string', 'max:1000'],
             'dietary_notes' => ['nullable', 'string', 'max:255'],

@@ -28,11 +28,21 @@
                     @enderror
                 </div>
 
+                @php
+                    $defaultPhoneCountry = old('phone_country', str_starts_with((string) $user->phone, '+966') ? 'SA' : 'EG');
+                @endphp
+
                 <div>
                     <label for="phone" class="block text-xs font-bold text-[#292521] mb-1.5">رقم الهاتف / الواتساب</label>
-                    <input type="text" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" dir="ltr"
-                           class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] text-sm bg-[#FAF7F2]/60 focus:border-[#C6A76B] outline-none text-right"
-                           placeholder="+20 100 000 0000">
+                    <div class="flex rounded-xl border border-[#E8DED0] focus-within:border-[#C6A76B] overflow-hidden bg-[#FAF7F2]/60">
+                        <select name="phone_country" id="phone_country" class="px-3 py-3 bg-[#FAF7F2] border-none text-xs font-bold text-[#292521] focus:outline-none border-l border-[#E8DED0]">
+                            <option value="EG" {{ $defaultPhoneCountry === 'EG' ? 'selected' : '' }}>مصر (+20)</option>
+                            <option value="SA" {{ $defaultPhoneCountry === 'SA' ? 'selected' : '' }}>السعودية (+966)</option>
+                        </select>
+                        <input type="text" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" dir="ltr"
+                               class="w-full px-4 py-3 border-none outline-none text-sm bg-transparent text-right"
+                               placeholder="+20 100 000 0000">
+                    </div>
                     @error('phone')
                         <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
                     @enderror

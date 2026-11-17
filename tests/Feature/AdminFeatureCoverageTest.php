@@ -26,6 +26,7 @@ use App\Models\RsvpResponse;
 use App\Models\SubscriptionPlan;
 use App\Models\TemplateCategory;
 use App\Models\User;
+use App\Support\PlatformSettingCatalog;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
@@ -506,6 +507,82 @@ class AdminFeatureCoverageTest extends TestCase
             ->assertSee('care@zaffe.sa')
             ->assertSee('https://wa.me/966551234567')
             ->assertSee('زفة السعودية');
+    }
+
+    public function test_admin_platform_settings_workspace_hides_raw_keys_validates_and_saves_grouped_settings(): void
+    {
+        foreach (PlatformSettingCatalog::definitions() as $key => $definition) {
+            PlatformSetting::create([
+                'key' => $key,
+                'value' => $definition['default'],
+                'group' => 'general',
+            ]);
+        }
+
+        app()->setLocale('ar');
+        $this->actingAs($this->admin);
+        Filament::setCurrentPanel('admin');
+
+        $component = Livewire::test(ListPlatformSettings::class)
+            ->assertOk()
+            ->assertSeeText('اسم المنصة بالعربية')
+            ->assertSeeText('البريد الإلكتروني للدعم الفني')
+            ->assertSeeText('رقم واتساب خدمة العملاء')
+            ->assertDontSeeText('site_name_ar')
+            ->assertDontSeeText('site_name_en')
+            ->assertDontSeeText('contact_email')
+            ->assertDontSeeText('contact_phone')
+            ->assertDontSeeText('whatsapp_support');
+
+        // Rejects invalid email & invalid WhatsApp number
+        $component
+            ->set('settingsData.contact_email', 'not-an-email')
+            ->set('settingsData.whatsapp_support', 'invalid-phone-letters')
+            ->call('saveSettings')
+            ->assertHasErrors([
+                'settingsData.contact_email',
+                'settingsData.whatsapp_support',
+            ]);
+
+        // Saves valid grouped settings & updates live customer views
+        $component
+            ->set('settingsData.site_name_ar', 'زفّة الملكية')
+            ->set('settingsData.site_name_en', 'Zaffe Royal')
+            ->set('settingsData.contact_email', 'concierge@zaffe.sa')
+            ->set('settingsData.contact_phone', '+966 50 999 8888')
+            ->set('settingsData.whatsapp_support', '+966509998888')
+            ->call('saveSettings')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('platform_settings', [
+            'key' => 'site_name_ar',
+            'value' => 'زفّة الملكية',
+            'group' => 'general',
+        ]);
+        $this->assertDatabaseHas('platform_settings', [
+            'key' => 'contact_email',
+            'value' => 'concierge@zaffe.sa',
+            'group' => 'contact',
+        ]);
+        $this->assertDatabaseHas('platform_settings', [
+            'key' => 'whatsapp_support',
+            'value' => '+966509998888',
+            'group' => 'contact',
+        ]);
+
+        // Edit page renders friendly localized heading without raw English key
+        $emailSetting = PlatformSetting::where('key', 'contact_email')->firstOrFail();
+        Livewire::test(EditPlatformSetting::class, ['record' => $emailSetting->id])
+            ->assertOk()
+            ->assertSeeText('البريد الإلكتروني للدعم الفني')
+            ->assertDontSeeText('contact_email');
+
+        auth()->logout();
+        $this->get(route('contact'))
+            ->assertOk()
+            ->assertSee('concierge@zaffe.sa')
+            ->assertSee('+966 50 999 8888')
+            ->assertSee('https://wa.me/966509998888');
     }
 
     public function test_admin_operations_monitor_and_dashboard_stats_work_without_leaking_secrets(): void

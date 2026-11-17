@@ -53,6 +53,10 @@
 
                 <!-- Auth & Action CTA Buttons -->
                 <div class="hidden sm:flex items-center gap-3">
+                    <a href="{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}"
+                       class="px-3 py-1.5 rounded-full border border-[#E8DED0] text-xs font-bold text-[#292521] hover:border-[#C6A76B] hover:text-[#C6A76B] transition">
+                        {{ app()->getLocale() === 'ar' ? 'EN' : 'عربي' }}
+                    </a>
                     @auth
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#292521] text-white text-sm font-bold shadow-md hover:bg-[#3D3731] transition">
                             <x-app-icon name="crown" class="w-4 h-4 text-[#C6A76B]" />
@@ -91,6 +95,9 @@
                         <a href="{{ route('pricing') }}" class="py-2 text-base font-bold text-[#292521] hover:text-[#C6A76B]">الأسعار</a>
                         <a href="{{ route('about') }}" class="py-2 text-base font-bold text-[#292521] hover:text-[#C6A76B]">من نحن</a>
                         <a href="{{ route('faq') }}" class="py-2 text-base font-bold text-[#292521] hover:text-[#C6A76B]">الأسئلة الشائعة</a>
+                        <a href="{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}" class="py-2 text-sm font-bold text-[#C6A76B]">
+                            {{ app()->getLocale() === 'ar' ? 'English' : 'العربية' }}
+                        </a>
                         <div class="pt-4 border-t border-[#E8DED0] flex flex-col gap-2">
                             @auth
                                 <a href="{{ route('dashboard') }}" class="w-full py-3 rounded-full bg-[#292521] text-white font-bold">لوحة التحكم</a>

@@ -356,11 +356,20 @@ class DashboardController extends Controller
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
+        $normalizedPhone = null;
+        if (! empty($validated['phone'])) {
+            $country = $validated['phone_country'] ?? 'EG';
+            if (! PhoneService::isValid($validated['phone'], $country)) {
+                return back()->withErrors([
+                    'phone' => 'رقم الهاتف المدخل غير صالح للدولة المختارة.',
+                ])->withInput();
+            }
+            $normalizedPhone = PhoneService::normalize($validated['phone'], $country);
+        }
+
         $user->name = $validated['name'];
         $user->email = $validated['email'];
-        $user->phone = ! empty($validated['phone'])
-            ? PhoneService::normalize($validated['phone'], $request->input('phone_country', 'EG'))
-            : null;
+        $user->phone = $normalizedPhone;
 
         if (! empty($validated['password'])) {
             $user->password = bcrypt($validated['password']);
