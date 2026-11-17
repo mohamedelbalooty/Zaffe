@@ -11,6 +11,7 @@ use App\Models\RsvpResponse;
 use App\Models\SubscriptionPlan;
 use App\Models\TemplateCategory;
 use App\Models\User;
+use App\Support\PlatformSettingCatalog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -257,18 +258,13 @@ class DatabaseSeeder extends Seeder
         );
 
         // 4. Platform Settings (preserve any existing operator configuration)
-        $defaultSettings = [
-            'site_name_ar' => 'زفّة — منصة دعوات الزفاف الرقمية الفاخرة',
-            'site_name_en' => 'Zaffe — Luxury Digital Wedding Invitations',
-            'contact_email' => 'support@zaffe.app',
-            'contact_phone' => '+20 100 000 0000',
-            'whatsapp_support' => '+201000000000',
-        ];
-
-        foreach ($defaultSettings as $key => $value) {
+        foreach (PlatformSettingCatalog::definitions() as $key => $definition) {
             PlatformSetting::firstOrCreate(
                 ['key' => $key],
-                ['value' => (string) $value, 'group' => 'general']
+                [
+                    'value' => $definition['default'],
+                    'group' => $definition['group'],
+                ]
             );
         }
 

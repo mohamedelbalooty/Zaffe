@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\PlatformSettings\Tables;
 
+use App\Models\PlatformSetting;
+use App\Support\PlatformSettingCatalog;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -16,18 +18,32 @@ class PlatformSettingsTable
         return $table
             ->columns([
                 TextColumn::make('key')
-                    ->label(__('admin.fields.key'))
+                    ->label(__('admin.settings.fields.setting'))
+                    ->formatStateUsing(fn (string $state): string => PlatformSettingCatalog::labelFor($state))
+                    ->description(fn (PlatformSetting $record): ?string => PlatformSettingCatalog::descriptionFor($record->key))
                     ->searchable()
                     ->sortable()
-                    ->copyable(),
+                    ->wrap(),
                 TextColumn::make('value')
                     ->label(__('admin.fields.value'))
                     ->limit(60)
                     ->searchable()
-                    ->wrap(),
+                    ->wrap()
+                    ->extraAttributes(fn (PlatformSetting $record): array => PlatformSettingCatalog::directionFor($record->key) === 'ltr'
+                        ? ['dir' => 'ltr', 'class' => 'text-right font-mono']
+                        : [])
+                    ->description(fn (PlatformSetting $record): ?string => $record->key === 'whatsapp_support'
+                        ? PlatformSettingCatalog::whatsappPreviewUrl($record->value)
+                        : null),
                 TextColumn::make('group')
                     ->label(__('admin.fields.group'))
                     ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'contact' => 'success',
+                        'seo' => 'info',
+                        'localization' => 'warning',
+                        default => 'primary',
+                    })
                     ->formatStateUsing(fn (string $state): string => __("admin.options.setting_groups.{$state}"))
                     ->searchable()
                     ->sortable(),
