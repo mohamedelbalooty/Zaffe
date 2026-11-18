@@ -1,125 +1,130 @@
-<x-layouts.marketing :title="'باقات الأسعار — زفّة'">
-    <div class="bg-[#FAF7F2] py-16 md:py-24">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-12">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-[#C6A76B] bg-[#C6A76B]/15 px-3 py-1 rounded-full border border-[#C6A76B]/30 inline-block">
-                    باقات الأسعار — إطلاق مجاني ١٠٠٪
-                </span>
-                <h1 class="font-cairo text-3xl sm:text-5xl font-extrabold text-[#292521] mt-3">
-                    احتفل بليلة العمر مع تجربة زفّة الكاملة مجاناً
+@php
+    $isEn = app()->getLocale() === 'en';
+@endphp
+
+<x-layouts.marketing :title="$isEn ? 'Pricing & Launch Offer — Zaffe' : 'باقات الأسعار — زفّة'">
+    <div class="bg-[#FAF7F2] py-14 sm:py-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <!-- Page Heading -->
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <h1 class="font-cairo text-3xl sm:text-5xl font-black text-[#221E1A] leading-tight">
+                    {{ $isEn
+                        ? 'Celebrate Your Wedding with Complete Zaffe Studio — 100% Free'
+                        : 'باقات الأسعار: تجربة زفّة الكاملة مجاناً في الإصدار الأول' }}
                 </h1>
-                <p class="text-base text-[#292521]/70 mt-3 leading-relaxed">
-                    بمناسبة الإطلاق الرسمي لمنصة زفّة في مصر والمملكة العربية السعودية، نهدي جميع العرسان وصولاً كاملاً وغير محدود لكافة المميزات والقوالب الملكية مجاناً دون أي رسوم أو بطاقة ائتمان.
+                <p class="text-base text-[#52493F] leading-relaxed">
+                    {{ $isEn
+                        ? 'For our official Release 1 launch in Saudi Arabia and Egypt, every couple enjoys full unlimited access to all six royal themes and RSVP + QR tools with zero fees or credit card.'
+                        : 'بمناسبة الإطلاق الرسمي لمنصة زفّة في مصر والمملكة العربية السعودية، نهدي جميع العرسان وصولاً كاملاً وغير محدود لكافة المميزات والقوالب الملكية مجاناً دون أي رسوم أو بطاقة ائتمان.' }}
                 </p>
             </div>
 
             <!-- 100% Free Launch Banner -->
-            <div class="max-w-4xl mx-auto mb-10 rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-xl border border-emerald-500/40 flex flex-col sm:flex-row items-center justify-between gap-6">
-                <div class="space-y-2 text-center sm:text-right">
-                    <div class="inline-flex items-center gap-2 bg-white/15 px-3 py-1 rounded-full text-xs font-bold text-emerald-100">
-                        <x-app-icon name="sparkles" class="w-4 h-4 text-[#C6A76B]" />
-                        <span>عرض خاص للإصدار الأول (Release 1)</span>
-                    </div>
-                    <h2 class="font-cairo text-xl sm:text-2xl font-extrabold">
-                        هدية الإطلاق المجاني ١٠٠٪ في مصر والسعودية
+            <div class="rounded-2xl p-6 sm:p-8 bg-[#0F4C3A] text-white shadow-wedding border border-[#C6A76B]/35 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="space-y-2 text-center md:text-start">
+                    <h2 class="font-cairo text-xl sm:text-2xl font-extrabold text-white">
+                        {{ $isEn ? '100% Free Launch Gift in Egypt & Saudi Arabia' : 'هدية الإطلاق المجاني ١٠٠٪ في مصر والسعودية' }}
                     </h2>
                     <p class="text-xs sm:text-sm text-emerald-50/90 leading-relaxed max-w-2xl">
-                        جميع القوالب الستة الفاخرة، تخصيص الألوان والخطوط، موسيقى الخلفية، تأكيدات الحضور غير المحدودة (RSVP)، وتصدير قوائم الضيوف إلى Excel/CSV متاحة الآن مجاناً بالكامل دون الحاجة لبطاقة بنكية.
+                        {{ $isEn
+                            ? 'All six themes, custom typography and palettes, optional audio gate, unlimited RSVP confirmations, personal QR passes, and Excel/CSV exports are completely free.'
+                            : 'جميع القوالب الستة الفاخرة، تخصيص الألوان والخطوط، موسيقى الخلفية، تأكيدات الحضور غير المحدودة (RSVP)، وتصدير قوائم الضيوف إلى Excel/CSV متاحة الآن مجاناً بالكامل دون الحاجة لبطاقة بنكية.' }}
                     </p>
                 </div>
                 <a href="{{ auth()->check() ? route('dashboard.invitations.create') : route('register') }}"
-                   class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white font-bold text-sm shadow-lg hover:opacity-95 transition whitespace-nowrap flex items-center gap-2 shrink-0">
-                    <span>ابدأ تصميم دعوتك مجاناً الآن</span>
-                    <x-app-icon name="arrow-left" class="w-4 h-4" />
+                   class="btn-royal whitespace-nowrap shrink-0">
+                    <span>{{ $isEn ? 'Start Designing Free' : 'ابدأ تصميم دعوتك مجاناً الآن' }}</span>
+                    <x-app-icon name="arrow-left" class="w-4 h-4 dir-arrow" />
                 </a>
             </div>
 
-            <!-- All-Access Release 1 Free Card -->
-            <div class="max-w-2xl mx-auto">
-                <div class="rounded-3xl p-8 sm:p-10 transition-all flex flex-col justify-between relative bg-[#292521] text-white shadow-2xl border-2 border-[#C6A76B]">
-                    <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white px-4 py-1 rounded-full text-xs font-black tracking-wider shadow-md flex items-center gap-1.5 whitespace-nowrap">
-                        <x-app-icon name="crown" class="w-3.5 h-3.5" />
-                        <span>جميع المميزات مفتوحة مجاناً في الإصدار الأول</span>
-                    </div>
-
-                    <div class="space-y-6">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div>
-                                <h3 class="font-cairo text-2xl font-bold text-white">
-                                    الباقة الملكية الشاملة (الإطلاق المجاني)
-                                </h3>
-                                <p class="text-xs text-[#E8DED0]/75 mt-1">
-                                    تجربة زفّة المتكاملة لعرسان مصر والسعودية بدون أي قيود أو اشتراكات
-                                </p>
-                            </div>
-
-                            <div class="flex items-baseline gap-2 shrink-0">
-                                <span class="font-cairo text-4xl sm:text-5xl font-extrabold text-[#C6A76B]">
-                                    مجاناً
-                                </span>
-                                <span class="text-xs font-bold text-emerald-300 bg-emerald-500/20 px-2.5 py-1 rounded-full border border-emerald-400/30">
-                                    0 ج.م / ر.س
-                                </span>
-                            </div>
+            <!-- Release 1 All-Access Card -->
+            <div class="max-w-3xl mx-auto">
+                <div class="rounded-2xl p-7 sm:p-10 bg-[#1B1815] text-white shadow-royal-card border border-[#C6A76B]/50 space-y-8">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+                        <div class="space-y-1.5">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-[#DFC99E]">
+                                <x-app-icon name="crown" class="w-4 h-4" />
+                                <span>{{ $isEn ? 'Release 1 Open Access' : 'جميع المميزات مفتوحة مجاناً' }}</span>
+                            </span>
+                            <h3 class="font-cairo text-2xl font-extrabold text-white">
+                                {{ $isEn ? 'All-Inclusive Royal Package' : 'الباقة الملكية الشاملة (الإطلاق المجاني)' }}
+                            </h3>
+                            <p class="text-xs text-[#E4D9C8]/75">
+                                {{ $isEn ? 'No subscriptions, no hidden tiers, no locked templates.' : 'تجربة زفّة المتكاملة لعرسان مصر والسعودية بدون أي قيود أو اشتراكات' }}
+                            </p>
                         </div>
 
-                        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-sm pt-6 border-t border-white/10 text-[#E8DED0]/90">
-                            <li class="flex items-center gap-3">
-                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
-                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
-                                </div>
-                                <span>جميع القوالب الستة الفاخرة مفتوحة مجاناً</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
-                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
-                                </div>
-                                <span>تخصيص كامل للألوان والخطوط العربية</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
-                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
-                                </div>
-                                <span>إضافة موسيقى خلفية وألبوم صور تفاعلي</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
-                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
-                                </div>
-                                <span>تأكيدات حضور RSVP غير محدودة</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
-                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
-                                </div>
-                                <span>تصدير قائمة الضيوف الآمن إلى Excel / CSV</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <div class="w-5 h-5 rounded-full bg-[#C6A76B]/20 text-[#C6A76B] flex items-center justify-center shrink-0">
-                                    <x-app-icon name="check" class="w-3.5 h-3.5" />
-                                </div>
-                                <span>دعم توقيت القاهرة والرياض ومشاركة واتساب</span>
-                            </li>
-                        </ul>
+                        <div class="flex items-baseline gap-2.5 shrink-0">
+                            <span class="font-cairo text-4xl sm:text-5xl font-black text-[#DFC99E]">
+                                {{ $isEn ? 'Free' : 'مجاناً' }}
+                            </span>
+                            <span class="text-xs font-bold text-emerald-200 bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-400/30 tabular-nums">
+                                {{ $isEn ? '0 SAR / EGP' : '0 ج.م / ر.س' }}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="pt-8">
+                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-[#E4D9C8]">
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
+                                <x-app-icon name="check" class="w-3.5 h-3.5" />
+                            </span>
+                            <span>{{ $isEn ? 'All 6 luxury wedding themes unlocked' : 'جميع القوالب الستة الفاخرة مفتوحة مجاناً' }}</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
+                                <x-app-icon name="check" class="w-3.5 h-3.5" />
+                            </span>
+                            <span>{{ $isEn ? 'Full color palette & Arabic/Latin font studio' : 'تخصيص كامل للألوان والخطوط العربية' }}</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
+                                <x-app-icon name="check" class="w-3.5 h-3.5" />
+                            </span>
+                            <span>{{ $isEn ? 'Audio open-gate & optional photo gallery' : 'بوابة صوتية وألبوم صور تفاعلي اختياري' }}</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
+                                <x-app-icon name="check" class="w-3.5 h-3.5" />
+                            </span>
+                            <span>{{ $isEn ? 'Unlimited RSVPs & personal QR passes' : 'تأكيدات حضور وبطاقات QR غير محدودة' }}</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
+                                <x-app-icon name="check" class="w-3.5 h-3.5" />
+                            </span>
+                            <span>{{ $isEn ? 'Formula-safe Excel / CSV guest exports' : 'تصدير قائمة الضيوف الآمن إلى Excel / CSV' }}</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
+                                <x-app-icon name="check" class="w-3.5 h-3.5" />
+                            </span>
+                            <span>{{ $isEn ? 'Riyadh/Cairo timezones & Umm al-Qura Hijri' : 'توقيت القاهرة والرياض ومشاركة واتساب' }}</span>
+                        </li>
+                    </ul>
+
+                    <div class="pt-2 space-y-3">
                         <a href="{{ auth()->check() ? route('dashboard.invitations.create') : route('register') }}"
-                           class="w-full py-4 px-6 rounded-2xl font-bold text-center text-sm shadow-md transition flex items-center justify-center gap-2 bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white hover:opacity-95">
-                            <span>ابدأ تصميم دعوتك مجاناً الآن</span>
-                            <x-app-icon name="arrow-left" class="w-4 h-4" />
+                           class="btn-royal w-full !py-4 !text-base">
+                            <span>{{ $isEn ? 'Start Designing Free Now' : 'ابدأ تصميم دعوتك مجاناً الآن' }}</span>
+                            <x-app-icon name="arrow-left" class="w-4 h-4 dir-arrow" />
                         </a>
-                        <p class="text-[11px] text-center text-[#E8DED0]/60 mt-3">
-                            لا يتطلب بطاقة ائتمان • حساب مجاني خلال ٣٠ ثانية
+                        <p class="text-xs text-center text-[#E4D9C8]/65">
+                            {{ $isEn ? 'No credit card required • Free account setup in 30 seconds' : 'لا يتطلب بطاقة ائتمان • حساب مجاني خلال ٣٠ ثانية' }}
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Guarantee Box -->
-            <div class="max-w-xl mx-auto mt-12 p-6 rounded-2xl bg-white border border-[#C6A76B]/30 text-center text-xs text-[#292521]/70 flex items-center justify-center gap-3">
-                <x-app-icon name="shield-check" class="w-6 h-6 text-[#C6A76B] shrink-0" />
-                <span>دعم مجاني كامل: إذا احتجت لأي مساعدة في تنسيق دعوتك أو مشاركتها، فريق زفّة متاح عبر واتساب لخدمتك في مصر والسعودية.</span>
+            <!-- Concierge Support Note -->
+            <div class="max-w-2xl mx-auto card-atelier p-5 flex items-center justify-center gap-3 text-xs sm:text-sm text-[#52493F] text-center">
+                <x-app-icon name="shield-check" class="w-5 h-5 text-[#856326] shrink-0" />
+                <span>
+                    {{ $isEn
+                        ? 'Full free concierge support: our team is ready on WhatsApp to assist you across Egypt and Saudi Arabia.'
+                        : 'دعم مجاني كامل: إذا احتجت لأي مساعدة في تنسيق دعوتك أو مشاركتها، فريق زفّة متاح عبر واتساب لخدمتك في مصر والسعودية.' }}
+                </span>
             </div>
         </div>
     </div>

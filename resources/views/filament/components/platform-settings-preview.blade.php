@@ -22,20 +22,20 @@
 
 <div style="display: flex; flex-direction: column; gap: 12px;">
     {{-- Brand Header Preview --}}
-    <div style="border-radius: 14px; border: 1px solid rgba(198, 167, 107, 0.35); background: linear-gradient(135deg, #FAF7F2 0%, #F3ECE0 100%); color: #292521; padding: 14px 16px;">
-        <div style="font-size: 11px; font-weight: 700; color: #8A6D3B; margin-bottom: 10px;">
+    <div style="border-radius: 16px; border: 1px solid rgba(198, 167, 107, 0.38); background: linear-gradient(135deg, #151210 0%, #221E1A 100%); color: #FAF7F2; padding: 16px;">
+        <div style="font-size: 11px; font-weight: 700; color: #DFC99E; margin-bottom: 10px;">
             {{ __('admin.settings.preview.navbar_label') }}
         </div>
 
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <div style="width: 36px; height: 36px; border-radius: 9999px; border: 2px solid #C6A76B; background-color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800; color: #C6A76B; font-size: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 38px; height: 38px; border-radius: 12px; border: 1.5px solid rgba(198, 167, 107, 0.65); background-color: #1E1A16; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 900; color: #DFC99E; font-size: 16px;">
                 ز
             </div>
             <div style="min-width: 0;">
-                <div style="font-size: 14px; font-weight: 800; color: #292521; line-height: 1.4;">
+                <div style="font-size: 14px; font-weight: 800; color: #FFFFFF; line-height: 1.4;">
                     {{ $siteNameAr }}
                 </div>
-                <div style="font-size: 11px; font-weight: 600; color: #9E7F47; margin-top: 2px;" dir="ltr">
+                <div style="font-size: 11px; font-weight: 600; color: #DFC99E; margin-top: 2px;" dir="ltr">
                     {{ $siteNameEn }}
                 </div>
             </div>
@@ -43,25 +43,25 @@
     </div>
 
     {{-- Contact Channels Preview --}}
-    <div style="border-radius: 14px; border: 1px solid rgba(148, 163, 184, 0.28); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;">
+    <div style="border-radius: 16px; border: 1px solid rgba(198, 167, 107, 0.25); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;">
         <div style="font-size: 11px; font-weight: 700; opacity: 0.8;">
             {{ __('admin.settings.preview.contact_label') }}
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.22);">
-                <span style="opacity: 0.75;">{{ __('admin.settings.items.contact_email.label') }}</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 12px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.22);">
+                <span style="opacity: 0.78;">{{ __('admin.settings.items.contact_email.label') }}</span>
                 <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 600;" dir="ltr">{{ $contactEmail }}</span>
             </div>
 
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.22);">
-                <span style="opacity: 0.75;">{{ __('admin.settings.items.contact_phone.label') }}</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 12px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.22);">
+                <span style="opacity: 0.78;">{{ __('admin.settings.items.contact_phone.label') }}</span>
                 <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 600;" dir="ltr">{{ $contactPhone }}</span>
             </div>
 
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.35); background-color: rgba(16, 185, 129, 0.08);">
-                <span style="color: #10B981; font-weight: 600;">{{ __('admin.settings.preview.whatsapp_link_label') }}</span>
-                <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" dir="ltr" style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; color: #10B981; text-decoration: underline;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 12px; border-radius: 10px; border: 1px solid rgba(15, 76, 58, 0.30); background-color: rgba(15, 76, 58, 0.08);">
+                <span style="color: #0F4C3A; font-weight: 700;">{{ __('admin.settings.preview.whatsapp_link_label') }}</span>
+                <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" dir="ltr" style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; color: #0F4C3A; text-decoration: underline;">
                     {{ $whatsappUrl }}
                 </a>
             </div>

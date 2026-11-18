@@ -31,45 +31,45 @@
                         'بطاقة الدخول الإلكترونية '.$personalGuest->name
                     );
                 @endphp
-                <div class="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-[#C6A76B]/35 shadow-xl text-center space-y-4">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C6A76B]/15 text-[#8A6D3B] text-xs font-bold">
+                <div class="bg-[#FCFBF8] text-[#221E1A] rounded-3xl p-6 sm:p-8 border border-[#C6A76B]/35 shadow-[0_18px_48px_rgba(21,18,16,0.09)] text-center space-y-4">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C6A76B]/15 text-[#7A5A20] text-xs font-bold">
                         <x-app-icon name="qr-code" class="w-4 h-4" />
                         <span>بطاقة الدخول المباشرة (QR Pass)</span>
                     </span>
-                    <h3 class="font-cairo text-xl sm:text-2xl font-bold text-[#292521]">
+                    <h3 class="font-cairo text-xl sm:text-2xl font-black text-[#221E1A]">
                         أهلاً بكم، {{ $personalGuest->name }}
                     </h3>
-                    <p class="text-xs text-[#292521]/70">
-                        المقاعد المخصصة لكم: {{ $personalGuest->max_adults }} بالغين
+                    <p class="text-xs text-[#6E675F]">
+                        المقاعد المخصصة لكم: <span class="font-bold tabular-nums text-[#221E1A]">{{ $personalGuest->max_adults }}</span> بالغين
                         @if($personalGuest->max_children > 0)
-                            و {{ $personalGuest->max_children }} أطفال
+                            و <span class="font-bold tabular-nums text-[#221E1A]">{{ $personalGuest->max_children }}</span> أطفال
                         @endif
                     </p>
 
-                    <div class="inline-flex flex-col items-center p-4 rounded-2xl bg-white border border-[#E8DED0] shadow-sm">
+                    <div class="inline-flex flex-col items-center p-4 rounded-2xl bg-white border border-[#E5DCD0] shadow-xs">
                         {!! $inlineQrSvg !!}
                         <div class="mt-3 flex items-center gap-2 text-xs">
-                            <span class="text-[#292521]/60">كود البطاقة الشخصي:</span>
-                            <span dir="ltr" class="font-mono font-black tracking-widest text-[#292521] bg-[#FAF7F2] px-2.5 py-1 rounded-lg border border-[#E8DED0]">
+                            <span class="text-[#6E675F]">كود البطاقة الشخصي:</span>
+                            <span dir="ltr" class="font-mono font-black tracking-widest text-[#221E1A] bg-[#FAF7F2] px-2.5 py-1 rounded-lg border border-[#E5DCD0]">
                                 {{ $personalGuest->pass_code }}
                             </span>
                         </div>
                     </div>
                     <div class="pt-1">
                         <a href="{{ $personalGuest->getPassUrl() }}"
-                           class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292521] text-white text-xs font-bold hover:opacity-90 transition">
-                            <x-app-icon name="download" class="w-4 h-4" />
+                           class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#221E1A] text-white text-xs font-bold hover:bg-[#38322C] transition">
+                            <x-app-icon name="download" class="w-4 h-4 text-[#DFC99E]" />
                             <span>فتح وحفظ بطاقة الدعوة</span>
                         </a>
                     </div>
                 </div>
             @else
-                <div class="bg-white/95 backdrop-blur-md rounded-3xl p-6 border border-[#C6A76B]/30 shadow-lg text-center space-y-2">
-                    <div class="w-11 h-11 rounded-full bg-[#C6A76B]/15 text-[#8A6D3B] flex items-center justify-center mx-auto">
+                <div class="bg-[#FCFBF8] text-[#221E1A] rounded-3xl p-6 sm:p-7 border border-[#C6A76B]/30 shadow-[0_14px_38px_rgba(21,18,16,0.06)] text-center space-y-2.5">
+                    <div class="w-11 h-11 rounded-full bg-[#C6A76B]/15 text-[#7A5A20] flex items-center justify-center mx-auto">
                         <x-app-icon name="shield-check" class="w-5 h-5" />
                     </div>
-                    <h3 class="font-cairo text-lg font-bold text-[#292521]">الدخول ببطاقة QR شخصية</h3>
-                    <p class="text-xs text-[#292521]/70 max-w-md mx-auto leading-relaxed">
+                    <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">الدخول ببطاقة QR شخصية</h3>
+                    <p class="text-xs text-[#6E675F] max-w-md mx-auto leading-relaxed">
                         هذه الدعوة مخصصة بكود دخول إلكتروني فردي. يرجى استخدام الرابط الخاص المرسل إليكم من منظم الحفل لإظهار بطاقة الدخول الخاصة بكم.
                     </p>
                 </div>

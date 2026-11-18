@@ -10,6 +10,19 @@
         $coupleTitle = collect([$invitation->groom_name ?? null, $invitation->bride_name ?? null])->filter()->implode(' & ');
         $styles = $invitation->effective_styles ?? [];
         $accentColor = $styles['primary_color'] ?? $primaryColor ?? '#C6A76B';
+
+        $hex = ltrim((string) $accentColor, '#');
+        if (strlen($hex) === 3) {
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        }
+        $isBrightAccent = false;
+        if (strlen($hex) === 6 && ctype_xdigit($hex)) {
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+            $isBrightAccent = (($r * 299 + $g * 587 + $b * 114) / 1000) > 155;
+        }
+        $floatingIconColor = $isBrightAccent ? '#151210' : '#FFFFFF';
     @endphp
 
     <div x-data="{
@@ -61,11 +74,10 @@
                  role="dialog"
                  aria-modal="true"
                  aria-label="شاشة فتح الدعوة"
-                 class="fixed inset-0 z-50 bg-obsidian-royal/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 text-center text-[#FAF7F2]">
+                 class="fixed inset-0 z-50 bg-[#151210]/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 text-center text-[#FAF7F2]">
 
-                <div class="max-w-md w-full rounded-3xl p-8 sm:p-10 bg-[#292521]/95 border-2 shadow-royal-card relative overflow-hidden space-y-6"
-                     style="border-color: {{ $accentColor }};">
-                    <!-- Subtle Inner Ornamental Frame -->
+                <div class="max-w-md w-full rounded-3xl p-6 sm:p-8 bg-[#1E1A16] border shadow-2xl relative overflow-hidden"
+                     style="border-color: {{ $accentColor }}88;">
                     <div class="border border-dashed rounded-2xl p-6 sm:p-8 space-y-6"
                          style="border-color: {{ $accentColor }}55;">
 
@@ -75,23 +87,23 @@
                             <span>شاشة فتح الدعوة</span>
                         </div>
 
-                        <div class="space-y-2">
-                            <p class="font-amiri text-sm sm:text-base opacity-85" style="color: {{ $accentColor }};">
+                        <div class="space-y-2.5">
+                            <p class="font-amiri text-base" style="color: {{ $accentColor }};">
                                 دعوة زفاف خاصة
                             </p>
                             <h2 class="font-cairo text-2xl sm:text-3xl font-black text-white leading-snug">
                                 {{ $coupleTitle ?: ($invitation->title ?? 'دعوة زفاف') }}
                             </h2>
-                            <p class="text-xs sm:text-sm text-[#E8DED0]/75 leading-relaxed">
+                            <p class="text-xs sm:text-sm text-[#DED5C8] leading-relaxed">
                                 انقر لفتح بطاقة الدعوة والاستماع إلى المقطوعة الصوتية المصاحبة
                             </p>
                         </div>
 
-                        <div class="space-y-3 pt-2">
+                        <div class="space-y-3 pt-1">
                             <button type="button"
                                     data-open-invitation-gate
                                     @click="openWithMusic()"
-                                    class="w-full py-3.5 px-6 rounded-2xl text-sm font-extrabold text-[#1B1815] shadow-lg hover:opacity-95 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2.5 cursor-pointer animate-seal-pulse"
+                                    class="w-full py-3.5 px-6 rounded-2xl text-sm font-extrabold text-[#151210] shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2.5 cursor-pointer focus-visible:outline-2 focus-visible:outline-white"
                                     style="background: linear-gradient(135deg, {{ $accentColor }} 0%, #DFC99E 50%, {{ $accentColor }} 100%);">
                                 <x-app-icon name="mail-open" class="w-5 h-5" />
                                 <span>اضغط لفتح الدعوة وتشغيل الزفّة</span>
@@ -99,7 +111,7 @@
 
                             <button type="button"
                                     @click="openSilently()"
-                                    class="w-full py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-semibold text-[#E8DED0]/80 transition flex items-center justify-center gap-2 cursor-pointer">
+                                    class="w-full py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-semibold text-[#DED5C8] transition flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-2 focus-visible:outline-white">
                                 <x-app-icon name="volume-x" class="w-4 h-4" />
                                 <span>فتح الدعوة بدون موسيقى</span>
                             </button>
@@ -110,11 +122,11 @@
         @endif
 
         <!-- Persistent Floating Play / Mute Control -->
-        <div x-show="gateOpen" class="fixed bottom-6 right-6 z-40">
+        <div x-show="gateOpen" x-cloak class="fixed bottom-6 end-6 z-40">
             <button type="button"
                     @click="toggleAudio()"
-                    class="w-12 h-12 rounded-full shadow-2xl flex items-center justify-center text-white border-2 border-white/90 transition transform hover:scale-110 cursor-pointer"
-                    style="background-color: {{ $accentColor }};"
+                    class="w-12 h-12 rounded-full shadow-2xl flex items-center justify-center border-2 border-white/90 transition hover:scale-105 cursor-pointer focus-visible:outline-2 focus-visible:outline-[#C6A76B]"
+                    style="background-color: {{ $accentColor }}; color: {{ $floatingIconColor }};"
                     aria-label="موسيقى الخلفية"
                     title="موسيقى الخلفية">
                 <x-app-icon name="volume-2" class="w-5 h-5" x-show="playing" />

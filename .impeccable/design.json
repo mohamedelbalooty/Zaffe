@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 2,
+  "product": "Zaffe",
+  "brand": {
+    "ar": "زفّــة",
+    "en": "Zaffe",
+    "directionDefault": "rtl",
+    "directionSecondary": "ltr",
+    "aestheticDirection": "The Royal Diwan & Editorial Atelier"
+  },
+  "tokens": {
+    "colors": {
+      "ivory": "#FAF7F2",
+      "ivoryWarm": "#F3EDE2",
+      "ivoryMuted": "#ECE3D3",
+      "surface": "#FFFFFF",
+      "surfaceSoft": "#FCFBF8",
+      "studio": "#1B1815",
+      "studioPanel": "#24201C",
+      "studioElevated": "#2E2924",
+      "obsidian": "#151210",
+      "gold": "#C6A76B",
+      "goldHover": "#B59556",
+      "goldDeep": "#856326",
+      "goldText": "#7A5A20",
+      "goldLight": "#F4EBD9",
+      "champagne": "#DFC99E",
+      "charcoal": "#221E1A",
+      "inkSecondary": "#52493F",
+      "inkMuted": "#6E6458",
+      "beige": "#E4D9C8",
+      "emerald": "#0F4C3A",
+      "emeraldTint": "#ECF5F0",
+      "rose": "#D9B7B0",
+      "roseLight": "#F9EFEA",
+      "warning": "#B45309",
+      "danger": "#BE123C"
+    },
+    "tonalRamps": {
+      "gold": {
+        "50": "#FAF6EE",
+        "100": "#F3EBD8",
+        "200": "#E5D3AE",
+        "300": "#D5BA84",
+        "400": "#C6A76B",
+        "500": "#9D7B3B",
+        "600": "#7A5A20",
+        "700": "#634818",
+        "800": "#4F3914",
+        "900": "#3C2B10",
+        "950": "#221809"
+      },
+      "parchment": {
+        "50": "#FCFBF8",
+        "100": "#FAF7F2",
+        "200": "#F3EDE2",
+        "300": "#ECE3D3",
+        "400": "#E4D9C8",
+        "500": "#DED5C8",
+        "700": "#6E6458",
+        "800": "#52493F",
+        "900": "#221E1A",
+        "950": "#151210"
+      }
+    },
+    "typography": {
+      "displayArabic": "'Cairo', system-ui, sans-serif",
+      "bodyArabic": "'Tajawal', system-ui, -apple-system, sans-serif",
+      "calligraphy": "'Amiri', Georgia, serif",
+      "editorialLatin": "'Playfair Display', Georgia, serif",
+      "lineHeightBody": 1.65,
+      "numericVariant": "tabular-nums"
+    },
+    "radii": {
+      "control": "0.75rem",
+      "card": "1rem",
+      "ceremonialCard": "1.5rem",
+      "pill": "9999px"
+    },
+    "shadows": {
+      "wedding": "0 8px 24px -6px rgba(34, 30, 26, 0.08), 0 2px 8px -2px rgba(133, 99, 38, 0.08)",
+      "weddingHover": "0 18px 36px -10px rgba(34, 30, 26, 0.12), 0 6px 16px -4px rgba(133, 99, 38, 0.16)",
+      "royalCard": "0 24px 54px -16px rgba(21, 18, 16, 0.15), 0 6px 18px -6px rgba(133, 99, 38, 0.14)",
+      "goldSeal": "0 0 0 4px rgba(198, 167, 107, 0.24), 0 12px 26px -6px rgba(133, 99, 38, 0.42)"
+    },
+    "motion": {
+      "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+      "fadeUp": "0.45s",
+      "sealPulse": "2.8s",
+      "reducedMotionSupport": true
+    },
+    "breakpoints": {
+      "mobile": "375px",
+      "sm": "640px",
+      "tablet": "768px",
+      "lg": "1024px",
+      "desktop": "1440px"
+    }
+  },
+  "components": [
+    {
+      "id": "ds-btn-royal",
+      "name": "Royal Gold Primary Button",
+      "html": "<a href=\"#\" class=\"ds-btn-royal\"><span>اصنع دعوتك الخاصة</span></a>",
+      "css": ".ds-btn-royal { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 44px; padding: 0.75rem 1.5rem; border-radius: 0.75rem; background: linear-gradient(135deg, #C6A76B 0%, #B59556 100%); color: #151210; font-weight: 800; font-size: 0.875rem; box-shadow: 0 4px 14px -2px rgba(133, 99, 38, 0.35); }"
+    },
+    {
+      "id": "ds-btn-obsidian",
+      "name": "Obsidian High-Contrast Action Button",
+      "html": "<button type=\"button\" class=\"ds-btn-obsidian\"><span>حفظ ونشر الدعوة</span></button>",
+      "css": ".ds-btn-obsidian { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 44px; padding: 0.75rem 1.5rem; border-radius: 0.75rem; background-color: #221E1A; color: #FAF7F2; font-weight: 700; font-size: 0.875rem; box-shadow: 0 4px 12px -2px rgba(21, 18, 16, 0.22); }"
+    },
+    {
+      "id": "ds-btn-ghost-ivory",
+      "name": "Ghost Ivory Secondary Button",
+      "html": "<a href=\"#\" class=\"ds-btn-ghost-ivory\"><span>تصفح القوالب</span></a>",
+      "css": ".ds-btn-ghost-ivory { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 44px; padding: 0.75rem 1.35rem; border-radius: 0.75rem; background-color: #FFFFFF; color: #221E1A; border: 1px solid #E4D9C8; font-weight: 700; font-size: 0.875rem; }"
+    },
+    {
+      "id": "ds-card-atelier",
+      "name": "Atelier Elevation Card",
+      "html": "<article class=\"ds-card-atelier\"><h3>بطاقة إحصائية</h3><p class=\"tabular-nums\">155</p></article>",
+      "css": ".ds-card-atelier { background-color: #FFFFFF; border: 1px solid #E4D9C8; border-radius: 1rem; padding: 1.5rem; color: #221E1A; box-shadow: 0 4px 18px -6px rgba(34, 30, 26, 0.06); }"
+    },
+    {
+      "id": "ds-input-atelier",
+      "name": "Atelier Form Field",
+      "html": "<input type=\"text\" class=\"ds-input-atelier\" placeholder=\"مثال: قاعة ليلتي الكبرى\" />",
+      "css": ".ds-input-atelier { width: 100%; min-height: 44px; padding: 0.65rem 1rem; border-radius: 0.75rem; border: 1px solid #E4D9C8; background-color: #FCFBF8; color: #221E1A; font-size: 0.9375rem; }"
+    },
+    {
+      "id": "ds-qr-ticket",
+      "name": "Royal Entry QR Ticket Surface",
+      "html": "<div class=\"ds-qr-ticket\"><header class=\"ds-qr-ticket-head\">بطاقة دخول شخصية (QR Pass)</header><div class=\"ds-qr-ticket-body\">ZAF-0001</div></div>",
+      "css": ".ds-qr-ticket { max-width: 28rem; background-color: #FCFBF8; border: 1px solid rgba(198, 167, 107, 0.4); border-radius: 1.5rem; overflow: hidden; } .ds-qr-ticket-head { background-color: #151210; color: #DFC99E; padding: 1.25rem; text-align: center; font-weight: 700; } .ds-qr-ticket-body { padding: 1.5rem; text-align: center; color: #221E1A; font-family: ui-monospace, monospace; }"
+    }
+  ]
+}
