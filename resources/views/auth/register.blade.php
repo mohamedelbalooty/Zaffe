@@ -1,89 +1,116 @@
-<x-layouts.base :title="'إنشاء حساب جديد — زفّة'">
-    <div class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-[#FAF7F2] via-[#F4EBD9]/40 to-[#FAF7F2] relative overflow-hidden">
-        <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#C6A76B]/10 blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-[#D9B7B0]/15 blur-3xl pointer-events-none"></div>
+@php
+    $isEn = app()->getLocale() === 'en';
+@endphp
 
-        <div class="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 shadow-wedding border border-[#C6A76B]/25 relative z-10">
-            <div class="text-center mb-8">
-                <a href="{{ route('home') }}" class="inline-flex items-center gap-3 group mb-4">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#C6A76B] to-[#DFC99E] flex items-center justify-center text-[#292521] font-amiri text-2xl font-bold shadow-md group-hover:scale-105 transition-transform">
-                        ز
+<x-layouts.base :title="$isEn ? 'Create Account — Zaffe' : 'إنشاء حساب جديد — زفّة'">
+    <div class="min-h-screen flex flex-col bg-luxury-grain">
+        <header class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <a href="{{ route('home') }}" class="inline-flex items-center gap-2.5 text-sm font-bold text-[#221E1A] hover:text-[#7A5A20] transition">
+                <span class="w-9 h-9 rounded-full bg-gradient-to-tr from-[#C6A76B] to-[#DFC99E] flex items-center justify-center text-[#161311] font-amiri text-lg font-bold">ز</span>
+                <span class="font-cairo font-extrabold">زفّــة</span>
+            </a>
+            <a href="{{ route('lang.switch', $isEn ? 'ar' : 'en') }}"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E4D9C8] bg-white text-xs font-bold text-[#221E1A] hover:border-[#C6A76B] transition">
+                <x-app-icon name="globe" class="w-3.5 h-3.5 text-[#856326]" />
+                <span>{{ $isEn ? 'العربية' : 'EN' }}</span>
+            </a>
+        </header>
+
+        <main id="main-content" class="flex-1 flex items-center justify-center px-4 py-8">
+            <div class="max-w-md w-full card-atelier p-7 sm:p-10 space-y-6">
+                <div class="text-center space-y-2">
+                    <h1 class="font-cairo text-2xl sm:text-3xl font-black text-[#221E1A]">
+                        {{ $isEn ? 'Create Your Free Account' : 'صمم دعوتك الآن' }}
+                    </h1>
+                    <p class="text-sm text-[#52493F]">
+                        {{ $isEn ? 'Set up your studio account and design your wedding card in minutes' : 'أنشئ حسابك المجاني وابدأ بتخصيص دعوة زفافك خلال دقائق' }}
+                    </p>
+                </div>
+
+                <form method="POST" action="{{ route('register') }}" class="space-y-4">
+                    @csrf
+
+                    <div>
+                        <label for="name" class="block text-xs font-bold text-[#221E1A] mb-1.5">
+                            {{ $isEn ? 'Couple or Full Name' : 'اسم العروسين / اسمك الكريم' }}
+                        </label>
+                        <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus
+                               class="input-atelier @error('name') !border-[#BE123C] @enderror"
+                               placeholder="{{ $isEn ? 'Youssef & Mariam' : 'مثال: فيصل والجوهرة' }}">
+                        @error('name')
+                            <p class="text-xs text-[#BE123C] mt-1 font-bold">{{ $message }}</p>
+                        @enderror
                     </div>
-                </a>
-                <h1 class="font-cairo text-2xl sm:text-3xl font-extrabold text-[#292521]">صمم دعوتك الآن</h1>
-                <p class="text-sm text-[#292521]/60 mt-2">أنشئ حسابك وابدأ بتخصيص دعوة زفافك في 3 دقائق</p>
-            </div>
 
-            <form method="POST" action="{{ route('register') }}" class="space-y-4">
-                @csrf
-
-                <div>
-                    <label for="name" class="block text-sm font-bold text-[#292521] mb-1.5">اسم العروسين / اسمك الكريم</label>
-                    <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus
-                           class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] focus:border-[#C6A76B] focus:ring-2 focus:ring-[#C6A76B]/20 outline-none transition text-sm bg-[#FAF7F2]/50"
-                           placeholder="مثال: يوسف ومريم">
-                    @error('name')
-                        <p class="text-xs text-rose-600 mt-1 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="email" class="block text-sm font-bold text-[#292521] mb-1.5">البريد الإلكتروني</label>
-                    <input type="email" id="email" name="email" value="{{ old('email') }}" required
-                           class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] focus:border-[#C6A76B] focus:ring-2 focus:ring-[#C6A76B]/20 outline-none transition text-sm bg-[#FAF7F2]/50"
-                           placeholder="youssef@example.com">
-                    @error('email')
-                        <p class="text-xs text-rose-600 mt-1 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="phone" class="block text-sm font-bold text-[#292521] mb-1.5">رقم الهاتف أو الواتساب (اختياري)</label>
-                    <div class="flex rounded-xl border border-[#E8DED0] focus-within:border-[#C6A76B] focus-within:ring-2 focus-within:ring-[#C6A76B]/20 overflow-hidden bg-[#FAF7F2]/50 transition">
-                        <select name="phone_country" id="phone_country" class="px-3 py-3 bg-[#FAF7F2] border-none text-xs font-bold text-[#292521] focus:outline-none cursor-pointer border-l border-[#E8DED0]">
-                            <option value="EG" {{ old('phone_country', 'EG') === 'EG' ? 'selected' : '' }}>مصر (+20) 🇪🇬</option>
-                            <option value="SA" {{ old('phone_country') === 'SA' ? 'selected' : '' }}>السعودية (+966) 🇸🇦</option>
-                        </select>
-                        <input type="text" id="phone" name="phone" value="{{ old('phone') }}" dir="ltr"
-                               class="w-full px-4 py-3 border-none outline-none text-sm bg-transparent text-left"
-                               placeholder="100 123 4567">
+                    <div>
+                        <label for="email" class="block text-xs font-bold text-[#221E1A] mb-1.5">
+                            {{ $isEn ? 'Email Address' : 'البريد الإلكتروني' }}
+                        </label>
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" required dir="ltr"
+                               class="input-atelier text-start @error('email') !border-[#BE123C] @enderror"
+                               placeholder="couple@example.com">
+                        @error('email')
+                            <p class="text-xs text-[#BE123C] mt-1 font-bold">{{ $message }}</p>
+                        @enderror
                     </div>
-                    @error('phone')
-                        <p class="text-xs text-rose-600 mt-1 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
 
-                <div>
-                    <label for="password" class="block text-sm font-bold text-[#292521] mb-1.5">كلمة المرور</label>
-                    <input type="password" id="password" name="password" required
-                           class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] focus:border-[#C6A76B] focus:ring-2 focus:ring-[#C6A76B]/20 outline-none transition text-sm bg-[#FAF7F2]/50"
-                           placeholder="8 أحرف على الأقل">
-                    @error('password')
-                        <p class="text-xs text-rose-600 mt-1 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <div>
+                        <label for="phone" class="block text-xs font-bold text-[#221E1A] mb-1.5">
+                            {{ $isEn ? 'Mobile / WhatsApp (Optional)' : 'رقم الهاتف أو الواتساب (اختياري)' }}
+                        </label>
+                        <div class="flex gap-2" dir="ltr">
+                            <select name="phone_country" id="phone_country"
+                                    aria-label="{{ $isEn ? 'Country Code' : 'رمز الدولة' }}"
+                                    class="min-h-[44px] px-3 rounded-xl border border-[#E4D9C8] bg-[#FAF7F2] text-xs font-bold text-[#221E1A] focus:outline-none focus:border-[#B59556] shrink-0">
+                                <option value="SA" {{ old('phone_country', 'SA') === 'SA' ? 'selected' : '' }}>SA (+966)</option>
+                                <option value="EG" {{ old('phone_country') === 'EG' ? 'selected' : '' }}>EG (+20)</option>
+                            </select>
+                            <input type="tel" id="phone" name="phone" value="{{ old('phone') }}" dir="ltr"
+                                   class="input-atelier flex-1 text-left @error('phone') !border-[#BE123C] @enderror"
+                                   placeholder="501 234 567">
+                        </div>
+                        @error('phone')
+                            <p class="text-xs text-[#BE123C] mt-1 font-bold">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-bold text-[#292521] mb-1.5">تأكيد كلمة المرور</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation" required
-                           class="w-full px-4 py-3 rounded-xl border border-[#E8DED0] focus:border-[#C6A76B] focus:ring-2 focus:ring-[#C6A76B]/20 outline-none transition text-sm bg-[#FAF7F2]/50"
-                           placeholder="أعد كتابة كلمة المرور">
-                </div>
+                    <div>
+                        <label for="password" class="block text-xs font-bold text-[#221E1A] mb-1.5">
+                            {{ $isEn ? 'Password' : 'كلمة المرور' }}
+                        </label>
+                        <input type="password" id="password" name="password" required
+                               class="input-atelier @error('password') !border-[#BE123C] @enderror"
+                               placeholder="{{ $isEn ? 'At least 8 characters' : '8 أحرف على الأقل' }}">
+                        @error('password')
+                            <p class="text-xs text-[#BE123C] mt-1 font-bold">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#C6A76B] to-[#B59556] text-white font-bold text-base shadow-md hover:shadow-lg hover:opacity-95 transition">
-                        إنشاء حساب وتصميم الدعوة
-                    </button>
-                </div>
-            </form>
+                    <div>
+                        <label for="password_confirmation" class="block text-xs font-bold text-[#221E1A] mb-1.5">
+                            {{ $isEn ? 'Confirm Password' : 'تأكيد كلمة المرور' }}
+                        </label>
+                        <input type="password" id="password_confirmation" name="password_confirmation" required
+                               class="input-atelier"
+                               placeholder="{{ $isEn ? 'Re-enter password' : 'أعد كتابة كلمة المرور' }}">
+                    </div>
 
-            <div class="text-center mt-6 pt-6 border-t border-[#E8DED0]/60">
-                <p class="text-sm text-[#292521]/70">
-                    لديك حساب بالفعل؟ 
-                    <a href="{{ route('login') }}" class="text-[#C6A76B] font-bold hover:underline">سجل دخولك هنا</a>
-                </p>
+                    <div class="pt-1">
+                        <button type="submit" class="btn-royal w-full !text-base">
+                            {{ $isEn ? 'Create Account & Start' : 'إنشاء حساب وتصميم الدعوة' }}
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center pt-5 border-t border-[#E4D9C8]">
+                    <p class="text-sm text-[#52493F]">
+                        {{ $isEn ? 'Already have an account?' : 'لديك حساب بالفعل؟' }}
+                        <a href="{{ route('login') }}" class="text-[#7A5A20] font-extrabold hover:underline">
+                            {{ $isEn ? 'Sign in here' : 'سجل دخولك هنا' }}
+                        </a>
+                    </p>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 </x-layouts.base>
-

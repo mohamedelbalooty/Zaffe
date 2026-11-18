@@ -29,8 +29,8 @@
         default => "2px solid {$primary}",
     };
 
-    $contrastBadgeColor = $contrast >= 4.5 ? '#15803D' : ($contrast >= 3.0 ? '#B45309' : '#B91C1C');
-    $contrastBgColor = $contrast >= 4.5 ? '#DCFCE7' : ($contrast >= 3.0 ? '#FEF3C7' : '#FEE2E2');
+    $contrastBadgeColor = $contrast >= 4.5 ? '#0F4C3A' : ($contrast >= 3.0 ? '#9A5D12' : '#9F1239');
+    $contrastBgColor = $contrast >= 4.5 ? '#DCFCE7' : ($contrast >= 3.0 ? '#FEF3C7' : '#FFE4E6');
     $contrastText = $contrast >= 4.5
         ? __('admin.template_editor.preview.contrast_good', ['ratio' => $contrast])
         : ($contrast >= 3.0
@@ -39,18 +39,18 @@
 @endphp
 
 <div style="display: flex; flex-direction: column; gap: 12px;">
-    <div style="font-size: 12px; font-weight: 600; color: inherit; opacity: 0.85;">
+    <div style="font-size: 12px; font-weight: 700; color: inherit; opacity: 0.85;">
         {{ __('admin.template_editor.preview.title') }}
     </div>
 
-    <div style="background-color: {{ $background }}; padding: 18px; border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.28); font-family: {{ $fontStack }}; transition: background-color 180ms ease;">
+    <div style="background-color: {{ $background }}; padding: 18px; border-radius: 18px; border: 1px solid rgba(198, 167, 107, 0.30); font-family: {{ $fontStack }}; transition: background-color 180ms ease;">
         <div style="background-color: {{ $card }}; color: {{ $secondary }}; border: {{ $outerBorderCss }}; border-radius: 14px; padding: 18px 16px; text-align: center; position: relative; transition: all 180ms ease;">
             <div style="border: 1px dashed {{ $primary }}66; border-radius: 10px; padding: 16px 12px;">
                 <div style="color: {{ $primary }}; font-size: 15px; line-height: 1; margin-bottom: 8px;">
                     {{ $ornamentGlyph }}
                 </div>
 
-                <div style="font-size: 11px; color: {{ $accent }}; font-weight: 600; margin-bottom: 6px;">
+                <div style="font-size: 11px; color: {{ $accent }}; font-weight: 700; margin-bottom: 6px;">
                     {{ __('admin.template_editor.preview.bismillah') }}
                 </div>
 
@@ -64,7 +64,7 @@
 
                 <div style="height: 1px; background: linear-gradient(90deg, transparent, {{ $accent }}, transparent); margin: 10px auto; max-width: 140px;"></div>
 
-                <div style="font-size: 11px; color: {{ $secondary }}; opacity: 0.78; margin-bottom: 14px;">
+                <div style="font-size: 11px; color: {{ $secondary }}; opacity: 0.8; margin-bottom: 14px;">
                     {{ __('admin.template_editor.preview.sample_date') }}
                 </div>
 
@@ -75,29 +75,28 @@
         </div>
     </div>
 
-    <div style="display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.25);">
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(198, 167, 107, 0.25);">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
-            <span style="font-size: 11px; font-weight: 600; opacity: 0.8;">
+            <span style="font-size: 11px; font-weight: 700; opacity: 0.8;">
                 {{ __('admin.template_editor.preview.palette_bar') }}
             </span>
             <div style="display: flex; align-items: center; gap: 6px;" dir="ltr">
                 @foreach ([$primary, $secondary, $background, $card, $accent] as $swatch)
-                    <span title="{{ $swatch }}" style="width: 18px; height: 18px; border-radius: 9999px; background-color: {{ $swatch }}; border: 1px solid rgba(15, 23, 42, 0.25); display: inline-block;"></span>
+                    <span title="{{ $swatch }}" style="width: 18px; height: 18px; border-radius: 9999px; background-color: {{ $swatch }}; border: 1px solid rgba(21, 18, 16, 0.22); display: inline-block;"></span>
                 @endforeach
             </div>
         </div>
 
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 11px;">
-            <span style="opacity: 0.78;">{{ __('admin.template_editor.preview.contrast_label') }}</span>
-            <span style="background-color: {{ $contrastBgColor }}; color: {{ $contrastBadgeColor }}; font-weight: 600; padding: 2px 8px; border-radius: 9999px;">
+            <span style="opacity: 0.8;">{{ __('admin.template_editor.preview.contrast_label') }}</span>
+            <span style="background-color: {{ $contrastBgColor }}; color: {{ $contrastBadgeColor }}; font-weight: 700; padding: 2px 10px; border-radius: 9999px;">
                 {{ $contrastText }}
             </span>
         </div>
 
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; opacity: 0.72;" dir="ltr">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; opacity: 0.75;" dir="ltr">
             <span>{{ $fontFamily }}</span>
             <span>{{ $borderStyle }} · {{ $ornamentStyle }}</span>
         </div>
     </div>
 </div>
-

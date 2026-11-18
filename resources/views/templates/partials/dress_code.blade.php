@@ -1,8 +1,10 @@
 @props([
     'invitation',
     'primaryColor' => '#C6A76B',
+    'secondaryColor' => null,
     'cardColor' => '#FFFFFF',
     'bgColor' => '#FAF7F2',
+    'isDarkTheme' => false,
 ])
 
 @php
@@ -12,16 +14,19 @@
         'title' => 'ملابس رسمية أنيقة (Black Tie / Formal Evening)',
         'notes' => 'نرجو من ضيوفنا الكرام الالتزام بالملابس الرسمية المسائية لتكتمل روعة وأناقة مناسبتنا.',
     ];
+
+    $cardBorder = $isDarkTheme ? 'rgba(230, 198, 135, 0.28)' : $primaryColor . '35';
+    $iconBorder = $isDarkTheme ? 'rgba(230, 198, 135, 0.25)' : $primaryColor . '30';
 @endphp
 
 @if($isEnabled && !empty($content))
-    <div class="rounded-3xl p-6 sm:p-8 shadow-xl border text-center space-y-3 transition-all"
-         style="background-color: {{ $cardColor }}; border-color: {{ $primaryColor }}40;">
-        <div class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center shadow-sm border"
-             style="background-color: {{ $bgColor }}; color: {{ $primaryColor }}; border-color: {{ $primaryColor }}30;">
+    <div class="rounded-3xl p-6 sm:p-8 shadow-[0_14px_38px_rgba(21,18,16,0.06)] border text-center space-y-3 transition-all"
+         style="background-color: {{ $cardColor }}; border-color: {{ $cardBorder }};">
+        <div class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center border"
+             style="background-color: {{ $bgColor }}; color: {{ $primaryColor }}; border-color: {{ $iconBorder }};">
             <x-app-icon name="shirt" class="w-6 h-6" />
         </div>
-        <h3 class="font-cairo text-lg font-bold" style="color: {{ $primaryColor }};">
+        <h3 class="font-cairo text-lg font-extrabold" style="color: {{ $primaryColor }};">
             {{ $dressCodeSection?->title_ar ?: 'قواعد الأناقة واللباس (Dress Code)' }}
         </h3>
         @if(!empty($content['title']))
@@ -30,7 +35,7 @@
             </p>
         @endif
         @if(!empty($content['notes']))
-            <p class="text-xs sm:text-sm opacity-80 max-w-md mx-auto leading-relaxed">
+            <p class="text-xs sm:text-sm max-w-md mx-auto leading-relaxed" style="{{ $secondaryColor ? "color: {$secondaryColor}; opacity: 0.9;" : 'opacity: 0.82;' }}">
                 {{ $content['notes'] }}
             </p>
         @endif

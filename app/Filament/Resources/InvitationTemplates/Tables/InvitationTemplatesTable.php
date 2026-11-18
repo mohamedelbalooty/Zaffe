@@ -32,7 +32,8 @@ class InvitationTemplatesTable
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label(__('admin.fields.slug'))
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('view_name')
                     ->label(__('admin.fields.view_name'))
                     ->searchable()
