@@ -1,4 +1,18 @@
-@if(!($isPreview ?? false))
+@props([
+    'invitation',
+    'personalGuest' => null,
+    'isPreview' => false,
+])
+
+@php
+    /** @var \App\Models\Invitation|object $invitation */
+    /** @var \App\Models\InvitationGuest|null $personalGuest */
+    /** @var bool $isPreview */
+    $isPreview = isset($isPreview) ? (bool) $isPreview : false;
+    $personalGuest = isset($personalGuest) ? $personalGuest : null;
+@endphp
+
+@if(!$isPreview)
     @php
         $mode = $invitation instanceof \App\Models\Invitation
             ? $invitation->effectiveMode()
@@ -9,7 +23,6 @@
         $supportsQr = $invitation instanceof \App\Models\Invitation
             ? $invitation->supportsQrPass()
             : in_array($mode, [\App\Models\Invitation::MODE_RSVP_QR, \App\Models\Invitation::MODE_QR_ONLY], true);
-        $personalGuest ??= null;
     @endphp
 
     @if($allowsRsvp)
