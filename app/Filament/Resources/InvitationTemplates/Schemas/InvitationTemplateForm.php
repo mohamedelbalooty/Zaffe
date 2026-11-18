@@ -197,6 +197,7 @@ class InvitationTemplateForm
                     ->label(__('admin.fields.view_name'))
                     ->required()
                     ->maxLength(255)
+                    ->in(TemplateStyleCatalog::bladeViews())
                     ->datalist(TemplateStyleCatalog::bladeViews())
                     ->extraInputAttributes(['dir' => 'ltr'])
                     ->helperText(__('admin.template_editor.helpers.view_name')),

@@ -12,6 +12,7 @@ use App\Models\SubscriptionPlan;
 use App\Models\TemplateCategory;
 use App\Models\User;
 use App\Support\PlatformSettingCatalog;
+use App\Support\TemplateStyleCatalog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -76,7 +77,8 @@ class DatabaseSeeder extends Seeder
             $categoryModels[$cat['slug']] = TemplateCategory::firstOrCreate(['slug' => $cat['slug']], $cat);
         }
 
-        // 2. Invitation Templates (6 rich templates)
+        // 2. Invitation Templates (6 baseline + 8 Saudi Signature Vol. 1 = 14 free templates)
+        $presets = TemplateStyleCatalog::presets();
         $templates = [
             [
                 'category_id' => $categoryModels['luxury']->id,
@@ -209,6 +211,118 @@ class DatabaseSeeder extends Seeder
                 ],
                 'is_premium' => false,
                 'sort_order' => 6,
+            ],
+            [
+                'category_id' => $categoryModels['classic']->id,
+                'slug' => 'diriyah-heritage',
+                'name_ar' => 'تراث الدرعية',
+                'name_en' => 'Diriyah Heritage',
+                'view_name' => 'templates.diriyah_heritage',
+                'description_ar' => 'تفسير معماري فاخر مستوحى من شرفات الدرعية النجدية، وأبواب الطين والخشب المنقوش، بتدرجات الرمل والطين والبرونز.',
+                'description_en' => 'A refined interpretation of Saudi Najdi architecture with stepped crenellations, earthy mud-brick warmth, and antique bronze framing.',
+                'thumbnail' => '/images/templates/diriyah-heritage.webp',
+                'default_styles' => $presets['diriyah_heritage'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 7,
+            ],
+            [
+                'category_id' => $categoryModels['islamic']->id,
+                'slug' => 'rawashin-elegance',
+                'name_ar' => 'أناقة الرواشين',
+                'name_en' => 'Rawashin Elegance',
+                'view_name' => 'templates.rawashin_elegance',
+                'description_ar' => 'تصميم حجازي مستلهم من مشربيات ورواشين جدة التاريخية المحفورة، يمزج الفيروزي العميق بالمرجان الدافئ وخشب الساج.',
+                'description_en' => 'Hijazi-inspired luxury crafted around carved wooden Rawashin lattice geometry in deep Red Sea teal, warm coral, and ivory.',
+                'thumbnail' => '/images/templates/rawashin-elegance.webp',
+                'default_styles' => $presets['rawashin_elegance'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 8,
+            ],
+            [
+                'category_id' => $categoryModels['classic']->id,
+                'slug' => 'sadu-signature',
+                'name_ar' => 'نقوش السدو',
+                'name_en' => 'Sadu Signature',
+                'view_name' => 'templates.sadu_signature',
+                'description_ar' => 'قراءة عصرية راقية لحياكة السدو السعودية الأصيلة، بأشرطة هندسية منسوجة باللون العنابي والتيراكوتا على ورق صوفي عاجي.',
+                'description_en' => 'Contemporary luxury celebrating traditional Saudi Al Sadu weaving with selective geometric woven bands in burgundy, terracotta, and sand.',
+                'thumbnail' => '/images/templates/sadu-signature.webp',
+                'default_styles' => $presets['sadu_signature'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 9,
+            ],
+            [
+                'category_id' => $categoryModels['floral']->id,
+                'slug' => 'taif-rose',
+                'name_ar' => 'ورد الطائف',
+                'name_en' => 'Taif Rose',
+                'view_name' => 'templates.taif_rose',
+                'description_ar' => 'بطاقة نباتية رقيقة مستوحاة من ورد الطائف العطري وأغصان الميرمية، بتكوين غير متماثل على ورق قطني وردي ناعم.',
+                'description_en' => 'Curated botanical stationery inspired by Taif damask roses and sage foliage with asymmetric editorial framing.',
+                'thumbnail' => '/images/templates/taif-rose.webp',
+                'default_styles' => $presets['taif_rose'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 10,
+            ],
+            [
+                'category_id' => $categoryModels['luxury']->id,
+                'slug' => 'palm-oasis',
+                'name_ar' => 'واحة النخيل',
+                'name_en' => 'Palm Oasis',
+                'view_name' => 'templates.palm_oasis',
+                'description_ar' => 'تصميم هادئ وفخم مستوحى من واحات النخيل السعودية في الأحساء والعلا، بتفاصيل سعف متناظرة وذهب شامبانيا.',
+                'description_en' => 'Formal botanical elegance inspired by Arabian palm groves with symmetrical engraved date palm fronds in palm green and gold.',
+                'thumbnail' => '/images/templates/palm-oasis.webp',
+                'default_styles' => $presets['palm_oasis'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 11,
+            ],
+            [
+                'category_id' => $categoryModels['minimal']->id,
+                'slug' => 'red-sea-pearl',
+                'name_ar' => 'لؤلؤ البحر الأحمر',
+                'name_en' => 'Red Sea Pearl',
+                'view_name' => 'templates.red_sea_pearl',
+                'description_ar' => 'أناقة هادئة مستوحاة من عرق اللؤلؤ وصفاء ساحل البحر الأحمر، بحدود فضية دقيقة وخط عربي رحب.',
+                'description_en' => 'Understated coastal sophistication inspired by mother-of-pearl luster, soft sea-glass blue, and fine silver inlay.',
+                'thumbnail' => '/images/templates/red-sea-pearl.webp',
+                'default_styles' => $presets['red_sea_pearl'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 12,
+            ],
+            [
+                'category_id' => $categoryModels['romantic']->id,
+                'slug' => 'desert-dusk',
+                'name_ar' => 'غروب الصحراء',
+                'name_en' => 'Desert Dusk',
+                'view_name' => 'templates.desert_dusk',
+                'description_ar' => 'تصميم فني معاصر مستلهم من كثبان الصحراء وقت الغروب، يجمع بين تباين الكاكاو الداكن والرمل الدافئ والنحاس.',
+                'description_en' => 'Artistic contemporary composition of layered desert dunes at sunset balancing deep cocoa surfaces and warm sunlit sand.',
+                'thumbnail' => '/images/templates/desert-dusk.webp',
+                'default_styles' => $presets['desert_dusk'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 13,
+            ],
+            [
+                'category_id' => $categoryModels['minimal']->id,
+                'slug' => 'modern-monogram',
+                'name_ar' => 'المونوغرام العصري',
+                'name_en' => 'Modern Monogram',
+                'view_name' => 'templates.modern_monogram',
+                'description_ar' => 'تصميم أزياء تحريري عصري يحتفي بالتايبوغرافي العربي الجريء وشعار المونوغرام الهندسي مع تباين الأسود والعاج.',
+                'description_en' => 'Haute-couture editorial wedding stationery centered on custom architectural monogram typography in obsidian black and ivory.',
+                'thumbnail' => '/images/templates/modern-monogram.webp',
+                'default_styles' => $presets['modern_monogram'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 14,
             ],
         ];
 

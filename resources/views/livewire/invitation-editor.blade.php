@@ -529,7 +529,7 @@
             <!-- Scrollable Preview Canvas -->
             <div class="flex-1 min-h-0 overflow-y-auto studio-scroll p-3 sm:p-6 lg:p-8">
                 <div class="mx-auto transition-all duration-300 {{ $previewDevice === 'mobile' ? 'max-w-[26rem] w-full rounded-[2.25rem] shadow-2xl border-[6px] border-[#2E2924] overflow-hidden my-2' : ($previewDevice === 'tablet' ? 'max-w-2xl w-full rounded-3xl shadow-2xl border-[6px] border-[#2E2924] overflow-hidden my-2' : 'w-full max-w-4xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden my-2') }}">
-                    @include($invitation->template->view_name ?? 'templates.royal_gold', [
+                    @include(\App\Support\TemplateStyleCatalog::resolveBladeView($invitation->template->view_name ?? null), [
                         'invitation' => $previewObject,
                         'isPreview' => true,
                     ])

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invitation;
 use App\Models\InvitationGuest;
+use App\Support\TemplateStyleCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,7 +40,7 @@ class InvitationController extends Controller
             $invitation->increment('view_count');
         }
 
-        $viewName = $invitation->template?->view_name ?? 'templates.royal_gold';
+        $viewName = TemplateStyleCatalog::resolveBladeView($invitation->template?->view_name);
 
         return view('pages.invitation-show', [
             'invitation' => $invitation,

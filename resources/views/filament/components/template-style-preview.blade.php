@@ -14,18 +14,25 @@
     $contrast = TemplateStyleCatalog::contrastRatio($secondary, $card);
 
     $ornamentGlyph = match ($ornamentStyle) {
-        'blooming_flowers' => '❀',
+        'blooming_flowers', 'taif_rose_bloom' => '❀',
         'minimal_dots' => '• • •',
-        'islamic_star' => '۞',
+        'islamic_star', 'hijazi_roshan' => '۞',
         'constellation' => '✦ ✧ ✦',
         'wax_seal' => '❦',
+        'najdi_triangles', 'sadu_lozenge' => '❖ ◇ ❖',
+        'date_palm_fronds' => '❧ ❖ ☙',
+        'pearl_shell', 'desert_sun_dunes' => '◈',
+        'couture_monogram' => '◇',
         default => '❖',
     };
 
     $outerBorderCss = match ($borderStyle) {
-        'clean-line' => "1px solid {$primary}",
+        'clean-line', 'nacre-inlay', 'editorial-monogram-grid' => "1px solid {$primary}",
         'stardust-glow' => "1.5px solid {$primary}; box-shadow: 0 0 0 3px {$accent}26, 0 12px 24px -10px rgba(0,0,0,0.28)",
-        'floral-wreath' => "2px solid {$accent}",
+        'floral-wreath', 'botanical-asymmetric' => "2px solid {$accent}",
+        'sadu-woven-band' => "3px solid {$primary}",
+        'rawashin-lattice', 'palm-arch-frame' => "2px solid {$primary}",
+        'najdi-crenellation', 'dune-horizon' => "2px solid {$accent}",
         default => "2px solid {$primary}",
     };
 

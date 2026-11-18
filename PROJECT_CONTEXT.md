@@ -17,7 +17,7 @@
 3. **Static Digital Flyers Lack Utility:** PDFs and static JPEGs cannot run live countdowns, launch map directions, enforce per-invitee adult/child quotas, prevent duplicate RSVPs, or generate personal QR passes.
 
 ### 1.2 Core Value Proposition
-- **Culturally Tailored Arabic-First Luxury:** Six specialized themes styled with curated typography (`Amiri`, `Cairo`, `Tajawal`, `Playfair Display`), formal-simple Arabic (`الفصحى البسيطة`), crisp SVG icons (`<x-app-icon>`), and privacy-by-default options (optional bride name and photo-free rendering).
+- **Culturally Tailored Arabic-First Luxury:** Fourteen specialized themes (6 baseline themes plus the 8-template Saudi Signature Collection — Vol. 1) styled with curated typography (`Amiri`, `Cairo`, `Tajawal`, `Playfair Display`), formal-simple Arabic (`الفصحى البسيطة`), crisp SVG icons (`<x-app-icon>`), and privacy-by-default options (optional bride name and photo-free rendering).
 - **Zero-Code Visual Studio Editor:** A real-time Livewire 4 studio (`InvitationEditor`) with device previews, instant autosave, custom palette/font overrides, and draft/publish lifecycle controls.
 - **Mobile & WhatsApp WebView First:** Optimized for guests opening links inside WhatsApp's in-app browser over 4G mobile connections, featuring 1-click WhatsApp share links, personalized `?g=` invite links, and self-hosted WebP imagery.
 - **Structured RSVP, Smart Guest Roster & Pure-PHP QR Passes:** E.164 phone normalization (`+966` / `+20`), deduplicated RSVP responses, pre-invited guest quotas, bulk CSV import/export, and self-contained SVG QR passes (`/pass/{qrToken}`).
@@ -69,14 +69,14 @@ External tools, MCP servers, and AI coding agents reading this file should rely 
 - **Database:** SQLite 3 (local development & PHPUnit in-memory test suite); **MySQL 8.4** production/staging target.
 - **Email & Queues:** **Resend** transactional email behind standard Laravel Mail & Notifications (`ShouldQueue` using `database` queue driver).
 - **Storage:** Local public disk (`storage/app/public` linked to `public/storage`) with AWS S3 / R2 driver compatibility.
-- **Testing & Quality:** PHPUnit 12 (`^12.5.12`) and Laravel Pint (`^1.27`). Automated suites in `tests/Feature/` and `tests/Unit/` include `AuditTest`, `WeddingPlatformTest`, `AuthTest`, `NotificationTest`, `TemplateManagementTest`, `InvitationLifecycleTest`, `InvitationEditorTest`, `PublicInvitationTest`, `RsvpEngineTest`, `GuestManagementTest`, `CustomerDashboardTest`, `AdminManagementTest`, `AdminFeatureCoverageTest`, `ProductionReadinessTest`, `ProductQaValidationTest`, `QrCheckInIsolationTest`, `SmartGuestAndQrCheckInTest`, `InvitationDateFormatterTest`, and `QrCodeServiceTest`.
+- **Testing & Quality:** PHPUnit 12 (`^12.5.12`) and Laravel Pint (`^1.27`). Automated suites in `tests/Feature/` and `tests/Unit/` include `AuditTest`, `WeddingPlatformTest`, `AuthTest`, `NotificationTest`, `TemplateManagementTest`, `SaudiSignatureTemplateCollectionTest`, `InvitationLifecycleTest`, `InvitationEditorTest`, `PublicInvitationTest`, `RsvpEngineTest`, `GuestManagementTest`, `CustomerDashboardTest`, `AdminManagementTest`, `AdminFeatureCoverageTest`, `ProductionReadinessTest`, `ProductQaValidationTest`, `QrCheckInIsolationTest`, `SmartGuestAndQrCheckInTest`, `InvitationDateFormatterTest`, and `QrCodeServiceTest`.
 
 ### 4.2 Domain Services & Support Modules (`app/Services/` & `app/Support/`)
 - **`App\Services\InvitationDateFormatter`:** Formats Gregorian and **Umm al-Qura Hijri** dates (`IntlDateFormatter`), handles invitation timezones (`Africa/Cairo` / `Asia/Riyadh`), and converts numeric outputs between `latin` (`0-9`) and `arabic_indic` (`٠-٩`).
 - **`App\Services\PhoneService`:** Validates and normalizes Egypt (`+20`) and Saudi Arabia (`+966`) mobile phone numbers into international **E.164** format.
 - **`App\Services\QrCodeService`:** Pure-PHP ISO/IEC 18004 Byte-mode QR Code SVG encoder (Versions 1–10, ECC Level M, 4-module white quiet zone) with zero external packages or third-party QR APIs.
 - **`App\Support\CsvSanitizer`:** Neutralizes CSV formula injection payloads starting with `=`, `+`, `-`, `@`, `\t`, or `\r` (after `ltrim`) by prefixing a single quote (`'`).
-- **`App\Support\PlatformSettingCatalog` & `App\Support\TemplateStyleCatalog`:** Canonical configuration definitions for `PlatformSetting` keys and the 6-theme color/typography presets.
+- **`App\Support\PlatformSettingCatalog` & `App\Support\TemplateStyleCatalog`:** Canonical configuration definitions for `PlatformSetting` keys and the 14-theme color/typography presets, validated Blade view map (`resolveBladeView()`), and Saudi Signature Collection Vol. 1 helpers.
 
 ---
 
@@ -100,9 +100,10 @@ External tools, MCP servers, and AI coding agents reading this file should rely 
 ## 6. Product Features & Domain Workflows `[VERIFIED]`
 
 ### 6.1 Public Marketing & Luxury Theme Catalog (`F02`)
-- Public landing page (`/`), searchable/filterable template gallery (`/templates`), interactive live template previews with Arabic/English sample data (`/templates/{slug}/preview`), 100% Free Release 1 pricing communication (`/pricing`), plus `/about`, `/contact`, and `/faq`.
-- Six curated wedding themes under `resources/views/templates/`:
-  - `royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`.
+- Public landing page (`/`), searchable/filterable template gallery (`/templates`, including `?collection=saudi-signature`), interactive live template previews with Arabic/English sample data (`/templates/{slug}/preview`), 100% Free Release 1 pricing communication (`/pricing`), plus `/about`, `/contact`, and `/faq`.
+- Fourteen curated wedding themes under `resources/views/templates/` (see [docs/ui/ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md](docs/ui/ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md)):
+  - **Baseline (6):** `royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`.
+  - **Saudi Signature Collection — Vol. 1 (8, `ZAFFE-023`):** `diriyah_heritage`, `rawashin_elegance`, `sadu_signature`, `taif_rose`, `palm_oasis`, `red_sea_pearl`, `desert_dusk`, `modern_monogram`.
 
 ### 6.2 Customer Studio & Livewire Visual Editor (`F03`, `F04`, `F08`)
 - **Customer Dashboard (`/dashboard`):** Displays total invitations, view counters, and RSVP attendance KPIs.
@@ -153,7 +154,7 @@ External tools, MCP servers, and AI coding agents reading this file should rely 
 ### 7.1 Entity Directory
 - **`User` (`users`):** Platform accounts (`role`: `'user' | 'admin'`, `phone`, `avatar_url`). HasMany `Invitation`, HasMany `UserSubscription`.
 - **`TemplateCategory` (`template_categories`):** Aesthetic themes (`luxury`, `floral`, `minimal`, `islamic`, `classic`, `romantic`).
-- **`InvitationTemplate` (`invitation_templates`):** Visual layouts mapped to Blade views (`templates.royal_gold`, `templates.floral_romance`, etc.) with `default_styles` JSON.
+- **`InvitationTemplate` (`invitation_templates`):** Fourteen active free visual layouts (6 baseline + 8 Saudi Signature Collection — Vol. 1) mapped to validated Blade views (`templates.royal_gold`, `templates.diriyah_heritage`, `templates.rawashin_elegance`, etc.) with `default_styles` JSON.
 - **`Invitation` (`invitations`):** Core wedding record (`user_id`, `template_id`, `slug`, `groom_name`, `bride_name`, `wedding_date`, `wedding_time`, `timezone`, venue fields, `custom_styles` JSON, `status`, `invitation_mode`, `is_rsvp_enabled`, `rsvp_deadline`, `max_guests_per_rsvp`, `view_count`).
 - **`InvitationSection` (`invitation_sections`):** Modular blocks (`countdown`, `timeline`, `gallery`, `dress_code`).
 - **`InvitationPhoto` (`invitation_photos`):** Gallery images with local storage cleanup on deletion.

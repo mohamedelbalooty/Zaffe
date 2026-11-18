@@ -17,7 +17,7 @@ updated: 2026-11-18
 - **Concept:** **The Royal Diwan & Editorial Atelier** — heirloom Arabic wedding stationery translated to mobile-first web luxury, paired with calm obsidian-and-parchment clarity across the Studio Editor, Guest Roster, and Filament Super Admin.
 - **Emotional Register:** Dignified celebration, warmth, family privacy, modern trust, and effortless clarity — zero flashy gradients, zero neon SaaS purple/blue clutter, zero paywall theater.
 - **Mode-Scaled Design:**
-  - **Experience & Persuade Surfaces** (`/`, `/templates`, `/pricing`, `/invitation/{slug}`, `/pass/{qrToken}`): Warm alabaster parchment ivory (`#FAF7F2`), restrained burnished champagne gold rules, generous vertical cadence, and 6 distinct invitation themes (`royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`).
+  - **Experience & Persuade Surfaces** (`/`, `/templates`, `/pricing`, `/invitation/{slug}`, `/pass/{qrToken}`): Warm alabaster parchment ivory (`#FAF7F2`), restrained burnished champagne gold rules, generous vertical cadence, and 14 distinct invitation themes — 6 baseline (`royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`) and 8 Saudi Signature Collection — Vol. 1 (`diriyah_heritage`, `rawashin_elegance`, `sadu_signature`, `taif_rose`, `palm_oasis`, `red_sea_pearl`, `desert_dusk`, `modern_monogram`).
   - **Operate Surfaces** (`/dashboard*`, Visual Studio Editor, `/admin*`): Crisp white/cream cards (`#FFFFFF` / `#FCFBF8`), obsidian sidebar anchors (`#151210` / `#1B1815`), high-density tabular numerals (`tabular-nums`), and instant status legibility.
 
 ## 2. Color System & Tonal Architecture
@@ -89,4 +89,4 @@ All semantic tokens live in `resources/css/app.css` (`:root`):
 ## 8. Anti-Patterns & Guardrails
 
 - **Forbidden by Craft Floor:** Small uppercase eyebrow kickers above section headings, low-contrast gradient text (`bg-clip-text`), heavy `feTurbulence` SVG noise overlays, Unicode emoji UI icons, dark text overlays stacked on template thumbnails containing Arabic text, and broken local image icons without `onerror` hiding.
-- **Product Constraints Preserved:** All 6 invitation themes remain visually distinct; `<bdi>` date markup, `data-open-invitation-gate`, `id="rsvp_email"`, `#[Locked]` Livewire props, CSV formula sanitization, and Filament translations (`admin.brand_name`) remain strictly intact.
+- **Product Constraints Preserved:** All 14 invitation themes remain visually distinct; `<bdi>` date markup, `data-open-invitation-gate`, `id="rsvp_email"`, `#[Locked]` Livewire props, CSV formula sanitization, and Filament translations (`admin.brand_name`) remain strictly intact.

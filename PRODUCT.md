@@ -42,13 +42,13 @@ Culturally tailored Arabic-first digital wedding luxury built specifically for S
 
 - **Brand Name:** زفّــة | Zaffe
 - **Design Direction:** "The Royal Diwan & Editorial Atelier" — warm alabaster parchment ivory (`#FAF7F2`), deep obsidian/charcoal ink (`#221E1A` / `#161311`), burnished champagne gold (`#C6A76B` / `#8A6829`), oasis emerald (`#0F4C3A`), and muted rose (`#D9B7B0`), paired with `Cairo` (Arabic display), `Tajawal` (Arabic UI/body), `Amiri` (calligraphic Naskh), and `Playfair Display` (Latin editorial).
-- **Six Distinct Invitation Themes:** `royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, and `classic_aristocrat` must retain their distinct visual characters.
+- **Fourteen Distinct Invitation Themes:** Six baseline themes (`royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, and `classic_aristocrat`) plus eight Saudi Signature Collection — Vol. 1 themes (`diriyah_heritage`, `rawashin_elegance`, `sadu_signature`, `taif_rose`, `palm_oasis`, `red_sea_pearl`, `desert_dusk`, and `modern_monogram`) must retain their distinct visual characters.
 
 ## Evidence on Hand
 
-- 6 seeded templates in `DatabaseSeeder` with self-hosted `.webp` thumbnails under `public/images/templates/`.
+- 14 seeded templates in `DatabaseSeeder` (6 baseline + 8 Saudi Signature Collection — Vol. 1) with self-hosted `.webp` thumbnails under `public/images/templates/`.
 - Live demo invitation at `/invitation/ahmed-and-sarah`.
-- 186 automated PHPUnit tests covering auth, templates, lifecycle, editor, public invitations, RSVP engine, guest roster, QR passes, customer dashboard, and Filament admin panel.
+- 193 automated PHPUnit tests covering auth, templates, Saudi Signature Collection Vol. 1, lifecycle, editor, public invitations, RSVP engine, guest roster, QR passes, customer dashboard, and Filament admin panel.
 
 ## Product Principles
 

@@ -21,7 +21,7 @@
 4. **Poor Digital Experience:** Existing solutions are often static image designs (PDFs or static JPEGs) that cannot play the couple's chosen music, calculate live countdowns, provide direct Google Maps navigation, or collect interactive guest RSVPs with dietary requirements and guest limits.
 
 ### 1.3 Value Proposition `[VERIFIED]`
-- **Culturally Tailored Luxury Designs:** Curated Arabic typography (Amiri, Cairo, Tajawal, Playfair) and regional aesthetic themes (Royal Gold, Floral Romance, Minimalist Chic, Islamic Heritage, Starry Gala, Classic Aristocrat).
+- **Culturally Tailored Luxury Designs:** Curated Arabic typography (Amiri, Cairo, Tajawal, Playfair) across 14 distinct themes: 6 baseline themes (Royal Gold, Floral Romance, Minimalist Chic, Islamic Heritage, Starry Gala, Classic Aristocrat) and 8 Saudi Signature Collection — Vol. 1 designs (`diriyah-heritage`, `rawashin-elegance`, `sadu-signature`, `taif-rose`, `palm-oasis`, `red-sea-pearl`, `desert-dusk`, `modern-monogram`; see [ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md](ui/ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md)).
 - **Zero-Code Real-Time Studio:** An intuitive visual editor with device toggle previews (mobile, tablet, desktop) that autosaves every keystroke without requiring any technical design skills.
 - **Frictionless WhatsApp Distribution:** Native 1-click WhatsApp invitations with localized custom messages (Arabic and English) and deep links.
 - **Controlled & Capped RSVP Management:** Couples can enforce maximum guests per RSVP (e.g., max 2 or 5 per invitation), set strict RSVP submission deadlines, and export guest data into an Excel-ready CSV file formatted with a UTF-8 BOM.
