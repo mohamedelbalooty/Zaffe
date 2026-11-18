@@ -13,7 +13,9 @@ use Throwable;
 class InvitationDateFormatter
 {
     public const DEFAULT_LOCALE = 'ar';
+
     public const DEFAULT_TIMEZONE = 'Africa/Cairo';
+
     public const DEFAULT_DIGITS = 'latin';
 
     private const LATIN_TO_ARABIC_INDIC = [
@@ -103,6 +105,103 @@ class InvitationDateFormatter
         return self::forInvitation($invitation);
     }
 
+    /**
+     * Split a full Arabic or Latin name into primary given name and remaining lineage/family phrase.
+     *
+     * @return array{first: string, lineage: string}
+     */
+    public static function splitCoupleName(?string $fullName): array
+    {
+        $clean = trim((string) $fullName);
+        if ($clean === '') {
+            return ['first' => '', 'lineage' => ''];
+        }
+
+        if (preg_match('/^(.+?)\s+((?:بن|بنت|آل)\s+.+)$/u', $clean, $matches) === 1) {
+            return ['first' => trim($matches[1]), 'lineage' => trim($matches[2])];
+        }
+
+        if (preg_match('/^((?:عبد|أبو|ابو|أم|ام)\s+\S+)\s+(.+)$/u', $clean, $matches) === 1) {
+            return ['first' => trim($matches[1]), 'lineage' => trim($matches[2])];
+        }
+
+        if (preg_match('/^(\S+)\s+(.+)$/u', $clean, $matches) === 1) {
+            return ['first' => trim($matches[1]), 'lineage' => trim($matches[2])];
+        }
+
+        return ['first' => $clean, 'lineage' => ''];
+    }
+
+    /**
+     * Build the 3-stage hospitality schedule (Reception, Grand Zaffe, Dinner) for stationery templates.
+     *
+     * @param  array{
+     *     locale: string,
+     *     dir: string,
+     *     timezone: string,
+     *     digits: string,
+     *     show_hijri: bool,
+     *     gregorian_date: string,
+     *     hijri_date: ?string,
+     *     time: ?string
+     * }|null  $dateInfo
+     * @return array<int, array{key: string, label: string, time: string}>
+     */
+    public static function ceremonyStages(object $invitation, ?array $dateInfo = null): array
+    {
+        $dateInfo ??= self::forInvitation($invitation);
+        $isEnInv = $dateInfo['locale'] === 'en';
+
+        $timelineSection = collect($invitation->sections ?? [])->where('section_type', 'timeline')->first();
+        $timelineEvents = is_array($timelineSection->content['events'] ?? null)
+            ? array_values($timelineSection->content['events'])
+            : [];
+
+        $baseTimeCarbon = self::resolveDateTime($invitation);
+        $formatOffsetTime = static function (?Carbon $base, int $addMinutes, string $fallback) use ($dateInfo): string {
+            if ($base === null) {
+                return self::applyDigits($fallback, $dateInfo['digits']);
+            }
+
+            return self::formatTime(
+                $base->copy()->addMinutes($addMinutes),
+                $dateInfo['locale'],
+                $dateInfo['timezone'],
+                $dateInfo['digits']
+            ) ?? self::applyDigits($fallback, $dateInfo['digits']);
+        };
+
+        $useCustomTimes = ! $isEnInv && count($timelineEvents) >= 3 && filled($timelineEvents[0]['time'] ?? null);
+
+        $receptionTime = $useCustomTimes
+            ? self::applyDigits((string) $timelineEvents[0]['time'], $dateInfo['digits'])
+            : ($dateInfo['time'] ?? $formatOffsetTime($baseTimeCarbon, 0, $isEnInv ? '8:30 PM' : '٨:٣٠ مساءً'));
+        $zaffeTime = $useCustomTimes && filled($timelineEvents[1]['time'] ?? null)
+            ? self::applyDigits((string) $timelineEvents[1]['time'], $dateInfo['digits'])
+            : $formatOffsetTime($baseTimeCarbon, 90, $isEnInv ? '10:00 PM' : '١٠:٠٠ مساءً');
+        $dinnerTime = $useCustomTimes && filled($timelineEvents[2]['time'] ?? null)
+            ? self::applyDigits((string) $timelineEvents[2]['time'], $dateInfo['digits'])
+            : $formatOffsetTime($baseTimeCarbon, 180, $isEnInv ? '11:30 PM' : '١١:٣٠ مساءً');
+
+        return [
+            [
+                'key' => 'reception',
+                'label' => $isEnInv ? 'Reception' : 'الاستقبال',
+                'time' => $receptionTime,
+            ],
+            [
+                'key' => 'zaffe',
+                'label' => $isEnInv ? 'Grand Zaffe' : 'الزفّــة',
+                'time' => $zaffeTime,
+            ],
+            [
+                'key' => 'dinner',
+                'label' => $isEnInv ? 'Royal Dinner' : 'العشــاء',
+                'time' => $dinnerTime,
+            ],
+        ];
+    }
+
     public static function formatGregorianDate(
         object|string|null $invitationOrDate,
         ?string $locale = null,
@@ -113,7 +212,7 @@ class InvitationDateFormatter
             return '';
         }
 
-        $isInvitationObject = is_object($invitationOrDate) && !($invitationOrDate instanceof DateTimeInterface);
+        $isInvitationObject = is_object($invitationOrDate) && ! ($invitationOrDate instanceof DateTimeInterface);
 
         if ($isInvitationObject) {
             $locale ??= self::resolveLocale($invitationOrDate);
@@ -156,7 +255,7 @@ class InvitationDateFormatter
             return null;
         }
 
-        $isInvitationObject = is_object($invitationOrDate) && !($invitationOrDate instanceof DateTimeInterface);
+        $isInvitationObject = is_object($invitationOrDate) && ! ($invitationOrDate instanceof DateTimeInterface);
 
         if ($isInvitationObject) {
             $showHijri ??= self::shouldShowHijri($invitationOrDate);
@@ -166,7 +265,7 @@ class InvitationDateFormatter
         }
 
         $resolvedShowHijri = $showHijri ?? true;
-        if (!$resolvedShowHijri) {
+        if (! $resolvedShowHijri) {
             return null;
         }
 
@@ -185,14 +284,14 @@ class InvitationDateFormatter
 
         if (self::$customHijriResolver !== null) {
             $formatted = (self::$customHijriResolver)($carbon, $resolvedTimezone, $resolvedLocale);
-            if (!is_string($formatted) || trim($formatted) === '') {
+            if (! is_string($formatted) || trim($formatted) === '') {
                 return null;
             }
 
             return self::applyDigits($formatted, $resolvedDigits);
         }
 
-        if (!extension_loaded('intl') || !class_exists(IntlDateFormatter::class)) {
+        if (! extension_loaded('intl') || ! class_exists(IntlDateFormatter::class)) {
             return null;
         }
 
@@ -237,7 +336,7 @@ class InvitationDateFormatter
             return null;
         }
 
-        $isInvitationObject = is_object($invitationOrTime) && !($invitationOrTime instanceof DateTimeInterface);
+        $isInvitationObject = is_object($invitationOrTime) && ! ($invitationOrTime instanceof DateTimeInterface);
 
         if ($isInvitationObject) {
             $locale ??= self::resolveLocale($invitationOrTime);
@@ -263,7 +362,7 @@ class InvitationDateFormatter
             $resolvedTimezone = self::normalizeTimezone($timezone);
             try {
                 if (preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $trimmed) === 1) {
-                    $carbon = Carbon::parse('2026-01-01 ' . $trimmed, $resolvedTimezone);
+                    $carbon = Carbon::parse('2026-01-01 '.$trimmed, $resolvedTimezone);
                 } else {
                     $carbon = Carbon::parse($trimmed, $resolvedTimezone)->setTimezone($resolvedTimezone);
                 }
@@ -296,10 +395,10 @@ class InvitationDateFormatter
         }
 
         if (self::resolveLocale($invitation) === 'en') {
-            return 'At ' . $time;
+            return 'At '.$time;
         }
 
-        return trim($arPrefix) . ' ' . $time;
+        return trim($arPrefix).' '.$time;
     }
 
     public static function applyDigits(string $value, string $digits = self::DEFAULT_DIGITS): string
@@ -316,10 +415,10 @@ class InvitationDateFormatter
         $effective = $invitation->effective_styles ?? [];
         $custom = $invitation->custom_styles ?? [];
 
-        if (!is_array($effective)) {
+        if (! is_array($effective)) {
             $effective = [];
         }
-        if (!is_array($custom)) {
+        if (! is_array($custom)) {
             $custom = [];
         }
 
@@ -372,7 +471,7 @@ class InvitationDateFormatter
         }
 
         if (is_string($raw)) {
-            return !in_array(strtolower(trim($raw)), ['0', 'false', 'off', 'no', ''], true);
+            return ! in_array(strtolower(trim($raw)), ['0', 'false', 'off', 'no', ''], true);
         }
 
         return (bool) $raw;
@@ -387,7 +486,7 @@ class InvitationDateFormatter
             return null;
         }
 
-        $isInvitationObject = is_object($invitationOrDate) && !($invitationOrDate instanceof DateTimeInterface);
+        $isInvitationObject = is_object($invitationOrDate) && ! ($invitationOrDate instanceof DateTimeInterface);
         $resolvedTimezone = self::normalizeTimezone(
             $timezone ?? ($isInvitationObject ? self::resolveTimezone($invitationOrDate) : self::DEFAULT_TIMEZONE)
         );
@@ -423,7 +522,7 @@ class InvitationDateFormatter
             if ($time !== null && trim($time) !== '') {
                 $dateYmd = Carbon::parse($trimmed, $resolvedTimezone)->format('Y-m-d');
 
-                return Carbon::parse($dateYmd . ' ' . trim($time), $resolvedTimezone);
+                return Carbon::parse($dateYmd.' '.trim($time), $resolvedTimezone);
             }
 
             return Carbon::parse($trimmed, $resolvedTimezone)->setTimezone($resolvedTimezone);

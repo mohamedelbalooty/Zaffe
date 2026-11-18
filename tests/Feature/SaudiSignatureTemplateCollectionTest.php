@@ -379,6 +379,98 @@ class SaudiSignatureTemplateCollectionTest extends TestCase
         $this->get('/templates/diriyah-heritage/preview')->assertNotFound();
     }
 
+    public function test_taif_rose_couture_template_renders_side_by_side_couple_triad_calligraphy_and_ceremony_timeline(): void
+    {
+        $taifRose = InvitationTemplate::where('slug', 'taif-rose')->firstOrFail();
+        $this->assertSame(1, $taifRose->sort_order);
+        $this->assertSame('#8E4A64', $taifRose->default_styles['primary_color']);
+
+        // 1. Preview renders side-by-side split wings, contiguous full names, calligraphic blessing & 3-stage ceremony bar
+        $preview = $this->get('/templates/taif-rose/preview');
+        $preview->assertOk();
+        $preview->assertSee('بارك الله لهما وبارك عليهما وجمع بينهما في خير');
+        $preview->assertSee('الجوهرة');
+        $preview->assertSee('بنت خالد السديري');
+        $preview->assertSee('فيصل');
+        $preview->assertSee('بن عبد العزيز آل مقرن');
+        $preview->assertSee('فيصل بن عبد العزيز آل مقرن');
+        $preview->assertSee('الجوهرة بنت خالد السديري');
+        $preview->assertSee('الاستقبال');
+        $preview->assertSee('الزفّــة');
+        $preview->assertSee('العشــاء');
+        $preview->assertSee('<svg', false);
+        $preview->assertDontSee('<img', false);
+
+        // 2. Single-name / blank bride_name kunya mode omits orphan bride wing & renders centered kashida layout
+        $couple = User::where('email', 'couple@zaffe.app')->firstOrFail();
+        $kunyaInv = Invitation::create([
+            'user_id' => $couple->id,
+            'template_id' => $taifRose->id,
+            'title' => 'حفل زفاف سلمان آل سعود',
+            'slug' => 'salman-taif-kunya-test',
+            'groom_name' => 'سلمان بن فهد آل سعود',
+            'bride_name' => '',
+            'wedding_date' => '2027-02-18',
+            'wedding_time' => '21:00:00',
+            'timezone' => 'Asia/Riyadh',
+            'venue_name' => 'قصر الفيصلية بالرياض',
+            'cover_photo' => null,
+            'status' => 'published',
+            'invitation_mode' => Invitation::MODE_RSVP_ONLY,
+            'is_rsvp_enabled' => true,
+            'custom_styles' => array_merge($taifRose->default_styles, [
+                'locale' => 'ar',
+                'digits' => 'arabic_indic',
+                'show_hijri' => true,
+            ]),
+        ]);
+
+        $response = $this->get(route('invitation.show', $kunyaInv->slug));
+        $response->assertOk();
+        $response->assertSee('سلمان');
+        $response->assertSee('بن فهد آل سعود');
+        $response->assertSee('سلمان بن فهد آل سعود');
+        $response->assertSee('ابننا');
+        $response->assertDontSee('ابنتنا');
+        $response->assertSee('٩:٠٠ مساءً');
+        $response->assertSee('١٠:٣٠ مساءً');
+        $response->assertDontSee('<img', false);
+    }
+
+    public function test_all_eight_saudi_signature_templates_render_couture_triad_calligraphy_and_ceremony_schedule(): void
+    {
+        $expectedOrder = [
+            'taif-rose' => 1,
+            'diriyah-heritage' => 2,
+            'rawashin-elegance' => 3,
+            'sadu-signature' => 4,
+            'palm-oasis' => 5,
+            'red-sea-pearl' => 6,
+            'desert-dusk' => 7,
+            'modern-monogram' => 8,
+        ];
+
+        foreach ($expectedOrder as $slug => $sortOrder) {
+            $template = InvitationTemplate::where('slug', $slug)->firstOrFail();
+            $this->assertSame($sortOrder, $template->sort_order, "Unexpected sort_order for [{$slug}]");
+
+            $preview = $this->get("/templates/{$slug}/preview");
+            $preview->assertOk();
+            $preview->assertSee('بارك الله لهما وبارك عليهما وجمع بينهما في خير');
+            $preview->assertSee('الجوهرة');
+            $preview->assertSee('بنت خالد السديري');
+            $preview->assertSee('فيصل');
+            $preview->assertSee('بن عبد العزيز آل مقرن');
+            $preview->assertSee('فيصل بن عبد العزيز آل مقرن');
+            $preview->assertSee('الجوهرة بنت خالد السديري');
+            $preview->assertSee('الاستقبال');
+            $preview->assertSee('الزفّــة');
+            $preview->assertSee('العشــاء');
+            $preview->assertSee('<svg', false);
+            $preview->assertDontSee('<img', false);
+        }
+    }
+
     public function test_all_template_views_are_free_of_external_image_urls_and_unicode_emojis(): void
     {
         $emojiRegex = '/[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]/u';
