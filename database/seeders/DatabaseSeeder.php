@@ -12,6 +12,7 @@ use App\Models\SubscriptionPlan;
 use App\Models\TemplateCategory;
 use App\Models\User;
 use App\Support\PlatformSettingCatalog;
+use App\Support\TemplateStyleCatalog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -76,7 +77,8 @@ class DatabaseSeeder extends Seeder
             $categoryModels[$cat['slug']] = TemplateCategory::firstOrCreate(['slug' => $cat['slug']], $cat);
         }
 
-        // 2. Invitation Templates (6 rich templates)
+        // 2. Invitation Templates (6 baseline + 8 Saudi Signature Vol. 1 = 14 free templates)
+        $presets = TemplateStyleCatalog::presets();
         $templates = [
             [
                 'category_id' => $categoryModels['luxury']->id,
@@ -98,7 +100,7 @@ class DatabaseSeeder extends Seeder
                     'ornament_style' => 'royal_crest',
                 ],
                 'is_premium' => false,
-                'sort_order' => 1,
+                'sort_order' => 9,
             ],
             [
                 'category_id' => $categoryModels['floral']->id,
@@ -120,7 +122,7 @@ class DatabaseSeeder extends Seeder
                     'ornament_style' => 'blooming_flowers',
                 ],
                 'is_premium' => false,
-                'sort_order' => 2,
+                'sort_order' => 10,
             ],
             [
                 'category_id' => $categoryModels['minimal']->id,
@@ -142,7 +144,7 @@ class DatabaseSeeder extends Seeder
                     'ornament_style' => 'minimal_dots',
                 ],
                 'is_premium' => false,
-                'sort_order' => 3,
+                'sort_order' => 11,
             ],
             [
                 'category_id' => $categoryModels['islamic']->id,
@@ -164,7 +166,7 @@ class DatabaseSeeder extends Seeder
                     'ornament_style' => 'islamic_star',
                 ],
                 'is_premium' => false,
-                'sort_order' => 4,
+                'sort_order' => 12,
             ],
             [
                 'category_id' => $categoryModels['romantic']->id,
@@ -186,7 +188,7 @@ class DatabaseSeeder extends Seeder
                     'ornament_style' => 'constellation',
                 ],
                 'is_premium' => false,
-                'sort_order' => 5,
+                'sort_order' => 13,
             ],
             [
                 'category_id' => $categoryModels['classic']->id,
@@ -208,7 +210,119 @@ class DatabaseSeeder extends Seeder
                     'ornament_style' => 'wax_seal',
                 ],
                 'is_premium' => false,
+                'sort_order' => 14,
+            ],
+            [
+                'category_id' => $categoryModels['classic']->id,
+                'slug' => 'diriyah-heritage',
+                'name_ar' => 'تراث الدرعية',
+                'name_en' => 'Diriyah Heritage',
+                'view_name' => 'templates.diriyah_heritage',
+                'description_ar' => 'ورق نجد العاجي بأقواس حروفية عربية في الزوايا، وتخطيط متوازن لأسماء العروسين ومسار الضيافة الثلاثي.',
+                'description_en' => 'Najdi parchment stationery with curved Hurufiyya calligraphic corner arcs, symmetrical couple triad, and three-stage hospitality thread.',
+                'thumbnail' => '/images/templates/diriyah-heritage.webp',
+                'default_styles' => $presets['diriyah_heritage'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 2,
+            ],
+            [
+                'category_id' => $categoryModels['islamic']->id,
+                'slug' => 'rawashin-elegance',
+                'name_ar' => 'أناقة الرواشين',
+                'name_en' => 'Rawashin Elegance',
+                'view_name' => 'templates.rawashin_elegance',
+                'description_ar' => 'بطاقة حجازية فاخرة بنقش الرواشين المحفور في الخلفية وزهور البورسلين الفيروزية والمرجان الدافئ.',
+                'description_en' => 'Hijazi alabaster stationery with embossed mashrabiya relief, porcelain-teal and coral garden roses, and three-column ceremony schedule.',
+                'thumbnail' => '/images/templates/rawashin-elegance.webp',
+                'default_styles' => $presets['rawashin_elegance'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 3,
+            ],
+            [
+                'category_id' => $categoryModels['classic']->id,
+                'slug' => 'sadu-signature',
+                'name_ar' => 'نقوش السدو',
+                'name_en' => 'Sadu Signature',
+                'view_name' => 'templates.sadu_signature',
+                'description_ar' => 'قراءة عصرية راقية لحياكة السدو مع أزهار الخشخاش القرمزية والتيراكوتا وتناغم الخط الديواني.',
+                'description_en' => 'Al Sadu wool-ivory stationery with subtle geometric diamond watermark, crimson poppy corners, and sweeping Diwani couple ligature.',
+                'thumbnail' => '/images/templates/sadu-signature.webp',
+                'default_styles' => $presets['sadu_signature'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 4,
+            ],
+            [
+                'category_id' => $categoryModels['floral']->id,
+                'slug' => 'taif-rose',
+                'name_ar' => 'ورد الطائف',
+                'name_en' => 'Taif Rose',
+                'view_name' => 'templates.taif_rose',
+                'description_ar' => 'تصميم حريري فاخر مستوحى من ورد الطائف وأزهار الكوزموس المائية، مع تخطيط ديواني متوازن للأسماء ومسار ضيافة ثلاثي المراحل.',
+                'description_en' => 'Couture silk stationery with watercolor Taif roses and cosmos botanicals, calligraphic Diwani script, and a three-stage ceremony ledger.',
+                'thumbnail' => '/images/templates/taif-rose.webp',
+                'default_styles' => $presets['taif_rose'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 1,
+            ],
+            [
+                'category_id' => $categoryModels['luxury']->id,
+                'slug' => 'palm-oasis',
+                'name_ar' => 'واحة النخيل',
+                'name_en' => 'Palm Oasis',
+                'view_name' => 'templates.palm_oasis',
+                'description_ar' => 'بطاقة من الكتان المصقول تتهادى في أسفلها حديقة بانورامية من أغصان الكينا وسعف الواحات بلمسات ذهبية.',
+                'description_en' => 'Brushed linen-ivory stationery anchored by a full-width watercolor eucalyptus and oasis frond bed with golden champagne accents.',
+                'thumbnail' => '/images/templates/palm-oasis.webp',
+                'default_styles' => $presets['palm_oasis'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 5,
+            ],
+            [
+                'category_id' => $categoryModels['minimal']->id,
+                'slug' => 'red-sea-pearl',
+                'name_ar' => 'لؤلؤ البحر الأحمر',
+                'name_en' => 'Red Sea Pearl',
+                'view_name' => 'templates.red_sea_pearl',
+                'description_ar' => 'تصميم لؤلؤي مضيء مستلهم من صدف البحر الأحمر المنقوش وزهور الماغنوليا البيضاء بحدود فضية ناعمة.',
+                'description_en' => 'Luminous mother-of-pearl stationery with sculpted bas-relief shell fans, white magnolia petals, and delicate pearl corner nodes.',
+                'thumbnail' => '/images/templates/red-sea-pearl.webp',
+                'default_styles' => $presets['red_sea_pearl'],
+                'is_premium' => false,
+                'is_active' => true,
                 'sort_order' => 6,
+            ],
+            [
+                'category_id' => $categoryModels['romantic']->id,
+                'slug' => 'desert-dusk',
+                'name_ar' => 'غروب الصحراء',
+                'name_en' => 'Desert Dusk',
+                'view_name' => 'templates.desert_dusk',
+                'description_ar' => 'حرير موكا دافئ تعبره أشعة الغروب الذهبية مع خط عربي عاجي مضيء وتفاصيل صحراوية راقية.',
+                'description_en' => 'Warm mocha-taupe silk stationery crossed by diagonal sunset light folds, luminous ivory calligraphy, and champagne-sand details.',
+                'thumbnail' => '/images/templates/desert-dusk.webp',
+                'default_styles' => $presets['desert_dusk'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 7,
+            ],
+            [
+                'category_id' => $categoryModels['minimal']->id,
+                'slug' => 'modern-monogram',
+                'name_ar' => 'المونوغرام العصري',
+                'name_en' => 'Modern Monogram',
+                'view_name' => 'templates.modern_monogram',
+                'description_ar' => 'بطاقة تحريرية بيضاء بنقوش نباتية محفورة في الخلفية وشعار مونوغرام هندسي وتباين الأسود مع الذهب.',
+                'description_en' => 'Haute-couture gallery ivory stationery featuring oversized embossed botanical line-art, diamond monogram seal, and obsidian typography.',
+                'thumbnail' => '/images/templates/modern-monogram.webp',
+                'default_styles' => $presets['modern_monogram'],
+                'is_premium' => false,
+                'is_active' => true,
+                'sort_order' => 8,
             ],
         ];
 

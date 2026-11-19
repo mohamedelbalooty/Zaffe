@@ -1,5 +1,7 @@
 @php
     $isEn = app()->getLocale() === 'en';
+    $saudiSlugs = $saudiSignatureSlugs ?? \App\Support\TemplateStyleCatalog::saudiSignatureSlugs();
+    $activeCollection = $collection ?? request('collection');
 @endphp
 
 <x-layouts.marketing :title="$isEn ? 'Wedding Invitation Templates — Zaffe' : 'معرض تصاميم وقوالب دعوات الزفاف — زفّة'">
@@ -12,9 +14,40 @@
                 </h1>
                 <p class="text-base text-[#52493F] max-w-2xl leading-relaxed">
                     {{ $isEn
-                        ? 'Explore six refined designs crafted for Arabian celebrations. Preview every theme on mobile and desktop before customizing.'
-                        : 'استكشف قوالب فاخرة ومصممة بأدق التفاصيل لتناسب هوية يومك المميز، وعاينها قبل الاختيار.' }}
+                        ? 'Explore fourteen refined designs crafted for Saudi and MENA celebrations — including our Saudi Signature Collection (Vol. 1). Preview every theme on mobile and desktop before customizing.'
+                        : 'استكشف ١٤ تصميماً فاخراً صُممت بعناية للأعراس السعودية والعربية، بما فيها مجموعة التوقيع السعودي — الإصدار الأول. عاين كل قالب على الجوال وسطح المكتب مجاناً قبل الاختيار.' }}
                 </p>
+            </div>
+
+            <!-- Saudi Signature Collection Vol. 1 Curated Banner -->
+            <div class="rounded-2xl p-6 sm:p-8 bg-obsidian-royal text-[#FAF7F2] border border-[#C6A76B]/40 shadow-royal-card flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="space-y-2.5 max-w-2xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C6A76B]/15 border border-[#C6A76B]/40 text-[#DFC99E] text-xs font-bold">
+                        <x-app-icon name="crown" class="w-3.5 h-3.5" />
+                        <span>{{ $isEn ? 'Saudi Signature Collection — Vol. 1' : 'مجموعة التوقيع السعودي — الإصدار الأول' }}</span>
+                    </div>
+                    <h2 class="font-cairo text-2xl sm:text-3xl font-black text-white leading-snug">
+                        {{ $isEn ? 'Eight Original Heritage & Editorial Designs' : 'ثمانية تصاميم أصلية مستوحاة من التراث والذوق السعودي المعاصر' }}
+                    </h2>
+                    <p class="text-xs sm:text-sm text-[#E4D9C8]/85 leading-relaxed">
+                        {{ $isEn
+                            ? 'Inspired by Diriyah Najdi geometry, Historic Jeddah Rawashin, Al Sadu weaving, Taif roses, oasis palms, Red Sea pearl, desert dusk, and couture monograms — 100% free in Release 1.'
+                            : 'تصاميم مستوحاة من الدرعية والرواشين الحجازية ونقوش السدو وورد الطائف وواحات النخيل ولؤلؤ البحر الأحمر وغروب الصحراء والمونوغرام العصري — مجانية بالكامل في الإطلاق الأول.' }}
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 shrink-0">
+                    @if($activeCollection === 'saudi-signature')
+                        <a href="{{ route('templates.index') }}" class="btn-ghost-ivory">
+                            <span>{{ $isEn ? 'View All 14 Templates' : 'عرض جميع التصاميم (١٤)' }}</span>
+                        </a>
+                    @else
+                        <a href="{{ route('templates.index', ['collection' => 'saudi-signature']) }}" class="btn-royal">
+                            <x-app-icon name="sparkles" class="w-4 h-4" />
+                            <span>{{ $isEn ? 'Explore Saudi Signature (8)' : 'استعراض التوقيع السعودي (٨)' }}</span>
+                        </a>
+                    @endif
+                </div>
             </div>
 
             <!-- Search & Category Filters Bar -->
@@ -22,6 +55,9 @@
                 <form method="GET" action="{{ route('templates.index') }}" class="flex flex-col sm:flex-row gap-3">
                     @if(request('category'))
                         <input type="hidden" name="category" value="{{ request('category') }}">
+                    @endif
+                    @if($activeCollection)
+                        <input type="hidden" name="collection" value="{{ $activeCollection }}">
                     @endif
                     <div class="relative flex-1">
                         <div class="pointer-events-none absolute inset-y-0 start-3.5 flex items-center text-[#6E6458]">
@@ -37,22 +73,28 @@
                     <button type="submit" class="btn-obsidian shrink-0">
                         {{ $isEn ? 'Search' : 'بحث في القوالب' }}
                     </button>
-                    @if(request('search') || request('category'))
+                    @if(request('search') || request('category') || $activeCollection)
                         <a href="{{ route('templates.index') }}" class="btn-ghost-ivory shrink-0">
                             {{ $isEn ? 'Reset' : 'إعادة التعيين' }}
                         </a>
                     @endif
                 </form>
 
-                <!-- Category Pills -->
+                <!-- Collection & Category Pills -->
                 <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs sm:text-sm">
                     <a href="{{ route('templates.index', ['search' => request('search')]) }}"
-                       class="px-4 py-2 rounded-full font-bold whitespace-nowrap transition border {{ !request('category') || request('category') === 'all' ? 'bg-[#221E1A] text-white border-[#221E1A]' : 'bg-[#FAF7F2] text-[#221E1A] border-[#E4D9C8] hover:border-[#C6A76B]' }}">
+                       class="px-4 py-2 rounded-full font-bold whitespace-nowrap transition border {{ (!request('category') || request('category') === 'all') && !$activeCollection ? 'bg-[#221E1A] text-white border-[#221E1A]' : 'bg-[#FAF7F2] text-[#221E1A] border-[#E4D9C8] hover:border-[#C6A76B]' }}">
                         {{ $isEn ? 'All Designs' : 'جميع التصاميم' }} ({{ $templates->count() }})
                     </a>
 
+                    <a href="{{ route('templates.index', ['collection' => 'saudi-signature', 'search' => request('search')]) }}"
+                       class="px-4 py-2 rounded-full font-bold whitespace-nowrap transition border inline-flex items-center gap-1.5 {{ $activeCollection === 'saudi-signature' ? 'bg-[#7A5A20] text-white border-[#7A5A20]' : 'bg-[#F4EBD9] text-[#7A5A20] border-[#C6A76B]/50 hover:border-[#7A5A20]' }}">
+                        <x-app-icon name="crown" class="w-3.5 h-3.5" />
+                        <span>{{ $isEn ? 'Saudi Signature Vol. 1' : 'التوقيع السعودي · Vol. 1' }}</span>
+                    </a>
+
                     @foreach($categories as $cat)
-                        <a href="{{ route('templates.index', ['category' => $cat->slug, 'search' => request('search')]) }}"
+                        <a href="{{ route('templates.index', ['category' => $cat->slug, 'collection' => $activeCollection, 'search' => request('search')]) }}"
                            class="px-4 py-2 rounded-full font-bold whitespace-nowrap transition border {{ request('category') === $cat->slug ? 'bg-[#221E1A] text-white border-[#221E1A]' : 'bg-[#FAF7F2] text-[#221E1A] border-[#E4D9C8] hover:border-[#C6A76B]' }}">
                             {{ $isEn && $cat->name_en ? $cat->name_en : $cat->name_ar }}
                         </a>
@@ -83,10 +125,11 @@
                     @foreach($templates as $template)
                         @php
                             $primaryColor = $template->default_styles['primary_color'] ?? '#C6A76B';
+                            $isSaudiSignatureCard = in_array($template->slug, $saudiSlugs, true);
                         @endphp
                         <article class="card-atelier overflow-hidden hover:border-[#C6A76B] transition-colors flex flex-col group">
-                            <!-- Clean Preview Stage -->
-                            <div class="relative h-60 overflow-hidden bg-[#221E1A] border-b border-[#E4D9C8]">
+                            <!-- Clean Vertical Preview Stage -->
+                            <div class="relative h-72 sm:h-80 overflow-hidden bg-[#221E1A] border-b border-[#E4D9C8]">
                                 <!-- Graceful Fallback (Gradient + Template Name) -->
                                 <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
                                      style="background: linear-gradient(135deg, #292521 0%, {{ $primaryColor }} 100%);">
@@ -111,7 +154,12 @@
                                     {{ $isEn ? ($template->category?->name_en ?? 'Collection') : ($template->category?->name_ar ?? 'تصميم') }}
                                 </div>
 
-                                @if($template->is_premium)
+                                @if($isSaudiSignatureCard)
+                                    <div class="absolute top-3 end-3 z-20 bg-[#151210]/90 text-[#DFC99E] px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 border border-[#C6A76B]/40 shadow-sm">
+                                        <x-app-icon name="crown" class="w-3 h-3" />
+                                        <span>{{ $isEn ? 'Saudi Signature' : 'التوقيع السعودي' }}</span>
+                                    </div>
+                                @elseif($template->is_premium)
                                     <div class="absolute top-3 end-3 z-20 bg-[#221E1A] text-[#DFC99E] px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 shadow-sm">
                                         <x-app-icon name="crown" class="w-3 h-3" />
                                         <span>{{ $isEn ? 'Royal' : 'ملكي' }}</span>
@@ -155,9 +203,9 @@
                                         </a>
 
                                         <a href="{{ route('dashboard.invitations.create', ['template_id' => $template->id]) }}"
-                                           class="btn-royal !min-h-[42px] !py-2 !px-3 !text-xs">
-                                            <x-app-icon name="sparkles" class="w-4 h-4" />
-                                            <span>{{ $isEn ? 'Use Design' : 'استخدم هذا التصميم' }}</span>
+                                           class="btn-royal !min-h-[42px] !py-2 !px-3 !text-xs whitespace-nowrap">
+                                            <x-app-icon name="sparkles" class="w-4 h-4 shrink-0" />
+                                            <span>{{ $isEn ? 'Use Design' : 'استخدم التصميم' }}</span>
                                         </a>
                                     </div>
                                 </div>

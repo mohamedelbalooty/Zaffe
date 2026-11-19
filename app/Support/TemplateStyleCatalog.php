@@ -106,6 +106,86 @@ class TemplateStyleCatalog
                 'border_style' => 'wax-seal-border',
                 'ornament_style' => 'wax_seal',
             ],
+            'diriyah_heritage' => [
+                'primary_color' => '#B36A3E',
+                'secondary_color' => '#26211D',
+                'background_color' => '#F4ECE1',
+                'card_color' => '#FBF7F0',
+                'accent_color' => '#C5A067',
+                'font_family' => 'Amiri',
+                'border_style' => 'najdi-crenellation',
+                'ornament_style' => 'najdi_triangles',
+            ],
+            'rawashin_elegance' => [
+                'primary_color' => '#14535E',
+                'secondary_color' => '#2A211B',
+                'background_color' => '#F8F4EC',
+                'card_color' => '#FFFFFF',
+                'accent_color' => '#C87D65',
+                'font_family' => 'Amiri',
+                'border_style' => 'rawashin-lattice',
+                'ornament_style' => 'hijazi_roshan',
+            ],
+            'sadu_signature' => [
+                'primary_color' => '#7A1F2B',
+                'secondary_color' => '#231F20',
+                'background_color' => '#F5EFE6',
+                'card_color' => '#FFFDF9',
+                'accent_color' => '#C85A32',
+                'font_family' => 'Cairo',
+                'border_style' => 'sadu-woven-band',
+                'ornament_style' => 'sadu_lozenge',
+            ],
+            'taif_rose' => [
+                'primary_color' => '#8E4A64',
+                'secondary_color' => '#3B2E35',
+                'background_color' => '#F3EDF1',
+                'card_color' => '#FAF7F9',
+                'accent_color' => '#7A8F7B',
+                'font_family' => 'Amiri',
+                'border_style' => 'botanical-asymmetric',
+                'ornament_style' => 'taif_rose_bloom',
+            ],
+            'palm_oasis' => [
+                'primary_color' => '#1B4332',
+                'secondary_color' => '#262A24',
+                'background_color' => '#F4F1EA',
+                'card_color' => '#FCFBF7',
+                'accent_color' => '#C5A871',
+                'font_family' => 'Cairo',
+                'border_style' => 'palm-arch-frame',
+                'ornament_style' => 'date_palm_fronds',
+            ],
+            'red_sea_pearl' => [
+                'primary_color' => '#4A7C8C',
+                'secondary_color' => '#2C3E47',
+                'background_color' => '#F6F8F9',
+                'card_color' => '#FFFFFF',
+                'accent_color' => '#9EB3BC',
+                'font_family' => 'Tajawal',
+                'border_style' => 'nacre-inlay',
+                'ornament_style' => 'pearl_shell',
+            ],
+            'desert_dusk' => [
+                'primary_color' => '#C86D51',
+                'secondary_color' => '#2D1E18',
+                'background_color' => '#231712',
+                'card_color' => '#FBF3EB',
+                'accent_color' => '#D99B82',
+                'font_family' => 'Cairo',
+                'border_style' => 'dune-horizon',
+                'ornament_style' => 'desert_sun_dunes',
+            ],
+            'modern_monogram' => [
+                'primary_color' => '#141413',
+                'secondary_color' => '#2B2927',
+                'background_color' => '#F5F2EB',
+                'card_color' => '#FFFFFF',
+                'accent_color' => '#C5A869',
+                'font_family' => 'Cairo',
+                'border_style' => 'editorial-monogram-grid',
+                'ornament_style' => 'couture_monogram',
+            ],
         ];
     }
 
@@ -134,6 +214,14 @@ class TemplateStyleCatalog
             'arabesque-lattice' => __('admin.template_editor.borders.arabesque-lattice'),
             'stardust-glow' => __('admin.template_editor.borders.stardust-glow'),
             'wax-seal-border' => __('admin.template_editor.borders.wax-seal-border'),
+            'najdi-crenellation' => __('admin.template_editor.borders.najdi-crenellation'),
+            'rawashin-lattice' => __('admin.template_editor.borders.rawashin-lattice'),
+            'sadu-woven-band' => __('admin.template_editor.borders.sadu-woven-band'),
+            'botanical-asymmetric' => __('admin.template_editor.borders.botanical-asymmetric'),
+            'palm-arch-frame' => __('admin.template_editor.borders.palm-arch-frame'),
+            'nacre-inlay' => __('admin.template_editor.borders.nacre-inlay'),
+            'dune-horizon' => __('admin.template_editor.borders.dune-horizon'),
+            'editorial-monogram-grid' => __('admin.template_editor.borders.editorial-monogram-grid'),
         ], $current);
     }
 
@@ -149,6 +237,14 @@ class TemplateStyleCatalog
             'islamic_star' => __('admin.template_editor.ornaments.islamic_star'),
             'constellation' => __('admin.template_editor.ornaments.constellation'),
             'wax_seal' => __('admin.template_editor.ornaments.wax_seal'),
+            'najdi_triangles' => __('admin.template_editor.ornaments.najdi_triangles'),
+            'hijazi_roshan' => __('admin.template_editor.ornaments.hijazi_roshan'),
+            'sadu_lozenge' => __('admin.template_editor.ornaments.sadu_lozenge'),
+            'taif_rose_bloom' => __('admin.template_editor.ornaments.taif_rose_bloom'),
+            'date_palm_fronds' => __('admin.template_editor.ornaments.date_palm_fronds'),
+            'pearl_shell' => __('admin.template_editor.ornaments.pearl_shell'),
+            'desert_sun_dunes' => __('admin.template_editor.ornaments.desert_sun_dunes'),
+            'couture_monogram' => __('admin.template_editor.ornaments.couture_monogram'),
         ], $current);
     }
 
@@ -164,6 +260,40 @@ class TemplateStyleCatalog
             'templates.islamic_elegance',
             'templates.emerald_night',
             'templates.classic_aristocrat',
+            'templates.diriyah_heritage',
+            'templates.rawashin_elegance',
+            'templates.sadu_signature',
+            'templates.taif_rose',
+            'templates.palm_oasis',
+            'templates.red_sea_pearl',
+            'templates.desert_dusk',
+            'templates.modern_monogram',
+        ];
+    }
+
+    public static function resolveBladeView(?string $viewName): string
+    {
+        if (is_string($viewName) && in_array($viewName, self::bladeViews(), true)) {
+            return $viewName;
+        }
+
+        return 'templates.royal_gold';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function saudiSignatureSlugs(): array
+    {
+        return [
+            'diriyah-heritage',
+            'rawashin-elegance',
+            'sadu-signature',
+            'taif-rose',
+            'palm-oasis',
+            'red-sea-pearl',
+            'desert-dusk',
+            'modern-monogram',
         ];
     }
 

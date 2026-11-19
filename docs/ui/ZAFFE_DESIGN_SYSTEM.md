@@ -41,9 +41,9 @@ All base colors, surfaces, focus outlines, selection styling, and reusable class
 
 ---
 
-## 4. Six Distinct Public Wedding Themes
+## 4. Fourteen Distinct Public Wedding Themes
 
-All themes under `resources/views/templates/` preserve their individual palettes, typography (`TemplateStyleCatalog::fontCssStack()`), `nl2br` multi-line welcome formatting, `onerror` photo fallback hiding, `<bdi>` date/time isolation, and ceremonial seal gate (`music_player.blade.php`):
+All themes under `resources/views/templates/` preserve their individual palettes, typography (`TemplateStyleCatalog::fontCssStack()`), `nl2br` multi-line welcome formatting, `onerror` photo fallback hiding, `<bdi>` date/time isolation, and ceremonial seal gate (`music_player.blade.php`). See [ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md](ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md) for the Saudi Signature Vol. 1 art-direction spec.
 
 | Slug / View | Visual Character |
 | :--- | :--- |
@@ -53,6 +53,14 @@ All themes under `resources/views/templates/` preserve their individual palettes
 | `islamic_elegance` | Classic Naskh `Amiri` typography + oasis emerald & geometric star medallion |
 | `emerald_night` | Deep midnight obsidian emerald (`#0D241C`) with `$isDarkTheme = true` adaptive partials |
 | `classic_aristocrat` | Royal navy & parchment crest card (`#1B2A4A`) with `Playfair Display` accents |
+| `diriyah_heritage` | Najdi mud-brick terracotta, warm desert sand, bronze courtyard arch & stepped crest motif |
+| `rawashin_elegance` | Historic Jeddah carved wooden Rawashin lattice frame, warm coral, natural teak & teal accents |
+| `sadu_signature` | Modern Al Sadu woven geometric textile framing with burgundy, terracotta, sand & burnt orange bands |
+| `taif_rose` | Asymmetric Taif rose botanical watercolor composition on dusty rose, sage & champagne parchment |
+| `palm_oasis` | Deep palm green & champagne gold formal botanical palm-frond oasis framing |
+| `red_sea_pearl` | Mother-of-pearl ivory, sea-glass blue, muted silver & understated fine geometric borders |
+| `desert_dusk` | Dark cocoa (`$isDarkTheme = true`), layered sunset dune horizon bands, copper & dusk rose tones |
+| `modern_monogram` | Matte cream gallery editorial with architectural champagne-framed bilingual monogram emblem |
 
 Importantly, `livewire/rsvp-form.blade.php` and `templates/partials/access_section.blade.php` explicitly scope light-surface ink (`text-[#221E1A]`) so dark invitation themes never cause invisible white-on-white inputs or labels.
 

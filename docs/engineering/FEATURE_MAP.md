@@ -103,18 +103,18 @@ graph TD
 ---
 
 ### F02 — Template Management & Discovery `[ACTIVE - R1]`
-- **Domain Mission:** Presentation, filtering, and preview of all 6 luxury wedding themes — **100% free** in Release 1.
+- **Domain Mission:** Presentation, filtering, and preview of all 14 luxury wedding themes (6 baseline + 8 Saudi Signature Collection — Vol. 1) — **100% free** in Release 1.
 - **Components & Files:**
-  - Models: `app/Models/TemplateCategory.php`, `app/Models/InvitationTemplate.php`
-  - Controller: `app/Http/Controllers/HomeController.php:24-69`
+  - Models & Catalog: `app/Models/TemplateCategory.php`, `app/Models/InvitationTemplate.php`, `app/Support/TemplateStyleCatalog.php` (`resolveBladeView()`, `saudiSignatureSlugs()`)
+  - Controller: `app/Http/Controllers/HomeController.php` (`templates()`, `?collection=saudi-signature`, `previewTemplate()`)
   - Views: `resources/views/pages/templates.blade.php`, `preview-template.blade.php`
-  - Templates: `resources/views/templates/` (`royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`)
+  - Templates: `resources/views/templates/` (`royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`, plus Vol. 1: `diriyah_heritage`, `rawashin_elegance`, `sadu_signature`, `taif_rose`, `palm_oasis`, `red_sea_pearl`, `desert_dusk`, `modern_monogram`)
 - **Capability Audit:**
-  - `[VERIFIED]` All 6 templates rendered and verified by `AuditTest.php:320-340`.
-  - `[VERIFIED]` Category filtering and search.
+  - `[VERIFIED]` All 14 templates rendered and verified by `AuditTest.php`, `TemplateManagementTest.php`, and `SaudiSignatureTemplateCollectionTest.php`.
+  - `[VERIFIED]` Category filtering, `?collection=saudi-signature` filter, and bilingual search.
   - `[VERIFIED]` Interactive preview with mock data (`/templates/{slug}/preview`).
-  - `[ACTIVE DIRECTIVE]` All templates are unlocked for all users. No premium gating in Release 1.
-  - `[IMPROVEMENT_NEEDED]` Enforce inactive template rejection in catalog and creation wizard.
+  - `[VERIFIED]` Inactive template rejection (`is_active = false`) in preview, creation, and editor, plus validated `view_name` resolution via `TemplateStyleCatalog::resolveBladeView()`.
+  - `[ACTIVE DIRECTIVE]` All 14 templates are unlocked for all users. No premium gating in Release 1.
 
 ---
 

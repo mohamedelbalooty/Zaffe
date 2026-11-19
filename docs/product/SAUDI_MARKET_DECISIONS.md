@@ -35,8 +35,8 @@ This document defines the mandatory product, cultural, UX, performance, complian
   - Displaying the bride's full name must be strictly optional (supporting privacy-preserving alternatives such as family/kunya phrasing, e.g., *"كريمة عائلة ..."*, or groom-only / family-hosted wording).
   - Uploading and displaying photos of the bride or couple must be strictly optional.
 - **Photo-Free Luxury Templates:**
-  - The template catalog must include luxury templates designed to work **without any person photos** (relying on typography, geometry, borders, floral/Islamic motifs, and SVG iconography).
-  - All templates must render cleanly when zero photos are uploaded, without broken frames, empty placeholder avatars, or layout collapse.
+  - The template catalog includes luxury templates designed to work **without any person photos** (relying on typography, geometry, borders, floral/Islamic/Saudi architectural motifs, and SVG iconography).
+  - All 14 templates (the 6 baseline themes and the 8 **Saudi Signature Collection — Vol. 1** themes in `ZAFFE-023`) render cleanly when zero photos are uploaded, without broken frames, empty placeholder avatars, or layout collapse — verified in `SaudiSignatureTemplateCollectionTest` and `TemplateManagementTest`.
 
 ### Testable Rules
 1. Creating, saving, and publishing an invitation succeeds with zero `InvitationPhoto` records and with the bride's display name omitted or replaced by a family/kunya label.

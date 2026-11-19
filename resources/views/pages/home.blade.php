@@ -320,8 +320,8 @@
                     </h3>
                     <p class="text-sm text-[#52493F] leading-relaxed">
                         {{ $isEn
-                            ? 'Browse six curated royal, floral, Islamic heritage, celestial, minimalist, and classic themes with live device previews.'
-                            : 'استعرض تشكيلتنا الملكية من القوالب المصممة بعناية فائقة وعاينها مباشرة على شاشة الجوال وسطح المكتب.' }}
+                            ? 'Browse fourteen curated heritage, botanical, minimalist, and Saudi Signature designs with live device previews.'
+                            : 'استعرض تشكيلتنا المختارة من ١٤ قالباً فاخراً — بما فيها مجموعة التوقيع السعودي — وعاينها مباشرة على شاشة الجوال وسطح المكتب.' }}
                     </p>
                 </div>
 
@@ -365,13 +365,19 @@
                         {{ $isEn ? 'Featured Wedding Themes' : 'أشهر تصاميم بطاقات الزفاف' }}
                     </h2>
                     <p class="text-sm sm:text-base text-[#52493F]">
-                        {{ $isEn ? 'Six distinct visual worlds ready to customize in minutes.' : 'اختر من بين تشكيلة متنوعة تناسب مختلف الأذواق والمناسبات' }}
+                        {{ $isEn ? 'Fourteen distinct visual worlds including our Saudi Signature Collection — ready to customize in minutes.' : '١٤ عالماً بصرياً متفرداً بين التصاميم الكلاسيكية ومجموعة التوقيع السعودي — قابلة للتخصيص في دقائق' }}
                     </p>
                 </div>
-                <a href="{{ route('templates.index') }}" class="btn-ghost-ivory shrink-0 self-start sm:self-auto">
-                    <span>{{ $isEn ? 'All Templates' : 'عرض كل التصاميم' }}</span>
-                    <x-app-icon name="arrow-left" class="w-4 h-4 text-[#856326] dir-arrow" />
-                </a>
+                <div class="flex flex-wrap items-center gap-2.5 shrink-0 self-start sm:self-auto">
+                    <a href="{{ route('templates.index', ['collection' => 'saudi-signature']) }}" class="btn-royal">
+                        <x-app-icon name="crown" class="w-4 h-4" />
+                        <span>{{ $isEn ? 'Saudi Signature Vol. 1' : 'مجموعة التوقيع السعودي' }}</span>
+                    </a>
+                    <a href="{{ route('templates.index') }}" class="btn-ghost-ivory">
+                        <span>{{ $isEn ? 'All 14 Templates' : 'عرض كل التصاميم' }}</span>
+                        <x-app-icon name="arrow-left" class="w-4 h-4 text-[#856326] dir-arrow" />
+                    </a>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
@@ -472,9 +478,9 @@
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] text-[#7A5A20] flex items-center justify-center border border-[#C6A76B]/30">
                         <x-app-icon name="crown" class="w-5 h-5" />
                     </div>
-                    <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">{{ $isEn ? 'Curated Cultural Themes' : 'قوالب ملكية جاهزة' }}</h3>
+                    <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">{{ $isEn ? 'Curated Cultural Themes' : 'قوالب ملكية وتراثية سعودية' }}</h3>
                     <p class="text-sm text-[#52493F] leading-relaxed">
-                        {{ $isEn ? 'Six thoughtfully crafted designs inspired by Saudi, Egyptian, and contemporary editorial aesthetics.' : 'تصاميم احترافية مستوحاة من الثقافة السعودية والمصرية والمودرن بأعلى معايير الأناقة والذوق الرفيع.' }}
+                        {{ $isEn ? 'Fourteen thoughtfully crafted designs inspired by Saudi heritage, Egyptian elegance, and contemporary editorial aesthetics.' : 'أربعة عشر تصميماً احترافياً مستوحى من التراث السعودي والثقافة العربية والمودرن بأعلى معايير الأناقة والذوق الرفيع.' }}
                     </p>
                 </div>
 

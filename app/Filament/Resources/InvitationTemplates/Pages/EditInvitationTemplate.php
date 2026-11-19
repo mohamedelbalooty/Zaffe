@@ -42,6 +42,7 @@ class EditInvitationTemplate extends EditRecord
         /** @var InvitationTemplate $record */
         $record = $this->getRecord();
 
+        $data['is_premium'] = false;
         $data['default_styles'] = TemplateStyleCatalog::sanitizeStyles(
             $data['default_styles'] ?? [],
             $record->default_styles ?? [],

@@ -317,10 +317,10 @@ class AuditTest extends TestCase
         $this->assertEquals($originalGroomName, $invitation->groom_name, 'Owner invitation was hacked via IDOR!');
     }
 
-    public function test_all_six_templates_preview_and_render_successfully()
+    public function test_all_fourteen_templates_preview_and_render_successfully()
     {
         $templates = InvitationTemplate::all();
-        $this->assertCount(6, $templates);
+        $this->assertCount(14, $templates);
 
         $owner = User::where('email', 'couple@zaffe.app')->first();
         $invitation = Invitation::where('user_id', $owner->id)->first();

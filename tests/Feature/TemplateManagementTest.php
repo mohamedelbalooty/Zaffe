@@ -24,13 +24,13 @@ class TemplateManagementTest extends TestCase
         $this->seed(DatabaseSeeder::class);
     }
 
-    public function test_all_six_templates_are_active_and_discoverable_in_catalog(): void
+    public function test_all_fourteen_templates_are_active_and_discoverable_in_catalog(): void
     {
         $response = $this->get('/templates');
         $response->assertStatus(200);
 
         $templates = InvitationTemplate::where('is_active', true)->get();
-        $this->assertCount(6, $templates);
+        $this->assertCount(14, $templates);
 
         foreach ($templates as $template) {
             $response->assertSee($template->name_ar);
@@ -129,7 +129,7 @@ class TemplateManagementTest extends TestCase
     public function test_template_thumbnails_are_local_webp_files_with_no_external_urls(): void
     {
         $templates = InvitationTemplate::orderBy('sort_order')->get();
-        $this->assertCount(6, $templates);
+        $this->assertCount(14, $templates);
 
         foreach ($templates as $template) {
             $expectedPath = "/images/templates/{$template->slug}.webp";

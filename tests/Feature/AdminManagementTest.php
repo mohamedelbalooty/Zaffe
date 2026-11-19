@@ -230,7 +230,7 @@ class AdminManagementTest extends TestCase
         $this->assertFalse(Hash::check('password123', $prodAdmin->password));
 
         $this->assertSame(6, TemplateCategory::count());
-        $this->assertSame(7, InvitationTemplate::count()); // 1 from setUp + 6 seeded catalog templates
+        $this->assertSame(15, InvitationTemplate::count()); // 1 from setUp + 14 seeded catalog templates
         $this->assertDatabaseHas('invitation_templates', ['slug' => 'royal-gold']);
 
         $seededSlugs = [
@@ -240,6 +240,14 @@ class AdminManagementTest extends TestCase
             'islamic-elegance',
             'emerald-night',
             'classic-aristocrat',
+            'diriyah-heritage',
+            'rawashin-elegance',
+            'sadu-signature',
+            'taif-rose',
+            'palm-oasis',
+            'red-sea-pearl',
+            'desert-dusk',
+            'modern-monogram',
         ];
 
         foreach ($seededSlugs as $slug) {

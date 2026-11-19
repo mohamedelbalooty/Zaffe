@@ -10,7 +10,7 @@
 ## 1. Feature Objective & Business Value
 
 ### 1.1 Objective
-Ensure that all 6 luxury wedding invitation templates are **100% free and discoverable** during Release 1, while enforcing strict backend validation so that inactive templates (`is_active = false`) cannot be previewed, selected during invitation creation, or switched to in the visual editor.
+Ensure that all luxury wedding invitation templates (originally 6 at Sprint 2 launch, expanded to 14 free templates in `ZAFFE-023`) are **100% free and discoverable** during Release 1, while enforcing strict backend validation so that inactive templates (`is_active = false`) cannot be previewed, selected during invitation creation, or switched to in the visual editor.
 
 ### 1.2 User Stories
 - **As an engaged couple**, I want to browse all six luxury themes in Arabic and English, search by keyword, and filter by aesthetic category so I can find the perfect style for our wedding.
@@ -21,7 +21,7 @@ Ensure that all 6 luxury wedding invitation templates are **100% free and discov
 
 ## 2. Business Rules & Technical Requirements
 
-1. **Release 1 Free Tier Policy:** All 6 templates (`royal-gold`, `floral-romance`, `minimal-chic`, `islamic-elegance`, `emerald-night`, `classic-aristocrat`) are completely free for all registered users (`is_premium` does not block usage).
+1. **Release 1 Free Tier Policy:** All 6 baseline templates (`royal-gold`, `floral-romance`, `minimal-chic`, `islamic-elegance`, `emerald-night`, `classic-aristocrat`) and the 8 **Saudi Signature Collection — Vol. 1** templates added in `ZAFFE-023` (14 total) are completely free for all registered users (`is_premium` does not block usage).
 2. **Catalog & Search:**
    - Active templates (`is_active = true`) are visible in `/templates`.
    - Filterable by `category` slug.
@@ -49,10 +49,16 @@ Ensure that all 6 luxury wedding invitation templates are **100% free and discov
 
 ## 4. Definition of Done & Quality Gates
 
-- [ ] All 4 tasks implemented.
-- [ ] Inactive templates return 404 in preview.
-- [ ] Inactive templates cannot be created or switched to.
-- [ ] All 6 templates verified free and accessible.
-- [ ] Test suite `tests/Feature/TemplateManagementTest.php` passes 100% green.
-- [ ] Full regression suite passes with 0 failures.
-- [ ] Conventional Commit prepared on `feature/ZAFFE-002-template-management`.
+- [x] All 4 tasks implemented.
+- [x] Inactive templates return 404 in preview.
+- [x] Inactive templates cannot be created or switched to.
+- [x] All 6 baseline templates verified free and accessible.
+- [x] Test suite `tests/Feature/TemplateManagementTest.php` passes 100% green.
+- [x] Full regression suite passes with 0 failures.
+- [x] Conventional Commit prepared on `feature/ZAFFE-002-template-management`.
+
+## 5. ZAFFE-023 Catalog Expansion (Saudi Signature Collection — Vol. 1)
+
+- Added **8 free Saudi-first templates** (`is_premium = false`, `is_active = true`, `sort_order` 7–14), bringing the active Release 1 catalog from 6 to **14 templates**: `diriyah-heritage`, `rawashin-elegance`, `sadu-signature`, `taif-rose`, `palm-oasis`, `red-sea-pearl`, `desert-dusk`, and `modern-monogram`.
+- Added `?collection=saudi-signature` filter in `HomeController::templates()`, `TemplateStyleCatalog::resolveBladeView()`, strict Blade view whitelist validation in `InvitationTemplateForm`, and `tests/Feature/SaudiSignatureTemplateCollectionTest.php`.
+- Full design and implementation details live in [ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md](../../ui/ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md).

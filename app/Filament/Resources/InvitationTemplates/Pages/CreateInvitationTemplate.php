@@ -16,6 +16,7 @@ class CreateInvitationTemplate extends CreateRecord
      */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        $data['is_premium'] = false;
         $data['default_styles'] = TemplateStyleCatalog::sanitizeStyles(
             $data['default_styles'] ?? [],
         );
