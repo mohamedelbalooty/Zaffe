@@ -8,6 +8,13 @@
       "skillPath": ".claude/skills/backend-development/SKILL.md",
       "computedHash": "746dbc248d2ac18a317ca49513b4be50f4f8b8e4f39d362cce93ec15886b296f"
     },
+    "business-analysis": {
+      "source": "kienhaminh/anti-chaotic",
+      "commit": "96773c83b3d6702c28496ec6e0bf05d61c2ce6ae",
+      "sourceType": "github",
+      "skillPath": ".agent/skills/business-analysis/SKILL.md",
+      "computedHash": "0708e2caded5bb619a3fa3a4a4c3ff9d97fbc6838e9f9d921c86aaed70707447"
+    },
     "code-review": {
       "source": "mattpocock/skills",
       "commit": "5863806dd4e15c63174bee4e7515a4256792ecfa",
@@ -21,6 +28,13 @@
       "sourceType": "github",
       "skillPath": "skills/copywriting/SKILL.md",
       "computedHash": "b948ac03ec661626b8fc198786ecf761a97e0dacf626cb90d3b5016e9e3baf2f"
+    },
+    "documentation": {
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "b4c9a4e1de4b42868b74a6fe30ac766f64e43a3e",
+      "sourceType": "github",
+      "skillPath": "engineering/skills/documentation/SKILL.md",
+      "computedHash": "d401429502dcfb37aadfbeddcc3577a9618c393555d305c56821800570dcd1ed"
     },
     "frontend-design": {
       "source": "anthropics/skills",
