@@ -481,4 +481,96 @@ class SaudiSignatureTemplateCollectionTest extends TestCase
             $this->assertDoesNotMatchRegularExpression('#https?://(?!maps\.google)#i', $content, "External URL detected in {$file->getRelativePathname()}");
         }
     }
+
+    public function test_saudi_signature_sync_migration_upgrades_legacy_six_template_database_idempotently(): void
+    {
+        $baselineOrder = [
+            'royal-gold' => 1,
+            'floral-romance' => 2,
+            'minimal-chic' => 3,
+            'islamic-elegance' => 4,
+            'emerald-night' => 5,
+            'classic-aristocrat' => 6,
+        ];
+
+        InvitationTemplate::whereIn('slug', TemplateStyleCatalog::saudiSignatureSlugs())->delete();
+        foreach ($baselineOrder as $slug => $order) {
+            InvitationTemplate::where('slug', $slug)->update(['sort_order' => $order]);
+        }
+
+        $this->assertSame(6, InvitationTemplate::count());
+        $this->get('/templates/taif-rose/preview')->assertNotFound();
+        $this->assertDatabaseHas('invitations', ['slug' => 'ahmed-and-sarah']);
+
+        $migration = require database_path('migrations/2026_11_19_000001_sync_saudi_signature_vol1_templates.php');
+        $migration->up();
+
+        $this->assertSame(14, InvitationTemplate::count());
+
+        $expectedSaudiOrder = [
+            'taif-rose' => 1,
+            'diriyah-heritage' => 2,
+            'rawashin-elegance' => 3,
+            'sadu-signature' => 4,
+            'palm-oasis' => 5,
+            'red-sea-pearl' => 6,
+            'desert-dusk' => 7,
+            'modern-monogram' => 8,
+        ];
+
+        foreach ($expectedSaudiOrder as $slug => $sortOrder) {
+            $template = InvitationTemplate::where('slug', $slug)->firstOrFail();
+            $this->assertSame($sortOrder, $template->sort_order);
+            $this->assertTrue($template->is_active);
+            $this->assertFalse($template->is_premium);
+        }
+
+        $taifRose = InvitationTemplate::where('slug', 'taif-rose')->firstOrFail();
+        $this->assertSame('#8E4A64', $taifRose->default_styles['primary_color']);
+
+        $expectedBaselineAfter = [
+            'royal-gold' => 9,
+            'floral-romance' => 10,
+            'minimal-chic' => 11,
+            'islamic-elegance' => 12,
+            'emerald-night' => 13,
+            'classic-aristocrat' => 14,
+        ];
+
+        foreach ($expectedBaselineAfter as $slug => $sortOrder) {
+            $this->assertSame($sortOrder, InvitationTemplate::where('slug', $slug)->firstOrFail()->sort_order);
+        }
+
+        $this->assertDatabaseHas('invitations', ['slug' => 'ahmed-and-sarah']);
+
+        $homeResponse = $this->get('/');
+        $homeResponse->assertOk();
+        $homeResponse->assertSee('ورد الطائف');
+        $homeResponse->assertSee('تراث الدرعية');
+
+        $collectionResponse = $this->get('/templates?collection=saudi-signature');
+        $collectionResponse->assertOk();
+        foreach (array_keys($expectedSaudiOrder) as $slug) {
+            $collectionResponse->assertSee(InvitationTemplate::where('slug', $slug)->firstOrFail()->name_ar);
+        }
+
+        $this->get('/templates/taif-rose/preview')->assertOk();
+
+        // Idempotency + admin active toggle preservation
+        $diriyah = InvitationTemplate::where('slug', 'diriyah-heritage')->firstOrFail();
+        $diriyah->update(['is_active' => false]);
+
+        $migration->up();
+
+        $this->assertSame(14, InvitationTemplate::count());
+        $this->assertFalse($diriyah->fresh()->is_active);
+
+        // Fresh/empty DB guard: does not seed rows when baseline catalog is absent
+        Invitation::query()->delete();
+        InvitationTemplate::query()->delete();
+
+        $migration->up();
+
+        $this->assertSame(0, InvitationTemplate::count());
+    }
 }

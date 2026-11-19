@@ -1,7 +1,7 @@
 # PROJECT CONTEXT — Zaffe (زفّــة)
 
 > **Single Source of Truth for Business Domain, Product Features, Technical Architecture & AI/MCP Integrations**  
-> **Repository:** `e:\GithubProjects\Zaffe` | **Last Verified:** 2026-11-18  
+> **Repository:** `e:\GithubProjects\Zaffe` | **Last Verified:** 2026-11-19  
 > **Market Priority:** Saudi Arabia (KSA) First, Egypt Second (MENA) | **Primary Language:** Arabic (`ar`, RTL default), with English (`en`, LTR) support  
 > **Status:** Release 1 Engineering Complete (`F01`–`F10`, `F12`–`F14`, `ZAFFE-016`, `ZAFFE-017` Admin Coverage, and `F16` Part A active in `dev`; `F16` Part B QR Scanning & Gatekeeper Check-In isolated on `feature/ZAFFE-018-smart-guests-and-qr-checkin`)
 
@@ -246,6 +246,7 @@ erDiagram
 2. **Deferred Server-Side Image Compression (Post-Release 1):** Images up to 5MB are MIME-validated and cleaned up on deletion; server-side WebP resizing/compression remains queued Post-Release 1.
 3. **Deferred Monetization (`F11`):** Release 1 operates intentionally 100% free with zero paywalls; Paymob per-invitation checkout is planned Post-Release 1 behind a feature flag.
 4. **Local Windows Composer Issue:** Winget's pre-packaged Composer wrapper fails with `PharException: manifest cannot be larger than 100 MB`. Use standalone `php composer.phar` with `herd-lite` PHP (`8.5`) as documented in `docs/DEVELOPMENT_GUIDE.md`.
+5. **Catalog Data Migrations Over Seeder-Only Changes:** Never ship new templates, `sort_order` changes, or catalog updates solely in `DatabaseSeeder.php` (`firstOrCreate()` skips existing rows and production deploys only run `migrate --force`). Always pair `DatabaseSeeder` updates with an idempotent, non-destructive data migration (guarded against empty `RefreshDatabase` test DBs, preserving `is_active` toggles), a legacy-DB upgrade test, `php artisan migrate`, `php artisan view:clear`, and `npm run build`.
 
 ### 9.3 Future Task Execution Protocol for Developers & Agents
 Whenever implementing features, fixing bugs, or integrating tools/MCPs with Zaffe:
