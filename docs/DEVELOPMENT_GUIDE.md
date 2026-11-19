@@ -1,7 +1,7 @@
 # Zaffe (زفّــة) — Developer & Contributor Guide
 
 > **Practical Guide for Local Setup, Development Workflows, Coding Standards, and Feature Extensions**  
-> **Status:** Officially Documented | **Last Updated:** 2026-11-12
+> **Status:** Officially Documented | **Last Updated:** 2026-11-19
 
 ---
 
@@ -16,8 +16,9 @@ Ensure the following tools are installed on your machine before running Zaffe:
 - **Database:** SQLite 3 (default for local development and testing) or MySQL 8.0+.
 
 > [!WARNING]
-> **Windows Environment Alert (Composer Winget Issue):**  
-> If you encounter `PharException: manifest cannot be larger than 100 MB` when invoking `composer` on Windows, the pre-packaged Winget composer binary is corrupted.  
+> **Windows Environment Alerts:**  
+> 1. **PHP Version on `PATH` (PHP 8.3 vs 8.5):** If both PHP 8.3 and PHP 8.5 are installed via WinGet, ensure PHP 8.5 precedes PHP 8.3 in `PATH`. Composer dependencies resolved on PHP 8.5 (Laravel 13 / Symfony 8.1) use PHP 8.4+ property hooks and fail with syntax errors under PHP 8.3.  
+> 2. **Composer Winget Issue:** If you encounter `PharException: manifest cannot be larger than 100 MB` when invoking `composer` on Windows, the pre-packaged Winget composer binary is corrupted.  
 > **Resolution:** Download the official standalone `composer.phar` directly into your PHP directory or root:
 > ```powershell
 > Invoke-WebRequest https://getcomposer.org/composer.phar -OutFile composer.phar
@@ -153,11 +154,11 @@ php artisan test tests/Feature/WeddingPlatformTest.php
   - `font-tajawal`: Used for primary body copy and UI elements.
   - `font-amiri`: Used for Quranic verses, calligraphy, and poetry.
 
-### 6.2 Adding a New Wedding Invitation Template
-To add a new invitation template (e.g. `bohemian-chic`):
+### 6.2 Adding or Updating a Wedding Invitation Template
+To add or update a wedding invitation template (e.g. `bohemian-chic`), complete **all seven steps** end-to-end so the change works on fresh installs, existing local/staging/production databases, and non-HMR builds:
 
-1. **Create the Blade View:**
-   Create `resources/views/templates/bohemian_chic.blade.php` using the standardized props:
+1. **Create or Update the Blade View:**
+   Create `resources/views/templates/bohemian_chic.blade.php` using the standardized props, SVG-only `<x-app-icon>` iconography, zero external image URLs, zero Unicode emojis, and photo-free privacy support:
    ```blade
    @props(['invitation', 'isPreview' => false])
    @php
@@ -175,27 +176,50 @@ To add a new invitation template (e.g. `bohemian-chic`):
    @include('templates.partials.share_box', ['invitation' => $invitation, ...])
    ```
 
-2. **Register in Database / Seeder:**
-   Add the template entry to `database/seeders/DatabaseSeeder.php` or create it via the Filament Admin panel (`/admin/invitation-templates`):
+2. **Register Presets, Allowlisted View & Admin Labels:**
+   - Add preset colors/typography, `borderStyles()`, `ornamentStyles()`, and the Blade view name to `bladeViews()` in `app/Support/TemplateStyleCatalog.php` (never bypass the allowlist; untrusted view names fall back to `templates.royal_gold`).
+   - Add Arabic and English labels in `lang/ar/admin.php` and `lang/en/admin.php`, and preview styling in `resources/views/filament/components/template-style-preview.blade.php`.
+
+3. **Add Self-Hosted WebP Thumbnail:**
+   Save a local `390×680` WebP thumbnail (`<= 120 KB`) at `public/images/templates/bohemian-chic.webp` (never hotlink external URLs).
+
+4. **Update `DatabaseSeeder` (for Fresh Installs & Tests):**
+   Add or update the template entry in `database/seeders/DatabaseSeeder.php` using `InvitationTemplate::firstOrCreate(['slug' => ...], ...)` with `is_premium => false` (Release 1 policy):
    ```php
    [
-       'category_id' => $category->id,
+       'category_id' => $categoryModels['floral']->id,
        'slug' => 'bohemian-chic',
        'name_ar' => 'البوهيمي الأنيق',
        'name_en' => 'Bohemian Chic',
        'view_name' => 'templates.bohemian_chic',
-       'default_styles' => [
-           'primary_color' => '#B38059',
-           'secondary_color' => '#3D312A',
-           'background_color' => '#FBF7F2',
-           'font_family' => 'Tajawal',
-       ],
+       'thumbnail' => '/images/templates/bohemian-chic.webp',
+       'default_styles' => $presets['bohemian_chic'],
        'is_premium' => false,
+       'is_active' => true,
+       'sort_order' => 15,
    ]
    ```
 
-3. **Verify Rendering:**
-   Run `AuditTest::test_all_six_templates_preview_and_render_successfully` to verify that preview and production rendering succeed without errors.
+5. **Create an Idempotent, Non-Destructive Data Migration (MANDATORY for Existing Databases):**
+   `DatabaseSeeder` intentionally uses `firstOrCreate()` so re-seeding does not overwrite live admin edits, and incremental deployments run `php artisan migrate --force` (not `db:seed`). Therefore, **every new template, `sort_order` change, or catalog metadata/preset update must also ship as a migration** (see `database/migrations/2026_11_19_000001_sync_saudi_signature_vol1_templates.php` for the reference pattern) following all 5 rules:
+   - Guard with `Schema::hasTable('template_categories') && Schema::hasTable('invitation_templates')`.
+   - Exit early when baseline catalog rows do not exist yet (prevents polluting empty `RefreshDatabase` test suites that assert exact template counts before seeding).
+   - Ensure required `template_categories` exist before resolving `category_id`.
+   - Insert missing slugs (`is_active => true`, `is_premium => false`) and update catalog fields on existing slugs **without overwriting `is_active`**, explicitly encoding JSON columns with `json_encode($styles, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)` when writing via `DB::table()`.
+   - Keep `down()` intentionally non-destructive so `invitations.template_id` references on live weddings are never broken.
+
+6. **Sync Local Database, Views & Production Assets:**
+   After merging or checking out template updates locally, always run:
+   ```bash
+   php artisan migrate
+   php artisan view:clear
+   npm run build
+   ```
+   *(Running `npm run build` compiles newly referenced Tailwind CSS v4 utilities into `public/build` for non-HMR browsing and production readiness.)*
+
+7. **Verify End-to-End:**
+   - Run `php artisan test` (including `AuditTest::test_all_fourteen_templates_preview_and_render_successfully` and a legacy-DB migration upgrade/idempotency test covering both existing-DB upgrade and empty-DB guard behavior).
+   - Run `./vendor/bin/pint --test` on all added and modified PHP files.
 
 ---
 
@@ -209,4 +233,10 @@ To add a new invitation template (e.g. `bohemian-chic`):
    When updating `DashboardController::exportGuestsCsv()`, always maintain the UTF-8 Byte Order Mark (`0xEF, 0xBB, 0xBF`) and formula sanitization. Removing either will cause Excel encoding glitches with Arabic characters or expose users to CSV formula injection.
 4. **Hardcoding Strings Without Multilingual Consideration:**  
    While Arabic is the primary platform language, always ensure dual-language awareness by respecting `app()->getLocale()`.
+5. **Seeder-Only Catalog Changes (Invisible on Existing Databases):**  
+   PHPUnit uses `RefreshDatabase` + `DatabaseSeeder`, so seeder-only template additions or `sort_order`/preset changes pass CI while remaining completely invisible on existing local `database/database.sqlite`, staging, and production databases (causing missing gallery cards and `404` preview routes). Always pair `DatabaseSeeder` changes with an idempotent data migration.
+6. **Stale `public/build` Assets & Compiled Blade Views:**  
+   Tailwind CSS v4 only bundles utility classes present at build time. Always run `npm run build` and `php artisan view:clear` after adding or updating template Blade views so styling renders accurately even when Vite HMR is inactive.
+7. **Passing Raw Arrays to `DB::table()` JSON Columns:**  
+   Query-builder calls (`DB::table('invitation_templates')->insert/update`) bypass Eloquent's `array` cast on `default_styles`. Always wrap JSON payloads in `json_encode(..., JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)`.
 

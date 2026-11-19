@@ -80,6 +80,10 @@ Boost replaces these bootstrap instructions with guidelines tailored to the appl
    - Always sanitize CSV export inputs against formula injection.
 10. **Add and Run Tests:** Whenever adding logic or fixing a bug, write or update tests in `tests/Feature/` and verify with `php artisan test`.
 11. **Update Documentation:** When significant business rules or architectural patterns change, update `PROJECT_CONTEXT.md` and the appropriate document in `docs/`.
+12. **Catalog & Reference Data Require Idempotent Migrations:** Any addition or modification to catalog/reference tables (`invitation_templates`, `template_categories`, `platform_settings`) must **never** live solely in `DatabaseSeeder.php`. Because `DatabaseSeeder` uses `firstOrCreate()` to protect admin overrides and live/staging environments deploy via `php artisan migrate --force` (not `db:seed`), every catalog change must ship with:
+    - An idempotent, non-destructive data migration (guarded against empty/fresh `RefreshDatabase` test DBs, preserving existing `is_active` flags, and explicitly `json_encode()`-ing JSON columns written via `DB::table()`).
+    - An automated legacy-DB migration upgrade test verifying both upgraded existing rows and empty-DB guard behavior.
+    - Local execution of `php artisan migrate`, `php artisan view:clear`, and `npm run build` (plus `php artisan test` and `./vendor/bin/pint --test`) before handoff.
 
 ---
 

@@ -188,11 +188,15 @@ Verify active runtime protections:
   - If a browser session is currently logged in as a regular couple (`role = 'user'`), visiting `/admin` will return **HTTP 403 Forbidden** rather than redirecting to `/admin/login`. Log out of the customer account (or use a separate browser session/profile) before signing in at `/admin/login`.
 - **Demo Account Restrictions:**
   - Demo accounts and sample wedding content in `DatabaseSeeder` are restricted exclusively to `local` and `testing` environments (`app()->environment(['local', 'testing'])`), and the login page demo quick-fill helper is hidden in `staging` and `production`.
-  - Release 1 ships all 6 invitation templates free (`is_premium = false`) with no premium gating.
+  - Release 1 ships all 14 invitation templates (6 baseline + 8 Saudi Signature Vol. 1) free (`is_premium = false`) with no premium gating.
 
 ---
 
 ## 7. Build & Release Execution Commands
+
+> [!IMPORTANT]
+> **Catalog & Reference Data Deployment Rule:**  
+> Incremental staging and production releases run `php artisan migrate --force` and `npm ci && npm run build` — they do **not** re-run `php artisan db:seed`. Because `DatabaseSeeder` uses `firstOrCreate()` to preserve live admin edits, any new or modified templates, categories, or platform settings must ship as an **idempotent, non-destructive data migration** (verified on both legacy and fresh databases) so `migrate --force` updates existing environments automatically without overwriting admin `is_active` toggles or user data.
 
 ```bash
 composer install --no-dev --optimize-autoloader
