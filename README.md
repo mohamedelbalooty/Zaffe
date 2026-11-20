@@ -16,7 +16,7 @@
 3. **Static Digital Flyers Lack Utility:** PDFs and static images cannot run a timezone-aware countdown, play a user-initiated audio track, launch Google Maps directions, enforce per-invitee quotas, or generate personal QR passes.
 
 ### Core Value Proposition
-- **Culturally Authentic Arabic-First Luxury:** Six bespoke wedding themes built around Arabic typography (`Amiri`, `Cairo`, `Tajawal`, `Playfair Display`), formal-simple Arabic (`الفصحى البسيطة`), SVG iconography (`<x-app-icon>`), and optional privacy-preserving layouts (optional bride name and photo-free rendering).
+- **Culturally Authentic Arabic-First Luxury:** **14 curated wedding themes** (8 Saudi Signature Collection — Vol. 1 + 6 baseline templates) built around Arabic typography (`Amiri`, `Cairo`, `Tajawal`, `Playfair Display`), formal-simple Arabic (`الفصحى البسيطة`), SVG iconography (`<x-app-icon>`), and optional photo-free layouts (note: family/optional bride-name display is a target KSA privacy policy currently supported safely by the 8 Saudi Signature templates while DB/validation still require `bride_name` on `dev`).
 - **Zero-Code Visual Studio Editor:** Real-time Livewire editor (`InvitationEditor`) with live device preview, instant autosave, custom palette/font overrides, and draft/publish lifecycle control.
 - **1-Click WhatsApp Distribution & Mobile WebView Speed:** Built for guests opening invitations inside WhatsApp's in-app browser over 4G mobile connections, with personalized `?g=` invite links and self-hosted WebP assets.
 - **Smart Guest Roster, RSVP Engine & Personal QR Passes:** Structured pre-invited guest lists with adult/child quotas, bulk CSV import, E.164 phone normalization (`+966` / `+20`), deduplicated RSVPs, and pure-PHP ISO/IEC 18004 SVG QR passes (`/pass/{qrToken}`).
@@ -30,8 +30,8 @@ If you are an AI coding agent, MCP tool, automation client, or external integrat
 | Dimension | Current Authoritative State |
 | :--- | :--- |
 | **Domain** | B2C Wedding SaaS (Digital Invitations, Visual Studio Editor, Guest Roster, RSVP & QR Passes) |
-| **Stack** | PHP `^8.3`, Laravel `^13.17`, Livewire `^4.4`, Alpine.js, Tailwind CSS `^4.0`, Filament `^5.11`, Vite `^8.0` |
-| **Commercial Model (Release 1)** | **100% Free Launch** — zero paywalls, zero tier caps, all 6 templates and editor features unlocked. `/admin/subscription-plans` returns `403` (`SubscriptionPlanResource::canAccess(): false`). |
+| **Stack** | PHP `>= 8.4.1` runtime (`composer.lock` Symfony 8.1; `composer.json` declares `^8.3`; `ext-intl` mandatory), Laravel `^13.17`, Livewire `^4.4`, Alpine.js, Tailwind CSS `^4.0`, Filament `^5.11`, Vite `^8.0` |
+| **Commercial Model (Release 1)** | **100% Free Launch** — zero paywalls, zero tier caps, all 14 templates and editor features unlocked. `/admin/subscription-plans` returns `403` (`SubscriptionPlanResource::canAccess(): false`). |
 | **Monetization Direction (`F11`)** | **Deferred Post-Release 1** (feature-flagged when enabled). Future model is **one-time pay-per-invitation** via **Paymob** (SAR for KSA, EGP for Egypt dynamically via `PlatformSetting`), **not** recurring subscriptions. |
 | **Active Capabilities (`dev`)** | `F01`–`F10`, `F12`–`F14`, `ZAFFE-016`, `ZAFFE-017` Admin Coverage, and **`F16` Part A** (Smart Guest Roster, 4 Invitation Modes, `?g=` personalized links, pure-PHP QR Pass Generation `/pass/{qrToken}`). |
 | **Isolated Capability (NOT in `dev`)** | **`F16` Part B (QR Scanning & Gatekeeper Check-In `/gate/{gateToken}`)** is isolated on `feature/ZAFFE-018-smart-guests-and-qr-checkin` pending explicit Product Owner manual merge. Never promise live venue door scanning or gatekeeper check-in in `dev` UI/copy. |
@@ -51,25 +51,21 @@ If you are an AI coding agent, MCP tool, automation client, or external integrat
 
 ## 4. Product Features & Capabilities
 
-### 4.1 Public Discovery & Luxury Themes (`F02`)
-- **Public Pages:** Marketing homepage (`/`), searchable/filterable template catalog (`/templates`), full interactive mock previews with bilingual sample data (`/templates/{slug}/preview`), 100% Free Release 1 pricing page (`/pricing`), plus `/about`, `/contact`, and `/faq`.
-- **Six Curated Wedding Themes (`resources/views/templates/`):**
-  1. `royal_gold` (Royal Gold)
-  2. `floral_romance` (Floral Romance)
-  3. `minimal_chic` (Minimalist Chic)
-  4. `islamic_elegance` (Islamic Heritage)
-  5. `emerald_night` (Emerald Night / Starry Gala)
-  6. `classic_aristocrat` (Classic Aristocrat)
+### 4.1 Public Discovery & Luxury Themes (`F02`, `ZAFFE-023`, `ZAFFE-024`)
+- **Public Pages:** Marketing homepage (`/`), searchable/filterable template catalog (`/templates`), full interactive mock previews with bilingual sample data (`/templates/{slug}/preview`), 100% Free Release 1 pricing page (`/pricing`), plus `/about`, `/contact` (note: public `/contact` form is currently UI-only client feedback), and `/faq`.
+- **14 Curated Wedding Themes (`resources/views/templates/`):**
+  - **Saudi Signature Collection — Vol. 1 (`sort_order 1–8` via `ZAFFE-024`):** `diriyah_heritage`, `rawashin_elegance`, `sadu_signature`, `taif_rose`, `palm_oasis`, `red_sea_pearl`, `desert_dusk`, `modern_monogram`.
+  - **Baseline Collection (`sort_order 9–14`):** `royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`.
 
 ### 4.2 Customer Studio & Visual Editor (`F03`, `F04`, `F08`)
 - **Dashboard & KPIs (`/dashboard`):** Displays total invitations, total views, confirmed attendee metrics, and quick actions.
 - **Creation Wizard (`/dashboard/invitations/create`):** Captures template choice, couple names, wedding date/time, timezone (`Asia/Riyadh` or `Africa/Cairo`), and venue, generating a unique URL slug (`{groom}-and-{bride}` with incremental collision suffix or `wedding-{random}` fallback).
 - **Livewire Visual Studio Editor (`InvitationEditor` at `/dashboard/invitations/{id}/editor`):**
-  - Multi-tab workspace (Basics, Content, Design, Media, Sections, Share) with responsive device preview and real-time autosave.
+  - Six-tab workspace (`basics`, `content`, `design`, `media`, `templates`, `rsvp`) plus a Publish Share Modal, responsive device preview, and real-time autosave.
   - Custom style overrides (`custom_styles` JSON for primary, secondary, background, card, accent colors, and font family) and instant on-the-fly template switching without losing wedding data.
-  - Storage-backed cover photo and photo gallery uploads (`5MB` max, MIME-validated, automatic local file cleanup on deletion).
-  - Modular `InvitationSection` management: `countdown`, `timeline`, `gallery`, and `dress_code`.
-  - Status lifecycle (`draft`, `published`, `archived`) and 1-click WhatsApp share URL generation (`Invitation::getWhatsAppShareUrl()`).
+  - Storage-backed cover photo and photo gallery uploads (`5MB` max, MIME-validated, automatic local file cleanup on customer photo/invitation deletion).
+  - Modular `InvitationSection` toggles (`countdown`, `timeline`, `gallery`, `dress_code`; note `timeline` and `dress_code` currently act as visibility toggles without custom content editors).
+  - Status toggling (`draft` ↔ `published`; `archived` status is supported via Filament Admin or `POST /archive`, with no couple-facing archive button) and 1-click WhatsApp share URL generation (`Invitation::getWhatsAppShareUrl()`).
 
 ### 4.3 Four Invitation Access Modes (`F16` Part A)
 Configured per invitation via `Invitation::$invitation_mode` (kept synchronized with `is_rsvp_enabled` in `Invitation::booted()`):
@@ -155,18 +151,18 @@ All changes, integrations, and AI-assisted edits **must preserve** these non-neg
 2. **Ownership Isolation (IDOR Defense):** Every customer dashboard query and mutation must scope through `Auth::user()->invitations()` or `InvitationEditor::getAuthorizedInvitation()`. Never query `Invitation::find($id)` unscoped for customer actions.
 3. **Livewire State Locks:** Sensitive/identifying properties on Livewire components (`$invitationId`, `$guestId`, `$maxGuests`, `$maxChildren`, issued pass properties) must declare `#[Locked]` to prevent client tampering.
 4. **Explicit Model Policies:** `InvitationPolicy`, `InvitationTemplatePolicy`, `UserPolicy` (prevents self-deletion and last-admin deletion), `TemplateCategoryPolicy`, `RsvpResponsePolicy`, `InvitationGuestPolicy`, `PlatformSettingPolicy`, and `SubscriptionPlanPolicy` enforce domain authorization across Laravel and Filament.
-5. **HTTP Hardening (`SecurityHeaders` middleware):** Attaches `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy`, and `X-XSS-Protection` globally, and enforces `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex, nofollow`, and `Cache-Control: no-store, no-cache, must-revalidate, private` on `/pass/*` and personalized `/invitation/*?g=*` links.
+5. **HTTP Hardening (`SecurityHeaders` middleware):** Attaches `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy`, and `X-XSS-Protection` across web routes, and enforces `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex, nofollow`, and `Cache-Control: no-store, no-cache, must-revalidate, private` on `/pass/*` and personalized `/invitation/*?g=*` links (note: Filament `/admin/*` does not currently register `SecurityHeaders`).
 
 ### RSVP & Data Integrity
 1. **Deadline & Toggle Enforcement:** Rejects RSVP submissions when `is_rsvp_enabled` is false (or mode does not accept RSVPs) or when `now()->startOfDay()->gt($invitation->rsvp_deadline)`.
 2. **Quota & Headcount Coherence:** Enforces `max_guests_per_rsvp` (or pre-invited `InvitationGuest` `max_adults` / `max_children` quotas). When `attendance_status !== 'attending'` (including `declined`), `guest_count` and `children_count` are forcibly stored as `0`.
-3. **E.164 Deduplication & Roster Protection:** Phone numbers are validated and normalized to E.164 (`+20` / `+966`) via `PhoneService`. Resubmissions using the same normalized phone update the existing `RsvpResponse` in place. Unauthenticated public submissions cannot hijack a pre-invited (`is_self_registered = false`) roster entry without its personal `?g=` link.
+3. **E.164 Deduplication & Roster Protection:** Phone numbers are validated and normalized to E.164 (`+20` / `+966`) via `PhoneService`. Resubmissions matching an existing `RsvpResponse` phone on that invitation update the record in place. Unauthenticated public submissions cannot hijack a pre-invited (`is_self_registered = false`) roster entry without its personal `?g=` link.
 4. **Rate Limiting:** RSVP submissions are capped at **10 attempts per minute per IP per invitation**; authentication and password-reset endpoints use `throttle:6,1`; personal QR passes (`/pass/{qrToken}`) use `throttle:60,1`.
 5. **CSV Formula Injection Defense & Arabic Excel Support:** All CSV exports (`DashboardController::exportGuestsCsv()`, `exportRosterCsv()`, and Filament exports) sanitize strings starting with `=`, `+`, `-`, `@`, `\t`, or `\r` (after `ltrim`) via `App\Support\CsvSanitizer::cell()` (prefixing `'`) and prepend UTF-8 BOM (`0xEF, 0xBB, 0xBF`).
 
 ### Saudi-First Cultural, Privacy & Performance Rules
-1. **Privacy by Default:** Displaying the bride's full name and uploading couple/bride photos are strictly optional. Templates must support family/kunya phrasing (e.g., *"كريمة عائلة ..."*) and render cleanly with zero `InvitationPhoto` records.
-2. **PDPL-Minded Minimal PII:** Collect only minimal attendance/coordination fields; deleting an invitation or photo removes associated local storage assets (`public` disk).
+1. **Privacy by Default:** Displaying the bride's full name and uploading couple/bride photos are target KSA privacy principles (`docs/product/SAUDI_MARKET_DECISIONS.md`). Photo-free luxury rendering works across all 14 templates and the 8 Saudi Signature templates guard empty `bride_name`, while current DB schema (`NOT NULL`) and form validation on `dev` still require `bride_name` pending schema remediation.
+2. **PDPL-Minded Minimal PII:** Collect only minimal attendance/coordination fields; deleting an invitation or photo via customer flows removes associated local storage assets (`public` disk).
 3. **Religious Text Integrity:** **Never** generate, paraphrase, autocomplete, or type Quranic verses (`آيات قرآنية`) from memory or AI output. Only exact Product-Owner-verified strings may appear.
 4. **No Unicode Emojis in Luxury Templates:** Luxury invitation template Blade views must use crisp `<x-app-icon>` inline SVGs — never Unicode emojis.
 5. **Zero External Hotlinked Images & Mobile LCP:** Never hotlink external third-party CDNs (such as Unsplash) in templates or seeders. Serve self-hosted WebP assets optimized for **LCP < 2.5s** in WhatsApp's mobile WebView over 4G.
@@ -179,13 +175,13 @@ All changes, integrations, and AI-assisted edits **must preserve** these non-neg
 ### 7.1 Technology Stack
 | Layer | Technology |
 | :--- | :--- |
-| **Backend & Framework** | PHP `^8.3`, Laravel `^13.17` |
+| **Backend & Framework** | PHP `>= 8.4.1` runtime (`composer.lock` Symfony 8.1; `composer.json` declares `^8.3`; `ext-intl` mandatory), Laravel `^13.17` |
 | **Reactive UI** | Livewire `^4.4`, Alpine.js (bundled with Livewire) |
 | **Styling & Build** | Tailwind CSS `^4.0` (`@tailwindcss/vite`), Vite `^8.0` |
 | **Super Admin Panel** | Filament `^5.11` (`/admin`) |
 | **Database** | SQLite 3 (local dev & PHPUnit tests), **MySQL 8.4** (production/staging target) |
 | **Mail & Queues** | **Resend** via Laravel Mail & Notifications (`ShouldQueue` + `database` queue driver) |
-| **Testing & Lint** | PHPUnit `^12.5`, Laravel Pint `^1.27` |
+| **Testing & Lint** | PHPUnit `^12.5` (`22` test files / `196` tests), Laravel Pint `^1.27` |
 
 ### 7.2 HTTP Route Directory (`routes/web.php` & Filament)
 
@@ -230,7 +226,7 @@ composer run dev
 ```
 
 > [!NOTE]
-> **Windows Composer Note:** If the Winget PHP Composer wrapper fails with `PharException: manifest cannot be larger than 100 MB`, run standalone `php composer.phar` with `herd-lite` PHP (`8.5`). Note also that staging validation on **MySQL 8.4** with PHP **`ext-intl`** enabled is required for full Filament `/admin/*` `Number::format()` and Umm al-Qura `IntlDateFormatter` runtime behavior.
+> **Windows PHP & Composer Note:** `composer.lock` resolves Symfony 8.1 packages requiring **PHP `>= 8.4.1`** with **`ext-intl`** enabled (required by Filament `Number::format()` and `IntlDateFormatter` Umm al-Qura dates). `herd-lite` PHP lacks `ext-intl`, and the Winget PHP Composer wrapper may hit `PharException: manifest cannot be larger than 100 MB` — use standalone `php composer.phar` and WinGet PHP 8.5 (`ext-intl` enabled) or MySQL 8.4 + `ext-intl` staging.
 
 ### 8.2 Seeded Local Accounts
 | Role | Email | Password | Entry Point |
@@ -241,7 +237,7 @@ composer run dev
 
 ### 8.3 Verification & Code Quality
 ```bash
-# Run full automated PHPUnit feature/unit suite
+# Run full automated PHPUnit feature/unit suite (requires PHP >= 8.4.1 + ext-intl)
 php artisan test
 
 # Check Laravel Pint code formatting
@@ -255,17 +251,25 @@ npm run build
 
 ## 9. Canonical Documentation Index
 
-Consult these repository documents for deep engineering, product, and QA specifications:
+Consult [docs/README.md](docs/README.md) for the full categorized index, or jump directly to core specifications:
 
 | Document | Purpose |
 | :--- | :--- |
-| **[PROJECT_CONTEXT.md](PROJECT_CONTEXT.md)** | Technical & product architecture overview and current status |
+| **[docs/README.md](docs/README.md)** | Complete categorized index of all architecture, business, product, engineering, UI, and QA documentation |
+| **[docs/DOCUMENTATION_GUIDELINES.md](docs/DOCUMENTATION_GUIDELINES.md)** | Documentation governance, living-vs-historical policy, Markdown conventions, and anti-duplication rules |
+| **[docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md)** | Technical & product architecture overview and current status |
+| **[docs/business/project-discovery.md](docs/business/project-discovery.md)** | Phase 1 reverse-engineering discovery report verified against `dev` source code |
+| **[docs/business/DOCUMENTATION_AUDIT_SUMMARY.md](docs/business/DOCUMENTATION_AUDIT_SUMMARY.md)** | Phase 2 documentation audit inventory, resolved conflicts, and open clarification gaps |
 | **[AGENTS.md](AGENTS.md)** | Mandatory operating protocol for AI coding agents |
-| **[docs/BUSINESS_OVERVIEW.md](docs/BUSINESS_OVERVIEW.md)** | Business domain analysis, personas, journeys, and feature inventory |
-| **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | System architecture, schema, layers, routes, and security design |
-| **[docs/DEVELOPMENT_GUIDE.md](docs/DEVELOPMENT_GUIDE.md)** | Environment setup, template authoring conventions, and pitfalls |
+| **[docs/product/PRODUCT.md](docs/product/PRODUCT.md)** | Product identity, users, positioning, capabilities, and accessibility commitments |
+| **[docs/product/BUSINESS_OVERVIEW.md](docs/product/BUSINESS_OVERVIEW.md)** | Business domain analysis, personas, journeys, and feature inventory |
+| **[docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)** | System architecture, schema, layers, routes, and security design |
+| **[docs/engineering/DEVELOPMENT_GUIDE.md](docs/engineering/DEVELOPMENT_GUIDE.md)** | Environment setup, template authoring conventions, and pitfalls |
 | **[docs/product/SAUDI_MARKET_DECISIONS.md](docs/product/SAUDI_MARKET_DECISIONS.md)** | KSA-first cultural, Hijri, privacy, WebP, audio, and KPI directives |
 | **[docs/product/RELEASE_1_PRODUCT_DECISIONS.md](docs/product/RELEASE_1_PRODUCT_DECISIONS.md)** | Free launch policy, Resend, Paymob direction, and feature roadmap |
-| **[docs/engineering/QR_FEATURE_ISOLATION_POLICY.md](docs/engineering/QR_FEATURE_ISOLATION_POLICY.md)** | Governance separating QR Pass Generation (`dev`) from QR Scanning (isolated branch) |
-| **[docs/TECHNICAL_AUDIT.md](docs/TECHNICAL_AUDIT.md)** | Security audit, performance findings, and technical debt register |
-| **[docs/DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md)** | Staging/production deployment and MySQL 8.4 + `ext-intl` verification checklist |
+| **[docs/architecture/QR_FEATURE_ISOLATION_POLICY.md](docs/architecture/QR_FEATURE_ISOLATION_POLICY.md)** | Governance separating QR Pass Generation (`dev`) from QR Scanning (isolated branch) |
+| **[docs/architecture/TECHNICAL_AUDIT.md](docs/architecture/TECHNICAL_AUDIT.md)** | Security audit, performance findings, and technical debt register |
+| **[docs/engineering/DEPLOYMENT_CHECKLIST.md](docs/engineering/DEPLOYMENT_CHECKLIST.md)** | Staging/production deployment and MySQL 8.4 + `ext-intl` verification checklist |
+| **[docs/ui/DESIGN.md](docs/ui/DESIGN.md)** | Canonical design system tokens, typography, components, and RTL/a11y rules |
+| **[docs/ui/ZAFFE_DESIGN_SYSTEM.md](docs/ui/ZAFFE_DESIGN_SYSTEM.md)** | Implementation guide for CSS tokens, layouts, SVG iconography, and themes |
+| **[docs/qa/ZAFFE_FEATURE_TEST_MATRIX.md](docs/qa/ZAFFE_FEATURE_TEST_MATRIX.md)** | Living test execution matrix covering customer workflows, negative paths, and security gates |

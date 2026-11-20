@@ -1,9 +1,12 @@
 # Feature Brief — F10: Email & Notifications (Resend Integration)
 
-> **Sprint:** Milestone 1 — Step 2  
-> **Branch:** `feature/ZAFFE-010-notifications`  
-> **Priority:** P0 (Critical) | **Estimated Complexity:** Medium (M)  
-> **Date:** 2026-11-13
+> **Status:** Completed & Merged into `dev` *(Historical Sprint Brief — Synced 2026-11-19)* | **Current State:** [FEATURE_MAP.md](../FEATURE_MAP.md) · [TECHNICAL_AUDIT.md](../../architecture/TECHNICAL_AUDIT.md)  
+> **Sprint:** Milestone 1 — Step 2 | **Branch:** `feature/ZAFFE-010-notifications` (`df9f0b0`) | **Priority:** P0 (Critical) | **Complexity:** Medium (M) | **Original Date:** 2026-11-13
+
+---
+
+> [!NOTE]
+> **Post-Merge Verification (`2026-11-19` on `dev` `d88d381`):** `ResetPasswordNotification`, `NewRsvpNotification` (`mail` + `database`, no customer inbox UI yet), and `RsvpConfirmationNotification` (`ShouldQueue`, `database` queue) are shipped. Open nuances (`CONF-01`, `KSA-01`): `.env.example` empty `RESEND_API_KEY=` shadows `MAIL_PASSWORD`; `resend/resend-php` is not installed for `resend_api`; `config/mail.php` retains a dead `encryption` key; `RsvpConfirmationNotification` fires even on `declined` RSVPs with confirmation wording and omits QR pass links / `children_count`.
 
 ---
 
@@ -71,10 +74,10 @@ Ensure:
 
 ## 4. Quality Gates & Acceptance Criteria
 
-- [ ] All 8 tasks implemented and verified.
-- [ ] No hardcoded API keys or secrets in repository.
-- [ ] Notifications implement `ShouldQueue` and queue properly.
-- [ ] Tests verify notifications are dispatched on password reset and RSVP submission using `Notification::fake()`.
-- [ ] Full application test suite (`php artisan test`) passes 100% green.
-- [ ] Conventional Commit prepared on `feature/ZAFFE-010-notifications`.
+- [x] All 8 tasks implemented and verified.
+- [x] No hardcoded API keys or secrets in repository.
+- [x] Notifications implement `ShouldQueue` and queue properly.
+- [x] Tests verify notifications are dispatched on password reset and RSVP submission using `Notification::fake()`.
+- [x] Full application test suite (`php artisan test`) passes 100% green.
+- [x] Conventional Commit prepared and merged into `dev` (`feature/ZAFFE-010-notifications` `df9f0b0`).
 

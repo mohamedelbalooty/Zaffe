@@ -1,9 +1,12 @@
 # Zaffe (زفّــة) — Master QA & Business Validation Plan (Release 1 `dev` Audit)
 
+> [!NOTE]
+> **Historical QA Audit Plan (`2026-11-17` at `dev` `175c326`, Synced `2026-11-19`):** This plan captures the initial pre-release QA strategy on `bugfix/ZAFFE-020-qa-product-validation`. Subsequent merges (`ZAFFE-020`, `ZAFFE-022`, `ZAFFE-023`, `ZAFFE-024`) expanded templates to **14 free themes**, fixed several QA defects, and verified **`196` passing tests (`2,230` assertions)** under **WinGet PHP 8.5 + `ext-intl`**. For live `dev` (`d88d381`) state, consult [project-discovery.md](../business/project-discovery.md), [ZAFFE_FEATURE_TEST_MATRIX.md](ZAFFE_FEATURE_TEST_MATRIX.md), and [ZAFFE_ADMIN_INTEGRATION_MATRIX.md](ZAFFE_ADMIN_INTEGRATION_MATRIX.md).
+
 > **Audit Classification:** Pre-Release Independent Product QA, Security & Admin Integration Validation  
 > **Target Branch:** `dev` (`175c326`, synced with `origin/dev`)  
 > **Date:** 2026-11-17  
-> **Canonical Basis:** `PROJECT_CONTEXT.md`, `docs/BUSINESS_OVERVIEW.md`, `docs/ARCHITECTURE.md`, `docs/engineering/FEATURE_MAP.md`, `docs/engineering/MASTER_ROADMAP.md`, `docs/product/RELEASE_1_PRODUCT_DECISIONS.md`, `docs/product/SAUDI_MARKET_DECISIONS.md`, `docs/product/ZAFFE_PRODUCT_STRATEGY.md`, `docs/engineering/ZAFFE_017_ADMIN_FEATURE_COVERAGE_AUDIT.md`, `docs/engineering/GIT_WORKFLOW.md`, `docs/engineering/DEFINITION_OF_DONE.md`, `docs/engineering/QUALITY_GATES.md`, and `docs/engineering/briefs/F01–F12`.
+> **Canonical Basis:** [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md), [BUSINESS_OVERVIEW.md](../product/BUSINESS_OVERVIEW.md), [ARCHITECTURE.md](../architecture/ARCHITECTURE.md), [FEATURE_MAP.md](../engineering/FEATURE_MAP.md), [MASTER_ROADMAP.md](../engineering/MASTER_ROADMAP.md), [RELEASE_1_PRODUCT_DECISIONS.md](../product/RELEASE_1_PRODUCT_DECISIONS.md), [SAUDI_MARKET_DECISIONS.md](../product/SAUDI_MARKET_DECISIONS.md), [ZAFFE_PRODUCT_STRATEGY.md](../product/strategy/ZAFFE_PRODUCT_STRATEGY.md), [ZAFFE_017_ADMIN_FEATURE_COVERAGE_AUDIT.md](ZAFFE_017_ADMIN_FEATURE_COVERAGE_AUDIT.md), [GIT_WORKFLOW.md](../engineering/GIT_WORKFLOW.md), [DEFINITION_OF_DONE.md](../engineering/DEFINITION_OF_DONE.md), [QUALITY_GATES.md](../engineering/QUALITY_GATES.md), and `docs/engineering/briefs/F01–F16`.
 
 ---
 
@@ -44,7 +47,7 @@ PR #2 (`ZAFFE-019`) removed only **F16 Part B** (`GateScanner`, `InvitationGate`
 1. Classified formally as a **DEV SCOPE VIOLATION**.
 2. F16 is **excluded** from approved active `dev` core feature pass counts.
 3. No F16 code will be deleted or altered automatically, no cleanup PR will be merged, and Git history will remain untouched.
-4. A safe remediation plan for the Product Owner is included in `ZAFFE_FINAL_QA_REPORT.md`.
+4. A safe remediation plan for the Product Owner is included in `docs/qa/reports/ZAFFE_FINAL_QA_REPORT.md`.
 
 ---
 
@@ -98,4 +101,4 @@ PR #2 (`ZAFFE-019`) removed only **F16 Part B** (`GateScanner`, `InvitationGate`
 3. **Phase 3 — Real Browser Automation Verification (Personas A–E + Super Admin):**
    - Boot local Laravel server (`php artisan serve`) and drive real Chromium browser flows via Playwright / Chrome DevTools MCP across desktop and mobile (375px) viewports in Arabic RTL and English LTR, capturing console/network cleanliness and persistence across page refreshes.
 4. **Phase 4 — Defect Triage, Safe Fixes (Where Approved), Documentation Sync & Final Reporting:**
-   - Fix obvious non-rule-breaking bugs if safe and regression-tested; escalate any business rule/scope changes to Product Owner; finalize `ZAFFE_FEATURE_TEST_MATRIX.md`, `ZAFFE_ADMIN_INTEGRATION_MATRIX.md`, and `ZAFFE_FINAL_QA_REPORT.md`.
+   - Fix obvious non-rule-breaking bugs if safe and regression-tested; escalate any business rule/scope changes to Product Owner; finalize `ZAFFE_FEATURE_TEST_MATRIX.md`, `ZAFFE_ADMIN_INTEGRATION_MATRIX.md`, and `reports/ZAFFE_FINAL_QA_REPORT.md`.

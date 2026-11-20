@@ -1,20 +1,20 @@
 # Zaffe (زفّــة) — Git Flow & Branch Management Strategy
 
 > **Single Source of Truth for Source Control, Branching Models, and Promotion Pipelines**  
-> **Status:** Active & Enforced | **Baseline Commit:** `82c01ca` | **Date:** 2026-11-12
+> **Status:** Active & Enforced | **Initial Baseline:** `82c01ca` | **Verified Integration State:** `dev` (`d88d381`), `staging` (`fbf0b60`), `production` (`82c01ca`) | **Last Updated:** 2026-11-19
 
 ---
 
 ## 1. Branch Strategy Overview
 
-To transition Zaffe into an enterprise-grade SaaS product, all repository development must strictly adhere to a disciplined **Git Flow** branching model.
+To transition Zaffe into an enterprise-grade SaaS product, all repository development strictly adheres to a disciplined **Git Flow** branching model.
 
 ```mermaid
 gitGraph
    commit id: "baseline (82c01ca)"
    branch dev
    checkout dev
-   commit id: "setup dev"
+   commit id: "R1 integration"
    branch feature/ZAFFE-001-auth
    checkout feature/ZAFFE-001-auth
    commit id: "F01.1 password broker"
@@ -23,14 +23,15 @@ gitGraph
    merge feature/ZAFFE-001-auth id: "PR: F01 merged"
    branch staging
    checkout staging
-   merge dev id: "RC v1.1.0"
-   checkout main
-   merge staging id: "Release v1.1.0" tag: "v1.1.0"
+   merge dev id: "RC (fbf0b60)"
+   branch production
+   checkout production
+   merge staging id: "Release" tag: "v1.0.0"
    branch hotfix/ZAFFE-999-fix
    checkout hotfix/ZAFFE-999-fix
    commit id: "hotfix patch"
-   checkout main
-   merge hotfix/ZAFFE-999-fix id: "Hotfix v1.1.1" tag: "v1.1.1"
+   checkout production
+   merge hotfix/ZAFFE-999-fix id: "Hotfix" tag: "v1.0.1"
    checkout staging
    merge hotfix/ZAFFE-999-fix id: "Sync hotfix staging"
    checkout dev
@@ -41,15 +42,15 @@ gitGraph
 
 ## 2. Core Long-Lived Branches
 
-| Branch Name | Role & Responsibility | Allowed Direct Commits | Source | Integration Target |
+| Branch Name | Role & Responsibility | Allowed Direct Commits | Current Head (`2026-11-19`) | Integration Target |
 | :--- | :--- | :--- | :--- | :--- |
-| **`production`** | Stable, release-ready code representing the current live production deployment. Every commit corresponds to a tagged release. | **None** (Merge only via PR from `staging` or `hotfix/*`) | Initial Baseline (`82c01ca`) | N/A |
-| **`staging`** | Release Candidate (RC) integration branch. Used for full end-to-end regression testing, client acceptance testing, and release staging. | **None** (Merge only via PR from `dev` or `hotfix/*`) | Initial Baseline (`82c01ca`) | `production` |
-| **`dev`** | Primary day-to-day integration branch. Aggregates completed, tested, and validated feature branches. Must remain green and buildable at all times. | **None** (Merge only via validated feature PRs) | Initial Baseline (`82c01ca`) | `staging` |
+| **`production`** *(mirrors `main` `82c01ca`)* | Stable, release-ready code representing the live production deployment. Every release corresponds to a tagged commit. | **None** (Merge only via PR from `staging` or `hotfix/*`) | `82c01ca` | N/A |
+| **`staging`** | Release Candidate (RC) integration branch used for MySQL 8.4 + `ext-intl` staging validation and UAT. | **None** (Merge only via PR from `dev` or `hotfix/*`) | `fbf0b60` | `production` |
+| **`dev`** | Primary day-to-day integration branch aggregating completed, validated R1 features and `F16` Part A. | **None** (Merge only via validated PRs) | `d88d381` | `staging` |
 
 > [!IMPORTANT]
 > **Baseline Synchronization:**  
-> The three core branches (`production`, `staging`, and `dev`) have been established locally pointing to the verified project baseline commit `82c01ca` (`fix(security): remediate audit vulnerabilities and modularize invitation templates`).
+> `production` (alongside `main`) sits at `82c01ca`, `staging` at `fbf0b60`, and active integration `dev` at `d88d381`.
 
 ---
 
@@ -57,43 +58,30 @@ gitGraph
 
 ### 3.1 Naming Conventions
 
-All work branches must follow standardized prefixes with their tracking ticket / feature identifier:
+All work branches follow standardized prefixes with their tracking ticket / feature identifier:
 
-- **Feature Branches:** `feature/ZAFFE-[ID]-[kebab-case-description]`  
-  *Examples:*  
-  - `feature/ZAFFE-001-auth`
-  - `feature/ZAFFE-002-template-management`
-  - `feature/ZAFFE-003-invitation-lifecycle`
-  - `feature/ZAFFE-004-invitation-editor`
-  - `feature/ZAFFE-005-public-invitation`
-  - `feature/ZAFFE-006-rsvp-engine`
-  - `feature/ZAFFE-007-guest-management`
-  - `feature/ZAFFE-008-customer-dashboard`
-  - `feature/ZAFFE-009-admin-management`
-  - `feature/ZAFFE-010-notifications`
-  - `feature/ZAFFE-011-monetization`
-  - `feature/ZAFFE-012-production-readiness`
-
-- **Bugfix Branches:** `bugfix/ZAFFE-[ID]-[description]` (Branches off `dev` for defects found during dev integration).
+- **Feature Branches:** `feature/ZAFFE-[ID]-[kebab-case-description]` (e.g., `feature/ZAFFE-001-auth` through `feature/ZAFFE-023-saudi-signature-template-collection`). *(Historical note: ticket `ZAFFE-017` was used both for the held local wizard prototype `feature/ZAFFE-017-create-invitation-wizard` and in Super Admin coverage documentation; allocate distinct IDs going forward.)*
+- **Bugfix Branches:** `bugfix/ZAFFE-[ID]-[description]` (e.g., `bugfix/ZAFFE-020-qa-product-validation`, `bugfix/ZAFFE-024-saudi-signature-template-sync-migration`).
+- **Chore / Governance Branches:** `chore/ZAFFE-[ID]-[description]` (e.g., `chore/ZAFFE-019-isolate-qr-checkin-from-dev`, `chore/ZAFFE-021-agent-skills`).
 - **Hotfix Branches:** `hotfix/ZAFFE-[ID]-[description]` (Branches off `production` for critical live production patches).
 - **Release Branches:** `release/v[X.Y.Z]` (Branches off `staging` for final version bumping and changelog preparation).
 
 ### 3.2 Branch Lifecycle Rules
 
-1. **Origin:** Every new feature branch must be branched directly from the latest `dev` branch.
+1. **Origin:** Every new feature/bugfix/chore branch must be branched directly from the latest `dev` branch.
 2. **Singular Focus:** A feature branch owns only the scope of its feature brief. Do not bundle unrelated refactors.
-3. **No Empty Branches:** Do not create placeholders or batch-create empty feature branches. Create a feature branch only when its active implementation starts.
-4. **Lifecycle Termination:** Once a feature branch passes all Quality Gates and is merged into `dev`, its branch may be safely pruned locally and remotely.
+3. **No Empty Branches:** Create a feature branch only when its active implementation starts.
+4. **Branch Retention:** Merged feature branches remain on `origin` for audit traceability; clean deletion requires explicit maintainer confirmation.
 
 ### 3.3 Protected & Manual-Only Merge Branches (`OWNER ONLY`)
 
 The branches listed below must **never** be merged or promoted into `dev`, `staging`, or `production` automatically by AI agents, scripts, GitHub Auto-Merge, or automated workflows. Only the Product Owner may explicitly authorize and manually execute a merge after reviewing the Pull Request:
 
-| Branch Name | Restriction | Reason / Governance Policy |
-| :--- | :--- | :--- |
-| `feature/ZAFFE-018-smart-guests-and-qr-checkin` | **No Agent/Automated Merge — Product Owner Manual Only** | Contains **QR Scanning & Gatekeeper Check-In** (`/gate/{gateToken}`, `GateScanner`, `InvitationGate`, single-use `checked_in_at` verification). See [QR_FEATURE_ISOLATION_POLICY.md](file:///e:/GithubProjects/Zaffe/docs/engineering/QR_FEATURE_ISOLATION_POLICY.md). |
-| `feature/ZAFFE-015-short-urls-and-og-tags` | **No Agent/Automated Merge or PR — Owner Manual Only** | Short public `/i/` codes, OG image caching, and async WebP media pipeline reserved exclusively for manual owner PR/merge. |
-| `feature/ZAFFE-017-create-invitation-wizard` | **On Hold — Adoption Undecided (`DO NOT MERGE`)** | Experimental country-first wizard held pending explicit Product Owner adoption decision. |
+| Branch Name | Current Commit | Restriction | Reason / Governance Policy |
+| :--- | :---: | :--- | :--- |
+| `feature/ZAFFE-018-smart-guests-and-qr-checkin` | `de01adc` (`origin`) | **No Agent/Automated Merge — Product Owner Manual Only** | Contains **QR Scanning & Gatekeeper Check-In (`F16` Part B)** (`/gate/{gateToken}`, `GateScanner`, `InvitationGate`, single-use `checked_in_at` verification). See [QR_FEATURE_ISOLATION_POLICY.md](../architecture/QR_FEATURE_ISOLATION_POLICY.md). |
+| `feature/ZAFFE-015-short-urls-and-og-tags` | `3e4eda0` | **No Agent/Automated Merge or PR — Owner Manual Only** | Short public `/i/` codes, OG image caching, and async WebP media pipeline reserved exclusively for manual owner PR/merge. |
+| `feature/ZAFFE-017-create-invitation-wizard` | `7091c47` *(local only)* | **On Hold — Adoption Undecided (`DO NOT MERGE`)** | Experimental country-first wizard held pending explicit Product Owner adoption decision. |
 
 > [!CAUTION]
 > **Permanent QR Check-In Isolation Policy:**  
@@ -130,14 +118,14 @@ git log -n 5 --oneline
 ## 5. Promotion Pipeline & Pull Request Workflows
 
 ### 5.1 Step 1: Feature to `dev`
-- **Prerequisite:** Feature branch passes all 7 steps of the Feature Execution Workflow (Code-Level, Business-Level, Security, and Automated Tests).
+- **Prerequisite:** Feature branch satisfies all four Quality Gates ([QUALITY_GATES.md](QUALITY_GATES.md)) and [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md): `php artisan test` (on PHP `>= 8.4.1` + `ext-intl`), `./vendor/bin/pint --test`, `php artisan view:clear`, and `npm run build`.
 - **Method:** Pull Request against `dev` (**only authorized and manually merged by the Product Owner** for restricted branches listed in Section 3.3, including `feature/ZAFFE-018-smart-guests-and-qr-checkin` and `feature/ZAFFE-015-short-urls-and-og-tags`).
-- **Merge Strategy:** Rebase & merge or Squash & merge (with clean conventional commit summary).
+- **Merge Strategy:** Rebase & merge or Squash & merge (or standard merge commit for sprint PRs).
 - **Automated Merge Prohibition:** GitHub Auto-Merge and agent-driven `git merge` / `gh pr merge` are strictly prohibited for QR Check-In and protected branches. Even a 100% passing test suite is not permission to merge.
 
 ### 5.2 Step 2: `dev` to `staging`
 - **Prerequisite:** All features targeted for the upcoming release milestone are integrated into `dev`.
-- **Validation:** Full regression test suite (`php artisan test`) passes cleanly; build succeeds (`npm run build`).
+- **Validation:** Full regression test suite (`php artisan test` with `ext-intl`), `./vendor/bin/pint --test`, and `npm run build` pass cleanly, followed by MySQL 8.4 validation per [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md).
 - **Method:** Pull Request from `dev` into `staging`.
 
 ### 5.3 Step 3: `staging` to `production`
@@ -192,7 +180,7 @@ When pushing to GitHub / GitLab, configure the following repository protection r
 
 | Rule Target | Required Approvals | Status Checks Required | Dismiss Stale Reviews | Conversation Resolution | Disallow Force Push & Deletion |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `production` | 1 Senior Reviewer (Owner) | CI Test Suite (`php artisan test`, `npm run build`) | Yes | Yes | **Enforced** |
-| `staging` | 1 Reviewer (Owner) | CI Test Suite | Yes | Yes | **Enforced** |
-| `dev` | 1 Reviewer (Owner) | CI Test Suite (when configured) | Yes | Yes | **Enforced** (`allow_auto_merge: false`) |
+| `production` | 1 Senior Reviewer (Owner) | CI Test Suite (`php artisan test` [`ext-intl`], `./vendor/bin/pint --test`, `npm run build`) | Yes | Yes | **Enforced** |
+| `staging` | 1 Reviewer (Owner) | CI Test Suite + Pint | Yes | Yes | **Enforced** |
+| `dev` | 1 Reviewer (Owner) | CI Test Suite + Pint (when configured) | Yes | Yes | **Enforced** (`allow_auto_merge: false`) |
 

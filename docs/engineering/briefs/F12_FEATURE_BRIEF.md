@@ -1,9 +1,12 @@
 # Feature Brief — F12: Production Readiness, Hardening & Performance
 
-> **Sprint:** Milestone 5 — Final Release 1 Engineering Gate  
-> **Branch:** `feature/ZAFFE-012-production-readiness`  
-> **Priority:** P0 (Critical) | **Estimated Complexity:** Medium (M)  
-> **Date:** 2026-11-14
+> **Status:** Completed & Merged into `dev` *(Historical Sprint Brief — Synced 2026-11-19)* | **Current State:** [DEPLOYMENT_CHECKLIST.md](../DEPLOYMENT_CHECKLIST.md) · [TECHNICAL_AUDIT.md](../../architecture/TECHNICAL_AUDIT.md)  
+> **Sprint:** Milestone 5 — Final Release 1 Engineering Gate | **Branch:** `feature/ZAFFE-012-production-readiness` (`5d6c334`) | **Priority:** P0 (Critical) | **Complexity:** Large (L) / Medium (M) | **Original Date:** 2026-11-14
+
+---
+
+> [!NOTE]
+> **Post-Merge Verification (`2026-11-19`):** `SecurityHeaders` now also enforces `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex, nofollow`, and `Cache-Control: no-store, no-cache, must-revalidate, private` on `/pass/*` and `?g=*`. Open production items: Filament `/admin/*` omits `SecurityHeaders` (`SEC-05`); runtime requires **PHP `>= 8.4.1` + `ext-intl`** (`CONF-01`, `196` tests passing on WinGet PHP 8.5 + `ext-intl`); staging MySQL 8.4 verification remains mandatory prior to `production` release.
 
 ---
 
@@ -32,7 +35,7 @@ Prepare Zaffe (زفّة) Release 1 (`feature/ZAFFE-012-production-readiness` -> 
    - Checks `Schema::hasIndex(...)` before adding to avoid duplicating base indexes (`invitations_user_id_status_index` and `rsvp_responses_invitation_id_attendance_status_index`).
    - Adds named indexes for customer dashboard sorting, status/date queries, RSVP phone deduplication lookups (`['invitation_id', 'phone']`), and guest list ordering (`['invitation_id', 'created_at']`).
    - Clean, idempotent `down()` rollback drops only indexes created by this migration.
-3. **Production Deployment Checklist (`docs/DEPLOYMENT_CHECKLIST.md`):**
+3. **Production Deployment Checklist (`docs/engineering/DEPLOYMENT_CHECKLIST.md`):**
    - Explicitly flags `ext-intl` requirement (absent on local Windows `herd-lite` PHP, mandatory on staging/production PHP).
    - Explicitly states MySQL 8.4 runtime verification must be executed on the staging MySQL 8.4 target since automated CI/local tests run on SQLite.
 
@@ -42,7 +45,7 @@ Prepare Zaffe (زفّة) Release 1 (`feature/ZAFFE-012-production-readiness` -> 
 
 - [x] `SecurityHeaders` middleware registered and returning all 4 security headers on public & authenticated routes.
 - [x] `2026_11_14_000001_add_performance_indexes` migration applies cleanly and rolls back cleanly without dropping base indexes.
-- [x] `docs/DEPLOYMENT_CHECKLIST.md`, `docs/engineering/AUDIT_REMEDIATION_REGISTER.md`, and `PROJECT_CONTEXT.md` updated with verified facts.
+- [x] `docs/engineering/DEPLOYMENT_CHECKLIST.md`, `docs/architecture/AUDIT_REMEDIATION_REGISTER.md`, and `docs/PROJECT_CONTEXT.md` updated with verified facts.
 - [x] `tests/Feature/ProductionReadinessTest.php` passes 100% green (`4 tests, 35 assertions`).
-- [x] Full test suite passes with zero failures (`118 tests, 457 assertions` on `herd-lite` PHP + SQLite; `GET /admin/users` index guarded by `extension_loaded('intl')` check locally and documented for staging MySQL 8.4 + `ext-intl`).
-- [ ] PR merge into `dev` and promotion to `staging` (executed upon final commit).
+- [x] Full test suite passes cleanly when run on PHP `>= 8.4.1` with `ext-intl` (`196` tests, `2,230` assertions on `dev` `d88d381`; staging MySQL 8.4 validation documented in [DEPLOYMENT_CHECKLIST.md](../DEPLOYMENT_CHECKLIST.md)).
+- [x] PR merged into `dev` (`5d6c334`) and promoted to `staging` (`fbf0b60`).

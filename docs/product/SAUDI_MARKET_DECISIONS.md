@@ -1,13 +1,28 @@
 # Zaffe (زفّــة) — Saudi Market & Product Decisions
 
 > **Mandatory Product, Cultural, Technical, and Commercial Directives for Saudi-First Expansion**  
-> **Status:** Approved by Product Owner | **Date:** 2026-11-14 | **Market Focus:** Saudi Arabia (KSA) First, Egypt Second
+> **Status:** Approved by Product Owner | **Date:** 2026-11-14 (**Implementation Sync:** 2026-11-19 on `dev` `d88d381`) | **Market Focus:** Saudi Arabia (KSA) First, Egypt Second
 
 ---
 
 ## Overview
 
-This document defines the mandatory product, cultural, UX, performance, compliance, and working rules for **Zaffe (زفّــة)** as it prioritizes the **Saudi Arabian wedding market** while continuing to serve **Egypt**. These directives complement [PROJECT_CONTEXT.md](file:///e:/GithubProjects/Zaffe/PROJECT_CONTEXT.md) and [RELEASE_1_PRODUCT_DECISIONS.md](file:///e:/GithubProjects/Zaffe/docs/product/RELEASE_1_PRODUCT_DECISIONS.md), and translate every strategic decision into **clear, testable acceptance rules** for engineering and product QA.
+This document defines the mandatory product, cultural, UX, performance, compliance, and working rules for **Zaffe (زفّــة)** as it prioritizes the **Saudi Arabian wedding market** while continuing to serve **Egypt**. These directives complement [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md) and [RELEASE_1_PRODUCT_DECISIONS.md](RELEASE_1_PRODUCT_DECISIONS.md), and translate every strategic decision into **clear, testable acceptance rules** for engineering and product QA.
+
+### Compliance & Implementation Sync Summary (`2026-11-19` on `dev` `d88d381`)
+
+| Section | Directive | Current Implementation Status in `dev` | Verified Code Gaps / Notes |
+| :--- | :--- | :--- | :--- |
+| **§1** | Market Priority & Formal-Simple Arabic | **Partially Implemented** | `+966`/`Asia/Riyadh` supported; **however**, app locale defaults stay aligned to AR/Egypt conventions (`Africa/Cairo` fallback on invitation forms), customer views use inline `$isEn` rather than `lang/ar*` JSON files, and `InvitationEditor`/`RsvpForm`/public cards are hardcoded Arabic. |
+| **§2** | Privacy by Default (`bride_name` & Photos) | **Partially Implemented** | Photo-free luxury rendering works across all 14 templates and 8 Saudi Signature views safely handle empty `bride_name`; **however**, `bride_name` is still `NOT NULL` in DB schema and `required` in wizard/controllers/Admin (`KSA-01`). |
+| **§3** | Umm al-Qura Hijri & Digit Styles | **Partially Implemented** | `InvitationDateFormatter` converts Umm al-Qura Hijri & `latin`/`arabic_indic` digits; **however**, `templates/partials/countdown.blade.php` ignores `arabic_indic` and always renders Western `0-9`. |
+| **§4** | Self-Hosted WebP & WhatsApp WebView Speed | **Partially Implemented** | Zero Unsplash hotlinks and 14 self-hosted `.webp` template thumbnails; **however**, couple-uploaded cover/gallery photos (up to `5MB`) are stored uncompressed without server-side WebP conversion (`PERF-02`). |
+| **§5** | SVG-Only Iconography (`<x-app-icon>`) | **Compliant (Templates)** | Luxury template Blade views use `<x-app-icon>` with zero Unicode emojis. *(Note: `NewRsvpNotification` / Filament labels keep standard UI usage.)* |
+| **§6** | Music Licensing & Tap Open-Gate | **Partially Implemented** | Interactive open-gate screen (`music_player.blade.php`) prevents broken autoplay; **however**, no licensed platform audio library or audio file upload exists (`music_url` accepts URL strings only). |
+| **§7** | Religious Text Integrity | **Compliant** | Only PO-verified strings appear in seeded/template assets. |
+| **§8** | Deferred Pay-Per-Invitation (`SAR`/`EGP`) | **Policy Enforced (Free R1)** | Release 1 is 100% Free across 14 templates (`SubscriptionPlanResource` `403`); Paymob `SAR`/`EGP` billing remains deferred Post-R1. |
+| **§9** | PDPL Alignment, Retention & Deletion | **Not Implemented (Workflows)** | Minimal RSVP fields & customer delete purge work; **however**, `Invitation::deleting` orphans `http(s)://` media on Admin delete (`DATA-01`), and post-event retention/anonymization & self-service guest/account deletion workflows are not built yet. |
+| **§10** | Core Product KPIs (1–3) | **Partially Instrumented** | `OperationsMonitor` computes `Published / Created` and `Avg RSVPs / Published`; **however**, true **Wizard-Start -> Published Rate** (KPI #1) and **Shared-with-10+-Guests Rate** (KPI #2) are not instrumented yet. |
 
 ---
 
@@ -119,7 +134,7 @@ This document defines the mandatory product, cultural, UX, performance, complian
 
 ## 8. Monetization Direction (Feature-Flagged; Release 1 Remains Free)
 
-- **Release 1 Remains Free:** As established in [RELEASE_1_PRODUCT_DECISIONS.md](file:///e:/GithubProjects/Zaffe/docs/product/RELEASE_1_PRODUCT_DECISIONS.md), **Release 1 is 100% free** (`F11` deferred). All future monetization behavior must be gated behind a **feature flag** (disabled by default in Release 1).
+- **Release 1 Remains Free:** As established in [RELEASE_1_PRODUCT_DECISIONS.md](RELEASE_1_PRODUCT_DECISIONS.md), **Release 1 is 100% free** (`F11` deferred). All future monetization behavior must be gated behind a **feature flag** (disabled by default in Release 1).
 - **Future Commercial Model (Post-Release 1):**
   - **Free to Design:** Users can create an account, design, preview, and customize invitations in the studio completely free.
   - **Pay Per Invitation (One-Time Payment):** Charges apply **per invitation** either **at publish time** or **to unlock guest tools** (such as RSVP export/advanced guest management).
@@ -170,8 +185,8 @@ Product performance and Saudi market product-market fit are evaluated against th
 
 All AI agents and human contributors working in this repository **must** follow this working agreement on every task:
 
-1. **Read Context First:** Always read [PROJECT_CONTEXT.md](file:///e:/GithubProjects/Zaffe/PROJECT_CONTEXT.md) and this document (`docs/product/SAUDI_MARKET_DECISIONS.md`) before proposing changes or writing code.
-2. **Branch from `dev`:** Always create a new branch from `dev` using the standardized naming conventions in [docs/engineering/GIT_WORKFLOW.md](file:///e:/GithubProjects/Zaffe/docs/engineering/GIT_WORKFLOW.md) (e.g., `feature/ZAFFE-[ID]-[kebab-case-description]`, `bugfix/ZAFFE-[ID]-[description]`). Never commit directly to `dev`, `staging`, or `production`.
+1. **Read Context First:** Always read [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md) and this document (`docs/product/SAUDI_MARKET_DECISIONS.md`) before proposing changes or writing code.
+2. **Branch from `dev`:** Always create a new branch from `dev` using the standardized naming conventions in [docs/engineering/GIT_WORKFLOW.md](../engineering/GIT_WORKFLOW.md) (e.g., `feature/ZAFFE-[ID]-[kebab-case-description]`, `bugfix/ZAFFE-[ID]-[description]`). Never commit directly to `dev`, `staging`, or `production`.
 3. **Propose a Short Plan First:** Always outline a concise implementation plan (affected files, business rules, and verification steps) before editing code.
 4. **No Unapproved Dependencies:** Do **not** install any new Composer or NPM dependency without explicitly asking the user and receiving approval first.
 5. **Preserve Livewire Security & Ownership Isolation:**

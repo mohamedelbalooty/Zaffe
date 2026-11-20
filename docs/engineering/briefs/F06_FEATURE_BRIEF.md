@@ -1,9 +1,12 @@
 # Feature Brief — F06: RSVP & Attendance Engine
 
-> **Sprint:** Milestone 3 — Step 7  
-> **Branch:** `feature/ZAFFE-006-rsvp-engine`  
-> **Priority:** P0 (Critical) | **Estimated Complexity:** Medium (M)  
-> **Date:** 2026-11-13
+> **Status:** Completed & Merged into `dev` *(Historical Sprint Brief — Synced 2026-11-19)* | **Current State:** [FEATURE_MAP.md](../FEATURE_MAP.md) · [F16_FEATURE_BRIEF.md](F16_FEATURE_BRIEF.md)  
+> **Sprint:** Milestone 3 — Step 7 | **Branch:** `feature/ZAFFE-006-rsvp-engine` (`14e4f72`) | **Priority:** P0 (Critical) | **Complexity:** Medium (M) | **Original Date:** 2026-11-13
+
+---
+
+> [!NOTE]
+> **Post-Merge Verification (`2026-11-19`):** `RsvpForm`, E.164 `+20`/`+966` normalization, structured dietary notes, queued `NewRsvpNotification` + `RsvpConfirmationNotification`, and `F16` Part A pre-invited hijack/quota enforcement are shipped. Known nuances: `tentative` requires `guest_count >= 1` in validation while storing `0`, and `RsvpConfirmationNotification` dispatches even on `declined` with attendance-confirmation wording.
 
 ---
 

@@ -1,9 +1,12 @@
 # Feature Brief — F01: Authentication, Authorization & Localization
 
-> **Sprint:** Milestone 1 — Step 1  
-> **Branch:** `feature/ZAFFE-001-auth`  
-> **Priority:** P0 (Critical) | **Estimated Complexity:** Medium (M)  
-> **Date:** 2026-11-12
+> **Status:** Completed & Merged into `dev` *(Historical Sprint Brief — Synced 2026-11-19)* | **Current State:** [FEATURE_MAP.md](../FEATURE_MAP.md) · [project-discovery.md](../../business/project-discovery.md)  
+> **Sprint:** Milestone 1 — Step 1 | **Branch:** `feature/ZAFFE-001-auth` (`ec253d1`) | **Priority:** P0 (Critical) | **Complexity:** Medium (M) | **Original Date:** 2026-11-12
+
+---
+
+> [!NOTE]
+> **Post-Merge Verification (`2026-11-19` on `dev` `d88d381`):** Password broker token lifecycle (`AuthController::sendResetLink`, `showResetForm`, `resetPassword`), `ResetPasswordNotification`, `PhoneService` (`+20`/`+966` E.164 normalization), and `AuthTest` are shipped. Two open follow-ups remain in [TECHNICAL_AUDIT.md](../../architecture/TECHNICAL_AUDIT.md): minor UI email-enumeration flash difference (`AuthController.php:119-121`), and incomplete English translation of `InvitationEditor`, `RsvpForm`, and public wedding cards (while Marketing/Dashboard use `$isEn` and Admin uses `lang/{ar,en}/admin.php`).
 
 ---
 
@@ -90,11 +93,11 @@ Transform the MVP authentication module into a production-grade identity and acc
 
 ## 5. Definition of Done & Quality Gates for F01
 
-- [ ] All 7 implementation tasks completed.
-- [ ] Code-Level Validation: Strict types, Laravel standards, no unhandled exceptions.
-- [ ] Business-Level Validation: Password reset cycle works from link to update; phone numbers normalize correctly for EG & KSA.
-- [ ] Security Validation: Tokens expire in 60 min, cannot be reused, rate limits enforced.
-- [ ] Automated Test Suite: `php artisan test tests/Feature/AuthTest.php` passes 100% green.
-- [ ] Full Regression Suite: `php artisan test` passes with zero regressions.
-- [ ] Conventional Commit prepared on `feature/ZAFFE-001-auth`.
+- [x] All 7 implementation tasks completed.
+- [x] Code-Level Validation: Strict types, Laravel standards, no unhandled exceptions.
+- [x] Business-Level Validation: Password reset cycle works from link to update; phone numbers normalize correctly for EG & KSA.
+- [x] Security Validation: Tokens expire in 60 min, cannot be reused, rate limits enforced.
+- [x] Automated Test Suite: `php artisan test tests/Feature/AuthTest.php` passes 100% green.
+- [x] Full Regression Suite: `php artisan test` passes with zero regressions.
+- [x] Conventional Commit prepared and merged into `dev` (`feature/ZAFFE-001-auth` `ec253d1`).
 

@@ -57,13 +57,13 @@ Boost replaces these bootstrap instructions with guidelines tailored to the appl
 
 ## 1. Core Operating Principles
 
-1. **Read `PROJECT_CONTEXT.md` First:** Before starting any significant task, read [PROJECT_CONTEXT.md](file:///e:/GithubProjects/Zaffe/PROJECT_CONTEXT.md). It is the single source of truth for architecture, domain concepts, and current implementation status.
-2. **Consult Detailed Documentation:** Read the relevant documentation in `docs/` before changing any feature:
-   - [docs/BUSINESS_OVERVIEW.md](file:///e:/GithubProjects/Zaffe/docs/BUSINESS_OVERVIEW.md) for business rules, feature matrix, and domain workflows.
-   - [docs/ARCHITECTURE.md](file:///e:/GithubProjects/Zaffe/docs/ARCHITECTURE.md) for database schemas, models, routing, and data flow.
-   - [docs/DEVELOPMENT_GUIDE.md](file:///e:/GithubProjects/Zaffe/docs/DEVELOPMENT_GUIDE.md) for local setup, testing, and template conventions.
-   - [docs/TECHNICAL_AUDIT.md](file:///e:/GithubProjects/Zaffe/docs/TECHNICAL_AUDIT.md) for known vulnerabilities, technical debt, and audit findings.
-   - [docs/OPEN_QUESTIONS.md](file:///e:/GithubProjects/Zaffe/docs/OPEN_QUESTIONS.md) for unresolved requirements.
+1. **Read `docs/PROJECT_CONTEXT.md` First:** Before starting any significant task, read [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md). It is the single source of truth for architecture, domain concepts, and current implementation status.
+2. **Consult Detailed Documentation:** Start from [docs/README.md](docs/README.md) or read the relevant documentation in `docs/` before changing any feature:
+   - [docs/product/BUSINESS_OVERVIEW.md](docs/product/BUSINESS_OVERVIEW.md) for business rules, feature matrix, and domain workflows.
+   - [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) for database schemas, models, routing, and data flow.
+   - [docs/engineering/DEVELOPMENT_GUIDE.md](docs/engineering/DEVELOPMENT_GUIDE.md) for local setup, testing, and template conventions.
+   - [docs/architecture/TECHNICAL_AUDIT.md](docs/architecture/TECHNICAL_AUDIT.md) for known vulnerabilities, technical debt, and audit findings.
+   - [docs/product/OPEN_QUESTIONS.md](docs/product/OPEN_QUESTIONS.md) for unresolved requirements.
 3. **Inspect Real Implementation Before Assuming:** Never assume behavior based solely on file names or comments. Read the actual methods in controllers, models, and Livewire components.
 4. **Trace the Complete Flow:** Whenever modifying a feature, trace the affected path end-to-end:
    - Route -> Controller / Livewire -> Model / Database Schema -> Blade View / Alpine.js -> Tests.
@@ -79,7 +79,7 @@ Boost replaces these bootstrap instructions with guidelines tailored to the appl
    - Always protect Livewire component state with `#[Locked]` attributes.
    - Always sanitize CSV export inputs against formula injection.
 10. **Add and Run Tests:** Whenever adding logic or fixing a bug, write or update tests in `tests/Feature/` and verify with `php artisan test`.
-11. **Update Documentation:** When significant business rules or architectural patterns change, update `PROJECT_CONTEXT.md` and the appropriate document in `docs/`.
+11. **Update Documentation:** When significant business rules or architectural patterns change, update `docs/PROJECT_CONTEXT.md` and the appropriate document in `docs/`.
 12. **Catalog & Reference Data Require Idempotent Migrations:** Any addition or modification to catalog/reference tables (`invitation_templates`, `template_categories`, `platform_settings`) must **never** live solely in `DatabaseSeeder.php`. Because `DatabaseSeeder` uses `firstOrCreate()` to protect admin overrides and live/staging environments deploy via `php artisan migrate --force` (not `db:seed`), every catalog change must ship with:
     - An idempotent, non-destructive data migration (guarded against empty/fresh `RefreshDatabase` test DBs, preserving existing `is_active` flags, and explicitly `json_encode()`-ing JSON columns written via `DB::table()`).
     - An automated legacy-DB migration upgrade test verifying both upgraded existing rows and empty-DB guard behavior.
@@ -95,7 +95,7 @@ For every development task assigned by the user, follow this step-by-step proces
 Understand the business objective behind the request, not just the code change. Identify the expected outcome and acceptance criteria.
 
 ### Step 2: Retrieve Project Context
-Read relevant sections of `PROJECT_CONTEXT.md`, the `docs/` folder, and the affected source files and tests.
+Read relevant sections of `docs/PROJECT_CONTEXT.md`, the `docs/` folder (see `docs/README.md`), and the affected source files and tests.
 
 ### Step 3: Trace Dependencies
 Identify all affected components, models, database columns, authorization checks, and potential side effects across the stack.

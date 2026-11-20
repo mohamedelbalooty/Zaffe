@@ -1,9 +1,12 @@
 # Feature Brief — F02: Template Management & Discovery
 
-> **Sprint:** Milestone 2 — Step 3  
-> **Branch:** `feature/ZAFFE-002-template-management`  
-> **Priority:** P1 (High) | **Estimated Complexity:** Small (S)  
-> **Date:** 2026-11-13
+> **Status:** Completed & Merged into `dev` *(Historical Sprint Brief — Synced 2026-11-19)* | **Current State:** [FEATURE_MAP.md](../FEATURE_MAP.md) · [SAUDI_MARKET_DECISIONS.md](../../product/SAUDI_MARKET_DECISIONS.md)  
+> **Sprint:** Milestone 2 — Step 3 | **Branch:** `feature/ZAFFE-002-template-management` (`cc6258e`) | **Priority:** P1 (High) | **Complexity:** Small (S) | **Original Date:** 2026-11-13
+
+---
+
+> [!NOTE]
+> **Post-Merge Catalog Expansion (`2026-11-19`):** Originally shipped with 6 free templates, then expanded in `ZAFFE-014` (self-hosted `.webp`, 0 Unsplash), `ZAFFE-023` (8 Saudi Signature Collection Vol. 1 templates), and `ZAFFE-024` (`2026_11_19_000001_sync_saudi_signature_vol1_templates.php` moving Saudi Signature Vol. 1 to `sort_order 1–8` and baseline 6 to `sort_order 9–14`). All 14 templates enforce `is_premium = false`. Note: `/pricing` & `/about` still contain stale "6 themes" copy (`UX-01`).
 
 ---
 
@@ -57,8 +60,8 @@ Ensure that all luxury wedding invitation templates (originally 6 at Sprint 2 la
 - [x] Full regression suite passes with 0 failures.
 - [x] Conventional Commit prepared on `feature/ZAFFE-002-template-management`.
 
-## 5. ZAFFE-023 Catalog Expansion (Saudi Signature Collection — Vol. 1)
+## 5. ZAFFE-023 / ZAFFE-024 Catalog Expansion (Saudi Signature Collection — Vol. 1)
 
-- Added **8 free Saudi-first templates** (`is_premium = false`, `is_active = true`, `sort_order` 7–14), bringing the active Release 1 catalog from 6 to **14 templates**: `diriyah-heritage`, `rawashin-elegance`, `sadu-signature`, `taif-rose`, `palm-oasis`, `red-sea-pearl`, `desert-dusk`, and `modern-monogram`.
-- Added `?collection=saudi-signature` filter in `HomeController::templates()`, `TemplateStyleCatalog::resolveBladeView()`, strict Blade view whitelist validation in `InvitationTemplateForm`, and `tests/Feature/SaudiSignatureTemplateCollectionTest.php`.
+- Added **8 free Saudi-first templates** (`is_premium = false`, `is_active = true`), expanding the Release 1 catalog from 6 to **14 templates**: `diriyah-heritage`, `rawashin-elegance`, `sadu-signature`, `taif-rose`, `palm-oasis`, `red-sea-pearl`, `desert-dusk`, and `modern-monogram`. Initially seeded at `sort_order` 7–14 in `ZAFFE-023`, and subsequently re-ordered via idempotent migration `2026_11_19_000001_sync_saudi_signature_vol1_templates.php` (`ZAFFE-024`) to **`sort_order` 1–8** (shifting the 6 baseline themes to `sort_order` 9–14).
+- Added `?collection=saudi-signature` filter in `HomeController::templates()`, `TemplateStyleCatalog::resolveBladeView()`, strict 14-view whitelist validation in `InvitationTemplateForm`, and `tests/Feature/SaudiSignatureTemplateCollectionTest.php`.
 - Full design and implementation details live in [ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md](../../ui/ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md).

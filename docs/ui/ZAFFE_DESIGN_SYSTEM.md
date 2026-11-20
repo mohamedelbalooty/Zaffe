@@ -1,6 +1,6 @@
 # Zaffe Design System Guide (`docs/ui/ZAFFE_DESIGN_SYSTEM.md`)
 
-This document describes the design architecture and shared frontend conventions implemented in **Zaffe (زفّــة)** using the Impeccable skill methodology (`PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json`).
+This document describes the design architecture and shared frontend conventions implemented in **Zaffe (زفّــة)** using the Impeccable skill methodology ([docs/product/PRODUCT.md](../product/PRODUCT.md), [docs/ui/DESIGN.md](DESIGN.md), `.impeccable/design.json`).
 
 ---
 
@@ -24,7 +24,9 @@ All base colors, surfaces, focus outlines, selection styling, and reusable class
 
 ## 2. Layouts & Responsive Navigation
 
-1. **Base Document (`components/layouts/base.blade.php` & `layouts/base.blade.php`):**
+> **Legacy Wrapper Note (`2026-11-19` on `dev` `d88d381`):** `resources/views/components/layouts/{base,marketing,dashboard}.blade.php` and `<x-app-icon>` are the active canonical Blade components; `resources/views/layouts/{base,marketing,dashboard}.blade.php` and `resources/views/components/icon.blade.php` remain in the repository as legacy duplicates/leftovers.
+
+1. **Base Document (`components/layouts/base.blade.php` & legacy `layouts/base.blade.php`):**
    - Loads `Cairo`, `Tajawal`, `Amiri`, and `Playfair Display`.
    - Sets `[x-cloak]`, `viewport-fit=cover`, skip-to-content link targeting `#main-content`, and OG/Twitter metadata.
 2. **Marketing Shell (`components/layouts/marketing.blade.php` & `layouts/marketing.blade.php`):**
@@ -51,7 +53,7 @@ All themes under `resources/views/templates/` preserve their individual palettes
 | `floral_romance` | Soft blush rose parchment (`#FFF8FA` / `#FDF6F4`) & floral crest |
 | `minimal_chic` | Monospaced-clean Swiss gallery typography on crisp neutral stone (`#FAFAFA`) |
 | `islamic_elegance` | Classic Naskh `Amiri` typography + oasis emerald & geometric star medallion |
-| `emerald_night` | Deep midnight obsidian emerald (`#0D241C`) with `$isDarkTheme = true` adaptive partials |
+| `emerald_night` | Deep midnight obsidian emerald (`#0D241C`) with `$isDarkTheme = true` adaptive partials *(note: currently hardcodes dark surface colors, ignoring user `custom_styles` palette overrides)* |
 | `classic_aristocrat` | Royal navy & parchment crest card (`#1B2A4A`) with `Playfair Display` accents |
 | `diriyah_heritage` | Najdi mud-brick terracotta, warm desert sand, bronze courtyard arch & stepped crest motif |
 | `rawashin_elegance` | Historic Jeddah carved wooden Rawashin lattice frame, warm coral, natural teak & teal accents |
@@ -59,7 +61,7 @@ All themes under `resources/views/templates/` preserve their individual palettes
 | `taif_rose` | Asymmetric Taif rose botanical watercolor composition on dusty rose, sage & champagne parchment |
 | `palm_oasis` | Deep palm green & champagne gold formal botanical palm-frond oasis framing |
 | `red_sea_pearl` | Mother-of-pearl ivory, sea-glass blue, muted silver & understated fine geometric borders |
-| `desert_dusk` | Dark cocoa (`$isDarkTheme = true`), layered sunset dune horizon bands, copper & dusk rose tones |
+| `desert_dusk` | Dark cocoa (`$isDarkTheme = true`), layered sunset dune horizon bands, copper & dusk rose tones *(note: currently hardcodes dark theme colors, ignoring user `custom_styles` overrides; `islamic_elegance` also ignores `welcome_message`)* |
 | `modern_monogram` | Matte cream gallery editorial with architectural champagne-framed bilingual monogram emblem |
 
 Importantly, `livewire/rsvp-form.blade.php` and `templates/partials/access_section.blade.php` explicitly scope light-surface ink (`text-[#221E1A]`) so dark invitation themes never cause invisible white-on-white inputs or labels.

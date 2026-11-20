@@ -1,9 +1,12 @@
 # Feature Brief — F07: Guest Management & Secure CSV Export
 
-> **Sprint:** Milestone 3 — Step 8  
-> **Branch:** `feature/ZAFFE-007-guest-management`  
-> **Priority:** P0 (Critical) | **Estimated Complexity:** Medium (M)  
-> **Date:** 2026-11-13
+> **Status:** Completed & Merged into `dev` *(Historical Sprint Brief — Synced 2026-11-19)* | **Current State:** [FEATURE_MAP.md](../FEATURE_MAP.md) · [project-discovery.md](../../business/project-discovery.md)  
+> **Sprint:** Milestone 3 — Step 8 | **Branch:** `feature/ZAFFE-007-guest-management` (`3309f3c`) | **Priority:** P0 (Critical) | **Complexity:** Medium (M) | **Original Date:** 2026-11-13
+
+---
+
+> [!NOTE]
+> **Post-Merge Verification (`2026-11-19`):** Customer RSVP & Roster CSV exports (`exportGuestsCsv()` & `exportRosterCsv()`) use `App\Support\CsvSanitizer::cell()` + UTF-8 BOM cleanly (`GuestManagementTest`, `SmartGuestAndQrCheckInTest`). Note: Filament Admin `ListRsvpResponses::exportCsv` uses `CsvSanitizer`, but currently ignores active table filters and omits `children_count` (`DATA-02`).
 
 ---
 
