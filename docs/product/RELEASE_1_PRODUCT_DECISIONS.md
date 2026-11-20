@@ -1,7 +1,7 @@
 # Zaffe (زفّــة) — Release 1 Official Product & Engineering Decisions
 
 > **Mandatory Strategic, Commercial, Technical, and Architectural Directives for Release 1**  
-> **Status:** Approved by Product Owner | **Date:** 2026-11-12 | **Target Markets:** Egypt & Saudi Arabia
+> **Status:** Approved by Product Owner | **Date:** 2026-11-12 (**Implementation Sync:** 2026-11-19 on `dev` `d88d381`) | **Target Markets:** Egypt & Saudi Arabia
 
 ---
 
@@ -16,12 +16,12 @@ This document establishes the official product and architectural decisions gover
 ### 2.1 Release 1 Business Model: 100% Free Launch
 - **Commercial Policy:** All product features, customization options, and templates are **100% free** during Release 1.
 - **No Paywalls or Tier Limits:**
-  - All six invitation templates are fully unlocked for all registered users.
+  - All **14 invitation templates** (8 Saudi Signature Collection — Vol. 1 + 6 baseline themes) are fully unlocked (`is_premium = false`) for all registered users.
   - No restriction on the number of invitations created or published per account.
   - No limits on RSVP guest submissions or guest list capacities.
-  - All editor customization tools (colors, typography, countdown, audio player, timeline, dress code, gallery photos) are accessible without payment.
+  - All editor customization tools (colors, typography, countdown, audio player, timeline, dress code, gallery photos) are accessible without payment *(Implementation Sync 2026-11-19: `timeline` and `dress_code` currently operate as boolean section toggles without bespoke content editors)*.
 - **Pricing Page Communication:**
-  - The pricing page (`/pricing`) must clearly communicate the free launch campaign (*"مجاناً بالكامل لفترة الإطلاق"*).
+  - The pricing page (`/pricing`) must clearly communicate the free launch campaign (*"مجاناً بالكامل لفترة الإطلاق"*) *(Implementation Sync 2026-11-19: `/pricing` & `/about` currently contain stale "6 themes" copy awaiting text update)*.
   - No non-functional payment buttons, fake checkout forms, or misleading pricing tiers.
 - **F11 (Monetization & Billing):**
   - **Status:** **DEFERRED — POST RELEASE 1**.
@@ -30,23 +30,23 @@ This document establishes the official product and architectural decisions gover
 
 ---
 
-### 2.2 Target Markets & Localization: Egypt & Saudi Arabia
-Zaffe is built specifically for couples in the Arab world, with primary focus on **Egypt** and **Saudi Arabia**.
+### 2.2 Target Markets & Localization: Saudi Arabia (First) & Egypt
+Zaffe is built specifically for couples in the Arab world, with primary priority on **Saudi Arabia** and **Egypt** (see [SAUDI_MARKET_DECISIONS.md](SAUDI_MARKET_DECISIONS.md)).
 
 1. **Country-Aware Phone Numbers:**
-   - Both Egyptian (`+20`) and Saudi (`+966`) mobile number formats are first-class citizens.
-   - Input forms (Registration, Couple Profile, Guest RSVP) must include a country selector (`+20` / `+966` / International).
+   - Both Saudi (`+966`) and Egyptian (`+20`) mobile number formats are first-class citizens.
+   - Input forms (Registration, Couple Profile, Guest RSVP) must support country selection *(Implementation Sync 2026-11-19: UI currently provides `SA`/`EG` selectors; generic `International` option is not yet present)*.
    - Storage uses normalized international **E.164** format.
 2. **Invitation-Specific Timezones:**
    - Wedding events must support event-specific timezones stored directly on the `invitations` table.
    - Default supported timezones:
      - Egypt: `Africa/Cairo`
      - Saudi Arabia: `Asia/Riyadh`
-   - Countdown timer and agenda displays must respect the invitation's configured timezone rather than a hardcoded application default.
+   - Countdown timer and agenda displays respect the invitation's configured timezone (`InvitationDateFormatter`).
 3. **Arabic-First Bilingual Architecture:**
    - Arabic (`ar`) is the primary language with full RTL support.
-   - English (`en`) is fully supported with LTR layouts.
-   - Avoid hardcoded country-specific terminology; use neutral, culturally resonant Arabic wedding terms.
+   - English (`en`) is supported across marketing/auth/dashboard (`$isEn` helpers) and Filament Admin (417-key AR/EN parity); *Implementation Sync 2026-11-19: `InvitationEditor`, `RsvpForm`, and public invitation/pass cards remain predominantly hardcoded Arabic.*
+   - Avoid hardcoded Egyptian colloquial terminology; use formal-simple Arabic (`الفصحى البسيطة`).
 
 ---
 
@@ -101,7 +101,7 @@ Release 1 must maintain near-zero fixed infrastructure overhead:
 | **F09** | Admin & Platform Management | **Active — Release 1** | **Milestone 4** (Step 10) |
 | **F11** | Monetization & Subscription System | **DEFERRED — Post Release 1** | Post-Launch |
 | **F12** | Production Readiness & Performance | **Active — Release 1** | **Milestone 5** (Step 11) |
-| **F16 (Part A)** | Smart Guest Roster, 4 Invitation Modes & QR Pass Generation | **Active — Release 1** | **Milestone 6** |
+| **F16 (Part A)** | Smart Guest Roster, 4 Invitation Modes & QR Pass Generation | **Active — Release 1** *(note: [ZAFFE_FINAL_QA_REPORT.md](../qa/reports/ZAFFE_FINAL_QA_REPORT.md) flagged Part A as a scope conflict — requires PO confirmation)* | **Milestone 6** |
 | **F16 (Part B)** | QR Scanning & Gatekeeper Check-In (`/gate/{gateToken}`) | **ISOLATED — Owner Manual Merge Only** (`feature/ZAFFE-018-smart-guests-and-qr-checkin`) | Held Pending PO Approval |
 
 ---

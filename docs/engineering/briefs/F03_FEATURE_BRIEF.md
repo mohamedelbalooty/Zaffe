@@ -1,9 +1,12 @@
 # Feature Brief — F03: Invitation Lifecycle, Timezones & Publishing
 
-> **Sprint:** Milestone 2 — Step 4  
-> **Branch:** `feature/ZAFFE-003-invitation-lifecycle`  
-> **Priority:** P0 (Critical) | **Estimated Complexity:** Medium (M)  
-> **Date:** 2026-11-13
+> **Status:** Completed & Merged into `dev` *(Historical Sprint Brief — Synced 2026-11-19)* | **Current State:** [FEATURE_MAP.md](../FEATURE_MAP.md) · [TECHNICAL_AUDIT.md](../../architecture/TECHNICAL_AUDIT.md)  
+> **Sprint:** Milestone 2 — Step 4 | **Branch:** `feature/ZAFFE-003-invitation-lifecycle` (`10bb41c`) | **Priority:** P0 (Critical) | **Complexity:** Medium (M) | **Original Date:** 2026-11-13
+
+---
+
+> [!NOTE]
+> **Post-Merge Verification (`2026-11-19`):** Slugs, timezones (`Asia/Riyadh` / `Africa/Cairo`), draft/archive `403` guard, `togglePublish()`, `POST /archive`, and `DashboardController::destroy()` file cleanup are shipped. Open post-merge gaps: customers have no UI button for `archive` (`UX-01`), `Invitation::deleting()` skips `http(s)://` media URLs on Admin delete (`DATA-01`), and `bride_name` remains `NOT NULL`/required (`KSA-01`).
 
 ---
 

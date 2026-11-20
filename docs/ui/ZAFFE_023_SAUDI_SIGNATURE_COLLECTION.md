@@ -128,10 +128,10 @@ All eight thumbnails are genuine `390 × 680` browser-rendered `.webp` captures 
 
 ## 10. Database Catalog Records
 
-Seeded idempotently via `DatabaseSeeder` (`InvitationTemplate::firstOrCreate(['slug' => ...], ...)`):
-- `sort_order`: `7` through `14` (preserving baseline templates `1` through `6`).
-- `is_active`: `true`
-- `is_premium`: `false` (100% free in Release 1)
+Seeded idempotently via `DatabaseSeeder` (`InvitationTemplate::firstOrCreate(['slug' => ...], ...)`) AND upgraded deterministically across existing databases via `database/migrations/2026_11_19_000001_sync_saudi_signature_vol1_templates.php` (`ZAFFE-024`):
+- `sort_order`: **`1` through `8`** for Saudi Signature Collection — Vol. 1 (`ZAFFE-024` updated `ZAFFE-023`'s initial `7–14` placement so the flagship Saudi collection appears first and shifted the 6 baseline templates to `9` through `14`).
+- `is_active`: `true` (idempotent migration preserves existing admin toggles).
+- `is_premium`: `false` (100% free in Release 1).
 - Categories mapped cleanly across existing `TemplateCategory` slugs (`classic`, `islamic`, `floral`, `luxury`, `minimal`, `romantic`) without altering category count (`6`).
 
 ---
@@ -157,15 +157,8 @@ Verified across `375 × 812`, `390 × 844`, `768 × 1024`, and `1440 × 900`:
 
 ## 13. Test & Visual Evidence
 
-- **Feature Regression Tests:** `tests/Feature/SaudiSignatureTemplateCollectionTest.php` plus updated catalog/audit/admin tests (`193` total tests, `2030` assertions passing).
-- **Visual Evidence Folder:** `docs/ui/templates/ZAFFE-023/` containing:
-  - `contact-sheet-saudi-signature-vol1.png` (8-template side-by-side comparison)
-  - `previews/` (8 desktop + 8 mobile preview renders)
-  - `desktop/` (8 `1440×900` public invitation renders)
-  - `mobile/` (8 `390×844` public invitation renders)
-  - `gallery/` (desktop, mobile, and `?collection=saudi-signature` filtered views)
-  - `modes/` (`rsvp_qr`, `rsvp_only`, `qr_only` with `?g=`, `announcement`)
-  - `responsive/` (`375×812` long Arabic names, `768×1024` tablet, `390×844` English LTR)
+- **Feature Regression Tests:** `tests/Feature/SaudiSignatureTemplateCollectionTest.php` plus updated catalog/audit/admin tests (`196` total tests, `2,230` assertions passing across `22` test files on WinGet PHP 8.5 + `ext-intl` on `dev` `d88d381`).
+- **Visual QA Verification:** Temporary headless Chrome captures (`375×812`, `390×844`, `768×1024`, `1440×900`, gallery, invitation modes, and an 8-template contact sheet) were visually verified during `ZAFFE-023` sign-off and later pruned from Git (`docs/ui/templates/ZAFFE-023/`) to keep repository documentation free of binary screenshot logs. Live production `.webp` thumbnails remain under `public/images/templates/`.
 
 ---
 

@@ -1,254 +1,228 @@
 # Zaffe (زفّــة) — Feature Map & Domain Architecture Taxonomy (Release 1)
 
 > **Comprehensive Mapping of SaaS Business Capabilities to Laravel Architecture**  
-> **Status:** Officially Updated for Release 1 | **Date:** 2026-11-12 | **Target Markets:** Egypt & Saudi Arabia
+> **Status:** Living Architecture Map | **Last Updated:** 2026-11-19 (`dev` branch `d88d381`) | **Target Markets:** Saudi Arabia (First) & Egypt
 
 ---
 
 ## 1. Feature Map Overview
 
-In accordance with official product directives ([docs/product/RELEASE_1_PRODUCT_DECISIONS.md](file:///e:/GithubProjects/Zaffe/docs/product/RELEASE_1_PRODUCT_DECISIONS.md)), Zaffe is organized into **11 Active Release 1 Feature Domains** and **1 Deferred Domain (F11)**:
+In accordance with official product directives ([RELEASE_1_PRODUCT_DECISIONS.md](../product/RELEASE_1_PRODUCT_DECISIONS.md) & [SAUDI_MARKET_DECISIONS.md](../product/SAUDI_MARKET_DECISIONS.md)), Zaffe tracks **14 Active Release 1 Feature Domains** (`F01`–`F10`, `F12`–`F14`, plus `F16` Part A), **2 Isolated / Owner-Manual Domains** (`F15`, `F16` Part B), and **1 Deferred Domain** (`F11`). *(For granular sub-feature classification across 34 items, see [project-discovery.md](../business/project-discovery.md) §5.)*
 
 ```mermaid
 graph TD
     subgraph CorePlatform["Core Platform Foundations"]
-        F01["F01 — Auth, Authz & Locale (EG/KSA)"]
-        F10["F10 — Email & Notifications (Resend)"]
-        F12["F12 — Production Readiness"]
+        F01["F01 — Auth, Password Reset & Locale (VERIFIED)"]
+        F10["F10 — Queued Resend Notifications (PARTIAL: CONF-01)"]
+        F12["F12 — Security & Prod Readiness (PARTIAL: SEC-05)"]
     end
 
     subgraph WeddingLifecycle["Wedding Invitation Engine"]
-        F02["F02 — Template Management (All Free)"]
-        F03["F03 — Invitation Lifecycle & Timezones"]
-        F04["F04 — Invitation Studio Editor"]
-        F05["F05 — Public View & Cairo/Riyadh Time"]
+        F02["F02 / ZAFFE-023/024 — 14 Free Themes (VERIFIED)"]
+        F14["F14 — Self-Hosted WebP Catalog (VERIFIED)"]
+        F03["F03 — Lifecycle, Slugs & Timezones (PARTIAL: KSA-01)"]
+        F04["F04 — 6-Tab Studio Editor (PARTIAL: UX-01)"]
+        F05["F05 — Public Card & Audio Gate (PARTIAL)"]
+        F13["F13 — Umm al-Qura Hijri & Numerals (PARTIAL)"]
     end
 
     subgraph GuestExperience["Guest & Attendance Engine"]
-        F06["F06 — RSVP Engine (E.164 + Real-time Alert)"]
-        F07["F07 — Guest Mgmt & Export"]
+        F06["F06 — RSVP Engine & E.164 Dedup (PARTIAL)"]
+        F07["F07 — Guest List & CsvSanitizer Export (VERIFIED)"]
+        F16A["F16 Part A — Smart Roster, 4 Modes & SVG QR Pass (PARTIAL: BR-031)"]
     end
 
     subgraph Administration["Management"]
-        F08["F08 — Customer Studio (100% Free Launch)"]
-        F09["F09 — Admin & Platform Mgmt"]
+        F08["F08 — Customer Studio & Free R1 Pricing (PARTIAL)"]
+        F09["F09 / ZAFFE-017 — Filament Admin & 8 Policies (PARTIAL)"]
     end
 
-    subgraph Deferred["Post-Release 1"]
-        F11["F11 — Monetization & Paymob (DEFERRED)"]
+    subgraph IsolatedAndDeferred["Isolated (Manual Merge Only) & Deferred"]
+        F15["F15 — Short /i/ Links & OG Pipeline (ISOLATED)"]
+        F16B["F16 Part B — /gate/{token} Door Scanner (ISOLATED)"]
+        F11["F11 — Paymob Pay-Per-Event (DEFERRED POST-R1)"]
     end
 
     F01 --> F10
     F01 --> F03
     F02 --> F03
-    F03 --> F04
-    F04 --> F05
-    F05 --> F06
+    F14 --> F02
+    F03 --> F04 --> F05 --> F06 --> F16A
+    F13 --> F05
     F06 --> F10
-    F06 --> F07
-    F07 --> F08
-    F08 --> F09
-    F10 --> F12
-    F09 --> F12
+    F06 --> F07 --> F08 --> F09 --> F12
+    F16A -.-> F16B
+    F09 -.-> F11
 ```
 
 ---
 
 ## 2. Classification Legend
 
-- `[ACTIVE - R1]`: Core feature domain required for Release 1 free launch.
-- `[DEFERRED]`: Gated feature domain postponed until Post-Release 1.
-- `[VERIFIED]`: Implemented in code and verified with passing automated tests.
-- `[PARTIAL]`: Component structure exists, but core logic or integrations require implementation.
-- `[IMPROVEMENT_NEEDED]`: Functional, but requires optimization, cleanup, or country-specific support.
+- `[ACTIVE - R1]`: Feature domain enabled in `dev` for Release 1.
+- `[ISOLATED — OWNER MANUAL ONLY]`: Implemented on a separate branch (`feature/ZAFFE-015-*` or `feature/ZAFFE-018-*`); never auto-merged into `dev`.
+- `[DEFERRED]`: Postponed until Post-Release 1 (`F11`).
+- `[VERIFIED]`: Implemented and verified in `dev` source code and automated PHPUnit tests.
+- `[PARTIAL]`: Core functionality works in `dev`, with verified gaps documented below (and in [TECHNICAL_AUDIT.md](../architecture/TECHNICAL_AUDIT.md) §6).
 
 ---
 
-## 3. Comprehensive Feature Domain Breakdown
+## 3. Comprehensive Feature Domain Breakdown (`dev` `d88d381`)
 
 ### F01 — Authentication, Authorization & Localization `[ACTIVE - R1]`
-- **Domain Mission:** User identity, secure session lifecycle, role-based authorization, Egypt (+20) and Saudi Arabia (+966) phone support, and bilingual Arabic RTL / English LTR support.
+- **Domain Mission:** User identity, password reset via Laravel Password Broker, `+20`/`+966` E.164 phone support (`PhoneService`), and Arabic/English locale switching.
 - **Components & Files:**
   - Controller: `app/Http/Controllers/AuthController.php`
-  - Middleware: `app/Http/Middleware/SetLocale.php`
-  - Models: `app/Models/User.php` (`role` enum: `'user'`, `'admin'`)
-  - Views: `resources/views/auth/login.blade.php`, `register.blade.php`, `forgot-password.blade.php`, `reset-password.blade.php`
-  - Routes: `routes/web.php:24-43`
-  - Tests: `tests/Feature/AuditTest.php:29-44, 355-379`, `tests/Feature/WeddingPlatformTest.php:66-104`
+  - Service & Middleware: `app/Services/PhoneService.php`, `app/Http/Middleware/SetLocale.php`
+  - Models: `app/Models/User.php` (`role`: `'user' | 'admin'`, `canAccessPanel()`)
+  - Views & Lang: `resources/views/auth/{login,register,forgot-password,reset-password}.blade.php`, `lang/{ar,en}/admin.php` (417 keys)
+  - Routes: `routes/web.php` (`login`, `register`, `forgot-password`, `reset-password/{token}`, `/logout`, `/lang/{locale}`)
+  - Tests: `tests/Feature/AuthTest.php`, `tests/Feature/AuditTest.php`, `tests/Feature/WeddingPlatformTest.php`
 - **Capability Audit:**
-  - `[VERIFIED]` Registration (`POST /register`) with password confirmation and auto-login.
-  - `[VERIFIED]` Login (`POST /login`) with session regeneration and remember-me.
-  - `[VERIFIED]` Rate limiting (`throttle:6,1` with HTTP 429).
-  - `[VERIFIED]` Role authorization (`User::canAccessPanel()` gates `/admin`).
-  - `[VERIFIED]` Locale switching (`GET /lang/{locale}`) setting `session('locale')` with RTL/LTR directional support.
-  - `[PARTIAL]` Password Reset Workflow: `sendResetLink` is a simulated placeholder. Requires real Laravel `Password::broker()`, token generation, notification dispatch, and reset form view.
-  - `[IMPROVEMENT_NEEDED]` Country-aware phone input: Support Egypt (`+20`) and Saudi Arabia (`+966`) with E.164 normalization.
+  - `[VERIFIED]` Registration, login, remember-me, session regeneration, logout, `throttle:6,1`, and `User::canAccessPanel()`.
+  - `[VERIFIED]` Password reset broker + signed token form + queued `ResetPasswordNotification` *(minor UI email-enumeration signal remains in `AuthController.php:119-121`)*.
+  - `[PARTIAL]` Localization coverage: Filament Admin has 100% AR/EN parity (417 keys); marketing/auth/dashboard use inline `$isEn` ternaries; `InvitationEditor`, `RsvpForm`, `invitation-show`, and `guest-pass` remain hardcoded Arabic.
 
 ---
 
 ### F10 — Email & Notifications `[ACTIVE - R1]`
-- **Domain Mission:** Transactional email infrastructure powered by **Resend** for password reset links, couple RSVP alerts, and guest confirmations.
+- **Domain Mission:** Queued transactional email (`ShouldQueue`, `database` queue driver) via Resend for password resets, couple RSVP alerts, and guest confirmations.
 - **Components & Files:**
-  - Mail Config: `config/mail.php`
-  - Mailer Integration: Resend via Laravel standard mail abstraction
-  - Notification Classes: To be implemented in `app/Notifications/`
-  - Queue Config: `config/queue.php` (lightweight `database` driver)
+  - Config: `config/mail.php` (`resend` SMTP & `resend_api`), `config/queue.php`
+  - Notifications: `app/Notifications/{ResetPasswordNotification,NewRsvpNotification,RsvpConfirmationNotification}.php`
+  - Tests: `tests/Feature/NotificationTest.php`, `tests/Feature/AuthTest.php`
 - **Capability Audit:**
-  - `[PARTIAL]` Resend approved as provider. Currently `.env` uses `MAIL_MAILER=log`.
-  - `[MISSING]` Password reset mailable/notification.
-  - `[MISSING]` Couple notification on guest RSVP submission (`NewRsvpReceivedNotification`).
-  - `[MISSING]` Guest confirmation mailable (`RsvpConfirmationNotification`).
-  - `[MISSING]` Asynchronous queue delivery with error logging.
+  - `[VERIFIED]` `ResetPasswordNotification`, `NewRsvpNotification` (`mail` + `database`), and `RsvpConfirmationNotification` (`mail`) queue cleanly.
+  - `[PARTIAL]` Open config & payload gaps (`CONF-01`, `KSA-01`): `.env.example` empty `RESEND_API_KEY=` shadows `MAIL_PASSWORD`; `resend/resend-php` is not installed for `resend_api`; `config/mail.php` retains dead `encryption` key; `RsvpConfirmationNotification` fires even on `declined` with confirmation wording and omits `children_count` + QR pass URL; `NewRsvpNotification` omits `children_count` and has no customer in-app inbox UI.
 
 ---
 
-### F02 — Template Management & Discovery `[ACTIVE - R1]`
-- **Domain Mission:** Presentation, filtering, and preview of all 14 luxury wedding themes (6 baseline + 8 Saudi Signature Collection — Vol. 1) — **100% free** in Release 1.
+### F02 & F14 — Template Management, Saudi Signature Collection & WebP Catalog `[ACTIVE - R1]`
+- **Domain Mission:** Presentation, filtering, and preview of **14 active free wedding themes** (`8` Saudi Signature Collection — Vol. 1 ordered `1–8` via `ZAFFE-024`, `6` baseline ordered `9–14`) with self-hosted `.webp` thumbnails (**0 Unsplash URLs**).
 - **Components & Files:**
-  - Models & Catalog: `app/Models/TemplateCategory.php`, `app/Models/InvitationTemplate.php`, `app/Support/TemplateStyleCatalog.php` (`resolveBladeView()`, `saudiSignatureSlugs()`)
-  - Controller: `app/Http/Controllers/HomeController.php` (`templates()`, `?collection=saudi-signature`, `previewTemplate()`)
-  - Views: `resources/views/pages/templates.blade.php`, `preview-template.blade.php`
-  - Templates: `resources/views/templates/` (`royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`, plus Vol. 1: `diriyah_heritage`, `rawashin_elegance`, `sadu_signature`, `taif_rose`, `palm_oasis`, `red_sea_pearl`, `desert_dusk`, `modern_monogram`)
+  - Models & Support: `app/Models/{TemplateCategory,InvitationTemplate}.php`, `app/Support/TemplateStyleCatalog.php` (`resolveBladeView()` 14-view allowlist, `saudiSignatureSlugs()`)
+  - Controller & Views: `app/Http/Controllers/HomeController.php`, `resources/views/pages/{templates,preview-template}.blade.php`
+  - Assets & Data: `public/images/templates/*.webp` (14 files), `database/migrations/{2026_11_14_000002,2026_11_15_000001,2026_11_19_000001}*.php`, `database/seeders/DatabaseSeeder.php`
+  - Templates: `resources/views/templates/` (`diriyah_heritage`, `rawashin_elegance`, `sadu_signature`, `taif_rose`, `palm_oasis`, `red_sea_pearl`, `desert_dusk`, `modern_monogram`, `royal_gold`, `floral_romance`, `minimal_chic`, `islamic_elegance`, `emerald_night`, `classic_aristocrat`)
+  - Tests: `TemplateManagementTest.php`, `SaudiSignatureTemplateCollectionTest.php`, `AuditTest.php`
 - **Capability Audit:**
-  - `[VERIFIED]` All 14 templates rendered and verified by `AuditTest.php`, `TemplateManagementTest.php`, and `SaudiSignatureTemplateCollectionTest.php`.
-  - `[VERIFIED]` Category filtering, `?collection=saudi-signature` filter, and bilingual search.
-  - `[VERIFIED]` Interactive preview with mock data (`/templates/{slug}/preview`).
-  - `[VERIFIED]` Inactive template rejection (`is_active = false`) in preview, creation, and editor, plus validated `view_name` resolution via `TemplateStyleCatalog::resolveBladeView()`.
-  - `[ACTIVE DIRECTIVE]` All 14 templates are unlocked for all users. No premium gating in Release 1.
+  - `[VERIFIED]` All 14 templates unlocked free (`is_premium = false`), inactive category/template filtering (`availableForSelection()`), allowlist view fallback, self-hosted `.webp` previews (`F14`), and idempotent `ZAFFE-024` sort migration (`1–8` Vol. 1, `9–14` baseline).
+  - `[PARTIAL]` `/pricing` & `/about` still display stale `"6 themes"` marketing copy (`UX-01`); `public/images/og-zaffe.jpg` is missing.
 
 ---
 
-### F03 — Invitation Lifecycle & Publishing `[ACTIVE - R1]`
-- **Domain Mission:** Invitation creation wizard, unique slug generation, draft state protection, event timezone tracking, and safe deletion.
+### F03 & F13 — Invitation Lifecycle, Publishing & Saudi Hijri Formatter `[ACTIVE - R1]`
+- **Domain Mission:** Wizard creation, slug uniqueness, draft/archive privacy (`403`), event timezones, Umm al-Qura Hijri + Gregorian formatting, and local media cleanup.
 - **Components & Files:**
-  - Model: `app/Models/Invitation.php`
-  - Controller: `app/Http/Controllers/DashboardController.php:38-131`
-  - Livewire: `app/Livewire/InvitationEditor.php:218-228` (`togglePublish()`)
-  - Migrations: `database/migrations/2026_01_01_000004_create_invitations_table.php`
+  - Model, Services & Controllers: `Invitation.php`, `InvitationDateFormatter.php`, `DashboardController.php`, `InvitationController.php`
+  - Migrations: `2026_01_01_000004`, `2026_11_13_000615_add_timezone_to_invitations_table.php`
+  - Tests: `InvitationLifecycleTest.php`, `InvitationDateFormatterTest.php`, `PublicInvitationTest.php`
 - **Capability Audit:**
-  - `[VERIFIED]` Creation wizard with unique slug generation and duplicate suffix incrementation.
-  - `[VERIFIED]` Draft privacy protection (HTTP 403 unless owner or admin).
-  - `[VERIFIED]` Real-time publishing toggle (`draft` vs `published`).
-  - `[IMPROVEMENT_NEEDED]` Storage cleanup on deletion: Delete cover and gallery files from disk when an invitation is destroyed.
-  - `[IMPROVEMENT_NEEDED]` Event timezone support: Add explicit `timezone` column (`Africa/Cairo` / `Asia/Riyadh`).
+  - `[VERIFIED]` Unique slug generator (`{groom}-and-{bride}` / `wedding-{random}`), draft & archive `403` guard, publish/draft toggle & `POST /archive` route, customer deletion cleanup, and `InvitationDateFormatter` Umm al-Qura + `latin`/`arabic_indic`.
+  - `[PARTIAL]` `bride_name` remains `NOT NULL` and `required` across schema/controllers/editor/Filament (`KSA-01`); customers have no UI control for `archive`; `Invitation::deleting()` skips `http(s)://` media URLs on Admin delete (`DATA-01`); `Invitation::saving()` mode-vs-toggle edge case on `announcement` -> `rsvp_qr`.
 
 ---
 
-### F04 — Invitation Editor & Customization `[ACTIVE - R1]`
-- **Domain Mission:** Real-time visual studio for couples to customize wedding details, colors, typography, agenda, dress code, and photos.
+### F04 — Visual Studio Editor & Customization `[ACTIVE - R1]`
+- **Domain Mission:** Real-time 6-tab Livewire studio (`basics`, `content`, `design`, `media`, `templates`, `rsvp`) + Publish Share Modal for free customization.
 - **Components & Files:**
-  - Livewire: `app/Livewire/InvitationEditor.php`
-  - View: `resources/views/livewire/invitation-editor.blade.php`
-  - Models: `app/Models/Invitation.php`, `app/Models/InvitationPhoto.php`, `app/Models/InvitationSection.php`
+  - Livewire & View: `app/Livewire/InvitationEditor.php`, `resources/views/livewire/invitation-editor.blade.php`
+  - Models: `Invitation.php`, `InvitationPhoto.php`, `InvitationSection.php`
+  - Tests: `InvitationEditorTest.php`, `AuditTest.php`
 - **Capability Audit:**
-  - `[VERIFIED]` Multi-tab editing, autosave, template switching, and gallery management.
-  - `[VERIFIED]` IDOR protection via `getAuthorizedInvitation()` and `#[Locked]` state.
-  - `[ACTIVE DIRECTIVE]` All customization features unlocked for all users in Release 1.
-  - `[IMPROVEMENT_NEEDED]` Image optimization pipeline: Automatic WebP conversion and dimension capping (max 1600px width).
-  - `[IMPROVEMENT_NEEDED]` Timezone configuration in event basics tab.
+  - `[VERIFIED]` `#[Locked]` `$invitationId` and `$status`, `getAuthorizedInvitation()`, autosave, timezone/digit/mode controls, on-the-fly template switching, `5MB` MIME-validated photo uploads with customer deletion cleanup, Publish Share Modal.
+  - `[PARTIAL]` `timeline` & `dress_code` sections are boolean visibility toggles only (no item/attire editors); automated server-side image resizing/WebP compression (`PERF-02`) remains deferred Post-Release 1; `emerald_night` & `desert_dusk` ignore user palette overrides and `islamic_elegance` ignores `welcome_message` (`KSA-01`).
 
 ---
 
-### F05 — Public Invitation Rendering `[ACTIVE - R1]`
-- **Domain Mission:** Fast, responsive public wedding card delivery featuring event-specific timezones, background music, and WhatsApp sharing.
+### F05 — Public Invitation Rendering & Mobile Audio Gate `[ACTIVE - R1]`
+- **Domain Mission:** Fast, WhatsApp-WebView-friendly public wedding card delivery, session-deduplicated views, user-tap audio gate, and OpenGraph meta tags.
 - **Components & Files:**
-  - Controller: `app/Http/Controllers/InvitationController.php`
-  - Views: `resources/views/templates/*.blade.php`
-  - Partials: `resources/views/templates/partials/` (`countdown`, `music_player`, `share_box`, `timeline`, `gallery`, `dress_code`)
+  - Controller & Views: `app/Http/Controllers/InvitationController.php`, `resources/views/pages/invitation-show.blade.php`, `resources/views/templates/*.blade.php`
+  - Partials: `resources/views/templates/partials/` (`access_section`, `ceremony_stages`, `countdown`, `dress_code`, `gallery`, `music_player`, `share_box`, `timeline`)
+  - Tests: `PublicInvitationTest.php`, `SaudiSignatureTemplateCollectionTest.php`
 - **Capability Audit:**
-  - `[VERIFIED]` Dynamic theme rendering across all 6 themes with shared modular section contract.
-  - `[VERIFIED]` 1-click WhatsApp sharing with localized message and deep link.
-  - `[IMPROVEMENT_NEEDED]` Timezone-aware countdown: Pin countdown calculations to the invitation's configured timezone (`Africa/Cairo` / `Asia/Riyadh`).
-  - `[IMPROVEMENT_NEEDED]` View count optimization: Session-based deduplication to prevent database row-locking contention.
-  - `[IMPROVEMENT_NEEDED]` Social meta tags: Dynamic OpenGraph tags for rich WhatsApp link previews.
+  - `[VERIFIED]` 14 templates + zero-photo fallback, `Asia/Riyadh`/`Africa/Cairo` timezone target, interactive `music_player.blade.php` tap open-gate, `SecurityHeaders` (`no-referrer`/`noindex`/`no-store` on `?g=*`), session `viewed_invitation_{id}` deduplication.
+  - `[PARTIAL]` `countdown.blade.php` ignores `arabic_indic` numerals; `timeline.blade.php:33` has invalid `--tw-before-bg`; `share_box.blade.php:30` uses unguarded clipboard call; template footers link to `/` instead of `/templates?ref=invite`.
 
 ---
 
 ### F06 — RSVP & Attendance Engine `[ACTIVE - R1]`
-- **Domain Mission:** Interactive guest confirmation, companion tracking, deadline enforcement, phone deduplication, and couple notification alerts.
+- **Domain Mission:** Interactive guest confirmation, adult/child quotas, deadline enforcement, E.164 phone deduplication, hijack protection, and queued notifications.
 - **Components & Files:**
-  - Livewire: `app/Livewire/RsvpForm.php`
-  - Model: `app/Models/RsvpResponse.php`
-  - View: `resources/views/livewire/rsvp-form.blade.php`
+  - Livewire & View: `app/Livewire/RsvpForm.php`, `resources/views/livewire/rsvp-form.blade.php`
+  - Model & Service: `app/Models/RsvpResponse.php`, `app/Services/PhoneService.php`
+  - Tests: `RsvpEngineTest.php`, `AuditTest.php`, `NotificationTest.php`
 - **Capability Audit:**
-  - `[VERIFIED]` Attendance statuses (`attending`, `declined`, `tentative`).
-  - `[VERIFIED]` Deadline enforcement and guest count caps.
-  - `[VERIFIED]` Declining attendance sets `guest_count = 0`.
-  - `[VERIFIED]` Phone deduplication updates existing responses in-place.
-  - `[VERIFIED]` Anti-abuse IP rate limiting (10/min).
-  - `[IMPROVEMENT_NEEDED]` Country-aware phone formatting for Egypt (`+20`) and Saudi Arabia (`+966`) with E.164 normalization.
-  - `[IMPROVEMENT_NEEDED]` Standardized dietary checkboxes (Vegetarian, Gluten-Free, Allergies).
-  - `[IMPROVEMENT_NEEDED]` Dispatch real-time email notification (via F10) to the couple upon RSVP receipt.
+  - `[VERIFIED]` `attending`/`declined`/`tentative` statuses, deadline cutoff, non-attending zeroing (`guest_count = 0`, `children_count = 0`), `+20`/`+966` E.164 normalization & in-place phone update, `10/min/IP/invitation` rate limit, pre-invited hijack guard, `$passPreviouslyIssued` suppression on open re-submit, real-time `NewRsvpNotification` & `RsvpConfirmationNotification` dispatch.
+  - `[PARTIAL]` `tentative` validation still requires `guest_count >= 1` despite storing `0`; `RsvpForm` UI remains Arabic-only; residual `"بطاقة دخول"` text exists in `rsvp-form.blade.php` / `access_section.blade.php`.
 
 ---
 
-### F07 — Guest Management & Export `[ACTIVE - R1]`
-- **Domain Mission:** Customer Studio guest list analytics, searching, filtering, and Excel-ready CSV export with reinforced formula injection defense.
+### F07 — Guest Management & Secure Export `[ACTIVE - R1]`
+- **Domain Mission:** Customer Studio RSVP + pre-invited roster management, filtering, and UTF-8 BOM formula-safe CSV downloads.
 - **Components & Files:**
-  - Controller: `app/Http/Controllers/DashboardController.php:133-212`
-  - View: `resources/views/dashboard/guests.blade.php`
+  - Controller, Support & View: `DashboardController.php` (`guests()`, `exportGuestsCsv()`, `exportRosterCsv()`), `App\Support\CsvSanitizer`, `resources/views/dashboard/guests.blade.php`
+  - Tests: `GuestManagementTest.php`, `SmartGuestAndQrCheckInTest.php`, `AuditTest.php`
 - **Capability Audit:**
-  - `[VERIFIED]` RSVP overview metrics and paginated search.
-  - `[VERIFIED]` Streamed CSV export with UTF-8 BOM.
-  - `[VERIFIED]` Formula injection sanitization prefixing `=`, `+`, `-`, `@` with `'`.
-  - `[IMPROVEMENT_NEEDED]` Enhanced sanitization regex catching formula triggers preceded by whitespace, tabs, or newlines.
+  - `[VERIFIED]` Paginated search/filter + streamlined exports using `CsvSanitizer::cell()` (`=`, `+`, `-`, `@`, `\t`, `\r` after `ltrim`) and UTF-8 BOM.
 
 ---
 
-### F08 — Customer Dashboard & Analytics `[ACTIVE - R1]`
-- **Domain Mission:** Couple portal overview, invitation management, attendee analytics, and free launch communication.
+### F08 — Customer Dashboard, Studio KPIs & Marketing Pages `[ACTIVE - R1]`
+- **Domain Mission:** Couple dashboard metrics, invitation index, profile management, and Free Release 1 landing/pricing/informational pages.
 - **Components & Files:**
-  - Controller: `app/Http/Controllers/DashboardController.php:16-36, 214-247`
-  - Views: `resources/views/dashboard/index.blade.php`, `resources/views/pages/pricing.blade.php`
+  - Controllers & Views: `DashboardController.php` (`index`, `invitations`, `profile`), `HomeController.php`, `views/dashboard/*`, `views/pages/{home,pricing,about,contact,faq}.blade.php`
+  - Tests: `CustomerDashboardTest.php`, `ProductQaValidationTest.php`
 - **Capability Audit:**
-  - `[VERIFIED]` Real-time KPI metrics and invitation cards.
-  - `[VERIFIED]` Profile update for name, email, phone, and password.
-  - `[ACTIVE DIRECTIVE]` Update pricing page (`/pricing`) to communicate 100% free launch campaign; remove non-functional purchase buttons.
-  - `[IMPROVEMENT_NEEDED]` Polished onboarding empty states for newly registered couples.
+  - `[VERIFIED]` Scoped studio metrics, E.164 profile normalization & password update, free Release 1 pricing communication.
+  - `[PARTIAL]` `DashboardController::index()` omits `children_count` (unlike `guests()`), mislabels `archived` as Draft, and leaks `"مشاهدة"`; `/dashboard/invitations` lacks Publish/Archive controls (Delete only); `/contact` form is Alpine simulation only (`UX-01`); `/pricing` & `/about` say "6 themes"; legacy duplicate `resources/views/layouts/` + `welcome.blade.php` + `<x-icon>` remain on disk.
 
 ---
 
-### F09 — Admin & Platform Management `[ACTIVE - R1]`
-- **Domain Mission:** Filament v5 Super Admin backoffice for system oversight, template/category curation, invitation moderation, RSVP operational monitoring, dynamic site settings, and platform health.
+### F09 — Admin & Platform Management (`ZAFFE-017` / `ZAFFE-020`) `[ACTIVE - R1]`
+- **Domain Mission:** Filament v5 Super Admin backoffice (`/admin`) governing users, invitations, visual template styles, categories, RSVPs, guest passes, settings, and operations monitoring under explicit Policies.
 - **Components & Files:**
-  - Resources: `app/Filament/Resources/` (`Users`, `Invitations`, `InvitationTemplates`, `TemplateCategories`, `PlatformSettings`, `RsvpResponses`, plus locked `SubscriptionPlans`)
-  - Pages & Widget: `app/Filament/Pages/OperationsMonitor.php`, `app/Filament/Widgets/PlatformStatsOverview.php`
-  - Policies: `app/Policies/` (`UserPolicy`, `InvitationPolicy`, `InvitationTemplatePolicy`, `TemplateCategoryPolicy`, `RsvpResponsePolicy`, `PlatformSettingPolicy`, `SubscriptionPlanPolicy`)
+  - Resources (`app/Filament/Resources/`): `Users`, `Invitations`, `InvitationTemplates` (`InvitationTemplateForm` 3-column visual editor, 14 presets, WCAG preview, locked `is_premium = false`), `TemplateCategories`, `RsvpResponses`, `InvitationGuests`, `PlatformSettings` (2-tab `PlatformSettingCatalog` workspace), plus disabled `SubscriptionPlans` (`403`)
+  - Pages, Widget & CLI: `OperationsMonitor.php` (`/admin/operations-monitor`), `PlatformStatsOverview.php`, `CreateAdminUser.php` (`zaffe:create-admin`), `AdminPanelProvider.php`
+  - Policies (`app/Policies/`): **8 Policies** (`Invitation`, `InvitationTemplate`, `User`, `TemplateCategory`, `RsvpResponse`, `InvitationGuest`, `PlatformSetting`, `SubscriptionPlan`)
+  - Tests: `AdminManagementTest.php`, `AdminFeatureCoverageTest.php`, `ProductionReadinessTest.php`
 - **Capability Audit:**
-  - `[VERIFIED]` Gated access for `role = 'admin'` with explicit Policies on all 7 resources (including self/last-admin deletion protection and read-only/export/spam-delete enforcement on `RsvpResponse`).
-  - `[VERIFIED]` `PlatformSetting` cache invalidation and live wiring across marketing layouts and `/contact`, plus `OperationsMonitor` queue/mailer health inspection without secret exposure.
-  - `[ACTIVE DIRECTIVE]` Subscription and billing management (`F11`) excluded from Release 1 operational flows (`SubscriptionPlanResource::canAccess(): false`).
+  - `[VERIFIED]` 7 active resources, 417-key AR/EN parity, 8 Policies, locked `SubscriptionPlanResource`, CLI admin provisioning, cache-invalidating `PlatformSetting`.
+  - `[PARTIAL]` Confirmed open bugs (`SEC-05`, `SEC-06`, `DATA-01`, `DATA-02`): missing `SecurityHeaders` on `/admin/*`; unguarded bulk-delete on canonical `PlatformSetting` keys; Admin delete orphans `http(s)://` media URLs; `User::$fillable` omits `email_verified_at` & relative `avatar_url` fails `->url()`; `TemplateCategoryForm` lacks `->default(true)`; `ListRsvpResponses::exportCsv` ignores filters & omits `children_count`; `InvitationGuestResource` unlocalized badges & nav-sort `3` collision; `OperationsMonitor` lacks KPI #1 (`Wizard-Start`) & KPI #2 (`>= 10` guests).
 
 ---
 
-### F11 — Monetization & Subscription System `[DEFERRED — POST RELEASE 1]`
-- **Domain Mission:** Commercial package tiers, Paymob payment gateway integration (Egypt & Saudi Arabia), and tier enforcement.
-- **Release 1 Status:** **DEFERRED**.
-- **Directives:** Zero payment gateway dependencies or checkout flows in Release 1. Existing schema preserved dormantly. Future integration documented for Paymob.
-
----
-
-### F12 — Production Readiness & Performance `[ACTIVE - R1]`
-- **Domain Mission:** MySQL 8.4 runtime validation, cloud/local storage privacy, lightweight queues, and security hardening.
+### F12 — Security Hardening & Production Readiness `[ACTIVE - R1]`
+- **Domain Mission:** HTTP security headers, composite query indexes, database queue readiness, runtime compatibility, and staging deployment verification.
 - **Components & Files:**
-  - Config: `config/database.php`, `config/filesystems.php`, `config/queue.php`, `config/cache.php`
+  - Middleware & Config: `app/Http/Middleware/SecurityHeaders.php`, `bootstrap/app.php`, `config/{database,filesystems,queue,cache,mail}.php`, `database/migrations/2026_11_14_000001_add_performance_indexes.php`
+  - Tests: `ProductionReadinessTest.php`, `AuditTest.php`
 - **Capability Audit:**
-  - `[PARTIAL]` SQLite local/testing environment. MySQL 8.4 runtime test execution required.
-  - `[ACTIVE DIRECTIVE]` Cost efficiency prioritized: Database queues and file/database caching used initially; Redis only when workload justifies it.
-  - `[IMPROVEMENT_NEEDED]` Storage privacy: Prevent predictable public path access to unpublished draft photos.
+  - `[VERIFIED]` Global web `SecurityHeaders` + strict `no-referrer`/`noindex`/`no-store` on `/pass/*` & `?g=*`, composite indexes, `/up` probe.
+  - `[PARTIAL]` `SEC-05` (`/admin/*` missing `SecurityHeaders`), `CONF-01` (`composer.json` `^8.3` vs `composer.lock` `>= 8.4.1`, `ext-intl` mandatory, Resend config traps), MySQL 8.4 staging run pending.
 
 ---
 
-### F16 — Smart Guest List, Invitation Modes & QR Pass Generation `[ACTIVE - R1]` *(Gatekeeper Check-In Isolated)*
-- **Domain Mission:** Deliver free self-service guest roster management, 4 flexible invitation modes, personalized invite links, and personal QR passes for Egypt & Saudi Arabia. QR Scanning & Gatekeeper Check-In (`/gate/{gateToken}`) is isolated on `feature/ZAFFE-018-smart-guests-and-qr-checkin` pending explicit Product Owner merge approval (see [QR_FEATURE_ISOLATION_POLICY.md](file:///e:/GithubProjects/Zaffe/docs/engineering/QR_FEATURE_ISOLATION_POLICY.md)).
-- **Components & Files (Active in `dev`):**
-  - Models & Policies: `InvitationGuest`, `Invitation`, `RsvpResponse`, `InvitationGuestPolicy`
-  - Services & Controllers: `App\Services\QrCodeService` (pure-PHP ISO/IEC 18004 Byte-mode QR SVG encoder), `GuestPassController`, `InvitationController`, `DashboardController::exportRosterCsv()`
-  - Livewire & Views: `InvitationEditor`, `RsvpForm`, `GuestRosterManager`, `templates/partials/access_section.blade.php`, `pages/guest-pass.blade.php`
-  - Filament v5 Admin: `InvitationGuestResource`, `InvitationForm`, `InvitationsTable`, `PlatformStatsOverview`
+### F16 (Part A) — Smart Guest Roster, 4 Modes & QR Pass Generation `[ACTIVE - R1 | Scope Conflict BR-031]`
+- **Domain Mission:** Free pre-invited guest roster, bulk CSV/paste import, 4 invitation modes, `?g=` personalized links, and pure-PHP SVG QR passes `/pass/{qrToken}`.
+- **Components & Files:**
+  - Models, Services, Controllers & Livewire: `InvitationGuest.php`, `Invitation.php`, `InvitationGuestPolicy.php`, `QrCodeService.php`, `GuestPassController.php`, `GuestRosterManager.php`, `InvitationGuestResource`
+  - Views: `resources/views/livewire/guest-roster-manager.blade.php`, `resources/views/pages/guest-pass.blade.php`, `resources/views/templates/partials/access_section.blade.php`
+  - Tests: `QrCodeServiceTest.php`, `SmartGuestAndQrCheckInTest.php`, `QrCheckInIsolationTest.php`
 - **Capability Audit:**
-  - `[COMPLETE]` 4 invitation modes (`rsvp_qr`, `rsvp_only`, `qr_only`, `announcement`) synchronized bidirectionally with `is_rsvp_enabled`.
-  - `[COMPLETE]` Bulk CSV/line roster import & formula-safe roster CSV export (`CsvSanitizer::cell()`), adult/child quota enforcement, and per-guest WhatsApp `wa.me` share + `invited_at`/`reminded_at` tracking.
-  - `[COMPLETE]` Public pass (`/pass/{qrToken}`) & `?g=` personalized invitation links with pure-PHP QR SVG rendering.
-  - `[ISOLATED — OWNER MANUAL ONLY]` Zero-app multi-gate usher scanner (`/gate/{gateToken}`, `GateScanner`, `InvitationGate`, `BarcodeDetector` camera UI, atomic single-use check-in lock) remains exclusively on `feature/ZAFFE-018-smart-guests-and-qr-checkin` and must never be auto-merged.
-  - `[TESTED]` `QrCodeServiceTest` + `SmartGuestAndQrCheckInTest` + `QrCheckInIsolationTest`.
+  - `[VERIFIED]` 4 modes (`rsvp_qr`, `rsvp_only`, `qr_only`, `announcement`), bulk CSV/paste import + formula-safe roster export, per-guest quotas & WA tracking, pure-PHP SVG `/pass/{qrToken}` (`throttle:60,1`).
+  - `[PARTIAL]` **Governance conflict (`BR-031`):** Flagged as P0 scope concern in [ZAFFE_FINAL_QA_REPORT.md](../qa/reports/ZAFFE_FINAL_QA_REPORT.md) vs. approved active R1 scope in [QR_FEATURE_ISOLATION_POLICY.md](../architecture/QR_FEATURE_ISOLATION_POLICY.md) & [RELEASE_1_PRODUCT_DECISIONS.md](../product/RELEASE_1_PRODUCT_DECISIONS.md) — awaits PO sign-off; residual `"بطاقة دخول"` text cleanup + missing watermark footer on `guest-pass.blade.php`.
+
+---
+
+### Isolated Branches (NOT in `dev` — Owner Manual Merge Only)
+- **`F16` (Part B) — QR Scanning & Gatekeeper Check-In (`origin/feature/ZAFFE-018-smart-guests-and-qr-checkin` `de01adc`):** `/gate/{gateToken}`, `GateScanner`, `InvitationGate`, `InvitationGatePolicy`, single-use `checked_in_at` lock. Isolated by [QR_FEATURE_ISOLATION_POLICY.md](../architecture/QR_FEATURE_ISOLATION_POLICY.md) (`invitation_gates` table & `checked_in_*` columns remain dormant in `dev`).
+- **`F15` — Short URLs, Cached Dynamic OG Tags & Async WebP (`origin/feature/ZAFFE-015-short-urls-and-og-tags` `3e4eda0`):** Owner Manual Only per [GIT_WORKFLOW.md](GIT_WORKFLOW.md) §3.3.
+- **`ZAFFE-017` Wizard Prototype (`feature/ZAFFE-017-create-invitation-wizard` `7091c47`):** Local-only, On Hold.
+
+---
+
+### F11 — Monetization & One-Time Pay-Per-Invitation Checkout `[DEFERRED — POST RELEASE 1]`
+- **Domain Mission:** Future one-time pay-per-invitation checkout via **Paymob** (`SAR` / `EGP` dynamically via `PlatformSetting`) behind a feature flag ([RELEASE_1_PRODUCT_DECISIONS.md](../product/RELEASE_1_PRODUCT_DECISIONS.md), [SAUDI_MARKET_DECISIONS.md](../product/SAUDI_MARKET_DECISIONS.md) §8).
+- **Current State:** `subscription_plans` & `user_subscriptions` schema dormant; `SubscriptionPlanResource::canAccess()` & `SubscriptionPlanPolicy` return `false` (`403`); zero payment code or checkout routes in `dev`. See [F11_DEFERRED_MONETIZATION_NOTE.md](briefs/F11_DEFERRED_MONETIZATION_NOTE.md).

@@ -1,9 +1,12 @@
 # Feature Brief — F08: Customer Dashboard, Analytics & Free Launch Pricing
 
-> **Sprint:** Milestone 3 — Step 9  
-> **Branch:** `feature/ZAFFE-008-customer-dashboard`  
-> **Priority:** P1 (High) | **Estimated Complexity:** Small (S)  
-> **Date:** 2026-11-14
+> **Status:** Completed & Merged into `dev` *(Historical Sprint Brief — Synced 2026-11-19)* | **Current State:** [FEATURE_MAP.md](../FEATURE_MAP.md) · [TECHNICAL_AUDIT.md](../../architecture/TECHNICAL_AUDIT.md)  
+> **Sprint:** Milestone 3 — Step 9 | **Branch:** `feature/ZAFFE-008-customer-dashboard` (`b04b072`) | **Priority:** P1 (High) | **Complexity:** Small (S) | **Original Date:** 2026-11-14
+
+---
+
+> [!NOTE]
+> **Post-Merge Verification (`2026-11-19`):** `$totalViews`, profile E.164 normalization, and free `/pricing` page are shipped. Known open UI/KPI gaps (`UX-01`): `/pricing` & `/about` retain stale `"6 templates"` copy (catalog now has **14 free themes**); `DashboardController::index()` omits `children_count` (unlike `/guests`) and labels `archived` invitations as Draft; `/dashboard/invitations` has Delete only without Publish/Archive buttons.
 
 ---
 

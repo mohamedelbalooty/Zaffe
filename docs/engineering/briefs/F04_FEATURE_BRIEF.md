@@ -1,9 +1,12 @@
 # Feature Brief — F04: Invitation Editor & Customization
 
-> **Sprint:** Milestone 2 — Step 5  
-> **Branch:** `feature/ZAFFE-004-invitation-editor`  
-> **Priority:** P0 (Critical) | **Estimated Complexity:** Medium (M)  
-> **Date:** 2026-11-13
+> **Status:** Completed & Merged into `dev` *(Historical Sprint Brief — Synced 2026-11-19)* | **Current State:** [FEATURE_MAP.md](../FEATURE_MAP.md) · [TECHNICAL_AUDIT.md](../../architecture/TECHNICAL_AUDIT.md)  
+> **Sprint:** Milestone 2 — Step 5 | **Branch:** `feature/ZAFFE-004-invitation-editor` (`db7c1fe`) | **Priority:** P0 (Critical) | **Complexity:** Medium (M) | **Original Date:** 2026-11-13
+
+---
+
+> [!NOTE]
+> **Post-Merge Verification (`2026-11-19`):** The live editor now offers **6 tabs** (`basics`, `content`, `design`, `media`, `templates`, `rsvp`) plus a Publish Share Modal (`#[Locked]` `$invitationId` & `$status`) and unlocks all **14 free templates**. Note: `timeline` & `dress_code` are currently boolean visibility toggles only (`UX-01`), and server-side WebP conversion on uploaded images (`PERF-02`) remains deferred Post-Release 1.
 
 ---
 

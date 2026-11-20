@@ -1,9 +1,12 @@
 # Feature Brief — F05: Public Invitation Rendering & Social Previews
 
-> **Sprint:** Milestone 2 — Step 6  
-> **Branch:** `feature/ZAFFE-005-public-invitation`  
-> **Priority:** P0 (Critical) | **Estimated Complexity:** Medium (M)  
-> **Date:** 2026-11-13
+> **Status:** Completed & Merged into `dev` *(Historical Sprint Brief — Synced 2026-11-19)* | **Current State:** [FEATURE_MAP.md](../FEATURE_MAP.md) · [TECHNICAL_AUDIT.md](../../architecture/TECHNICAL_AUDIT.md)  
+> **Sprint:** Milestone 2 — Step 6 | **Branch:** `feature/ZAFFE-005-public-invitation` (`3bc4657`) | **Priority:** P0 (Critical) | **Complexity:** Medium (M) | **Original Date:** 2026-11-13
+
+---
+
+> [!NOTE]
+> **Post-Merge Verification (`2026-11-19`):** Session deduplication, timezone-aware countdowns, OG meta tags, interactive audio open-gate (`music_player.blade.php`), and **14 templates** (`ZAFFE-023`/`024`) are active on `dev`. Open polish gaps (`UX-01`, `KSA-01`): `countdown.blade.php` ignores `arabic_indic` digits, `public/images/og-zaffe.jpg` is missing, `timeline.blade.php:33` has invalid `--tw-before-bg`, `share_box.blade.php:30` has an unguarded clipboard call, `emerald_night`/`desert_dusk` ignore palette overrides, and `islamic_elegance` ignores `welcome_message`. (`F15` short `/i/` + dynamic OG pipeline sits on isolated branch `feature/ZAFFE-015-short-urls-and-og-tags`.)
 
 ---
 
