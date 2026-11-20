@@ -1,7 +1,7 @@
 # Zaffe (زفّــة) — Saudi Market & Product Decisions
 
 > **Mandatory Product, Cultural, Technical, and Commercial Directives for Saudi-First Expansion**  
-> **Status:** Approved by Product Owner (`2026-11-14`; Reconciled `2026-11-21` with `DEC-01`–`DEC-07`) | **Dev Baseline:** `d833b95` | **Market Focus:** Saudi Arabia (KSA) First, Egypt Second
+> **Status:** Approved by Product Owner (`2026-11-14`; Reconciled `2026-11-21` with `DEC-01`–`DEC-07`, `C-5`–`C-7`, `KPI-03b`, `KPI-05`) | **Dev Baseline:** `d833b95` | **Market Focus:** Saudi Arabia (KSA) First, Egypt Second
 
 ---
 
@@ -13,16 +13,16 @@ This document defines the mandatory product, cultural, UX, performance, complian
 
 | Section | Directive | Current Status (`2026-11-21`) | PO Decision / Open Governance Note |
 | :--- | :--- | :--- | :--- |
-| **§1** | Market Priority & Formal-Simple Arabic | **Approved / PR 2–3 Queued** | `DEC-04.1` switches create/editor/Admin defaults to `Asia/Riyadh` & `+966`; `DEC-04.4` keeps public cards/editor Arabic-first in Phase 1 while Marketing/Auth/Dashboard/Admin keep EN support (FAQ copy synced honestly). |
-| **§2** | Privacy by Default (`bride_name` & Photos) | **Approved / PR 2 Queued (`KSA-01`)** | `DEC-04.1` approves non-destructive nullable `invitations.bride_name` migration + validation + removing orphan `"و"`/`"وَ"`/`"&"` across all `14` views, titles, slugs, WhatsApp text, dashboard, passes, and emails. |
-| **§3** | Umm al-Qura Hijri & Digit Styles | **Approved / PR 2 Queued** | `DEC-04.1` fixes `templates/partials/countdown.blade.php` to honor `arabic_indic` (`٠-٩`) alongside `latin` (`0-9`). |
-| **§4** | Self-Hosted WebP & WhatsApp WebView Speed | **`Unresolved Policy Deviation (C-5)`** | All `14` template thumbnails are `.webp` with 0 external hotlinks. **HOWEVER**, user-uploaded photos (`<= 5MB` JPEG/PNG) lack WebP conversion (`PERF-02`) and are **NOT waived**: PO choice open in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) (`C-5`: sync GD `.webp` resize vs. explicit Phase 1 exception). Also add `og-zaffe.jpg`, HTTPS `og:image`, and stateless Saudi demo (`DEC-03`). |
+| **§1** | Market Priority & Formal-Simple Arabic | **PO Approved / PR 2–3 Queued** | `DEC-04.1` & `C-7` Option B set `Asia/Riyadh` & `+966` defaults (`EG` + `Other Country` international supported); `DEC-04.4` keeps public cards/editor Arabic-first in Phase 1 while Marketing/Auth/Dashboard/Admin keep EN support (FAQ copy synced). |
+| **§2** | Privacy by Default (`bride_name` & Photos) | **PO Approved / PR 2 Queued (`KSA-01`)** | `DEC-04.1` approves non-destructive nullable `invitations.bride_name` migration + validation + removing orphan `"و"`/`"وَ"`/`"&"` across all `14` views, titles, slugs, WhatsApp text, dashboard, passes, and emails. |
+| **§3** | Umm al-Qura Hijri & Digit Styles | **PO Approved / PR 2 Queued** | `DEC-04.1` fixes `templates/partials/countdown.blade.php` to honor `arabic_indic` (`٠-٩`) alongside `latin` (`0-9`). |
+| **§4** | Self-Hosted WebP & WhatsApp WebView Speed | **PO Approved (`C-5` Option A — PR 3 Queued)** | All `14` template thumbnails are `.webp` with 0 external hotlinks. Per **`C-5` Option A**, new customer cover/gallery uploads convert cleanly to optimized `.webp` with MIME/size/pixel-budget memory guards and write-before-delete failure safety, while pre-existing uploads stay preserved untouched. PR 3 also ships `og-zaffe.jpg`, HTTPS `og:image`, and stateless Saudi demo (`DEC-03`). |
 | **§5** | SVG-Only Iconography (`<x-app-icon>`) | **Compliant (Templates)** | Luxury template Blade views use `<x-app-icon>` cleanly; queued notification copy cleanup (`NewRsvpNotification` emoji & `RsvpConfirmationNotification` declined text) runs in PR 2. |
-| **§6** | Music Licensing & Tap Open-Gate | **`Unresolved Policy Deviation (C-6)`** | Open-gate playback works cleanly when audio is configured. **HOWEVER**, raw external `music_url` input with no library or rights attestation is **NOT waived**: PO choice open in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) (`C-6`: hide `music_url` on new creations vs. attestation vs. PO tracks). |
+| **§6** | Music Licensing & Tap Open-Gate | **PO Approved (`C-6` Option A — PR 2 Queued; `EX-01` Escalated)** | External `music_url` input is **hidden for newly created Phase 1 invitations** with no new audio library or autoplay; stored legacy `music_url` DB metadata stays preserved. **Legal Escalation (`EX-01`):** Preserving metadata does NOT authorize public playback of unlicensed external audio — escalate legacy public playback to Legal Counsel + PO prior to launch. |
 | **§7** | Religious Text Integrity | **Compliant** | Strictly verified PO-supplied strings only; never generate/alter Quranic text from memory. |
-| **§8** | Deferred Pay-Per-Invitation (`SAR`/`EGP`) | **Approved (`DEC-07`)** | Release 1 is completely free (no subscriptions); `Model A/B/C` deferred Post-R1; `/pricing` states R1 is free & future pricing undetermined (**no "Free Forever", no fake urgency/deadlines**). |
+| **§8** | Deferred Pay-Per-Invitation (`SAR`/`EGP`) | **PO Approved (`DEC-07`)** | Release 1 is completely free (no subscriptions); `Model A/B/C` deferred Post-R1; `/pricing` states R1 is free & future pricing undetermined (**no `"Free Forever"`, no fake urgency/deadlines, no retroactive charges**). |
 | **§9** | PDPL Alignment, Retention & Deletion | **Business Direction Approved / Legal Gate Pending (`DEC-05`)** | Full Public Launch strictly gated on Saudi PDPL counsel review. Self-service invite delete + `DATA-01` media purge (`PR 1`) + documented account/guest privacy request workflow & `/privacy`/`/terms` (`PR 4`). **30-day post-`wedding_date` guest/RSVP PII preference** is **proposed only (NOT legally approved; auto-delete stays OFF)**. |
-| **§10** | Core Product KPIs | **Approved (`KPI-01..04`); Candidates Pending (`KPI-03b`, `KPI-05`)** | Preserve `KPI-01`–`KPI-04`; instrument `KPI-01` start/publish & `KPI-02` `>=10` views cleanly; candidate `KPI-03b` & `KPI-05` await explicit PO confirmation (`DEC-06`). |
+| **§10** | Core Product KPIs | **PO Approved (`KPI-01..04` + `KPI-03b` + `KPI-05a/b/c` — PR 3 Queued)** | Preserves `KPI-01`–`KPI-04`; adds **`KPI-03b`** (state-transition accurate active-RSVP avg) and privacy-safe 3-stage **`KPI-05`** attribution (`Visits / Signups / Published`) without equating visits to customers or clicks to delivery. |
 
 ---
 

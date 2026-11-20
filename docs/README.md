@@ -1,7 +1,7 @@
 # Zaffe (زفّــة) — Documentation Hub
 
 > **Master Documentation Directory & Navigation Index**  
-> **Last Synchronized:** 2026-11-21 (`dev` baseline `d833b95`; Gate 2 PO Documentation Review on `chore/ZAFFE-026-saudi-first-strategy-and-phased-roadmap`)  
+> **Last Synchronized:** 2026-11-21 (`dev` baseline `d833b95`; Final Candidate Ready for Formal BRD `v0.5` Sign-Off on `chore/ZAFFE-026-saudi-first-strategy-and-phased-roadmap`)  
 > **Repository Root Entry Files:** [README.md](../README.md) · [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md)
 
 ---
@@ -33,7 +33,7 @@ Read these core documents in order when onboarding, planning features, or config
 | :--- | :--- |
 | **[project-discovery.md](business/project-discovery.md)** | Phase 1 reverse-engineering discovery report: actors, 34 cataloged features, 8 workflows, 36 business rules (`BR-001`–`BR-036`), schema, and verified gaps. |
 | **[DOCUMENTATION_AUDIT_SUMMARY.md](business/DOCUMENTATION_AUDIT_SUMMARY.md)** | Phase 2 full inventory of all project Markdown files, pre/post-audit accuracy ledger, resolved conflicts, and open Phase 3 clarification gaps. |
-| **[business-requirements-document.md](business/business-requirements-document.md)** | Phase 3 BRD (`v0.4`, Draft Ready for Final PO Sign-Off): `DEC-01`–`DEC-07` recorded, Phase 1 acceptance criteria, 30-day guest PII retention spec (pending legal), migration plan, and traceability. |
+| **[business-requirements-document.md](business/business-requirements-document.md)** | Phase 3 BRD (`v0.5`, Final Candidate Ready for Formal PO Sign-Off): `DEC-01`–`DEC-07` & `C-5`–`C-7` & `KPI-03b`/`05` recorded, Acceptance Criteria Matrix, 6-class Data Preservation Plan, and 30-day retention spec (pending legal). |
 
 ### 3. Architecture & Technical Governance (`architecture/`)
 | Document | Purpose |
@@ -48,14 +48,14 @@ Read these core documents in order when onboarding, planning features, or config
 | :--- | :--- |
 | **[PRODUCT.md](product/PRODUCT.md)** | Concise product identity, target users, positioning, capabilities, and accessibility commitments (`impeccable:product-schema 1`). |
 | **[BUSINESS_OVERVIEW.md](product/BUSINESS_OVERVIEW.md)** | Business domain glossary, user journeys, entity directory, feature matrix, and core business rules. |
-| **[RELEASE_1_PRODUCT_DECISIONS.md](product/RELEASE_1_PRODUCT_DECISIONS.md)** | Release 1 free-launch policy, Resend mail decision, post-R1 Paymob direction, and `2026-11-21` PO scope reconciliations. |
-| **[SAUDI_MARKET_DECISIONS.md](product/SAUDI_MARKET_DECISIONS.md)** | KSA-first cultural, privacy, Hijri/numeral, WebP/LCP (`C-5` open), audio licensing (`C-6` open), religious copy, PDPL, and KPI rules. |
-| **[OPEN_QUESTIONS.md](product/OPEN_QUESTIONS.md)** | Official PO Decision Register (`DEC-01`–`DEC-07`), Hostinger Unlimited assessment, Policy Conflict Resolution Matrix (`C-1`–`C-8`), and Remaining Approval Register (`2026-11-21`). |
+| **[RELEASE_1_PRODUCT_DECISIONS.md](product/RELEASE_1_PRODUCT_DECISIONS.md)** | Release 1 free-launch policy, Resend mail decision, post-R1 Paymob direction, and final `2026-11-21` PO scope & `C-5`–`C-7` reconciliations. |
+| **[SAUDI_MARKET_DECISIONS.md](product/SAUDI_MARKET_DECISIONS.md)** | KSA-first cultural, privacy, Hijri/numeral, `C-5` WebP, `C-6` audio (`EX-01` legacy escalated), religious copy, PDPL, and `KPI-01`–`05` directives. |
+| **[OPEN_QUESTIONS.md](product/OPEN_QUESTIONS.md)** | Final Decision Matrix (`DEC-01`–`DEC-07`, `C-5`–`C-7`, `KPI-03b`/`05`), Exception Register (`EX-01`–`04`), Hostinger Verification Summary, and Pre-Launch Dependency Register (`2026-11-21`). |
 
 #### Strategy & Competitive Intelligence (`product/strategy/`)
 | Document | Purpose |
 | :--- | :--- |
-| **[ZAFFE_PRODUCT_STRATEGY.md](product/strategy/ZAFFE_PRODUCT_STRATEGY.md)** | Master product strategy & evidence-gated roadmap (`v2.2` Synchronized with `2026-11-21` PO Decisions — Pending Final Doc Sign-Off). |
+| **[ZAFFE_PRODUCT_STRATEGY.md](product/strategy/ZAFFE_PRODUCT_STRATEGY.md)** | Master product strategy & evidence-gated roadmap (`v2.3` Final Candidate — Ready for Formal BRD Sign-Off). |
 | **[PRODUCT_DIFFERENTIATION.md](product/strategy/PRODUCT_DIFFERENTIATION.md)** | Product differentiation pillars and market positioning against regional competitors. |
 | **[GO_TO_MARKET_STRATEGY.md](product/strategy/GO_TO_MARKET_STRATEGY.md)** | Differentiated Saudi Arabia and Egypt go-to-market plans. |
 | **[COMPETITIVE_ANALYSIS_HAYHOM.md](product/strategy/COMPETITIVE_ANALYSIS_HAYHOM.md)** | Detailed competitive intelligence benchmark of Hayhom pricing, locks, and capabilities. |
@@ -68,7 +68,7 @@ Read these core documents in order when onboarding, planning features, or config
 | **[DEVELOPMENT_GUIDE.md](engineering/DEVELOPMENT_GUIDE.md)** | Local setup, Windows PHP/Composer notes (`PHP >= 8.4.1` + `ext-intl`), test execution, seed accounts, and template conventions. |
 | **[DEPLOYMENT_CHECKLIST.md](engineering/DEPLOYMENT_CHECKLIST.md)** | Staging and production release checklist including MySQL 8.4, PHP `>= 8.4.1` + `ext-intl`, Filament assets, and queues. |
 | **[GIT_WORKFLOW.md](engineering/GIT_WORKFLOW.md)** | Git Flow branching strategy, branch naming rules, and protected/manual-merge branch controls. |
-| **[MASTER_ROADMAP.md](engineering/MASTER_ROADMAP.md)** | Reconciled Phase 1 PR sequence (`PR 1`–`PR 4`), legacy boundaries (`DEC-01`/`02`), Hostinger gating, and post-R1 deferrals (`2026-11-21`). |
+| **[MASTER_ROADMAP.md](engineering/MASTER_ROADMAP.md)** | Balanced Phase 1 PR sequence (`PR 1`–`PR 3` ready upon BRD `v0.5` sign-off; `PR 4` gated on legal/ops inputs) & post-R1 deferrals (`2026-11-21`). |
 | **[FEATURE_MAP.md](engineering/FEATURE_MAP.md)** | Mapping of business feature domains (`F01`–`F16`) to Laravel controllers, models, views, and tests. |
 | **[DEFINITION_OF_DONE.md](engineering/DEFINITION_OF_DONE.md)** | Mandatory engineering, security, catalog migration, and verification standards for every feature. |
 | **[QUALITY_GATES.md](engineering/QUALITY_GATES.md)** | Enforceable checkpoints and validation gates between milestones. |

@@ -1,9 +1,9 @@
 ---
 title: Zaffe (زفّــة) — Business Requirements Document (BRD)
-phase: Phase 3 — Business Requirements (Post-PO Decision Pack Reconciliation)
+phase: Phase 3 — Business Requirements (Final Candidate for Formal PO Sign-Off)
 document_type: BRD
-status: Draft Ready for Final Product Owner Sign-Off — Pending PO Approval
-version: 0.4
+status: Final Candidate Ready for Formal Product Owner Sign-Off — NOT Yet Signed Off
+version: 0.5
 last_verified: 2026-11-21
 branch: dev
 baseline_commit: d833b95
@@ -13,30 +13,33 @@ aliases: [Zaffe BRD, Business Requirements Document]
 
 # Zaffe (زفّــة) — Business Requirements Document (BRD)
 
-> **Status:** `Draft v0.4 — Synchronized with Confirmed PO Decisions (DEC-01..04, DEC-07 Approved; DEC-05 Legal/Ops Pending; DEC-06 Provisional) — Pending Final Doc Sign-Off`  
+> **Status:** `Final Candidate v0.5 — Incorporates Final PO Decisions (DEC-01..07, C-5..C-7, KPI-03b, KPI-05) — Pending Formal PO Document Sign-Off`  
 > **Last Verified Date:** 2026-11-21  
 > **Baseline:** Git branch `dev` (`d833b95`)  
-> **Evidence Sources:** [project-discovery.md](project-discovery.md) · [DOCUMENTATION_AUDIT_SUMMARY.md](DOCUMENTATION_AUDIT_SUMMARY.md) · [OPEN_QUESTIONS.md](../product/OPEN_QUESTIONS.md) (`DEC-01`–`DEC-07`) · [ZAFFE_PRODUCT_STRATEGY.md](../product/strategy/ZAFFE_PRODUCT_STRATEGY.md) (`v2.2`) · [SAUDI_MARKET_DECISIONS.md](../product/SAUDI_MARKET_DECISIONS.md) · [RELEASE_1_PRODUCT_DECISIONS.md](../product/RELEASE_1_PRODUCT_DECISIONS.md) · [QR_FEATURE_ISOLATION_POLICY.md](../architecture/QR_FEATURE_ISOLATION_POLICY.md)  
+> **Evidence Sources:** [project-discovery.md](project-discovery.md) · [DOCUMENTATION_AUDIT_SUMMARY.md](DOCUMENTATION_AUDIT_SUMMARY.md) · [OPEN_QUESTIONS.md](../product/OPEN_QUESTIONS.md) · [ZAFFE_PRODUCT_STRATEGY.md](../product/strategy/ZAFFE_PRODUCT_STRATEGY.md) (`v2.3`) · [SAUDI_MARKET_DECISIONS.md](../product/SAUDI_MARKET_DECISIONS.md) · [RELEASE_1_PRODUCT_DECISIONS.md](../product/RELEASE_1_PRODUCT_DECISIONS.md) · [QR_FEATURE_ISOLATION_POLICY.md](../architecture/QR_FEATURE_ISOLATION_POLICY.md) · [MASTER_ROADMAP.md](../engineering/MASTER_ROADMAP.md)  
 > **Governance:** [DOCUMENTATION_GUIDELINES.md](../DOCUMENTATION_GUIDELINES.md)
 
 > [!IMPORTANT]
-> **Gate 2 Approval Boundary:** Decisions `DEC-01` through `DEC-04` and `DEC-07` are **Product Owner Approved**. `DEC-05` reflects **Approved Business Direction** with mandatory **Legal and Operational Sign-Off Pending**. `DEC-06` and policy deviations `C-5`, `C-6`, `C-7` remain open. This BRD (`v0.4`) awaits explicit Product Owner sign-off ([§16](#16-approval--sign-off)) before Gate 3 application implementation begins. Production deployment remains separately gated (Gate 4).
+> **Approval & Code-Freeze Governance:**
+> - **Explicitly Settled Decisions:** `DEC-01`, `DEC-02`, `DEC-03`, `DEC-04` (`4.1`–`4.5`), `DEC-07`, `C-5`, `C-6`, `C-7`, `KPI-03b`, and `KPI-05` are **Product Owner Approved**.
+> - **Pending Legal / Operational Clearances:** `DEC-05` (Saudi PDPL legal review & 30-day retention approval pending; auto-delete OFF), `EX-01` (legacy `music_url` public playback legal check), and `DEC-06` (Hostinger verification, contacts, domain, ops owner, sponsor, budget, launch date).
+> - **Formal Sign-Off Gate:** Approving individual decisions does **not** auto-approve this document or code execution. **Application code changes (`PR 1`–`PR 3`) begin ONLY after formal Product Owner sign-off of this consolidated specification ([§16](#16-approval--sign-off)), and production deployment remains a separate Gate 4 sign-off.**
 
 ## Table of Contents
 
 - [1. Executive Summary](#1-executive-summary)
-- [2. Business Problem & Scope](#2-business-problem--scope)
-- [3. Business Objectives & KPIs](#3-business-objectives--kpis)
+- [2. Business Problem & Phase 1 Final Scope](#2-business-problem--phase-1-final-scope)
+- [3. Business Objectives & Approved KPIs](#3-business-objectives--approved-kpis)
 - [4. Stakeholder Analysis](#4-stakeholder-analysis)
 - [5. Market Positioning Hypotheses](#5-market-positioning-hypotheses)
-- [6. Business Context & Core Value Loop](#6-business-context--core-value-loop)
-- [7. Implementation-Ready Phase 1 Business Requirements](#7-implementation-ready-phase-1-business-requirements)
+- [6. Core Value Loop](#6-core-value-loop)
+- [7. Implementation-Ready Phase 1 Business Requirements & Acceptance Criteria](#7-implementation-ready-phase-1-business-requirements--acceptance-criteria)
 - [8. Non-Functional Business Requirements](#8-non-functional-business-requirements)
 - [9. Governing Business Rules & Proposed 30-Day Retention Specification](#9-governing-business-rules--proposed-30-day-retention-specification)
-- [10. Data Preservation, Migration & Constraint Gap Analysis](#10-data-preservation-migration--constraint-gap-analysis)
+- [10. Data Preservation, Migration & Implementation Readiness](#10-data-preservation-migration--implementation-readiness)
 - [11. Evidence-Gated Phased Roadmap](#11-evidence-gated-phased-roadmap)
 - [12. Risks, Constraints & Provisional Hosting](#12-risks-constraints--provisional-hosting)
-- [13. Unresolved Approvals Needed Before Implementation & Launch](#13-unresolved-approvals-needed-before-implementation--launch)
+- [13. Pre-Launch Dependency Register](#13-pre-launch-dependency-register)
 - [14. Requirements Traceability Matrix](#14-requirements-traceability-matrix)
 - [15. Glossary](#15-glossary)
 - [16. Approval & Sign-Off](#16-approval--sign-off)
@@ -49,92 +52,74 @@ aliases: [Zaffe BRD, Business Requirements Document]
 | :--- | :--- |
 | **Project Name** | Zaffe (زفّــة) — Saudi-First Digital Wedding Invitation Platform |
 | **Product Type** | B2C browser-native web SaaS (`Laravel 13 + Livewire 4 + Filament v5`), zero mobile app download |
-| **Sponsor / Product Owner** | `[Product Owner — Confirm Name/Title in §16]` (`DEC-06`) |
+| **Sponsor / Product Owner** | `[Product Owner — Confirm Formal Sponsor Details in §16]` (`DEC-06`) |
 | **Primary Market** | **Saudi Arabia (KSA)** first; **Egypt** second |
-| **Core Experience** | **Choose a Design → Customize → Preview → Publish → Share** *(optional simple RSVP disabled by default per `DEC-02`)* |
-| **Commercial Policy (`DEC-07`)** | **Release 1 is completely free** with **no subscriptions**. Future monetization direction stays **one-time payment per invitation**, with final model (`A/B/C`) deferred until real usage/cost data. Pricing copy states Release 1 is free and future pricing is undetermined (**no "Free Forever" promise; no misleading urgency or invented deadlines**). |
-| **Launch Readiness (`DEC-05`)** | Approved business direction is **Full Public Saudi Launch** strictly gated on completing legal/PDPL, privacy, security, functional, infrastructure, and production-readiness gates (NOT immediate deployment). |
-
-### 1.1 Confirmed Product Owner Strategic Directives
-1. Design-led digital wedding invitation platform — **not** venue management, physical guest admission, QR scanning, Gatekeeper (`/gate/{gateToken}`), or door check-in operations.
-2. **Legacy-Only Roster (`DEC-01` Option B):** Hide bulk guest roster, CSV import, quotas, and `?g=` links for newly created Phase 1 invitations; preserve all pre-existing guest records, `?g=` links, and `/pass/{qrToken}` passes intact.
-3. **View-First by Default (`DEC-02` Option B):** New invitations start as view-only digital invitations (`announcement`, `is_rsvp_enabled = false`) with a single clean **Enable RSVP / Disable RSVP** toggle (`rsvp_only` ↔ `announcement`). Disabling RSVP hides the form without destroying collected responses. No QR pass generation for new invitations; no QR promotion.
-4. **Surgical WhatsApp & Saudi Polish (`DEC-03` Option A + `DEC-04`):** Fix live HTTPS OG previews, add `og-zaffe.jpg`, ship a production-safe Saudi demo link, leave `F15` & `ZAFFE-017` unmerged, make `bride_name` genuinely optional, enforce Saudi defaults (`Asia/Riyadh`, `+966`), fix `arabic_indic` countdowns & template bugs across all `14` themes, replace fake `/contact` form with direct `PlatformSetting` WhatsApp/Email cards, suppress unedited `"Black Tie"` placeholders, keep Phase 1 Arabic-first on cards/editor/RSVP with honest FAQ claims, and fix dashboard counters.
+| **Core Experience** | **Choose a Design → Customize → Preview → Publish → Share** *(optional simple RSVP disabled by default per `DEC-02` Option B)* |
+| **Commercial Policy (`DEC-07`)** | **Release 1 is completely free** with zero subscriptions. Future monetization follows **one-time payment per invitation**; final model (`A/B/C`) is intentionally undecided. Copy states Release 1 is free and future pricing is undetermined (**NO `"Free Forever"`, NO fake deadlines/urgency, NO retroactive charges without separate policy**). |
+| **Launch Readiness (`DEC-05`)** | Business direction is **Full Public Saudi Launch** strictly contingent on legal (`DEC-05` + `EX-01`), privacy, security, functional, hosting (`DEC-06`), and Gate 4 readiness verification. |
 
 ---
 
-## 2. Business Problem & Scope
+## 2. Business Problem & Phase 1 Final Scope
 
 ### 2.1 Market Pain Points
-1. **Printed Cards (`P1`):** Costly, slow to distribute across Saudi cities, impossible to update after printing.
-2. **Static Digital Files (`P2`):** Canva/PDF/MP4 flyers lack live Google Maps links, countdowns, Umm al-Qura Hijri conversion, user-tap audio playback, post-send updates, and optional RSVP.
-3. **Event-Ops Bloat (`P3`):** Platforms centered on bulk SMS/WABA, apps, and door staffing add cost (`185+ SAR`), OTP friction, and edit lockouts.
-4. **Saudi Family Privacy (`P4`):** Generic templates lack optional `bride_name`, photo-free elegance, draft `403` protection, and clear retention/deletion commitments.
-5. **Informal RSVP Noise (`P5`):** Couples who opt into headcount tracking otherwise rely on messy WhatsApp chat logs.
+1. **Printed Cards (`P1`):** Costly, slow to distribute across Saudi cities, impossible to edit once sent.
+2. **Static Digital Flyers (`P2`):** Canva/PDF/MP4 assets lack live Google Maps navigation, countdowns, Umm al-Qura Hijri conversion, optional RSVP, and post-send updates.
+3. **Event-Ops Bloat (`P3`):** Heavy attendance/WABA/scanner suites (`Hayhom`, etc.) charge `185+ SAR`, impose edit lockouts, and intimidate couples seeking simple invitation sharing.
+4. **Saudi Family Privacy (`P4`):** Generic builders lack optional `bride_name`, photo-free themes, and clear PDPL controls.
 
-### 2.2 Final Proposed Phase 1 Scope *(Approved Decisions vs. Unresolved Dependencies)*
+### 2.2 Final Phase 1 Implementation Scope vs. Pre-Launch External Blockers
 
-| Category | Item | Approval Status (`2026-11-21`) |
+| Stream | Items Included | Governance / Gate |
 | :--- | :--- | :--- |
-| **Approved Phase 1 Core** | Public showcase (`/`), `14` free `.webp` themes (`/templates`), live device previews (`/templates/{slug}/preview`), production-safe Saudi demo (`BRQ-44`), truthful Release-1-free `/pricing` & `/faq` (`DEC-04.4`, `DEC-07`), direct WhatsApp & Email `/contact` (`DEC-04.2`) | **PO Approved** *(PR 4 populates verified real support contacts)* |
-| **Approved Phase 1 Core** | Auth, password reset (`Resend`), profile edit, Saudi defaults (`Asia/Riyadh`, `+966`), optional `bride_name` nullable schema + zero orphan connectors (`DEC-04.1`), 6-tab Studio Editor with placeholder suppression (`DEC-04.3`) | **PO Approved** |
-| **Approved Phase 1 Core** | **Simple Optional RSVP (`DEC-02` Option B):** Default `announcement` (`is_rsvp_enabled = false`), clean Enable/Disable RSVP toggle (`rsvp_only` ↔ `announcement`), non-destructive off-state, fix `Invitation::booted()` & `InvitationEditor` QR-mode bugs, CSV export (`CsvSanitizer`), status-accurate RSVP confirmation emails | **PO Approved** |
-| **Approved Phase 1 Core** | **Legacy-Only Preservation (`DEC-01` Option B):** Hide `GuestRosterManager` & `?g=` UI on new invitations; preserve existing `InvitationGuest` rows, `?g=` tokens, `rsvp_qr`/`qr_only`, and `/pass/{qrToken}` (`"بطاقة دخول"` → `"بطاقة الدعوة الشخصية"`) | **PO Approved** |
-| **Approved Phase 1 Core** | **WhatsApp & Organic Growth (`DEC-03` Option A + `DEC-06`):** Absolute `https://` `og:image`, `public/images/og-zaffe.jpg`, clean photo-free OG metadata, subtle `?ref=invite` footer, dashboard KPI/label fixes (`DEC-04.5`), `OperationsMonitor` `KPI-01`/`KPI-02` | **PO Approved** |
-| **Approved Tech / Security** | `DATA-01` media purge on Admin/customer delete, `SEC-05` `/admin/*` `SecurityHeaders`, `SEC-06` canonical `PlatformSetting` lock, `CONF-01` PHP `^8.4` & `.env.example`/mail fix, template & notification fixes | **Authorized Under Existing Policy (Upon Gate 2)** |
-| **Unresolved Dependencies** | **1.** `C-5`: User-upload WebP GD resize vs. Phase 1 exception (`SAUDI_MARKET_DECISIONS.md` §4)<br>**2.** `C-6`: External `music_url` gate vs. attestation vs. PO tracks (§6)<br>**3.** `C-7`: `International` phone UI vs. `SA`/`EG` only<br>**4.** `DEC-06`: Approval of candidate `KPI-03b` & `KPI-05`<br>**5.** `DEC-05` Legal Gate: Saudi PDPL counsel review (`/privacy`, `/terms`, 30-day retention preference, transfer notices, request SLA, pre-launch automation check)<br>**6.** `DEC-06` Ops Gate: Hostinger Unlimited verification vs. KVM VPS, real Saudi support email/WhatsApp, production domain & Resend DNS, ops owner/sponsor | **Pending Explicit PO / Legal Sign-Off** |
-| **Evidence-Gated Future** | **Phase 2:** Unmerged `F15` (`/i/`, dynamic OG), `ZAFFE-017` wizard patterns, curated audio library, full EN public cards (`BRQ-36`). **Phase 3:** Dual halls, multi-event, co-hosts, wishes wall, named `?g=` revival, Vol. 2 themes, automated retention enforcement (if post-launch). **Phase 4:** One-time Paymob per-invitation (`Model A/B/C`) + ZATCA/VAT | **Deferred & Evidence-Gated** |
-| **Excluded** | QR scanning, Gatekeeper (`/gate/{gateToken}` on `feature/ZAFFE-018`), physical door check-in, venue ops, subscriptions, agency design, SMS/WABA blasts | **Permanently Excluded from Current Strategy** |
+| **Gate 3 Immediately Authorized *(After Formal BRD `v0.5` Sign-Off — PRs 1–3)*** | - **Public & Sharing:** Homepage, `14` free `.webp` themes, `/templates/{slug}/preview`, stateless production-safe Saudi demo (`DEC-03`), `og-zaffe.jpg`, absolute `https://` `og:image`, honest `/pricing` & `/faq` (`DEC-04.4`, `DEC-07`), direct WA/Email `/contact` (`DEC-04.2`), tasteful `/templates?ref=invite` footer (`KPI-05`).<br>- **Core Studio & Saudi Culture:** Auth, Resend password reset, profile edit, `Asia/Riyadh` defaults, **`C-7` Option B** (`+966` default, `+20`, `Other Country` international E.164, optional phone), **`bride_name` optional** (`DEC-04.1`), **`C-5` Option A** (optimized WebP for newly uploaded images with type/size/memory guards & graceful failure recovery), **`C-6` Option A** (hide external `music_url` on new creations), suppress `"Black Tie"` placeholders (`DEC-04.3`), `arabic_indic` countdowns, `emerald_night`/`desert_dusk`/`islamic_elegance`/`timeline.blade.php:33`/`share_box.blade.php:30`, dashboard `children_count`/`archived` badge (`DEC-04.5`), email fixes.<br>- **View-First & Optional RSVP (`DEC-01`/`DEC-02` Option B):** `announcement` default (`is_rsvp_enabled = false`), binary **Enable/Disable RSVP** (`rsvp_only` ↔ `announcement`), non-destructive off, fix `Invitation::booted()` & `InvitationEditor::updatedIsRsvpEnabled()`, hide `GuestRosterManager`/`?g=` UI on new cards, preserve legacy QR/guest rows & `"بطاقة الدعوة الشخصية"` copy, `CsvSanitizer` export.<br>- **Security & KPIs:** `DATA-01` media purge, `SEC-05` `/admin/*` `SecurityHeaders`, `SEC-06` `PlatformSetting` lock, `CONF-01`, minor `DATA-02`, and **`KPI-01`–`KPI-05` (`KPI-03b` & 3-stage `KPI-05a/b/c`)** in `OperationsMonitor`. | **Authorized to Build in PRs 1–3 Upon Formal PO BRD Sign-Off** |
+| **Gate 4 Blocked on External Inputs *(PR 4 & Launch)*** | - Counsel-reviewed `/privacy` & `/terms`, form notices, and documented privacy request SLA (`DEC-05`).<br>- **30-day guest/RSVP PII retention clearance (`EX-02`)** *(auto-delete stays OFF unless/until legally & operationally approved)*.<br>- **Legacy external `music_url` public playback ruling (`EX-01`)** *(do NOT assume metadata preservation authorizes playback)*.<br>- **Real verified Saudi `PlatformSetting` support email & WhatsApp/phone** (`DEC-06`).<br>- **Verified Hostinger plan (`PHP >= 8.4.1`, `ext-intl`, `gd/WebP`, MariaDB, cron/sync queues, EU PDPL clearance `EX-03`, renewal quote) or KVM 1/2 VPS fallback**, production domain & Resend DNS, ops owner, budget, launch date, and staging/live-HTTPS drills. | **Blocked Until External Legal, Hosting & Operational Inputs Provided** |
+| **Deferred Post-Launch *(Evidence-Gated Ph 2–4)*** | `F15` short `/i/` links & dynamic OG generator, `ZAFFE-017` wizard patterns, curated audio library, full EN card/editor parity (`BRQ-36`), customer archive button, account suspension (`BR-032`), self-service account deletion UI, dual halls/multi-event/co-hosts/wishes wall, automated retention jobs (`if deferred`), Phase 4 Paymob one-time billing (`Model A/B/C`). | **Deferred — No Phase 1 Code** |
+| **Excluded** | QR scanning, Gatekeeper (`/gate/{gateToken}` on `feature/ZAFFE-018`), physical door admission, subscriptions, custom agency service, WABA/SMS blasts. | **Permanently Excluded** |
 
 ---
 
-## 3. Business Objectives & KPIs
+## 3. Business Objectives & Approved KPIs
 
 ### 3.1 Business Objectives
-- **`BO-01`:** Win strong Saudi user adoption through refined Saudi designs, frictionless creation, and polished WhatsApp previews.
-- **`BO-02`:** Keep creation view-first and calm (`announcement` default) with optional RSVP.
-- **`BO-03`:** Deliver Saudi family privacy (`bride_name` optional, photo-free cards, draft `403`, PDPL-ready notices & deletion workflows).
-- **`BO-04`:** Enable zero-cost viral discovery via `?ref=invite` while strictly protecting guest privacy.
-- **`BO-05`:** Maintain clean future one-time payment optionality (`DEC-07`) with truthful Release-1 pricing communication.
-- **`BO-06`:** Provide accurate admin funnel observability without vanity distortions.
+`BO-01` Win Saudi adoption via craft & WhatsApp reliability · `BO-02` Keep creation view-first (`announcement`) with optional RSVP · `BO-03` Protect Saudi family & guest PII (`bride_name`, `C-5`, `C-6`, `DEC-05`) · `BO-04` Measure privacy-safe organic growth (`KPI-05`) · `BO-05` Preserve one-time billing optionality (`DEC-07`) · `BO-06` Maintain clean admin funnel visibility (`KPI-01`–`KPI-05`).
 
-### 3.2 Success Metrics (KPIs — Approved vs. Candidate Pending PO Approval)
+### 3.2 Approved Success Metrics (`KPI-01` – `KPI-05`)
 
 > [!NOTE]
-> Approved metrics `KPI-01`–`KPI-04` come from [SAUDI_MARKET_DECISIONS.md](../product/SAUDI_MARKET_DECISIONS.md) §10. Candidate supplementary metrics `KPI-03b` and `KPI-05` are **Pending Explicit PO Approval** (`DEC-06`). **No suggested figure below is an established benchmark; targets will be calibrated after Cohort 1 launch data.**
+> **All 6 KPI definitions below (`KPI-01`–`KPI-04`, `KPI-03b`, `KPI-05a/b/c`) are Product Owner Approved (`2026-11-21`).** Suggested numeric expectations remain **calibration hypotheses only** until real launch cohorts establish baselines.
 
-| KPI | Status | Exact Formula / Scope | Privacy & Measurement Limitations |
+| KPI | Exact Calculation & State Rules | Time Window & Duplicate Rules | Privacy & Honesty Limitations |
 | :--- | :--- | :--- | :--- |
-| **`KPI-01`** | **Approved** | `Wizard-Start -> Published Rate`: published invitations created in window ÷ distinct invitation creation sessions started (`/dashboard/invitations/create` GET or `invitations.created_at`) | Requires lightweight session/creation counter so abandoned pre-submit wizard visits aren't missed. Currently only user-level proxy in `OperationsMonitor`. |
-| **`KPI-02`** | **Approved** | `Published -> Shared-with-10+-Guests Rate`: published invitations with `view_count >= 10` OR `rsvp_count >= 1` ÷ total published invitations *(configurable proxy threshold)* | `view_count` is session-deduplicated per server session, **NOT unique human count**; forwarded screenshots/VPNs skew counts. Share clicks ≠ confirmed message delivery. |
-| **`KPI-03`** | **Approved** | `Average RSVPs per Invitation`: `COUNT(rsvp_responses)` ÷ `COUNT(published invitations)` | Clean zero-PII aggregate; however, under `DEC-02` Option B (`announcement` default), view-only cards dilute RSVP engagement signal. |
-| **`KPI-04`** | **Approved** | Public card **Mobile LCP `< 2.5s`** on mid-range smartphones over throttled 4G / WhatsApp WebView | Verified via Chrome DevTools / Lighthouse staging audits prior to Gate 4 launch. |
-| **`KPI-03b`** | **Candidate — Pending PO Approval** | `Average RSVPs per RSVP-Enabled Published Invitation`: `COUNT(rsvp_responses where status='published' AND is_rsvp_enabled=1)` ÷ `COUNT(published invitations with is_rsvp_enabled=1)` | Zero extra PII, ~15 min implementation. Solves `DEC-02` Option B dilution; excludes opt-out rate from its numerator. |
-| **`KPI-05`** | **Candidate — Pending PO Approval** | `Invite Footer Attribution Rate`: couple registrations/publishes with `signup_source = 'invite_footer'` via `/templates?ref=invite` ÷ total new registrations/publishes (~0.5 day, 1 nullable string col) | Stores coarse channel `'invite_footer'` only — **never** source wedding slug or guest IP. Loses cross-device WhatsApp-mobile → desktop signups; captures only `?ref=invite` link clicks, not word-of-mouth. |
+| **`KPI-01`** | **Creation-Start → Published Rate:** distinct creation starts transitioning to `published` ÷ total creation starts (using `invitations` + lightweight creation-visit counter). | `All-Time` & `Rolling 30 Days`; invitation ID deduplicates repeat edits. | Measures funnel completion, not external distribution. |
+| **`KPI-02`** | **Published → Shared (`>= 10` Activity) Rate:** published invitations with `view_count >= 10 OR rsvp_count >= 1` ÷ total published invitations. | Lifetime per published invitation; session-deduplicated browser loads. | **Session views ≠ verified unique human guests. Share button clicks ≠ confirmed WhatsApp deliveries.** |
+| **`KPI-03`** | **Average RSVPs per Published Invitation *(Original — Unchanged)*:** `COUNT(rsvp_responses on published cards)` ÷ `COUNT(published invitations)`. | `All-Time` & `Rolling 30 Days`; phone/guest updates overwrite in place. | Naturally depressed under `DEC-02` Option B because view-only `announcement` cards stay in denominator. |
+| **`KPI-03b`** *(Approved)* | **Average RSVPs per RSVP-Enabled Published Invitation:**<br>- **Numerator:** `COUNT(rsvp_responses)` belonging to `status = 'published' AND is_rsvp_enabled = true`.<br>- **Denominator:** `COUNT(invitations)` where `status = 'published' AND is_rsvp_enabled = true` (`0.0` if `0`).<br>- Companion readout: **RSVP Adoption Rate** (`RSVP-enabled published ÷ total published`) & **`>=1 RSVP` Enabled Count**. | **`All-Time` & `Rolling 30 Days`.**<br>- **State Transitions:** Disabling RSVP removes the invitation from the denominator and its responses from `KPI-03b` numerator (preventing inflation; DB responses stay intact for `KPI-03` and owner CSV). Re-enabling restores both.<br>- **Duplicates:** Same `?g=` guest or normalized phone updates existing `RsvpResponse`; phone-less submissions stay distinct rows. | Measures submission parties (`rsvp_responses`), not headcount (`guest_count + children_count`); does not adjust for time-since-enabling. |
+| **`KPI-04`** | **Mobile WebView Speed (`< 2.5s` LCP):** Largest Contentful Paint on public card over throttled 4G / mid-range mobile. | Verified via staging & live Lighthouse / DevTools checks. | Lab/field test only; no third-party RUM scripts. |
+| **`KPI-05`** *(Approved)* | **3-Stage Privacy-Safe Referral Attribution (`/templates?ref=invite`):**<br>- **`KPI-05a` Referral Visits:** session-deduplicated daily count of `?ref=invite` arrivals.<br>- **`KPI-05b` Referred Signups:** count & `%` of new `user` signups storing `signup_source = 'invite_footer'`.<br>- **`KPI-05c` Published Cards by Referred Users:** count & `%` of published invitations (plus distinct couples `>=1` published card) from referred accounts. | `All-Time` & `Rolling 30 Days`; session referral tag clears automatically after registration/expiry. | **Strict Privacy:** Stores ONLY coarse `'invite_footer'` label (zero source card slug, zero guest IP).<br>**Limitations:** **Never equate `KPI-05a` visits with acquired customers.** Cross-device WhatsApp-mobile → desktop signups are untracked. |
 
 ---
 
 ## 4. Stakeholder Analysis
 
-Engaged Couple (`role = 'user'`), Invited Guest (public visitor, no login), Legacy Pre-Invited Guest (`?g=` / `/pass/{qrToken}` preserved), Public Marketing Visitor, Super Admin (`role = 'admin'`), Product Owner / Sponsor (`DEC-06`), Legal / Compliance Counsel (Saudi PDPL Gate 4 reviewer), Transactional Email Provider (`Resend`), Candidate Web Hosting (`Hostinger`, pending verification), and Future Phase 4 Payment Provider (`Paymob`). Gatekeeper / Usher is **excluded**.
+Engaged Couple (`role = 'user'`), Invited Guest (no login), Legacy Pre-Invited Guest (`?g=` / `/pass/{qrToken}` preserved), Public Marketing Visitor, Super Admin (`role = 'admin'`), Product Owner / Sponsor, Saudi PDPL Legal Counsel, Resend, Candidate Hosting Provider (`Hostinger`), and Future Phase 4 Paymob Gateway. Gatekeeper / Usher is **excluded**.
 
 ---
 
 ## 5. Market Positioning Hypotheses
 
-1. **Craft + Simplicity Over Heavy Event-Ops (`Hayhom` vs `Zaffe`):** Zero app download, `$0` R1 entry, and edit flexibility beat 185+ SAR door-control suites for typical couples sending via personal WhatsApp.
-2. **Living Web Microsite Over Static Images (`Canva`/`PDF` vs `Zaffe`):** Live Google Maps buttons, Umm al-Qura Hijri conversion, optional RSVP toggle, and instant venue edits beat static image/PDF flyers.
-3. **Calm View-First Defaults (`DEC-02` Option B):** Defaulting to `announcement` respects Saudi open-invitation hospitality (*"الدعوة عامة"*) while leaving simple RSVP one click away.
+1. **Craft + View-First Calm vs. Event-Ops (`Hayhom`):** Zero app download, free R1 entry, flexible edits, and `announcement` default serve modern Saudi weddings better than 185+ SAR scanner systems.
+2. **Interactive Web Microsite vs. Static Flyers (`Canva`/PDF):** Live Maps links, Umm al-Qura Hijri conversion, optional RSVP, and live editing deliver real utility inside WhatsApp WebViews.
 
 ---
 
-## 6. Business Context & Core Value Loop (`Phase 1 Target`)
+## 6. Core Value Loop
 
 ```mermaid
 flowchart TD
-    A["Visitor previews 14 Saudi/MENA themes & stateless Saudi demo"] --> B["Registers free in browser (Release 1 Free)"]
+    A["Visitor previews 14 Saudi/MENA themes & stateless Saudi demo"] --> B["Registers free (SA +966 default / EG +20 / Other Country)"]
     B --> C["Creates draft (Asia/Riyadh default, bride_name optional)"]
-    C --> D["Customizes theme, Hijri/Gregorian date, map & approved media"]
+    C --> D["Customizes theme, Hijri/Gregorian date, map & WebP uploads (C-5)"]
     D --> E{"Customer opts in: Enable RSVP?"}
     E -- "No (Default: announcement)" --> F["View-only luxury wedding invitation"]
     E -- "Yes (Enable RSVP -> rsvp_only)" --> G["Simple RSVP enabled (no QR passes generated)"]
@@ -142,164 +127,127 @@ flowchart TD
     G --> H
     H --> I["Guest opens card in WhatsApp WebView"]
     I --> J{"RSVP enabled on invitation?"}
-    J -- "Yes" --> K["Guest confirms/declines -> Couple notified & exports CSV"]
-    J -- "No" --> L["Guest views card details, map & optional audio gate"]
-    I --> M["Subtle footer offers /templates?ref=invite"]
+    J -- "Yes" --> K["Guest confirms/declines (optional E.164 phone) -> Couple exports CSV"]
+    J -- "No" --> L["Guest views card details & Google Maps"]
+    I --> M["Subtle footer offers /templates?ref=invite (KPI-05a/b/c)"]
 ```
 
-*(Pre-existing legacy `rsvp_qr`/`qr_only` invitations, `InvitationGuest` records, `?g=` links, and `/pass/{qrToken}` pages continue operating seamlessly for existing invitations.)*
+*(Existing `rsvp_qr`/`qr_only` invitations, `InvitationGuest` rows, `?g=` tokens, `/pass/{qrToken}`, and legacy `music_url` metadata remain governed by §10.1 Data Preservation Rules.)*
 
 ---
 
-## 7. Implementation-Ready Phase 1 Business Requirements
+## 7. Implementation-Ready Phase 1 Business Requirements & Acceptance Criteria
 
-**Conventions:** `BRQ-XX` = Requirement · `Status`: `PO Approved (P1)` · `Pending Resolution (P1)` · `Legacy Preserve (P1)` · `Evidence-Gated (Ph 2–4)` · `Excluded`.
+**Conventions:** `BRQ-XX` = Requirement · `Status`: `PO Approved (P1)` · `Pending Gate 4 Input` · `Legacy Preserve (P1)` · `Deferred` · `Excluded`.
 
-### 7.1 Acquisition, Showcase & Public Pages
-| ID | Requirement | Approval & Phase | Current `dev` State (`d833b95`) & Implementation Spec |
-| :--- | :--- | :---: | :--- |
-| **`BRQ-01`** | Homepage communicates Arabic-first luxury wedding studio & free R1 launch; zero QR/Gatekeeper hype. | **PO Approved (P1)** | Remove QR bullet marketing (`home.blade.php:214,337,511`) & sync copy (`DEC-02`, `DEC-03`). |
-| **`BRQ-02`–`03`** | Searchable `14`-theme catalog (`/templates`) + zero-login responsive preview (`/templates/{slug}/preview`). | **PO Approved (P1)** | Live on `dev` (`14` `.webp` self-hosted themes). |
-| **`BRQ-04`** | `/pricing` & `/about` reflect `14` free themes, zero QR hype, Release 1 free offer, future pricing undetermined, **no `"Free Forever"` promise AND no fake deadlines/urgency**. | **PO Approved (P1)** | Update stale `"6 themes"`, EGP-first copy, QR bullet (`pricing.blade.php:17,30,91`, `about.blade.php:62-65`). |
-| **`BRQ-05`** | Remove simulated Alpine `/contact` form (`DEC-04.2` Option A); retain direct WhatsApp & Email support options powered by `PlatformSetting`. | **PO Approved (P1)** | Delete dead form (`contact.blade.php:65-116`); verify real contacts in PR 4 (`DEC-06`). |
-| **`BRQ-44`** | Homepage & footer `"View Live Invitation"` CTA resolves `HTTP 200` on a **production-safe Saudi Signature demo** without relying on `local`/`testing` seeder data. | **PO Approved (P1)** | Replace hardcoded `/invitation/ahmed-and-sarah` with stateless read-only demo route/fixture (`DEC-03`). |
-| **`BRQ-45`** | Public invitations emit valid **absolute `https://` `og:image` / `twitter:image`** URLs using existing self-hosted assets + default `public/images/og-zaffe.jpg`, exposing zero unnecessary private metadata. | **PO Approved (P1)** | Create `public/images/og-zaffe.jpg`; fix `invitation-show.blade.php:3` `url()` resolution; verify live HTTPS WhatsApp preview (`DEC-03`). |
+### 7.1 Acquisition, Showcase & Public Discovery
+- **`BRQ-01` (`PO Approved P1`):** Homepage communicates Saudi-first luxury studio & free R1 launch; zero QR Pass / Gatekeeper hype (`home.blade.php:214,337,511`).
+- **`BRQ-02`–`03` (`PO Approved P1`):** Filterable `14`-theme gallery (`/templates`) & responsive zero-login `/templates/{slug}/preview`.
+- **`BRQ-04` (`PO Approved P1`):** `/pricing` & `/about` state `14` free themes, Release 1 free offer, future pricing undetermined, **NO `"Free Forever"` claim and NO fake urgency/deadlines** (`pricing.blade.php`, `about.blade.php`).
+- **`BRQ-05` (`PO Approved P1`):** Remove simulated Alpine `/contact` form (`contact.blade.php:65-116`), retaining direct `PlatformSetting` WhatsApp & Email links (real values injected in PR 4).
+- **`BRQ-44` (`PO Approved P1`):** Homepage/footer demo CTA links to a **stateless, production-safe Saudi Signature demo route** (`HTTP 200`, never `404` when local seeders are absent).
+- **`BRQ-45` (`PO Approved P1`):** Public cards emit valid **absolute `https://` `og:image` / `twitter:image`** with `public/images/og-zaffe.jpg` fallback, exposing zero private metadata; must pass real HTTPS WhatsApp preview verification.
 
-### 7.2 Accounts, Studio, Aesthetics & Simple Optional RSVP
-| ID | Requirement | Approval & Phase | Current `dev` State & Implementation Spec |
-| :--- | :--- | :---: | :--- |
-| **`BRQ-06`–`08`** | Registration (`+966` priority; see `C-7`), login, Resend password reset, profile edit. | **PO Approved (P1)** | Fix `CONF-01` (`composer.json` `^8.4`, `.env.example`, `mail.php`); confirm `C-7` (`International` UI option). |
-| **`BRQ-09`** | Admin couple suspension without deletion (`BR-032`). | **Deferred (`DEC-04.5`)** | Revisit post-launch unless legal/security dependency surfaces. |
-| **`BRQ-10`** | New draft wizard uses **Saudi default `Asia/Riyadh`** and **genuinely optional `bride_name`**. | **PO Approved (P1)** | Nullable `invitations.bride_name` migration + validation (`BRQ-38`); `Asia/Riyadh` default across create/editor/Admin. |
-| **`BRQ-11`** | 6-tab Studio Editor with responsive preview, autosave, and `max_guests_per_rsvp` bound `<= 20`. | **PO Approved (P1)** | Align HTML `max="20"` (`invitation-editor.blade.php`) with backend rule; remove mode jargon. |
-| **`BRQ-12`** | Suppress unedited `"Black Tie"` / dummy text in `timeline` & `dress_code`; hide incomplete placeholder toggles on new creations; **preserve & render genuine saved custom content** (`DEC-04.3`). | **PO Approved (P1)** | Guard partials so hardcoded placeholders never render; hide incomplete section toggles in `InvitationEditor`; keep `ceremonyStages()`. |
-| **`BRQ-13`** | Customer self-service delete (`DashboardController::destroy()`) + Filament delete both enforce ownership, purge uploaded local/`http(s)` media (`DATA-01`), return `404` on deleted slugs/passes. Dashboard fixes `children_count` & `archived` badge (`DEC-04.5`). | **PO Approved (P1)** | Fix `Invitation::deleting()` (`DATA-01`), `DashboardController::index()` (`:35`), `dashboard/index.blade.php` badge. Customer `archive` button deferred. |
-| **`BRQ-14`** | All `14` themes honor custom styles & `welcome_message`; fix CSS/clipboard/notification bugs (`emerald_night`, `desert_dusk`, `islamic_elegance`, `timeline.blade.php:33`, `share_box.blade.php:30`, `RsvpConfirmationNotification` declined wording, `NewRsvpNotification` emoji). | **PO Approved (P1)** | Surgical Blade + notification fixes tested across all `14` templates. |
-| **`BRQ-15`** | Couple photo upload format (`SAUDI_MARKET_DECISIONS.md` §4 `.webp` rule vs. raw `<= 5MB` JPEG/PNG `PERF-02`). | **Pending (`C-5`)** | Either add synchronous GD `.webp` resize/convert on upload (Option A, ~2–3h) OR record explicit PO Phase 1 upload exception (Option B). |
-| **`BRQ-16`** | **Simple Optional RSVP (`DEC-02` Option B):** New invitations default to **`announcement` (`is_rsvp_enabled = false`)**. Single **Enable RSVP / Disable RSVP** toggle (`rsvp_only` ↔ `announcement`). Disabling RSVP hides form without deleting collected RSVPs. Zero QR passes generated for new cards. | **PO Approved (P1)** | Update `DashboardController::store()` (`MODE_ANNOUNCEMENT`, `is_rsvp_enabled = false`), `InvitationEditor` defaults + toggle UI, and fix BOTH bugs at `Invitation.php:38-41` & `InvitationEditor.php:175-177` (switch `MODE_ANNOUNCEMENT` → `MODE_RSVP_ONLY`, **never** `MODE_RSVP_QR`!). Preserve existing `rsvp_qr`/`qr_only` records. |
-| **`BRQ-17`–`21`** | Draft `403`, Umm al-Qura Hijri + **`arabic_indic` countdown fix**, simple `RsvpForm`, WhatsApp sharing (`?ref=invite` `BRQ-46`), audio open-gate (**`C-6` external `music_url` gate**). | **PO Approved / Audio `C-6` Pending** | Fix `countdown.blade.php` digit formatter & add `?ref=invite` footer (`BRQ-46`). Awaiting PO resolution on `C-6` (`music_url` hiding vs attestation vs tracks). |
+### 7.2 Accounts, Studio, Aesthetics, Media & Simple Optional RSVP
+- **`BRQ-06`–`08` & `BRQ-19` (`C-7` Option B PO Approved P1):** `/register`, `/dashboard/profile`, `RsvpForm`, and `AuthController`/`DashboardController` support **`SA (+966)` default**, **`EG (+20)` secondary**, and **`Other Country` (`OTHER`)** accepting valid E.164 international numbers (`+[1-9]\d{7,14}`). Fixing `PhoneService::normalize()` prevents international inputs from falling back to `+20` rules; **phone remains optional** across registration, profile, and guest RSVP.
+- **`BRQ-09` (`Deferred — DEC-04.5`):** Customer archive UI & account suspension (`BR-032`) deferred post-launch unless legal/security dependency requires them.
+- **`BRQ-10`, `BRQ-37`–`38` (`DEC-04.1` PO Approved P1):** Saudi default `Asia/Riyadh`; non-destructive nullable `invitations.bride_name` migration + validation (`DashboardController`, `InvitationEditor`, `InvitationForm`) + zero orphan `"و"`/`"وَ"`/`"&"` across all **`14` templates**, titles, slugs, dashboard lists, WhatsApp text, passes, and notification emails.
+- **`BRQ-11` (`PO Approved P1`):** 6-tab Studio Editor aligned with backend `max_guests_per_rsvp` (`max="20"`), responsive preview, and autosave.
+- **`BRQ-12` (`DEC-04.3` Option A PO Approved P1):** Suppress unedited hardcoded `"Black Tie"` / dummy text in `dress_code.blade.php` & `timeline.blade.php`; hide incomplete placeholder toggles for new Phase 1 creations; **preserve & render genuine saved customer `content`** alongside Saudi `ceremonyStages()`.
+- **`BRQ-13` (`DEC-05`/`04.5` PO Approved P1):** Customer self-service delete & Filament Admin delete enforce authorization/confirmation, cascade cleanly, purge local & `http(s)://.../storage/...` media (`DATA-01`), return `404` on deleted `/invitation/{slug}` & `/pass/{qrToken}`, and recover cleanly on DB failures. Fix `DashboardController::index()` `children_count` sum & `archived` status badge.
+- **`BRQ-14` (`DEC-04.1` PO Approved P1):** All `14` photo-free/custom-styled templates honor style overrides & `welcome_message`; fix `emerald_night`, `desert_dusk`, `islamic_elegance`, `timeline.blade.php:33`, `share_box.blade.php:30`, `RsvpConfirmationNotification` declined copy, and `NewRsvpNotification` emoji.
+- **`BRQ-15` (`C-5` Option A PO Approved P1):** Newly uploaded `cover_photo` and `gallery` images are validated (MIME, `<= 5MB`, safe pixel-budget dimensions) and converted server-side to optimized `.webp` using verified runtime libraries (`gd` WebP locally, respecting `memory_limit`), with graceful failure handling (**write-before-delete** so failures never delete prior photos) and **zero destructive batch conversion of historical non-WebP uploads**.
+- **`BRQ-16` (`DEC-02` Option B PO Approved P1):** New invitations default to view-only **`announcement`** (`is_rsvp_enabled = false`) with one simple **Enable RSVP / Disable RSVP** control (`rsvp_only` ↔ `announcement`). Disabling RSVP hides the form without destroying collected `rsvp_responses`. Zero QR passes generated for new invitations; **both** [Invitation.php](../../app/Models/Invitation.php#L38-L41) and [InvitationEditor.php](../../app/Livewire/InvitationEditor.php#L175-L177) fixed so toggling RSVP on transitions to `MODE_RSVP_ONLY`, never `MODE_RSVP_QR`.
+- **`BRQ-17`–`18`, `21`, `46` (`PO Approved P1`):** Draft `403`, Umm al-Qura Hijri + **`arabic_indic` countdown fix**, subtle `/templates?ref=invite` card footer.
+- **`BRQ-20` (`C-6` Option A PO Approved P1 + `EX-01` Legal Escalation):** Hide external `music_url` input for newly created Phase 1 invitations (`InvitationEditor`), preserving stored legacy `music_url` metadata in DB cleanly without building an audio library or allowing unsolicited autoplay; **public playback legality of any existing legacy `music_url` records is escalated under `EX-01` prior to launch**.
 
 ### 7.3 Legacy Preservation, Privacy, Admin & Future Phases
-| ID | Requirement | Approval & Phase | Implementation Spec & Constraints |
-| :--- | :--- | :---: | :--- |
-| **`BRQ-22`–`24`** | **Legacy-Only Roster & QR Preservation (`DEC-01` Option B):** Hide `GuestRosterManager`, bulk CSV import, quotas, and `?g=` UI on newly created invitations; show `/guests` simple RSVP summary & CSV export only. Keep legacy UI + `?g=` + `/pass/{qrToken}` functional for invitations with existing guest rows or `rsvp_qr`/`qr_only` modes; clean `"بطاقة دخول"` → `"بطاقة الدعوة الشخصية"`. | **PO Approved (Legacy Preserve)** | Conditional Blade guard in `dashboard/guests.blade.php:37` + preserve `GuestRosterManager`, `GuestPassController`, `RsvpForm` `?g=` lock, and `InvitationGuestResource`. |
-| **`BRQ-25`** | Gatekeeper Portal & venue QR door check-in (`/gate/{gateToken}`). | **Excluded** | Remains isolated on `feature/ZAFFE-018-smart-guests-and-qr-checkin` (never merge). |
-| **`BRQ-26`–`35`** | `CsvSanitizer` export, Filament Admin `SecurityHeaders` (`SEC-05`), `PlatformSetting` lock (`SEC-06`), `DATA-02` table/form hardening, accurate KPIs (`BRQ-43`). | **PO Approved (`KPI-03b`/`05` Pending)** | Complete in PR 1 & PR 3; `OperationsMonitor` awaits PO confirmation on `KPI-03b` & `KPI-05`. |
-| **`BRQ-36`** | Arabic-first Phase 1 cards/editor/RSVP (`DEC-04.4`); sync honest `faq.blade.php` copy; keep Marketing/Auth/Dashboard/Admin bilingual; EN cards in Phase 2. | **PO Approved (P1 Scope Change)** | Update `faq.blade.php:22-45` & `RELEASE_1_PRODUCT_DECISIONS.md`; no broken EN promises. |
-| **`BRQ-37`–`38`** | First-class Saudi defaults & **optional `bride_name`** with zero orphan `"و"`/`"وَ"`/`"&"` everywhere. | **PO Approved (P1)** | Non-destructive nullable migration + helper formatting across `14` views, titles, slugs, WhatsApp, dashboard, passes, and notifications. |
-| **`BRQ-39`** | **Phase 1 Privacy Essentials + Mandatory Legal Gate (`DEC-05`):** Publish counsel-reviewed `/privacy` & `/terms`, form notices, `DATA-01` media purge, self-service invite delete + documented account/guest deletion request process & SLA, proposed 30-day guest PII retention spec (§9.1 — **auto-delete NOT active**). | **Business Direction Approved / Legal Gate Pending** | Tech foundation (`DATA-01`) in PR 1; notices/routes & real privacy request process finalized in PR 4 **only after Saudi PDPL counsel review**. |
-| **`BRQ-40`–`41`** | Release 1 Free (`BRQ-40`); future Paymob one-time per-invitation (`BRQ-41`, `DEC-07`). | **PO Approved** | Model `A/B/C` explicitly deferred; `SubscriptionPlanResource` stays `403`. |
-| **`BRQ-42`, `47`–`48`** | Evidence-gated Phase 2–3 backlog (`F15`, `ZAFFE-017`, audio library, dual halls, multi-event, co-hosts, wishes wall, named `?g=` revival). | **Deferred / Evidence-Gated** | Tracked in [ZAFFE_PRODUCT_STRATEGY.md](../product/strategy/ZAFFE_PRODUCT_STRATEGY.md) §5. |
+- **`BRQ-22`–`24` (`DEC-01` Option B Legacy Preserve P1):** Hide `GuestRosterManager`, bulk CSV import, quotas, and `?g=` UI on new Phase 1 cards; keep `/guests` focused on calm RSVP stats, responses, and `CsvSanitizer` export. Preserve existing `InvitationGuest` records, `?g=` links, `rsvp_qr`/`qr_only` modes, and `/pass/{qrToken}` pages; replace `"بطاقة دخول"` with `"بطاقة الدعوة الشخصية"`.
+- **`BRQ-25` (`Excluded`):** Gatekeeper `/gate/{gateToken}` (`feature/ZAFFE-018`) permanently excluded.
+- **`BRQ-26`–`35`, `BRQ-43` (`PO Approved P1`):** `SEC-05` `/admin/*` `SecurityHeaders`, `SEC-06` `PlatformSetting` lock, `DATA-02` Admin filter/export fixes, and **`KPI-01`–`KPI-05` (`KPI-03b` & `KPI-05a/b/c`)** inside `OperationsMonitor`.
+- **`BRQ-36` (`DEC-04.4` Option A PO Approved):** Arabic-first Phase 1 cards/editor/RSVP; sync honest `faq.blade.php`; keep EN Marketing/Auth/Dashboard/Admin; defer full EN card parity to Phase 2.
+- **`BRQ-39` (`DEC-05` Business Direction Approved; Legal Pending):** Legal-reviewed `/privacy` & `/terms`, form notices, self-service invite delete + documented account/guest privacy request workflow & SLA (`PR 4`), and §9.1 retention spec (**auto-delete OFF pending legal**).
+- **`BRQ-40`–`41` (`DEC-07` PO Approved):** Free Release 1; deferred Phase 4 one-time Paymob checkout (`Model A/B/C` undecided; `SubscriptionPlanResource` `403`).
+- **`BRQ-42`, `47`–`48` (`Deferred`):** Evidence-gated Phases 2–3.
 
-### 7.12 Phase 1 Implementation-Ready Acceptance Criteria (Gherkin)
+### 7.12 Acceptance Criteria Matrix & Gherkin Scenarios
+
+| Requirement Group | Customer-Visible Behavior | Mandatory Automated & Manual Test Obligations |
+| :--- | :--- | :--- |
+| **`DEC-01` Option B** | New P1 couples see calm RSVP summary + responses + CSV export on `/guests` (`GuestRosterManager` & `?g=` hidden); legacy invitations with `InvitationGuest` rows or `rsvp_qr`/`qr_only` retain full roster, `?g=`, & `/pass/{qrToken}` with `"بطاقة الدعوة الشخصية"`. | Feature tests asserting new P1 vs. legacy visibility, `?g=` pre-filled form & quota protection, `/pass/{qrToken}` `200`, and zero `"بطاقة دخول"` wording. |
+| **`DEC-02` Option B** | New cards start in `announcement` (`RSVP OFF`); 1-tap toggle switches `rsvp_only` ↔ `announcement`; turning RSVP OFF hides form without deleting collected RSVPs; zero QR passes created. | Feature tests for `DashboardController::store()`, `Invitation::booted()`, `InvitationEditor::updatedIsRsvpEnabled()`, non-destructive RSVP off/on, and legacy `rsvp_qr`/`qr_only` preservation. |
+| **`DEC-03` Option A** | Live demo link returns `HTTP 200` on fresh production DB (no local seeds); WhatsApp link share renders valid absolute `https://` `og:image` with `og-zaffe.jpg` fallback & no PII leak. | Feature test verifying stateless `/demo` `200` on unseeded DB, absolute URL regex on `og:image`, plus **live public HTTPS Meta/WhatsApp preview verification** in Gate 4. |
+| **`DEC-04.1`–`4.5`** | `bride_name` optional with zero orphan `"و"`/`"&"` anywhere; all `14` themes render cleanly; `arabic_indic` countdown works; no fake `/contact` form; no unedited `"Black Tie"` text (saved custom sections render); accurate dashboard counts & FAQ copy. | Automated render tests across **all 14 templates** (with & without `bride_name`/photos/overrides), notification & dashboard assertions, countdown output check, `/contact` & `/faq` route assertions. |
+| **`DEC-05` Invite Delete** | Confirmed owner deletion & Admin deletion remove all uploaded files (`local` & `http(s)` URLs) + DB children; deleted `/invitation/{slug}`, `?g=`, & `/pass/{qrToken}` return `404`; unauthorized users get `403`. | Feature tests for owner vs. non-owner IDOR delete, `DATA-01` `Storage::disk('public')->assertMissing(...)` on full-URL files, post-delete `404`, and rollback check. |
+| **`C-5` WebP Uploads** | Newly uploaded cover/gallery photos convert to optimized `.webp` on upload cleanly; bad files or oversized dimensions fail gracefully without deleting the couple's previous photo; old non-WebP files still display. | Unit & Feature tests for `ImageOptimizationService` (`JPEG`/`PNG` → `.webp`, invalid MIME rejection, oversized dimension/pixel-budget rejection without OOM, failed upload preserving previous photo, plus **real-image quality & mobile speed verification**). |
+| **`C-6` Audio Gate** | New Phase 1 Studio Editor shows no raw external `music_url` field; existing DB `music_url` records stay intact & tap-to-open gate never autoplays; legacy playback governed by `EX-01` ruling. | Feature tests verifying Editor omits `music_url` for new creations, refuses unapproved edits or clears safely, and `music_player` keeps tap-gate without autoplay. |
+| **`C-7` Int'l Phone** | Registration, profile & RSVP default to `SA (+966)`, offer `EG (+20)` & `Other Country` accepting valid international E.164 (`+44...`, `+971...`), and allow blank optional phone cleanly. | Unit (`PhoneServiceTest` covering `+966`, `+20`, `OTHER`, Arabic-Indic digits) + Feature tests across `/register`, `/dashboard/profile`, and `RsvpForm` preserving legacy records. |
+| **`KPI-03b` & `KPI-05`** | `OperationsMonitor` shows separate `KPI-03` & `KPI-03b` (state-transition accurate) plus separated `KPI-05a` visits, `KPI-05b` signups, and `KPI-05c` referred publishes with zero extra PII. | Feature tests simulating RSVP on/off transitions on `KPI-03b`, `?ref=invite` visit -> signup -> publish attribution on `KPI-05`, and `DEC-07` non-forever `/pricing` copy check. |
 
 ```gherkin
-Feature: BRQ-16 & DEC-02 Option B — View-First Default & Non-Destructive Optional RSVP
-  Scenario: Newly created invitation starts in view-only announcement mode with zero QR passes
-    Given an authenticated couple creates a new wedding invitation
-    When the draft is saved and inspected in Studio Editor
-    Then invitation_mode equals "announcement" and is_rsvp_enabled is false
-    And guests visiting the published URL do not see an RSVP submission form
-    When the couple clicks "Enable RSVP"
-    Then invitation_mode transitions to "rsvp_only" (never "rsvp_qr") and is_rsvp_enabled is true
-    And existing model hooks (Invitation::booted and InvitationEditor) preserve "rsvp_only"
-    And submitting an attending RSVP displays confirmation without generating or linking any QR pass
+Feature: C-5 Option A — Safe WebP Upload Conversion Without Memory Exhaustion or Data Loss
+  Scenario: Couple uploads a JPEG cover photo in Studio Editor
+    Given an authenticated couple has an existing cover_photo on disk
+    When they upload a valid JPEG/PNG image within size and pixel-dimension limits
+    Then ImageOptimizationService encodes an optimized .webp asset and removes the old cover only after the new file saves
+    And if validation or image encoding fails (invalid type or decompression-bomb dimensions), the previous cover_photo remains intact
 
-  Scenario: Disabling RSVP hides the guest form without destroying stored responses
-    Given a published "rsvp_only" invitation with 3 submitted RsvpResponse records
-    When the couple switches the control to "Disable RSVP"
-    Then invitation_mode becomes "announcement" and the guest RSVP form is hidden
-    And all 3 existing RsvpResponse records remain intact in the database for owner viewing/export or retention handling
+Feature: C-6 Option A — Hidden New-Creation Music URL & Preserved Legacy Metadata
+  Scenario: New Phase 1 couple uses Studio Editor while legacy invitation exists
+    Given a newly created Phase 1 invitation
+    When the couple inspects all tabs of Studio Editor
+    Then no external music_url input is exposed
+    And any pre-existing database row containing music_url keeps its stored metadata preserved untouched
 
-Feature: BRQ-22 & DEC-01 Option B — Legacy-Only Roster & Backward Compatibility
-  Scenario: New Phase 1 couple sees calm RSVP management without GuestRosterManager
-    Given an invitation created in Phase 1 with 0 InvitationGuest rows and mode "announcement" or "rsvp_only"
-    When the couple visits /dashboard/invitations/{id}/guests
-    Then GuestRosterManager, bulk CSV import, quotas, and ?g= link UI are hidden
-    And only simple RSVP stats, submitted responses, and CSV export are shown
-
-  Scenario: Existing legacy invitation retains full roster, ?g= links, and QR pass routes
-    Given an existing invitation with InvitationGuest records or mode "rsvp_qr" or "qr_only"
-    When the couple visits /dashboard/invitations/{id}/guests or a guest opens ?g={inviteToken} or /pass/{qrToken}
-    Then GuestRosterManager, personalized ?g= greeting, and /pass/{qrToken} continue operating cleanly
-    And legacy UI displays "بطاقة الدعوة الشخصية" rather than door-admission "بطاقة دخول" copy
-
-Feature: BRQ-38 & DEC-04.1 — Optional Bride Name & Template/Email Integrity
-  Scenario: Invitation without bride_name saves and renders cleanly across all 14 templates
-    Given a couple omits bride_name during creation, in Studio Editor, or in Filament Admin
-    When saving, publishing, and viewing the invitation across each of the 14 template views
-    Then validation and DB persistence succeed cleanly with bride_name = NULL
-    And zero orphan "و", "وَ", or "&" connectors appear in the card, title, dashboard list, WhatsApp share text, or emails
-    And countdown numbers reflect "arabic_indic" numerals when selected
-
-Feature: BRQ-44 & BRQ-45 — Production Saudi Demo & Valid Absolute Social Metadata
-  Scenario: Fresh production DB without local seeders serves a live Saudi demo and HTTPS OG image
-    Given an environment other than local or testing with only schema migrations and catalog templates
-    When an unauthenticated visitor clicks the homepage/footer Live Demo CTA
-    Then the target resolves HTTP 200 rendering a Saudi Signature invitation (never HTTP 404)
-    And every published invitation page outputs an absolute https:// og:image and twitter:image URL without exposing private owner/guest data
-
-Feature: DEC-05 Option B — Self-Service Invitation Deletion & Post-Delete Isolation
-  Scenario: Owner or Super Admin deletes a published invitation safely
-    Given an invitation with uploaded cover/gallery photos (stored locally or accessed via full /storage URL), RSVPs, and legacy guest passes
-    When the verified owner deletes it via confirmed dashboard deletion (or Admin deletes in Filament)
-    Then ownership or admin authorization is enforced before deletion
-    And all uploaded files on Storage::disk('public') and child DB rows are deleted atomically
-    And subsequent guest requests to /invitation/{slug}, ?g={token}, or /pass/{qrToken} return HTTP 404
+Feature: C-7 Option B — Saudi Default, Egypt & International E.164 Phone Support
+  Scenario: Guest or couple enters an international phone number or leaves phone empty
+    Given registration, profile edit, or an RSVP-enabled invitation form defaulting to SA (+966)
+    When the user switches to Other Country and enters "+971501234567" (or leaves phone blank on RSVP)
+    Then PhoneService validates and stores "+971501234567" (or null when omitted) without coercing it into "+20"
 ```
 
 ---
 
 ## 8. Non-Functional Business Requirements
 
-Baseline `NFR-01`–`NFR-11` remain mandatory: `NFR-01` strict `Auth::user()->invitations()` & `#[Locked]` tenant isolation; `NFR-02` public rate limits (`rsvp` 10/min, `/pass` 60/min); `NFR-03` `SecurityHeaders` globally & `/admin/*`; `NFR-04` mobile WhatsApp WebView LCP `< 2.5s`; `NFR-05` zero external Unsplash hotlinks; `NFR-06` `CsvSanitizer` + UTF-8 BOM; `NFR-07` minimal RSVP PII; `NFR-08` `<x-app-icon>` SVG templates (zero emojis in luxury themes); `NFR-09` `PHP >= 8.4.1` + `ext-intl` compatibility verified on target MySQL/MariaDB; `NFR-10` mail/queue resilience on target hosting; `NFR-11` automated test suite + Pint + idempotent migrations.
+Baseline `NFR-01`–`NFR-11` remain active: `NFR-01` ownership scoping & `#[Locked]` state; `NFR-02` throttling; `NFR-03` `SecurityHeaders` globally + `/admin/*`; `NFR-04` mobile 4G LCP `< 2.5s`; `NFR-05` zero external hotlinks; `NFR-06` `CsvSanitizer` + BOM; `NFR-07` minimal PII; `NFR-08` SVG-only templates; `NFR-09` verified `PHP >= 8.4.1`, `ext-intl`, `gd/WebP` within `memory_limit`, MariaDB/MySQL compatibility; `NFR-10` mail/queue reliability; `NFR-11` automated tests + Pint + idempotent migrations.
 
 ---
 
 ## 9. Governing Business Rules & Proposed 30-Day Retention Specification
 
-Authoritative rules `BR-001`–`BR-036` reside in [project-discovery.md](project-discovery.md) §7. Rules updated or gated by `2026-11-21` decisions:
-- `BR-005` & `BR-034`: Reconciled — `bride_name` is **genuinely optional** (`nullable`).
-- `BR-014` & `BR-031`: Reconciled — `DEC-01` Option B (legacy roster/QR preserved for existing rows/modes) & `DEC-02` Option B (new cards start `announcement`, opt-in `rsvp_only`, non-destructive off toggle).
-- `BR-030`: Replaced by §9.1 below (**30-day proposed guest/RSVP PII preference — NOT legally approved; auto-delete disabled**).
-- `BR-033`: Deferred Phase 4 one-time per-invitation monetization (`DEC-07`).
+Authoritative rules `BR-001`–`BR-036` reside in [project-discovery.md](project-discovery.md) §7 (`BR-005`/`034` nullable `bride_name`; `BR-006` international E.164 phone; `BR-014`/`031` `DEC-01`/`DEC-02` Option B; `BR-030` §9.1 below; `BR-033` deferred one-time Phase 4 billing).
 
-### 9.1 Proposed 30-Day Post-Event Guest & RSVP PII Retention Specification (`DEC-05` §4.4)
+### 9.1 Proposed 30-Day Post-Event Guest & RSVP PII Retention Specification (`DEC-05` — Pending Legal)
 
 > [!WARNING]
-> **Proposal Status:** **30 days post-`wedding_date`** is a **Product Owner business preference — NOT a finalized legal rule**. **Automated deletion of historical or production guest records MUST NOT be activated** until Saudi PDPL counsel reviews this specification, legal/notice wording is finalized, and a historical-data transition plan is approved.
+> **Not Legally Approved — Auto-Delete Remains OFF:** **30 days after `wedding_date`** is a PO business preference for personal guest/RSVP data (`rsvp_responses`, legacy `invitation_guests`) **ONLY** — never couple `users` or `invitations` design records. Automated erasure/anonymization of production or historical records **MUST NOT run** before legal counsel, customer notices, transition window, and operational sign-offs complete.
 
-1. **Processing Purpose:** Enable wedding hosts to coordinate event attendance, seating/catering counts, and post-event guest communication cleanly, then eliminate stale third-party guest personal data once event coordination ends.
-2. **Covered vs. Excluded Records:**
-   - *Covered (Personal Guest / RSVP PII):* `rsvp_responses` (`guest_name`, `phone`, `email`, `message`, `dietary_notes`, attendance counts) and legacy `invitation_guests` personal guest records (`name`, `phone`, `invite_token`, `qr_token`, `pass_code`).
-   - *Explicitly Excluded:* The customer's `User` account (`users`), authentication credentials, billing/entitlement history, and the invitation design/metadata itself (`invitations`, `invitation_sections`, `invitation_template`) are **NOT** automatically erased by this rule so couples retain their account and invitation history unless they request full deletion.
-3. **Event-Date Calculation:** Calculated in the **invitation's configured timezone** (`Asia/Riyadh` or `Africa/Cairo`): `expiration_at = wedding_date + 30 calendar days (23:59:59 local)`. If an invitation has `wedding_date = NULL` (legacy or incomplete draft), it must NOT enter post-event purge automatically; legal/ops review defines an inactivity fallback if desired.
-4. **Wedding Date Changes (Rescheduling):** If a couple updates `wedding_date` (to a future or rescheduled date), the 30-day retention clock **recalculates dynamically** from the updated `wedding_date`. Any pending purge notice is cancelled automatically when the new `wedding_date + 30 days` moves back into the future.
-5. **Customer Notice & Export Window:** Before erasure/anonymization executes, couples receive automated email notification (and/or dashboard banner) — recommended **`T + 23 days` (`7 days` warning prior to `T + 30`)** — with a direct link to download their Formula-Safe **CSV Export** before guest PII is removed. *(Exact warning lead time subject to Legal Counsel & PO review.)*
-6. **Deletion vs. Irreversible Anonymization:** Legal Counsel must advise whether records at `T + 30` should be **hard-deleted** (`DELETE FROM rsvp_responses`) OR **irreversibly anonymized** (scrubbing `guest_name`, `phone`, `email`, `message`, `dietary_notes` while keeping aggregate numeric `guest_count`/`children_count`/`attendance_status` solely for `KPI-03` platform analytics without any re-identification path).
-7. **Justified Exceptions (Purge Hold):** Purge must pause on records subject to an active Saudi legal/regulatory hold, an unresolved privacy/erasure dispute, or an active abuse/security investigation.
-8. **Historical-Data Transition Handling:** Any invitations whose `wedding_date` has already passed (plus 30+ days) at the time a retention rule is eventually adopted must receive an explicit grace period and owner notice window (**never** silently wiped on day 1 of deployment).
-9. **Backups & Recovery Behavior:** Encrypted database snapshots expire on the hosting backup rotation schedule (e.g., 7–30 days). If a disaster backup must ever be restored, a **re-erasure log / replay check** ensures deleted privacy-request or expired guest PII is not silently resurrected in live tables.
-10. **Legal Review & Pre-Launch Automation Dependency:** Saudi PDPL counsel must advise during Gate 4 whether **automated** `T + 30` enforcement is legally required before public launch OR whether documented periodic/privacy-request execution suffices initially.
+1. **Purpose:** Bound guest personal data lifecycle once wedding coordination finishes.
+2. **Covered vs. Excluded:** Scrubs `rsvp_responses` (`guest_name`, `phone`, `email`, `message`, `dietary_notes`) & `invitation_guests` PII (`name`, `phone`, tokens); preserves couple accounts & invitation designs.
+3. **Date Calculation:** `wedding_date + 30 calendar days` at `23:59:59` in the invitation's timezone (`Asia/Riyadh`/`Africa/Cairo`); `NULL` dates excluded from post-event triggers.
+4. **Rescheduling:** Updating `wedding_date` dynamically recalculates `+30 days` and cancels pending purge alerts.
+5. **Customer Notice & Export Window:** Pre-purge warning notification & CSV download link (e.g., `T + 23` / 7-day export window, subject to counsel).
+6. **Deletion vs. Anonymization:** Legal Counsel advises whether `T + 30` performs hard deletion OR irreversible PII scrubbing keeping aggregate counts for `KPI-03`.
+7. **Exceptions:** Hold records under active legal, abuse, or deletion disputes.
+8. **Historical Transition:** Existing past-date records get an explicit notice & grace window (never silent day-1 wipe).
+9. **Backups & Recovery:** Documented backup aging & post-restore re-erasure log prevents deleted PII resurrection.
+10. **Pre-Launch Gate (`EX-02`):** Counsel determines if automated enforcement is legally mandatory prior to public launch.
 
 ---
 
-## 10. Data Preservation, Migration & Constraint Gap Analysis
+## 10. Data Preservation, Migration & Implementation Readiness
 
-### 10.1 Data Preservation & Backward-Compatibility Requirements
-1. **Zero Data Loss Across Existing Invitations:** Keep existing `invitation_mode` (`rsvp_qr`, `rsvp_only`, `qr_only`, `announcement`), `is_rsvp_enabled`, `InvitationGuest` rows, `invite_token` (`?g=`), `qr_token` (`/pass/{qrToken}`), `pass_code`, `rsvp_responses`, and custom `sections` (`timeline`/`dress_code`) **100% intact**. Zero mass-UPDATE scripts altering legacy invitation modes.
-2. **Non-Destructive `bride_name` Migration:** Alter `invitations.bride_name` from `VARCHAR(255) NOT NULL` to `VARCHAR(255) NULL` cleanly on both SQLite (tests) and MySQL/MariaDB (staging/prod), with rollback (`down()`) guarded cleanly and zero modification of existing rows. Also note redundant `index('slug')` alongside `unique()` may be left untouched in Phase 1 to avoid risky table locks.
-3. **Upload & Storage Path Integrity:** Purging uploaded photos in `Invitation::deleting()` (`DATA-01`) normalizes both `invitations/covers/...` and `http(s)://{host}/storage/invitations/...` before calling `Storage::disk('public')->delete(...)`, wrapped cleanly inside deletion authorization/transaction error handling so failed DB operations never silently leave dangling or broken state.
-4. **Catalog Changes:** Any updates to `platform_settings` or `invitation_templates` follow [AGENTS.md](../../AGENTS.md) Rule 12 (idempotent, non-destructive migrations, preserving admin `is_active` overrides).
+### 10.1 Strict Data Preservation Plan (`Zero Destructive Migrations`)
+1. **Legacy QR Data & Modes (`DEC-01` / `DEC-02`):** Preserve every existing `rsvp_qr`/`qr_only` invitation, `InvitationGuest` row, `qr_token`, `pass_code`, `/pass/{qrToken}` route, and historical check-in column cleanly in DB. Zero bulk `UPDATE` scripts changing existing `invitation_mode` values.
+2. **Legacy `?g=` Personalized Links:** Existing `invite_token` query links, `RsvpForm` quota protections, and legacy `guests.blade.php` visibility remain fully functional whenever an invitation has guest rows or legacy QR mode.
+3. **Legacy Audio Metadata (`C-6` Option A + `EX-01`):** Preserve stored `invitations.music_url` column and historical strings in DB cleanly. Do **not** overwrite existing `music_url` data, and **require `EX-01` legal/PO ruling** before permitting public playback of external legacy URLs in production.
+4. **Existing RSVP Responses (`DEC-02`):** Toggling RSVP OFF sets `is_rsvp_enabled = false` / `invitation_mode = 'announcement'` while preserving all submitted `rsvp_responses` intact (hidden from public form, accessible to couple until handled under approved lifecycle/retention rules).
+5. **Existing Uploaded Customer Media (`C-5` Option A + `DATA-01`):** Zero destructive batch conversion of pre-existing `.jpg`/`.png` uploads. Both `cover_photo` and `invitation_photos` remain readable; new uploads write optimized `.webp` prior to deleting any replaced file; `DATA-01` purges both relative and `http(s)://.../storage/...` files on deletion.
+6. **Non-Destructive `bride_name` & Section Records:** Schema migration converts `invitations.bride_name` to `nullable()` safely across SQLite and MariaDB/MySQL with clean `down()` rollback and zero row mutations. Existing custom `timeline`/`dress_code` JSON records render faithfully (`DEC-04.3`).
 
-### 10.2 Phase 1 Prioritized Gap Summary (`v0.4`)
-
-| Gap ID | Requirement | `dev` Constraint | Target PR |
-| :--- | :--- | :--- | :---: |
-| **`DATA-01` / `SEC-05` / `SEC-06` / `CONF-01`** | `BRQ-13, 35, 08` | Admin delete leaves `http(s)` photos; `/admin/*` lacks `SecurityHeaders`; `PlatformSetting` deletable; `composer.json` `^8.3` vs `>= 8.4.1`, `.env.example` `RESEND_API_KEY=` trap | **PR 1** *(Upon Gate 2)* |
-| **`G-01` / `G-19` / `G-18` / `G-10` / `G-11`** | `BRQ-10, 12, 14, 16, 22–24, 37–38` | `bride_name` `NOT NULL` + orphan `"و"`/`"&"`; `rsvp_qr` default & `Invitation::booted()` / `InvitationEditor` forcing QR mode; `GuestRosterManager` shown to all; `Africa/Cairo` fallback; `"بطاقة دخول"` wording; `"Black Tie"` placeholders; `countdown` `arabic_indic`; 3 theme bugs; email declined wording; optional `C-5`/`C-6`/`C-7` choices | **PR 2** *(Upon Gate 2 + `C-5/6/7`)* |
-| **`G-17` / `G-08` / `G-09` / `G-14` / `DATA-02`** | `BRQ-01, 04, 05, 13, 36, 43, 44, 45, 46` | Missing `og-zaffe.jpg`, relative `og:image`, prod `404` on `/invitation/ahmed-and-sarah`; fake Alpine `/contact` form; `/pricing` `"6 themes"`/QR copy; `faq.blade.php` EN over-promise; `DashboardController::index()` `children_count` & `archived` badge; `?ref=invite` & KPIs; minor Admin polish | **PR 3** *(Upon Gate 2 + KPIs)* |
-| **`G-02` / `CONF-02`** | `BRQ-39`, `DEC-05`, `DEC-06` | Legal-reviewed `/privacy` & `/terms`, privacy request SLA, real Saudi `PlatformSetting` email/WhatsApp, production domain/Resend DNS, verified Hostinger PHP/MariaDB/cron/EU residency compliance & staging drill | **PR 4 & Gate 4** *(Pending Legal & Ops)* |
+### 10.2 Implementation Readiness Separation (`Gate 3 PRs 1–3` vs. `PR 4 / Gate 4`)
+Phase 1 engineering readiness splits cleanly into **PR 1 → PR 2 → PR 3** (100% unblocked the moment PO formally signs BRD `v0.5`) and **PR 4** (isolated cleanly for external legal copy, `EX-01` audio ruling, real support contacts, and verified Hostinger runtime/DNS inputs). Detailed PR task breakdown lives in [MASTER_ROADMAP.md](../engineering/MASTER_ROADMAP.md).
 
 ---
 
@@ -307,54 +255,61 @@ Authoritative rules `BR-001`–`BR-036` reside in [project-discovery.md](project
 
 ```mermaid
 flowchart LR
-    P1["Phase 1: Lean Saudi Launch (PR 1 -> PR 2 -> PR 3 -> PR 4)"] -->|"Gate 4 Ops/Legal + Cohort 1 Data"| P2["Phase 2: Activation & Virality Candidates (Evidence-Gated)"]
-    P2 -->|"Validated Pull Gate"| P3["Phase 3: Hospitality & Retention Candidates (Evidence-Gated)"]
-    P3 -->|"Scale & Model Selection Gate"| P4["Phase 4: One-Time Paymob Monetization (DEC-07)"]
+    subgraph ReadyUponSignOff["Gate 3 Ready Upon BRD Sign-Off"]
+        PR1["PR 1: Security & Config"] --> PR2["PR 2: Saudi Studio, DEC-01/02, C-6"] --> PR3["PR 3: C-5 WebP, C-7 Int'l Phone, OG/Demo, KPI-01..05"]
+    end
+    subgraph BlockedExternal["Gated on External Legal & Ops Inputs"]
+        PR4["PR 4: Legal PDPL, EX-01 Audio Ruling, Real Contacts, Hostinger Runtime"] --> Gate4["Gate 4: Launch Readiness Review"]
+    end
+    PR3 --> PR4
+    Gate4 --> P2["Phases 2-4: Evidence-Gated Growth, Hospitality & DEC-07 Monetization"]
 ```
 
-*(Full evidence triggers reside in [ZAFFE_PRODUCT_STRATEGY.md](../product/strategy/ZAFFE_PRODUCT_STRATEGY.md) §5; none of Phases 2–4 are automatically committed.)*
+*(Phases 2–4 remain evidence-gated proposals in [ZAFFE_PRODUCT_STRATEGY.md](../product/strategy/ZAFFE_PRODUCT_STRATEGY.md) §5; zero Phase 2–4 activation in Phase 1.)*
 
 ---
 
 ## 12. Risks, Constraints & Provisional Hosting
 
-- **Technical Constraints:** Laravel 13 (`PHP >= 8.4.1` + `ext-intl`); `database` queue fallback compatibility (`Hostinger Shared` lacks Supervisor — requires sync password reset + cron worker verification OR KVM 1/2 VPS fallback); MariaDB compatibility test on staging before production cutover; `feature/ZAFFE-018` permanently excluded; `F15` & `ZAFFE-017` kept unmerged (`DEC-03`).
-- **Key Risks:** Unverified Hostinger PHP `8.4.1` CLI/extension limits; shipping EU hosting without PDPL international-transfer legal review; enabling 30-day retention cron prematurely; failing `C-5`/`C-6` compliance; over-promising English parity or `"Free Forever"` / fake urgency on `/pricing`.
+- **Technical Constraints:** Laravel 13 (`PHP >= 8.4.1`, `ext-intl`, `gd` WebP within server `memory_limit`); shared hosting lacks Supervisor (`sync` reset + cron queue verification OR KVM 1/2 VPS fallback); `feature/ZAFFE-018` permanently excluded; `F15` & `ZAFFE-017` kept unmerged.
+- **Top Risks Requiring PO Oversight:** Unverified Hostinger PHP `8.4.1` CLI/GD-WebP/memory caps (`DEC-06`), EU hosting international transfer review (`EX-03`), unresolved `EX-01` legacy audio playback legality, `EX-02` 30-day retention counsel outcome, and verifying real HTTPS WhatsApp previews before Gate 4 launch.
 
 ---
 
-## 13. Unresolved Approvals Needed Before Implementation & Launch
+## 13. Pre-Launch Dependency Register
 
-Explicit list maintained in [OPEN_QUESTIONS.md](../product/OPEN_QUESTIONS.md) §4 (concise summary):
-- **Unblocking Gate 3 (`PR 1–3`):** Sign off BRD `v0.4` & companion docs; resolve `C-5` (WebP uploads), `C-6` (`music_url`), `C-7` (`International` phone UI), and `KPI-03b` / `KPI-05` + Sponsor identity (`DEC-06`).
-- **Unblocking `PR 4` & Gate 4 (`Launch`):** Saudi PDPL counsel review (`DEC-05`), real Saudi support email/WhatsApp, confirmed domain & Resend DNS, Hostinger verification & final plan authorization (`DEC-06`), ops owner & launch schedule.
+Tracked exhaustively in [OPEN_QUESTIONS.md](../product/OPEN_QUESTIONS.md) §5: formal BRD `v0.5` sign-off (unlocks `PR 1–3`); Saudi PDPL counsel + `/privacy`/`/terms` + SLA + `EX-01`/`EX-02`/`EX-03` clearances, real Saudi support email & WhatsApp, production domain & Resend DNS, verified Hostinger compatibility + plan/budget approval, named ops owner/sponsor & launch date (unlock `PR 4` & `Gate 4`).
 
 ---
 
 ## 14. Requirements Traceability Matrix
 
-*(Synchronized cleanly with `OPEN_QUESTIONS.md` `DEC-01`–`DEC-07`: `BRQ-01`–`05, 44, 45` → PR 2/3/4; `BRQ-06`–`08` → PR 1/3; `BRQ-10`–`14, 16, 37–38` → PR 1/2/3; `BRQ-15` → `C-5`; `BRQ-17`–`21, 46` → PR 2/3 & `C-6`; `BRQ-22`–`24` → PR 2 Legacy Preserve; `BRQ-25` → Excluded; `BRQ-26`–`35, 43` → PR 1/3; `BRQ-36` → PR 3 FAQ sync / Ph 2 EN; `BRQ-39` → PR 1 `DATA-01` + PR 4 Legal Gate; `BRQ-40`–`41` → PR 3 `/pricing` + Ph 4 `DEC-07`; `BRQ-42, 47–48` → Phases 2–3.)*
+| BRQ Group | Decisions (`DEC` / `C`) | Target PR | Key Verification Artifact / Test |
+| :--- | :--- | :---: | :--- |
+| `DATA-01`, `SEC-05`, `SEC-06`, `CONF-01`, `DATA-02` | `DEC-05` safety, existing Admin/Ops rules | **PR 1** | `AuditTest`, `AdminManagementTest`, `AdminFeatureCoverageTest` |
+| `BRQ-10, 12, 14, 16, 20, 22–24, 37–38` | `DEC-01`, `DEC-02`, `DEC-04.1/4.3`, **`C-6`** | **PR 2** | 14-template suite, `InvitationEditorTest`, `RsvpEngineTest`, `NotificationTest`, legacy QR tests |
+| `BRQ-01–08, 13, 15, 19, 36, 40, 43–46` | `DEC-03`, `DEC-04.2/4.4/4.5`, `DEC-06` KPIs, `DEC-07`, **`C-5`**, **`C-7`** | **PR 3** | `ImageOptimizationTest`, `PhoneServiceTest`, stateless `/demo`, `og:image`, `/pricing`, `KPI-03b`/`05` |
+| `BRQ-39`, `/privacy`, `/terms`, contacts, host | `DEC-05` Legal Gate, **`EX-01`–`03`**, `DEC-06` Ops/Hostinger | **PR 4 & Gate 4** | Legal sign-off, Hostinger PHP/MariaDB/cron & restore drills, live HTTPS WhatsApp preview & 4G LCP |
 
 ---
 
 ## 15. Glossary
 
-Core terms unchanged from v0.1 (`Couple`, `Invitation`, `Saudi Signature Collection Vol. 1`, `PDPL`, `BRQ / BR / FEAT`). Legacy `"بطاقة دخول"` becomes `"بطاقة الدعوة الشخصية"`; Gatekeeper door admission is excluded.
+Core domain terms unchanged from v0.1 (`Couple`, `Invitation`, `Saudi Signature Collection Vol. 1`, `PDPL`, `BRQ / BR / FEAT`). Legacy `"بطاقة دخول"` becomes `"بطاقة الدعوة الشخصية"`; Gatekeeper door admission is excluded.
 
 ---
 
 ## 16. Approval & Sign-Off
 
-| Role | Name | Decision Status | Date |
+| Role | Name | Sign-Off Status | Date |
 | :--- | :--- | :--- | :--- |
-| **Product Owner / Sponsor** | `[Product Owner — Confirm Name / Title]` | **Pending Final Doc Sign-Off (`v0.4`)** | — |
-| **Legal / Compliance Counsel (Saudi PDPL)** | `[Pending Counsel Engagement]` | **Pending (`DEC-05` Mandatory Gate 4 Review)** | — |
+| **Product Owner / Business Sponsor** | `[Product Owner — Confirm Name / Title]` | **Pending Formal Sign-Off (`v0.5`) — Authorizes Gate 3 (`PR 1–3`)** | — |
+| **Legal / Compliance Counsel (Saudi PDPL)** | `[Pending Counsel Engagement]` | **Pending (`DEC-05` & `EX-01`–`03` Mandatory Gate 4 Review)** | — |
 
 ### Revision History
 
 | Version | Date | Author | Change |
 | :--- | :---: | :--- | :--- |
-| `0.1` | `2026-11-19` | Business Analysis | Initial BRD on `dev` `d88d381` |
-| `0.2` | `2026-11-20` | Principal PM / BA / Architect | Initial Saudi-first realignment (`ZAFFE-026`) |
-| `0.3` | `2026-11-20` | Principal PM / BA / Architect | Decision Pack `DEC-01`–`DEC-07` review draft |
-| `0.4` | `2026-11-21` | Principal PM / BA / Architect | Recorded official PO decisions (`DEC-01`–`04`, `DEC-07` Approved; `DEC-02` Option B view-first default; `DEC-05` Full Public Launch & 30-day guest PII preference spec pending legal; `DEC-06` Hostinger Unlimited compatibility assessment & KPI governance; `C-5`/`C-6`/`C-7` unresolved policy choices; Gate 3 PR 1–4 execution & acceptance criteria) |
+| `0.1` | `2026-11-19` | Business Analysis | Initial baseline BRD (`dev` `d88d381`) |
+| `0.2`–`0.4` | `2026-11-20`–`21` | Principal PM / BA / Architect | Saudi-first strategy realignment & `DEC-01`–`DEC-07` reconciliation |
+| `0.5` | `2026-11-21` | Principal PM / BA / Architect | Incorporated PO approvals (`C-5` Opt A, `C-6` Opt A, `C-7` Opt B, `KPI-03b`, `KPI-05a/b/c`), added Acceptance Criteria Matrix, 6-class Data Preservation Plan, Policy Exception Register (`EX-01`–`04`), Hostinger GD/WebP/CLI verification requirements, and balanced Gate 3 (`PR 1–3`) vs. Gate 4 (`PR 4`) separation — ready for formal PO BRD sign-off |
