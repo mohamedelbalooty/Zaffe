@@ -6,6 +6,9 @@
 > **Impact Scale:** `3.0` Massive, `2.0` High, `1.0` Medium, `0.5` Low  
 > **Confidence Discipline:** Never assign `>0.85` based solely on competitor marketing; high confidence requires direct codebase verification AND verified primary competitor evidence (`EV-XX`).
 
+> [!WARNING]
+> **Strategy Realignment Proposed (`2026-11-20` — Pending Product Owner Approval):** This document reflects the earlier `2026-11-15` Hayhom/QR-access-control positioning. Per the Product Owner's `2026-11-20` strategic direction (design-led Saudi wedding invitation platform; no QR Pass promotion in Phase 1; Gatekeeper/venue door check-in excluded), a proposed replacement strategy and 4-phase roadmap are documented in [ZAFFE_PRODUCT_STRATEGY.md](ZAFFE_PRODUCT_STRATEGY.md), [business-requirements-document.md](../../business/business-requirements-document.md), and [OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md). This document will be fully rewritten once the Product Owner approves those proposals.
+
 ---
 
 ## 0. Shipped Since Initial Backlog (`2026-11-15` -> `2026-11-19`, `dev` `d88d381`)

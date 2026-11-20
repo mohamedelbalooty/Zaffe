@@ -4,6 +4,9 @@
 > **Baseline Audited:** Zaffe `dev` (`d88d381`) vs. Hayhom (observed `2026-11-15`)  
 > **Note:** Unmerged branches `origin/feature/ZAFFE-015-short-urls-and-og-tags` (`3d5682e`) and `origin/feature/ZAFFE-018-smart-guests-and-qr-checkin` (`de01adc`, `F16` Part B Gatekeeper Check-In) are **Not in `dev`** (Owner Manual Merge Only).
 
+> [!WARNING]
+> **Strategy Realignment Proposed (`2026-11-20` — Pending Product Owner Approval):** This document reflects the earlier `2026-11-15` Hayhom/QR-access-control positioning. Per the Product Owner's `2026-11-20` strategic direction (design-led Saudi wedding invitation platform; no QR Pass promotion in Phase 1; Gatekeeper/venue door check-in excluded), a proposed replacement strategy and 4-phase roadmap are documented in [ZAFFE_PRODUCT_STRATEGY.md](ZAFFE_PRODUCT_STRATEGY.md), [business-requirements-document.md](../../business/business-requirements-document.md), and [OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md). This document will be fully rewritten once the Product Owner approves those proposals.
+
 ---
 
 ## 1. 16-Dimension Competitive Comparison Matrix

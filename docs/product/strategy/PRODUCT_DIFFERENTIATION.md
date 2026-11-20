@@ -3,6 +3,9 @@
 > **Document Class:** Canonical Product Governance — Stage B Positioning  
 > **Date:** 2026-11-15 (**Synced:** 2026-11-19 on `dev` `d88d381`) | **Target Markets:** Saudi Arabia (`KSA` Primary Luxury + Digital Entry Wedge) & Egypt (`EG` Mass Self-Service Growth Wedge)
 
+> [!WARNING]
+> **Strategy Realignment Proposed (`2026-11-20` — Pending Product Owner Approval):** This document reflects the earlier `2026-11-15` Hayhom/QR-access-control positioning. Per the Product Owner's `2026-11-20` strategic direction (design-led Saudi wedding invitation platform; no QR Pass promotion in Phase 1; Gatekeeper/venue door check-in excluded), a proposed replacement strategy and 4-phase roadmap are documented in [ZAFFE_PRODUCT_STRATEGY.md](ZAFFE_PRODUCT_STRATEGY.md), [business-requirements-document.md](../../business/business-requirements-document.md), and [OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md). This document will be fully rewritten once the Product Owner approves those proposals.
+
 ---
 
 ## 1. Strategic Positioning Evaluation

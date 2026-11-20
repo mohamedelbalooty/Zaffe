@@ -1,7 +1,7 @@
 # Zaffe (زفّــة) — Documentation Hub
 
 > **Master Documentation Directory & Navigation Index**  
-> **Last Synchronized:** 2026-11-19 (`dev` branch `d88d381`)  
+> **Last Synchronized:** 2026-11-20 (`dev` baseline `d833b95`; strategy proposal branch `chore/ZAFFE-026-saudi-first-strategy-and-phased-roadmap`)  
 > **Repository Root Entry Files:** [README.md](../README.md) · [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md)
 
 ---
@@ -33,7 +33,7 @@ Read these core documents in order when onboarding, planning features, or config
 | :--- | :--- |
 | **[project-discovery.md](business/project-discovery.md)** | Phase 1 reverse-engineering discovery report: actors, 34 cataloged features, 8 workflows, 36 business rules (`BR-001`–`BR-036`), schema, and verified gaps. |
 | **[DOCUMENTATION_AUDIT_SUMMARY.md](business/DOCUMENTATION_AUDIT_SUMMARY.md)** | Phase 2 full inventory of all project Markdown files, pre/post-audit accuracy ledger, resolved conflicts, and open Phase 3 clarification gaps. |
-| **[business-requirements-document.md](business/business-requirements-document.md)** | Phase 3 Business Requirements Document (BRD, draft `v0.1` for PO review): objectives, KPIs, stakeholders, market, 43 business requirements (`BRQ-01`–`BRQ-43`) with `dev` status, NFRs, gap analysis, proposed release phasing, risks, and traceability. |
+| **[business-requirements-document.md](business/business-requirements-document.md)** | Phase 3 Business Requirements Document (BRD, `v0.2` reconciled with `2026-11-20` PO vision, pending PO sign-off): objectives, KPIs, stakeholders, market, `BRQ-01`–`BRQ-48` with `dev` status, NFRs, gap analysis, 4-phase roadmap, risks, and traceability. |
 
 ### 3. Architecture & Technical Governance (`architecture/`)
 | Document | Purpose |
@@ -50,12 +50,12 @@ Read these core documents in order when onboarding, planning features, or config
 | **[BUSINESS_OVERVIEW.md](product/BUSINESS_OVERVIEW.md)** | Business domain glossary, user journeys, entity directory, feature matrix, and core business rules. |
 | **[RELEASE_1_PRODUCT_DECISIONS.md](product/RELEASE_1_PRODUCT_DECISIONS.md)** | Official Release 1 free-launch policy, Resend mail decision, and post-R1 Paymob direction. |
 | **[SAUDI_MARKET_DECISIONS.md](product/SAUDI_MARKET_DECISIONS.md)** | KSA-first cultural, privacy, Hijri/numeral, WebP performance, religious copy, and KPI directives. |
-| **[OPEN_QUESTIONS.md](product/OPEN_QUESTIONS.md)** | Unresolved business, product, and operational questions awaiting stakeholder confirmation. |
+| **[OPEN_QUESTIONS.md](product/OPEN_QUESTIONS.md)** | Canonical governance register (`DEC-01`–`DEC-07`): approved baseline, decisions closed by `2026-11-20` PO direction, active PO approvals needed, non-business technical fixes, and legal/PDPL questions. |
 
 #### Strategy & Competitive Intelligence (`product/strategy/`)
 | Document | Purpose |
 | :--- | :--- |
-| **[ZAFFE_PRODUCT_STRATEGY.md](product/strategy/ZAFFE_PRODUCT_STRATEGY.md)** | Master product strategy, strategic answers, and competitive execution roadmap. |
+| **[ZAFFE_PRODUCT_STRATEGY.md](product/strategy/ZAFFE_PRODUCT_STRATEGY.md)** | Master product strategy & 4-phase Saudi-first growth roadmap (`v2.0 Proposed / Pending PO Approval`, `2026-11-20`). |
 | **[PRODUCT_DIFFERENTIATION.md](product/strategy/PRODUCT_DIFFERENTIATION.md)** | Product differentiation pillars and market positioning against regional competitors. |
 | **[GO_TO_MARKET_STRATEGY.md](product/strategy/GO_TO_MARKET_STRATEGY.md)** | Differentiated Saudi Arabia and Egypt go-to-market plans. |
 | **[COMPETITIVE_ANALYSIS_HAYHOM.md](product/strategy/COMPETITIVE_ANALYSIS_HAYHOM.md)** | Detailed competitive intelligence benchmark of Hayhom pricing, locks, and capabilities. |
