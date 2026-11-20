@@ -1,7 +1,7 @@
 # Zaffe (زفّــة) — Documentation Hub
 
 > **Master Documentation Directory & Navigation Index**  
-> **Last Synchronized:** 2026-11-20 (`dev` baseline `d833b95`; strategy proposal branch `chore/ZAFFE-026-saudi-first-strategy-and-phased-roadmap`)  
+> **Last Synchronized:** 2026-11-21 (`dev` baseline `d833b95`; Gate 2 PO Documentation Review on `chore/ZAFFE-026-saudi-first-strategy-and-phased-roadmap`)  
 > **Repository Root Entry Files:** [README.md](../README.md) · [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md)
 
 ---
@@ -33,7 +33,7 @@ Read these core documents in order when onboarding, planning features, or config
 | :--- | :--- |
 | **[project-discovery.md](business/project-discovery.md)** | Phase 1 reverse-engineering discovery report: actors, 34 cataloged features, 8 workflows, 36 business rules (`BR-001`–`BR-036`), schema, and verified gaps. |
 | **[DOCUMENTATION_AUDIT_SUMMARY.md](business/DOCUMENTATION_AUDIT_SUMMARY.md)** | Phase 2 full inventory of all project Markdown files, pre/post-audit accuracy ledger, resolved conflicts, and open Phase 3 clarification gaps. |
-| **[business-requirements-document.md](business/business-requirements-document.md)** | Phase 3 Business Requirements Document (BRD, `v0.3` refined decision review, pending PO sign-off): lean 4-bucket Phase 1 scope, evidence-gated Phases 2–4, `BRQ-01`–`BRQ-48`, NFRs, gap analysis, and traceability. |
+| **[business-requirements-document.md](business/business-requirements-document.md)** | Phase 3 BRD (`v0.4`, Draft Ready for Final PO Sign-Off): `DEC-01`–`DEC-07` recorded, Phase 1 acceptance criteria, 30-day guest PII retention spec (pending legal), migration plan, and traceability. |
 
 ### 3. Architecture & Technical Governance (`architecture/`)
 | Document | Purpose |
@@ -41,21 +41,21 @@ Read these core documents in order when onboarding, planning features, or config
 | **[ARCHITECTURE.md](architecture/ARCHITECTURE.md)** | System architecture, component diagrams, relational schema, indexes, HTTP routes, and security controls. |
 | **[TECHNICAL_AUDIT.md](architecture/TECHNICAL_AUDIT.md)** | Comprehensive technical and security assessment, performance evaluation, and open defect register. |
 | **[AUDIT_REMEDIATION_REGISTER.md](architecture/AUDIT_REMEDIATION_REGISTER.md)** | Tracking, verification, and remediation status of technical audit findings (`SEC-*`, `PERF-*`, `SCAL-*`, `DATA-*`, `KSA-*`). |
-| **[QR_FEATURE_ISOLATION_POLICY.md](architecture/QR_FEATURE_ISOLATION_POLICY.md)** | Governance separating QR Pass Generation (`dev`) from isolated QR Scanning & Gatekeeper Check-In (`feature/ZAFFE-018-smart-guests-and-qr-checkin`). |
+| **[QR_FEATURE_ISOLATION_POLICY.md](architecture/QR_FEATURE_ISOLATION_POLICY.md)** | Governance excluding Gatekeeper Check-In (`feature/ZAFFE-018`) from strategy and confining QR Passes / Roster (`F16` Part A) to Legacy Preservation Only (`DEC-01`/`DEC-02` Option B). |
 
 ### 4. Product, Business & Strategy (`product/` & `product/strategy/`)
 | Document | Purpose |
 | :--- | :--- |
 | **[PRODUCT.md](product/PRODUCT.md)** | Concise product identity, target users, positioning, capabilities, and accessibility commitments (`impeccable:product-schema 1`). |
 | **[BUSINESS_OVERVIEW.md](product/BUSINESS_OVERVIEW.md)** | Business domain glossary, user journeys, entity directory, feature matrix, and core business rules. |
-| **[RELEASE_1_PRODUCT_DECISIONS.md](product/RELEASE_1_PRODUCT_DECISIONS.md)** | Official Release 1 free-launch policy, Resend mail decision, and post-R1 Paymob direction. |
-| **[SAUDI_MARKET_DECISIONS.md](product/SAUDI_MARKET_DECISIONS.md)** | KSA-first cultural, privacy, Hijri/numeral, WebP performance, religious copy, and KPI directives. |
-| **[OPEN_QUESTIONS.md](product/OPEN_QUESTIONS.md)** | Refined PO Decision Pack (`DEC-01`–`DEC-07`) & governance register: confirmed baseline, closed conflicts, 10-point decision options, policy contradictions, non-business technical fixes, and legal/PDPL questions. |
+| **[RELEASE_1_PRODUCT_DECISIONS.md](product/RELEASE_1_PRODUCT_DECISIONS.md)** | Release 1 free-launch policy, Resend mail decision, post-R1 Paymob direction, and `2026-11-21` PO scope reconciliations. |
+| **[SAUDI_MARKET_DECISIONS.md](product/SAUDI_MARKET_DECISIONS.md)** | KSA-first cultural, privacy, Hijri/numeral, WebP/LCP (`C-5` open), audio licensing (`C-6` open), religious copy, PDPL, and KPI rules. |
+| **[OPEN_QUESTIONS.md](product/OPEN_QUESTIONS.md)** | Official PO Decision Register (`DEC-01`–`DEC-07`), Hostinger Unlimited assessment, Policy Conflict Resolution Matrix (`C-1`–`C-8`), and Remaining Approval Register (`2026-11-21`). |
 
 #### Strategy & Competitive Intelligence (`product/strategy/`)
 | Document | Purpose |
 | :--- | :--- |
-| **[ZAFFE_PRODUCT_STRATEGY.md](product/strategy/ZAFFE_PRODUCT_STRATEGY.md)** | Master product strategy & evidence-gated roadmap (`v2.1 Proposed / Pending PO Approval`, `2026-11-20`). |
+| **[ZAFFE_PRODUCT_STRATEGY.md](product/strategy/ZAFFE_PRODUCT_STRATEGY.md)** | Master product strategy & evidence-gated roadmap (`v2.2` Synchronized with `2026-11-21` PO Decisions — Pending Final Doc Sign-Off). |
 | **[PRODUCT_DIFFERENTIATION.md](product/strategy/PRODUCT_DIFFERENTIATION.md)** | Product differentiation pillars and market positioning against regional competitors. |
 | **[GO_TO_MARKET_STRATEGY.md](product/strategy/GO_TO_MARKET_STRATEGY.md)** | Differentiated Saudi Arabia and Egypt go-to-market plans. |
 | **[COMPETITIVE_ANALYSIS_HAYHOM.md](product/strategy/COMPETITIVE_ANALYSIS_HAYHOM.md)** | Detailed competitive intelligence benchmark of Hayhom pricing, locks, and capabilities. |
@@ -68,7 +68,7 @@ Read these core documents in order when onboarding, planning features, or config
 | **[DEVELOPMENT_GUIDE.md](engineering/DEVELOPMENT_GUIDE.md)** | Local setup, Windows PHP/Composer notes (`PHP >= 8.4.1` + `ext-intl`), test execution, seed accounts, and template conventions. |
 | **[DEPLOYMENT_CHECKLIST.md](engineering/DEPLOYMENT_CHECKLIST.md)** | Staging and production release checklist including MySQL 8.4, PHP `>= 8.4.1` + `ext-intl`, Filament assets, and queues. |
 | **[GIT_WORKFLOW.md](engineering/GIT_WORKFLOW.md)** | Git Flow branching strategy, branch naming rules, and protected/manual-merge branch controls. |
-| **[MASTER_ROADMAP.md](engineering/MASTER_ROADMAP.md)** | Release 1 engineering milestones, dependency graph, and sequential delivery plan. |
+| **[MASTER_ROADMAP.md](engineering/MASTER_ROADMAP.md)** | Reconciled Phase 1 PR sequence (`PR 1`–`PR 4`), legacy boundaries (`DEC-01`/`02`), Hostinger gating, and post-R1 deferrals (`2026-11-21`). |
 | **[FEATURE_MAP.md](engineering/FEATURE_MAP.md)** | Mapping of business feature domains (`F01`–`F16`) to Laravel controllers, models, views, and tests. |
 | **[DEFINITION_OF_DONE.md](engineering/DEFINITION_OF_DONE.md)** | Mandatory engineering, security, catalog migration, and verification standards for every feature. |
 | **[QUALITY_GATES.md](engineering/QUALITY_GATES.md)** | Enforceable checkpoints and validation gates between milestones. |

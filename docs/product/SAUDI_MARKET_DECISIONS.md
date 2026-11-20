@@ -1,28 +1,28 @@
 # Zaffe (زفّــة) — Saudi Market & Product Decisions
 
 > **Mandatory Product, Cultural, Technical, and Commercial Directives for Saudi-First Expansion**  
-> **Status:** Approved by Product Owner | **Date:** 2026-11-14 (**Implementation Sync:** 2026-11-19 on `dev` `d88d381`) | **Market Focus:** Saudi Arabia (KSA) First, Egypt Second
+> **Status:** Approved by Product Owner (`2026-11-14`; Reconciled `2026-11-21` with `DEC-01`–`DEC-07`) | **Dev Baseline:** `d833b95` | **Market Focus:** Saudi Arabia (KSA) First, Egypt Second
 
 ---
 
 ## Overview
 
-This document defines the mandatory product, cultural, UX, performance, compliance, and working rules for **Zaffe (زفّــة)** as it prioritizes the **Saudi Arabian wedding market** while continuing to serve **Egypt**. These directives complement [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md) and [RELEASE_1_PRODUCT_DECISIONS.md](RELEASE_1_PRODUCT_DECISIONS.md), and translate every strategic decision into **clear, testable acceptance rules** for engineering and product QA.
+This document defines the mandatory product, cultural, UX, performance, compliance, and working rules for **Zaffe (زفّــة)** as it prioritizes the **Saudi Arabian wedding market** while continuing to serve **Egypt**. These directives complement [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md), [RELEASE_1_PRODUCT_DECISIONS.md](RELEASE_1_PRODUCT_DECISIONS.md), and [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md), and translate strategic decisions into **clear, testable acceptance rules**.
 
-### Compliance & Implementation Sync Summary (`2026-11-19` on `dev` `d88d381`)
+### Compliance & Reconciliation Summary (`2026-11-21` on `dev` `d833b95`)
 
-| Section | Directive | Current Implementation Status in `dev` | Verified Code Gaps / Notes |
+| Section | Directive | Current Status (`2026-11-21`) | PO Decision / Open Governance Note |
 | :--- | :--- | :--- | :--- |
-| **§1** | Market Priority & Formal-Simple Arabic | **Partially Implemented** | `+966`/`Asia/Riyadh` supported; **however**, app locale defaults stay aligned to AR/Egypt conventions (`Africa/Cairo` fallback on invitation forms), customer views use inline `$isEn` rather than `lang/ar*` JSON files, and `InvitationEditor`/`RsvpForm`/public cards are hardcoded Arabic. |
-| **§2** | Privacy by Default (`bride_name` & Photos) | **Partially Implemented** | Photo-free luxury rendering works across all 14 templates and 8 Saudi Signature views safely handle empty `bride_name`; **however**, `bride_name` is still `NOT NULL` in DB schema and `required` in wizard/controllers/Admin (`KSA-01`). |
-| **§3** | Umm al-Qura Hijri & Digit Styles | **Partially Implemented** | `InvitationDateFormatter` converts Umm al-Qura Hijri & `latin`/`arabic_indic` digits; **however**, `templates/partials/countdown.blade.php` ignores `arabic_indic` and always renders Western `0-9`. |
-| **§4** | Self-Hosted WebP & WhatsApp WebView Speed | **Partially Implemented** | Zero Unsplash hotlinks and 14 self-hosted `.webp` template thumbnails; **however**, couple-uploaded cover/gallery photos (up to `5MB`) are stored uncompressed without server-side WebP conversion (`PERF-02`). |
-| **§5** | SVG-Only Iconography (`<x-app-icon>`) | **Compliant (Templates)** | Luxury template Blade views use `<x-app-icon>` with zero Unicode emojis. *(Note: `NewRsvpNotification` / Filament labels keep standard UI usage.)* |
-| **§6** | Music Licensing & Tap Open-Gate | **Partially Implemented** | Interactive open-gate screen (`music_player.blade.php`) prevents broken autoplay; **however**, no licensed platform audio library or audio file upload exists (`music_url` accepts URL strings only). |
-| **§7** | Religious Text Integrity | **Compliant** | Only PO-verified strings appear in seeded/template assets. |
-| **§8** | Deferred Pay-Per-Invitation (`SAR`/`EGP`) | **Policy Enforced (Free R1)** | Release 1 is 100% Free across 14 templates (`SubscriptionPlanResource` `403`); Paymob `SAR`/`EGP` billing remains deferred Post-R1. |
-| **§9** | PDPL Alignment, Retention & Deletion | **Not Implemented (Workflows)** | Minimal RSVP fields & customer delete purge work; **however**, `Invitation::deleting` orphans `http(s)://` media on Admin delete (`DATA-01`), and post-event retention/anonymization & self-service guest/account deletion workflows are not built yet. |
-| **§10** | Core Product KPIs (1–3) | **Partially Instrumented** | `OperationsMonitor` computes `Published / Created` and `Avg RSVPs / Published`; **however**, true **Wizard-Start -> Published Rate** (KPI #1) and **Shared-with-10+-Guests Rate** (KPI #2) are not instrumented yet. |
+| **§1** | Market Priority & Formal-Simple Arabic | **Approved / PR 2–3 Queued** | `DEC-04.1` switches create/editor/Admin defaults to `Asia/Riyadh` & `+966`; `DEC-04.4` keeps public cards/editor Arabic-first in Phase 1 while Marketing/Auth/Dashboard/Admin keep EN support (FAQ copy synced honestly). |
+| **§2** | Privacy by Default (`bride_name` & Photos) | **Approved / PR 2 Queued (`KSA-01`)** | `DEC-04.1` approves non-destructive nullable `invitations.bride_name` migration + validation + removing orphan `"و"`/`"وَ"`/`"&"` across all `14` views, titles, slugs, WhatsApp text, dashboard, passes, and emails. |
+| **§3** | Umm al-Qura Hijri & Digit Styles | **Approved / PR 2 Queued** | `DEC-04.1` fixes `templates/partials/countdown.blade.php` to honor `arabic_indic` (`٠-٩`) alongside `latin` (`0-9`). |
+| **§4** | Self-Hosted WebP & WhatsApp WebView Speed | **`Unresolved Policy Deviation (C-5)`** | All `14` template thumbnails are `.webp` with 0 external hotlinks. **HOWEVER**, user-uploaded photos (`<= 5MB` JPEG/PNG) lack WebP conversion (`PERF-02`) and are **NOT waived**: PO choice open in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) (`C-5`: sync GD `.webp` resize vs. explicit Phase 1 exception). Also add `og-zaffe.jpg`, HTTPS `og:image`, and stateless Saudi demo (`DEC-03`). |
+| **§5** | SVG-Only Iconography (`<x-app-icon>`) | **Compliant (Templates)** | Luxury template Blade views use `<x-app-icon>` cleanly; queued notification copy cleanup (`NewRsvpNotification` emoji & `RsvpConfirmationNotification` declined text) runs in PR 2. |
+| **§6** | Music Licensing & Tap Open-Gate | **`Unresolved Policy Deviation (C-6)`** | Open-gate playback works cleanly when audio is configured. **HOWEVER**, raw external `music_url` input with no library or rights attestation is **NOT waived**: PO choice open in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) (`C-6`: hide `music_url` on new creations vs. attestation vs. PO tracks). |
+| **§7** | Religious Text Integrity | **Compliant** | Strictly verified PO-supplied strings only; never generate/alter Quranic text from memory. |
+| **§8** | Deferred Pay-Per-Invitation (`SAR`/`EGP`) | **Approved (`DEC-07`)** | Release 1 is completely free (no subscriptions); `Model A/B/C` deferred Post-R1; `/pricing` states R1 is free & future pricing undetermined (**no "Free Forever", no fake urgency/deadlines**). |
+| **§9** | PDPL Alignment, Retention & Deletion | **Business Direction Approved / Legal Gate Pending (`DEC-05`)** | Full Public Launch strictly gated on Saudi PDPL counsel review. Self-service invite delete + `DATA-01` media purge (`PR 1`) + documented account/guest privacy request workflow & `/privacy`/`/terms` (`PR 4`). **30-day post-`wedding_date` guest/RSVP PII preference** is **proposed only (NOT legally approved; auto-delete stays OFF)**. |
+| **§10** | Core Product KPIs | **Approved (`KPI-01..04`); Candidates Pending (`KPI-03b`, `KPI-05`)** | Preserve `KPI-01`–`KPI-04`; instrument `KPI-01` start/publish & `KPI-02` `>=10` views cleanly; candidate `KPI-03b` & `KPI-05` await explicit PO confirmation (`DEC-06`). |
 
 ---
 

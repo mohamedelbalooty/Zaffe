@@ -1,170 +1,123 @@
-# Zaffe (زفّــة) — Product Strategy & Evidence-Gated Roadmap (v2.1)
+# Zaffe (زفّــة) — Product Strategy & Evidence-Gated Roadmap (v2.2)
 
-> **Status:** `Proposed v2.1 — Pending Product Owner Approval` *(Refined Decision Review of `2026-11-20`)*  
-> **Last Verified Date:** 2026-11-20  
+> **Status:** `v2.2 — Synchronized with Confirmed PO Decisions (DEC-01..04 & DEC-07 Approved; DEC-05 Legal/Ops Pending; DEC-06 Provisional) — Pending Final Doc Sign-Off`  
+> **Last Verified Date:** 2026-11-21  
 > **Authoritative Code Baseline:** `dev` branch (`d833b95`)  
-> **Companion Decision Pack:** [OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md) (`DEC-01` – `DEC-07`) · [business-requirements-document.md](../../business/business-requirements-document.md) (`v0.3`) · [DOCUMENTATION_GUIDELINES.md](../../DOCUMENTATION_GUIDELINES.md)
+> **Governance & Companion Docs:** [OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md) (`DEC-01` – `DEC-07`) · [business-requirements-document.md](../../business/business-requirements-document.md) (`v0.4`) · [DOCUMENTATION_GUIDELINES.md](../../DOCUMENTATION_GUIDELINES.md)
 
 > [!IMPORTANT]
-> **Strategic Discipline Rule.** This strategy optimizes strictly for **winning Saudi adoption, maximizing invitation creation and WhatsApp sharing, and establishing a defensible luxury wedding brand** — not maximizing feature count. Nothing marked **`Proposed`** or **`Evidence-Gated Candidate`** is approved or authorized for implementation until the Product Owner signs off on `DEC-01`–`DEC-07` and the BRD.
+> **Execution Discipline (`Business First, Code Second`).** Optimization goal: **successfully launch Zaffe in Saudi Arabia, attract real couples, achieve strong creation & sharing rates, and build a trusted luxury wedding brand** — NOT maximize feature count. Decisions `DEC-01`–`DEC-04` and `DEC-07` are **PO Approved**. Gate 3 implementation begins only after final PO sign-off on these reconciled docs; Gate 4 production deployment requires a separate readiness & legal sign-off.
 
 ---
 
-## 1. Confirmed Strategic Anchor (`2026-11-20`)
+## 1. Confirmed Product Vision & Strategic Anchor (`2026-11-21`)
 
-Zaffe is a **premium digital wedding invitation platform**, not an event-operations or door-admission platform.
-- **Core Value:** Beautiful Saudi-appropriate themes, ultra-simple creation and customization, mobile-first invitation experience, effortless publishing and WhatsApp sharing, Saudi cultural sensitivity and family privacy, and simple optional RSVP.
-- **Confirmed Exclusions:** Physical guest admission, Gatekeeper (`/gate/{gateToken}`), venue check-in, QR scanning, and venue attendance operations are **excluded** from the current product strategy.
-- **Confirmed Commercial Guardrails:** Release 1 remains **free** *(note: "Free Core Forever" is NOT approved; see `DEC-07`)*. Future monetization direction is **one-time payment per invitation via Paymob, without recurring subscriptions**.
-- **Legacy Protection:** Existing user data, invitations, guest records, and links must be preserved cleanly.
-
----
-
-## 2. Competitive Reality & Recommended Saudi Positioning (`Proposed`)
-
-*Facts on Hayhom are code/web-verified in [COMPETITIVE_ANALYSIS_HAYHOM.md](COMPETITIVE_ANALYSIS_HAYHOM.md); broader Saudi market observations come from public research (`2026-11-20`) and represent strategic hypotheses to validate with early Saudi couples.*
-
-1. **Pole A — Event-Ops & Door-Control Platforms (`Hayhom`, `Mazoom`, `Da3wa Online`, `Arheb`, `Kart`, `MyInvite`):** Sell bulk WABA/SMS messaging, guest quotas, native app onboarding, and QR door scanning (`Hayhom`: `185–10,950 SAR`, `<72h` modification lockouts). Over-engineered and intimidating for couples who simply want to send a refined WhatsApp wedding card.
-2. **Pole B — Static Graphic Tools & Freelancers (`Canva`, `InShot`, Instagram/Salla designers):** Simple visual cards/videos, but static dead-end files with no live Google Maps button, no Hijri/Gregorian countdown, no tap-to-play zaffa audio, no post-send updates, and no optional RSVP.
-
-**Recommended Positioning (`Proposed / Pending PO Approval`):**
-> **Own the uncrowded middle between heavy Event-Ops apps and static Canva files:** *"Saudi Arabia's luxury digital wedding invitation studio — create a culturally authentic, mobile-first invitation in minutes, share it cleanly from your own WhatsApp, update details anytime, and toggle simple RSVP on or off — free for Release 1, with zero apps and zero event-ops clutter."*
+Zaffe is a **premium, Arabic-first digital wedding invitation platform**, **not** an event operations, guest admission, venue check-in, or physical attendance management product.
+- **Core Journey:** **Choose a Design → Customize → Preview → Publish → Share** *(optional simple RSVP disabled by default per `DEC-02` Option B)*.
+- **Confirmed Exclusions:** Physical guest admission, Gatekeeper (`/gate/{gateToken}`), venue check-in, QR scanning, venue door operations, recurring subscriptions, native apps, and manual custom design services are **excluded**.
+- **Confirmed Commercial Guardrails (`DEC-07`):** Release 1 is completely **free**. Future monetization direction remains **one-time payment per invitation** via Paymob (`SAR`/`EGP`, no subscriptions), while choosing between `Model A`, `Model B`, or `Model C` is **deferred** until real usage and cost data arrive. Pricing pages must communicate honestly (`Release 1 is free; future pricing is not yet determined` — **NO "Free Forever" promise AND no misleading limited-time urgency or invented deadlines**).
+- **Legacy Protection (`DEC-01` Option B):** All existing users, invitations, `InvitationGuest` records, `?g=` links, `rsvp_qr`/`qr_only` modes, `/pass/{qrToken}` passes, and entitlements remain preserved cleanly.
 
 ---
 
-## 3. Refined Phase 1 Launch Scope (`Quality Over Feature Quantity`)
+## 2. Competitive Reality & Saudi Market Positioning
 
-To launch fast with zero distracting bloat and zero genuine security/privacy/trust gaps, Phase 1 is organized into **4 strict prioritization buckets**:
+*Hayhom facts are code/web-verified in [COMPETITIVE_ANALYSIS_HAYHOM.md](COMPETITIVE_ANALYSIS_HAYHOM.md); broader Saudi market observations are market hypotheses to test with Cohort 1 couples.*
 
-### 3.1 Bucket 1 — Mandatory Launch Blockers *(Must Ship Before Public Saudi Launch)*
-*Why this category:* Any item here compromises security, Saudi privacy promises, production stability, legal readiness, or basic honesty.
+1. **Pole A — Event-Ops & Door-Control Suites (`Hayhom`, `Mazoom`, `Da3wa Online`, `Arheb`, `Kart`, `MyInvite`):** Heavy guest-quota/WABA/app/door-scanner workflows starting around `185+ SAR` with `<72h` lockouts — intimidating and over-engineered for most weddings.
+2. **Pole B — Static Graphic Tools & Freelancers (`Canva`, `InShot`, Instagram/Salla designers):** Static images/videos with no live Google Maps links, no Umm al-Qura Hijri/Gregorian countdowns, no audio tap-gate, no post-send updates, and no optional RSVP.
 
-| Item | Ref | Justification |
+**Confirmed Saudi Positioning:**
+> **Own the uncrowded middle between heavy Event-Ops apps and static Canva files:** *"Saudi Arabia's luxury digital wedding invitation studio — choose a couture Saudi template, customize it with family privacy in mind, preview it, share it effortlessly on WhatsApp, update details anytime, and optionally toggle simple RSVP — free for Release 1, with zero apps and zero event-ops bloat."*
+
+---
+
+## 3. Final Proposed Phase 1 Scope *(Approved Decisions vs. Unresolved Dependencies)*
+
+Phase 1 maintains launch discipline across four clear categories, explicitly distinguishing **PO-Approved Work** from **Unresolved Policy / Legal / Operational Dependencies**:
+
+### 3.1 Approved Phase 1 Delivery *(Unblocked Upon Gate 2 Doc Sign-Off)*
+
+- **Security, Media Hygiene & Config Foundations (`PR 1`):**
+  - `DATA-01`: Fix `Invitation::deleting()` to purge both local paths and app-hosted `http(s)://.../storage/...` files on customer & Filament Admin deletes.
+  - `SEC-05` & `SEC-06`: Apply `SecurityHeaders` to `/admin/*` (`AdminPanelProvider`) and prevent deletion/bulk-deletion of canonical `PlatformSettingCatalog` keys.
+  - `CONF-01`: Fix `composer.json` PHP constraint (`^8.4`), `.env.example` `RESEND_API_KEY=` shadow trap, dead `mail.php` key, and queue config parity.
+- **View-First Core, Legacy-Only Roster & Saudi Cultural Polish (`PR 2` — `DEC-01`, `DEC-02`, `DEC-04`):**
+  - `DEC-01` Option B: Hide `GuestRosterManager`, CSV import, quotas, and `?g=` UI for newly created Phase 1 invitations (`guests.blade.php` shows calm RSVP summary & CSV export only); keep full backward compatibility for existing guest rows and `rsvp_qr`/`qr_only` invitations (`/pass/{qrToken}` preserved, `"بطاقة دخول"` → `"بطاقة الدعوة الشخصية"`).
+  - `DEC-02` Option B: New invitations default to view-only `announcement` (`is_rsvp_enabled = false`); single **Enable RSVP / Disable RSVP** toggle (`rsvp_only` ↔ `announcement`); disabling RSVP hides guest form without destroying collected RSVPs; zero QR passes generated for new cards; remove QR promotion; **fix both `Invitation::booted()` and `InvitationEditor::updatedIsRsvpEnabled()`** so enabling RSVP maps to `MODE_RSVP_ONLY`, never `MODE_RSVP_QR`.
+  - `DEC-04.1` & `DEC-04.3` & `DEC-04.5`: Nullable non-destructive `invitations.bride_name` migration + validation + zero orphan `"و"`/`"وَ"`/`"&"` across all `14` templates, notifications, dashboard, WhatsApp copy, and passes; Saudi defaults (`Asia/Riyadh`, `+966`); `arabic_indic` countdown fix; suppress unedited `timeline`/`dress_code` `"Black Tie"` placeholders & hide incomplete toggles while preserving genuine saved customer content and Saudi `ceremonyStages()`; fix `emerald_night`, `desert_dusk`, `islamic_elegance`, `timeline.blade.php:33`, `share_box.blade.php:30`, `RsvpConfirmationNotification` declined wording, `NewRsvpNotification` emoji cleanup, and HTML `max="20"`.
+- **WhatsApp Sharing, Stateless Demo, Honest Copy & Dashboard Metrics (`PR 3` — `DEC-03`, `DEC-04`, `DEC-06`, `DEC-07`):**
+  - `DEC-03` Option A: Add `public/images/og-zaffe.jpg`, guarantee valid absolute `https://` `og:image`/`twitter:image` without private metadata leakage, build a **stateless, production-safe Saudi Signature demo** (independent of `local`/`testing` seeder `/invitation/ahmed-and-sarah`), leave `F15` & `ZAFFE-017` unmerged.
+  - `DEC-04.2` & `DEC-04.4` & `DEC-07`: Remove simulated Alpine `/contact` form keeping real `PlatformSetting` WhatsApp/Email cards; sync honest `faq.blade.php` & `/pricing` & `/about` copy (`14` themes, Arabic-first P1 cards, zero QR hype, Release 1 free & future pricing undetermined with zero `"Free Forever"` or fake urgency); fix `DashboardController::index()` `children_count` & `archived` badge; minor `DATA-02` cleanup; add subtle `?ref=invite` footer link + `OperationsMonitor` `KPI-01` & `KPI-02`.
+
+### 3.2 Unresolved Policy, Legal & Operational Dependencies *(Must Resolve Explicitly)*
+
+| Dependency | Gate | What Remains Open |
 | :--- | :---: | :--- |
-| **Admin delete media cleanup (`Invitation::deleting`)** | `DATA-01` | Prevents orphaned personal photos remaining on disk after Admin deletes an invitation. |
-| **`SecurityHeaders` on `/admin/*` + Canonical `PlatformSetting` bulk-delete lock** | `SEC-05`, `SEC-06` | Closes clickjacking/MIME exposure on `/admin` and prevents accidental wiping of live site branding/contacts. |
-| **Runtime & Resend mail config cleanup (`^8.4`, `.env.example`, `config/mail.php`)** | `CONF-01` | Prevents production PHP runtime errors and silent password-reset/RSVP email failures. |
-| **Optional `bride_name` DB/validation + zero orphan `"و"`/`"&"` across 14 views, WhatsApp, dashboard, pass, emails** | `G-01`, `G-19`, `DEC-04` | Fulfills a core already-approved Saudi privacy directive (`SAUDI_MARKET_DECISIONS.md` §2) so omitting `bride_name` never fails or produces broken grammar. |
-| **Production-safe Saudi Signature demo + `og-zaffe.jpg` + absolute `og:image` URLs** | `G-17`, `DEC-03` | Eliminates HTTP `404` on the homepage `"View Live Invitation"` CTA and fixes broken relative Open Graph images on WhatsApp sharing. |
-| **Remove fake `/contact` Alpine form (keep real WhatsApp + Email cards) + set real Saudi `PlatformSetting` contacts** | `G-08`, `DEC-04` | Eliminates a misleading UI form that silently discards user messages (`UX-01`), without adding unnecessary DB/admin overhead. |
-| **Phase 1 Privacy Essentials: `/privacy`, `/terms`, signup/RSVP privacy notice, working deletion request workflow/SLA** | `G-02`, `DEC-05` | Launch-necessary PDPL hygiene; full public commercial launch requires Legal Counsel review (`DEC-05` contrasts Beta vs. Commercial). |
-| **De-promote QR Passes + simplify RSVP (`DEC-01`/`DEC-02`) + fix `Invitation::booted()`** | `G-18` | Aligns product identity with PO vision: hides QR passes/heavy roster from new Phase 1 creations while preserving legacy data and fixing `"بطاقة دخول"` wording. |
-
-### 3.2 Bucket 2 — Core Product Experience *(Essential Saudi Card Polish & Accuracy)*
-*Why this category:* Directly determines whether a Saudi couple trusts the card enough to send it to 150 relatives.
-
-| Item | Ref | Justification |
-| :--- | :---: | :--- |
-| **Saudi regional defaults (`Asia/Riyadh`, `+966`, `/pricing` SAR/14-theme copy without "Free Forever")** | `G-09`, `DEC-04`, `DEC-07` | Matches Saudi primary market expectations and fixes stale `"6 themes"` copy while preserving future monetization flexibility. |
-| **Suppress unedited `timeline` & `dress_code` `"Black Tie"` placeholders + hide placeholder toggles in Editor** | `G-11`, `DEC-04` | Prevents embarrassing English placeholder text on Saudi cards without building premature custom JSON editors (Saudi Signature themes already render `ceremonyStages()`). |
-| **Fix `countdown.blade.php` `arabic_indic` numerals + 3 template bugs + `share_box` clipboard fallback** | `G-10`, `KSA-01` | Honors approved Hijri/numeral settings (`SAUDI_MARKET_DECISIONS.md` §3) and fixes `emerald_night`, `desert_dusk`, `islamic_elegance`, and `timeline.blade.php:33`. |
-| **Fix `RsvpConfirmationNotification` declined copy + `DashboardController::index()` `children_count` & `archived` badge + `faq.blade.php` copy sync** | `DATA-02`, `UX-01` | Stops telling declined guests `"your attendance is confirmed"`, fixes dashboard headcount inaccuracies, and removes over-claimed `"full English"` FAQ wording. |
-
-### 3.3 Bucket 3 — Growth Essentials *(Minimum Necessary for Organic Acquisition & Measurement)*
-*Why this category:* You cannot scale or evaluate Phase 1 without reliable WhatsApp previews, a working viral footer link, and basic funnel visibility.
-
-| Item | Ref | Justification |
-| :--- | :---: | :--- |
-| **Tasteful `?ref=invite` footer link (`/templates?ref=invite`)** | `BRQ-46`, `G-14` | Zero-cost attribution turning guest curiosity into measurable template-gallery visits. |
-| **Clean `OperationsMonitor` KPI instrumentation (`KPI-01` start/publish, `KPI-02` `>=10` views, `KPI-03b` RSVP-enabled avg, `?ref=invite`)** | `BRQ-43` | Replaces proxy/distorted metrics so Phase 2 priorities rest on observed funnel truth rather than guesses. |
-
-### 3.4 Bucket 4 — Post-Launch Improvements *(Safely Deferred Until Data Justifies)*
-*Why deferred:* None of these block a Saudi couple from crafting, publishing, and sharing a stunning card in Phase 1; deferring them cuts weeks of engineering risk.
-- Unmerged `F15` (`/i/` short URLs, cover-photo `OgImageService`, async GD WebP upload resizing) & `ZAFFE-017` multi-step wizard (`DEC-03`).
-- Full English (`en`) translation of `InvitationEditor`, `RsvpForm`, and public cards (`G-12`, `DEC-04`).
-- Couple dashboard `archive` button, custom `timeline`/`dress_code` JSON editors, `users.is_suspended` (`BR-032`), Admin `ListRsvpResponses` filter-aware export + minor Filament form fixes (`DATA-02` can be grouped neatly into Phase 1 or immediate post-launch patch), and automated cron PII retention jobs (`DEC-05`).
+| **`C-5` User Upload WebP (`SAUDI_MARKET_DECISIONS` §4)** | Before PR 2 | PO to approve minimal ~50-LOC synchronous GD `.webp` resize/convert on upload **OR** grant an explicit Phase 1 waiver for couple uploads while all `14` templates stay `.webp`. |
+| **`C-6` Audio `music_url` (`SAUDI_MARKET_DECISIONS` §6)** | Before PR 2 | PO to choose hiding `music_url` on new Phase 1 creations (preserving existing) **OR** adding owner copyright attestation **OR** supplying cleared audio files. |
+| **`C-7` `International` Phone UI Selector** | Before PR 2 | PO to confirm `SA (+966)` + `EG (+20)` UI only vs. adding generic `International` option. |
+| **`DEC-06` Supplementary KPIs & Sponsor** | Before PR 3 | PO to confirm adding `KPI-03b` & `KPI-05` ([OPEN_QUESTIONS.md](../OPEN_QUESTIONS.md) §2.2) and confirm Sponsor name/title. |
+| **`DEC-05` Saudi PDPL Legal Gate & `PR 4`** | Before PR 4 / Gate 4 | Independent Saudi PDPL counsel review of `/privacy`, `/terms`, **proposed 30-day guest/RSVP PII retention preference** (auto-delete stays **OFF** until finalized), cross-border EU/Resend transfers, privacy request SLA & verification process, and whether automated retention is required pre-launch. |
+| **`DEC-06` Real Contacts, Domain & Hostinger Verification** | Before PR 4 / Gate 4 | Real Saudi support email & WhatsApp/phone, confirmed domain & Resend DNS, verified Hostinger Unlimited vs. KVM 1/2 VPS check (**no purchase without PO approval**), named ops owner & launch schedule. |
 
 ---
 
-## 4. Minimum Reliable Phase 1 Production Architecture (`DEC-06`)
+## 4. Minimum Reliable Production Architecture (`DEC-06` Provisional Assessment)
 
-To avoid premature S3/Redis/Kubernetes complexity while delivering high reliability for Saudi mobile traffic:
-- **Compute & Runtime:** Single managed VPS (`2 vCPU / 4 GB RAM`), Nginx + **PHP `8.4.1+` / `8.5`** with **`ext-intl`** (mandatory for Filament `Number::format()` & Umm al-Qura `IntlDateFormatter`), `pdo_mysql`, `gd`, `fileinfo`.
-- **Database & Backups:** **MySQL 8.4** with daily automated off-site encrypted `mysqldump` + pre-deploy snapshots.
-- **Queue & Cache:** Laravel `database` queue driver (`2` Supervisor workers) + `database`/`file` cache (NO Redis yet).
-- **Media & CDN Edge:** Local `storage/app/public` backed up daily, fronted by **Cloudflare Free** (HTTPS/HSTS + Riyadh/Jeddah edge caching for self-hosted `.webp`/Vite assets, directly boosting mobile WhatsApp WebView LCP).
-- **Mail & Monitoring:** **Resend Free Tier** (`3,000/mo`, SPF/DKIM/DMARC verified), external `/up` uptime monitor, and Filament `OperationsMonitor`.
+Aligned with the PO's goal of **low fixed cost and zero premature complexity**:
+- **Primary Candidate Under Evaluation:** Hostinger **"Unlimited" shared website-hosting plan (12-month promo)** — **pending verification, NOT confirmed/purchased**.
+  - Must verify before commitment: web + CLI **`PHP >= 8.4.1`** (`symfony/http-foundation v8.1.11` requires `8.4.1+`), CLI **`ext-intl`**, exact MariaDB compatibility/limits, cron minimum interval + `flock` for `--stop-when-empty` `database` queue workers *(paired with synchronous password reset delivery, since shared hosting blocks Supervisor)*, `.env`/storage symlink security, independent off-site backup & restore test, **actual 12-month renewal pricing**, and **EU datacenter PDPL cross-border transfer clearance** (Hostinger has no KSA datacenter).
+- **Minimum Viable Fallback:** Only if shared hosting fails any hard Laravel 13 check (PHP `8.4.1`, `ext-intl`, MariaDB DDL, or cron queue reliability), fall back to a single **Hostinger KVM 1/2 VPS** (PHP 8.4+/8.5 + MySQL 8.4 + Supervisor). **Never** add Redis clusters, S3/R2, or Kubernetes in Phase 1.
+- **CDN & Email:** Cloudflare Free edge caching (serving `.webp`/Vite assets closer to Riyadh/Jeddah for WhatsApp WebView LCP `< 2.5s`) + **Resend Free Tier** (`3,000/mo`) over verified DNS (`SPF`/`DKIM`/`DMARC`).
 
 ---
 
-## 5. Refined Evidence-Gated Multi-Phase Roadmap (`Proposed / Pending PO Approval`)
+## 5. Evidence-Gated Multi-Phase Roadmap *(Phases 2–4 Remain Proposals Triggered Only by Evidence)*
 
 ```mermaid
 flowchart LR
-    P1["Phase 1: Lean Saudi Launch (Free)"] -->|"Gate: Cohort 1 Metrics & Funnel Bottlenecks"| P2["Phase 2: Activation & Virality (Evidence-Gated)"]
-    P2 -->|"Gate: Validated User Pull & PMF"| P3["Phase 3: Hospitality & Retention Candidates (Evidence-Gated)"]
-    P3 -->|"Gate: Proven Scale & Model Selection"| P4["Phase 4: One-Time Paymob Monetization (Flagged)"]
+    P1["Phase 1: Lean Saudi Launch (DEC-01..07)"] -->|"Gate 4 Ops/Legal + Cohort 1 Metrics"| P2["Phase 2: Activation & Virality (Evidence-Gated)"]
+    P2 -->|"Validated Pull Gate"| P3["Phase 3: Hospitality & Retention Candidates (Evidence-Gated)"]
+    P3 -->|"Scale & Model Gate"| P4["Phase 4: One-Time Paymob Monetization (DEC-07)"]
 ```
 
-### Phase 2 — Growth, Activation & Viral Optimization *(Evidence-Gated — NOT Automatic Commitments)*
-Focuses strictly on lifting creation completion, sharing rate, and guest-to-couple conversion based on Phase 1 data:
-
-| Candidate Initiative | Evidence Trigger Required to Authorize |
-| :--- | :--- |
-| **True Dynamic Couple OG Cards & Short `/i/` Links (`F15` Evolution)** | Phase 1 sharing rate (`KPI-02`) lags OR qualitative feedback shows generic template thumbnails/long Arabic slugs hurt WhatsApp clicks. |
-| **Async WebP Upload Compression (`PERF-02`)** | Real uploaded cover/gallery usage proves common (>15% of invitations) AND drives mobile LCP above `2.5s`. |
-| **Guided Onboarding Simplification (`ZAFFE-017` Patterns)** | `KPI-01` shows drop-off between registration and first publish caused by form friction or calendar confusion. |
-| **Curated Licensed Zaffe/Audio Library** | Hosts enable audio frequently or request built-in tracks because pasting raw `.mp3` URLs fails. |
-| **Full English (`en`) Public Cards & Editor (`BRQ-36`)** | Measurable `/lang/en` switching or direct requests from bilingual/expat weddings in Riyadh/Jeddah/Cairo. |
-
-### Phase 3 — Saudi Hospitality & Retention Candidates *(Evidence-Gated Pool Only)*
-None of the following are committed until real Saudi customer interviews, support tickets, or cohort behavior validate willingness to use (and potentially pay for) them:
-
-| Candidate Feature | Customer Research / Usage Signal Required to Promote |
-| :--- | :--- |
-| **Men's & Women's Dual-Hall Support** | Repeated support/interview requests from Saudi couples putting two hall addresses/maps inside `venue_address` or `invitation_message`. |
-| **Multi-Event Wedding Suites (`Milka / Henna / Wedding`)** | High incidence of couples creating `2+` separate invitations for the same wedding cycle. |
-| **Delegated Family Co-Hosts (`F18`)** | Requests from mothers/siblings/bride-vs-groom sides to manage separate guest lists or RSVP summaries privately. |
-| **Moderated Guest Wishes Wall & Thank-You Card** | Strong usage of RSVP `message` field + post-wedding requests to export/share congratulations or thank guests. |
-| **Optional Named Guest Personalization (`?g=` Revival, No QR)** | Couples actively asking to send named WhatsApp greetings (`"أهلاً د. فلان"`) once core creation is thriving. |
-| **Saudi Signature Vol. 2 / New Theme Packs** | Template concentration >70% on top 2–3 themes or planner requests for regional styles (e.g., Asiri, AlUla, minimalist modern). |
-| **Light Wedding Planner Workspace** | Organic signups from coordinators (`منسقات الحفلات`) managing `>= 3` client invitations under one account. |
-
-### Phase 4 — One-Time Monetization (`F11` via Paymob — Evidence-Gated)
-- Activated only after Phase 1–2 prove repeatable organic creation/sharing and unit costs are observed.
-- Evaluates **Model A (Pay-at-Publish)** vs. **Model B (Free Core + One-Time Upgrade)** vs. **Model C (Free Basic Announcement + One-Time Royal Suite)** under `DEC-07` — strictly **one-time per wedding (`SAR`/`EGP`), zero subscriptions**, gated behind ZATCA/VAT legal clearance.
+- **Phase 2 Candidates *(Triggered only by Cohort 1 metrics)*:** True dynamic couple OG image cards + short `/i/` links (`F15` selective evolution), async WebP pipeline (`if >15% uploads & LCP > 2.5s`), guided onboarding patterns (`ZAFFE-017`, `if KPI-01 drop-off`), curated licensed zaffa/audio library, and full English (`en`) public cards/editor (`BRQ-36`).
+- **Phase 3 Candidates *(Triggered only by verified customer pull)*:** Dual Men/Women hall views, Multi-Event suites (`Milka/Henna/Wedding`), Family Co-Hosts, moderated Wishes Wall & Thank-You Card, **optional named `?g=` greeting revival (no QR)**, Saudi Signature Vol. 2, light Planner workspace, and **automated post-event PDPL retention execution** (post-counsel policy + transition window).
+- **Phase 4 (`F11` Deferred — `DEC-07`):** One-time Paymob per-invitation checkout (`SAR`/`EGP`, evaluating `Model A vs B vs C` strictly on real Phase 1–2 usage & unit costs, with ZATCA/VAT legal review and an explicit grandfathering/transition policy).
 
 ---
 
-## 6. Concise Acquisition & Growth Strategy (`Phase 1`)
+## 6. Concise Acquisition & Growth Focus (`Phase 1`)
 
-1. **Product-Led Guest-to-Couple Loop:** Reliable WhatsApp Open Graph previews + subtle `?ref=invite` footer link on every card so delighted guests discover Zaffe effortlessly.
-2. **Short-Form Visual Storytelling (`TikTok`, `Snapchat`, `Instagram Reels`):** 15–25s Arabic vertical clips demonstrating Saudi Signature elegance, Umm al-Qura Hijri conversion, optional bride-name privacy, and instant mobile edits — zero mention of QR/door ops.
-3. **Seeded Coordinator & Stylist Circle (`10–20` Riyadh/Jeddah/Cairo Partners):** Personal WhatsApp walkthroughs inviting boutique planners and bridal stylists to adopt Zaffe for clients' digital cards.
-4. **High-Intent Arabic SEO + Zero-Login Live Preview:** Optimize `/templates` and `/templates/{slug}/preview` around high-intent Saudi wedding invitation queries with instant try-before-register previews.
-
----
-
-## 7. Major Assumptions Requiring Customer Validation (`First 50–100 Saudi Couples`)
-
-| # | Assumption | How to Validate in Cohort 1 | Impact if Disproven |
-| :---: | :--- | :--- | :--- |
-| **A-1** | Saudi couples value interactive web microsites enough to replace static Canva/PDF cards. | Track `KPI-02` (`>=10` views/card) & post-publish survey. | Strengthen downloadable summary card / image export in Phase 2. |
-| **A-2** | Omitting `bride_name` & photo-free templates directly unlocks conservative family adoption. | Measure `%` of invitations omitting `bride_name` or photos. | Adjust default form framing & kunya helper hints. |
-| **A-3** | Simple ON/OFF RSVP meets 80%+ of Phase 1 coordination needs without named guest lists (`?g=`). | Support logs & churn/feedback from RSVP-enabled hosts. | Prioritize named `?g=` links (`F16-A` revival) in Phase 2/3. |
-| **A-4** | Couples prefer WhatsApp direct links over automated system-sent WhatsApp blasts. | Measure actual WhatsApp share clicks & completion rates. | Re-evaluate paid WABA dispatch add-ons post-PMF. |
-| **A-5** | Guests click a subtle footer link to create their own wedding cards (`?ref=invite`). | Instrument `?ref=invite` -> registration conversion in Cohort 1. | Invest more in TikTok/SEO/partnerships rather than relying on viral loop. |
-| **A-6** | Most Saudi couples start creation on mobile browsers rather than desktop. | Observe mobile vs. desktop studio sessions & `KPI-01`. | Prioritize mobile editor ergonomics over desktop features. |
-| **A-7** | Couples will pay a one-time fee (`Model A` vs `B/C`) once value is proven. | Post-wedding willingness-to-pay interviews before Phase 4. | Selects between Pay-at-Publish and Upgrade-to-Royal models (`DEC-07`). |
+1. **Product-Led WhatsApp Loop:** Verified public HTTPS `og:image` previews + tasteful `/templates?ref=invite` card footer.
+2. **Short-Form Arabic Video (`TikTok`, `Snapchat`, `Reels`):** Highlight couture Saudi templates, Umm al-Qura Hijri conversion, optional `bride_name` privacy, and easy link sharing — zero QR/Event-Ops positioning.
+3. **Zero-Login Live Previews & SEO:** Production-safe Saudi demo (`/demo`) and interactive `/templates/{slug}/preview`.
+4. **Targeted Partner Seeding:** Direct walkthroughs with boutique Saudi wedding stylists and planners once Gate 4 passes.
 
 ---
 
-## 8. Product Decision Log (`PDL-001` – `PDL-016`)
+## 7. Major Assumptions to Test With First 50–100 Saudi Couples
 
-*(Entries `PDL-001`–`PDL-009` preserved from `2026-11-15`/`2026-11-19` log with reconciliation status; `PDL-010`–`PDL-016` record the `2026-11-20` realignment.)*
+`A-1` Interactive web card vs. static Canva/PDF (`KPI-02`); `A-2` Optional `bride_name` & photo-free adoption; `A-3` View-first `announcement` default vs. opt-in RSVP usage; `A-4` Couple preference for personal WhatsApp links vs. automated blasts; `A-5` `?ref=invite` footer discovery; `A-6` Mobile-first studio creation behavior; `A-7` Post-wedding one-time willingness-to-pay (`Model A vs B/C`).
 
-| ID | Date | Decision / Proposal | Status |
+---
+
+## 8. Product Decision Log (`PDL-001` – `PDL-018`)
+
+| ID | Date | Decision Summary | Status (`2026-11-21`) |
 | :--- | :---: | :--- | :--- |
-| **PDL-001** | `2026-11-15` | Release 1 remains `100%` Free *(Free Core Forever NOT approved)* | **CONFIRMED (R1 Only)** |
-| **PDL-002** | `2026-11-15` | Reject physical gatekeeper staffing & human custom design agency | **CONFIRMED** |
-| **PDL-003–004** | `2026-11-15` | Pure-PHP zero-PII `QrCodeService` | **SHIPPED IN `dev`** *(Legacy preservation only)* |
-| **PDL-005** | `2026-11-15` | Gatekeeper Portal (`/gate/{token}`) | **EXCLUDED FROM STRATEGY (`2026-11-20`)** |
-| **PDL-006 / 008** | `2026-11-15` | `F16` Part A/B Hayhom QR parity strategy | **SUPERSEDED / RECONCILED** (`DEC-01`, `DEC-02`) |
-| **PDL-007** | `2026-11-15` | Gate WABA, SMS, Paymob (`F11`), `bride_name` DB changes behind PO sign-off | **CONFIRMED** |
-| **PDL-009** | `2026-11-19` | Saudi Signature Collection Vol. 1 (`sort_order 1–8`) | **SHIPPED IN `dev`** |
-| **PDL-010–011** | `2026-11-20` | Design-led Saudi studio identity; no QR promotion; Gatekeeper excluded; legacy data protected | **CONFIRMED BY PO (`2026-11-20`)** |
-| **PDL-012** | `2026-11-20` | Lean 4-bucket Phase 1 launch + evidence-gated Phases 2–4 | **`Proposed / Pending PO Approval`** |
-| **PDL-013** | `2026-11-20` | `DEC-01`: Endorse PO Option B (Legacy-only Guest Roster visibility) | **`Proposed / Pending PO Approval`** |
-| **PDL-014** | `2026-11-20` | `DEC-02`: Binary RSVP ON/OFF toggle (`rsvp_only` vs `announcement`) + `Invitation::booted()` fix | **`Proposed / Pending PO Approval`** |
-| **PDL-015** | `2026-11-20` | `DEC-03` & `DEC-04`: Surgical OG/demo fixes; remove fake `/contact` form; suppress unedited `timeline`/`dress_code` placeholders; fix `bride_name` & `arabic_indic` | **`Proposed / Pending PO Approval`** |
-| **PDL-016** | `2026-11-20` | `DEC-05`–`DEC-07`: Phase 1 PDPL basics + Beta vs Commercial distinction; unapproved retention left open; lean single-VPS stack; Release-1-only free copy guardrail | **`Proposed / Pending PO Approval`** |
+| **PDL-001** | `2026-11-15` | Release 1 100% Free; no subscriptions; `"Free Forever"` explicitly rejected | **PO APPROVED (`DEC-07`)** |
+| **PDL-002** | `2026-11-15` | Exclude venue staffing, custom design agency, SMS/WABA blasts | **PO APPROVED** |
+| **PDL-003–004** | `2026-11-15` | Pure-PHP `QrCodeService` & `F16` Part A passes in `dev` | **LEGACY PRESERVATION ONLY (`DEC-01`/`02`)** |
+| **PDL-005** | `2026-11-15` | Gatekeeper Portal (`/gate/{token}` on `feature/ZAFFE-018`) | **EXCLUDED FROM STRATEGY** |
+| **PDL-006 / 008** | `2026-11-15` | Early `F16` Part A/B Hayhom parity framing | **SUPERSEDED (`DEC-01`/`02`)** |
+| **PDL-007 / 009** | `2026-11-19` | Saudi Signature Vol. 1 (`sort_order 1–8`) & Paymob deferred behind PO sign-off | **SHIPPED / APPROVED** |
+| **PDL-010–011** | `2026-11-21` | Design-led Saudi vision, legacy data preservation, lean quality-first Phase 1 | **PO APPROVED** |
+| **PDL-012** | `2026-11-21` | `DEC-01` **Option B** (Legacy-Only Roster visibility; `?g=` & `/pass/` preserved) | **PO APPROVED (`DEC-01`)** |
+| **PDL-013** | `2026-11-21` | `DEC-02` **Option B** (RSVP Disabled by Default / `announcement`; binary toggle; non-destructive off; fix `booted()` & `Editor`; zero QR promotion) | **PO APPROVED (`DEC-02`)** |
+| **PDL-014** | `2026-11-21` | `DEC-03` **Option A** (Targeted OG/HTTPS fixes, `og-zaffe.jpg`, prod-safe Saudi demo; do NOT merge `F15` or `ZAFFE-017`) | **PO APPROVED (`DEC-03`)** |
+| **PDL-015** | `2026-11-21` | `DEC-04.1`–`4.5` (`bride_name` optional, `/contact` direct channels, suppress `"Black Tie"` placeholders, Arabic-first P1 cards, accurate dashboard counts, defer archive UI/suspension) | **PO APPROVED (`DEC-04`)** |
+| **PDL-016** | `2026-11-21` | `DEC-05`: Conditional Full Public Launch, self-service invite delete + privacy request process, proposed 30-day guest PII retention *(auto-delete OFF)* | **BUSINESS DIRECTION APPROVED; LEGAL & OPS PENDING** |
+| **PDL-017** | `2026-11-21` | `DEC-06`: Hostinger Unlimited assessment (vs KVM fallback), real contacts, Resend DNS, candidate `KPI-03b`/`KPI-05` | **PROVISIONAL / PENDING OPS & PO CONFIRMATION** |
+| **PDL-018** | `2026-11-21` | Unresolved deviations `C-5` (WebP upload), `C-6` (`music_url`), `C-7` (`International` phone UI) | **PENDING PO SELECTION** |
