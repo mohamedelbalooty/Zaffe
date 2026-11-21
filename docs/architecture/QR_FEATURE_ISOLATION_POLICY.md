@@ -1,22 +1,27 @@
-# Zaffe (زفّــة) — QR Check-In Feature Isolation & Governance Policy
+# Zaffe (زفّــة) — QR Feature Isolation & Legacy Preservation Policy
 
-> **Single Source of Truth for Separating QR Pass Generation from QR Scanning & Gatekeeper Check-In**  
-> **Status:** Active & Enforced | **Cleanup Branch:** `chore/ZAFFE-019-isolate-qr-checkin-from-dev` | **Canonical QR Feature Branch:** `feature/ZAFFE-018-smart-guests-and-qr-checkin` (`de01adc`) | **Last Updated:** 2026-11-17
+> **Single Source of Truth for Excluding Venue Door Check-In (`F16` Part B) and Scoping QR Passes / Smart Roster (`F16` Part A) to Legacy Preservation Only**  
+> **Status:** Active & Enforced (`Reconciled 2026-11-21` with `DEC-01` & `DEC-02` Option B) | **Canonical Excluded Branch:** `feature/ZAFFE-018-smart-guests-and-qr-checkin` (`de01adc`) | **Last Updated:** 2026-11-21
+
+> [!IMPORTANT]
+> **2026-11-21 Product Owner Strategic Reconciliation ([OPEN_QUESTIONS.md](../product/OPEN_QUESTIONS.md)):**
+> - **`F16` Part B (QR Scanning & Gatekeeper Check-In `/gate/{gateToken}`):** **EXCLUDED FROM CURRENT PRODUCT STRATEGY.** Zaffe is a digital wedding invitation platform, not a venue operations or door-admission platform. All non-merge rules in §6–§9 remain permanently active and enforced.
+> - **`F16` Part A (Smart Guest Roster, `?g=` Links & `/pass/{qrToken}` QR Passes):** **LEGACY PRESERVATION ONLY IN PHASE 1.** Under PO-approved **`DEC-01` Option B** and **`DEC-02` Option B**, new Phase 1 invitations start in view-only `announcement` mode with a simple **Enable/Disable RSVP** (`rsvp_only` ↔ `announcement`) control, zero QR pass generation, zero QR promotion, and no `GuestRosterManager` UI. **All existing `InvitationGuest` rows, `?g=` links, `rsvp_qr`/`qr_only` invitations, and `/pass/{qrToken}` routes remain preserved and functional without destructive migrations.**
 
 ---
 
-## 1. QR Pass Generation vs. QR Scanning Boundaries
+## 1. Strategic Boundary Matrix (`2026-11-21`)
 
-Zaffe explicitly separates **QR Pass Generation** (customer-facing digital invitation pass issuance) from **QR Scanning & Gatekeeper Check-In** (venue-entrance verification and attendance recording):
+Zaffe enforces three strict capability tiers for `F16` features:
 
-| Capability Group | In `dev` (Active) | Isolated on `feature/ZAFFE-018-smart-guests-and-qr-checkin` | Key Files & Surfaces |
-| :--- | :---: | :---: | :--- |
-| **Smart Guest Roster & 4 Invitation Modes** (`rsvp_qr`, `rsvp_only`, `qr_only`, `announcement`, bulk CSV import, formula-safe roster CSV export, WhatsApp tracking) | **Yes** | Yes | `Invitation`, `InvitationGuest`, `GuestRosterManager`, `DashboardController::exportRosterCsv()` |
-| **QR Pass Generation** (pure-PHP ISO/IEC 18004 SVG generation, `qr_token`, `pass_code`, `/pass/{qrToken}`, `?g=` inline QR card, post-RSVP QR pass display) | **Yes** | Yes | `QrCodeService`, `GuestPassController`, `pages/guest-pass.blade.php`, `templates/partials/access_section.blade.php`, `RsvpForm` |
-| **QR Scanning & Gatekeeper Check-In** (`/gate/{gateToken}`, `GateScanner`, `BarcodeDetector` camera scanning, manual `pass_code` check-in, `InvitationGate` management, `checked_in_at` atomic updates, duplicate scan prevention) | **No (Isolated)** | **Yes (Complete)** | `GateScanner`, `gate-scanner.blade.php`, `InvitationGate`, `InvitationGatePolicy`, `GuestRosterManager` gate UI |
+| Capability Group | Phase 1 Status in `dev` (`2026-11-21`) | Isolated Branch (`feature/ZAFFE-018`) | Key Files & Surfaces |
+| :--- | :--- | :---: | :--- |
+| **Smart Guest Roster & `rsvp_qr` / `qr_only` Modes** (`GuestRosterManager`, bulk CSV import, `?g=` links, quotas) | **Legacy Preservation Only (`DEC-01` / `DEC-02` Option B)** — Hidden on newly created Phase 1 cards; kept working for existing records/modes | Yes | `Invitation`, `InvitationGuest`, `GuestRosterManager`, `DashboardController::exportRosterCsv()` |
+| **QR Pass Generation** (`QrCodeService`, `qr_token`, `pass_code`, `/pass/{qrToken}`, post-RSVP pass display) | **Legacy Preservation Only** — Not generated for new `announcement`/`rsvp_only` invitations; existing passes remain accessible | Yes | `QrCodeService`, `GuestPassController`, `pages/guest-pass.blade.php`, `templates/partials/access_section.blade.php`, `RsvpForm` |
+| **QR Scanning & Gatekeeper Check-In** (`/gate/{gateToken}`, `GateScanner`, `BarcodeDetector`, `InvitationGate`, `checked_in_at`) | **EXCLUDED FROM STRATEGY** (Isolated & Never Merged) | **Yes (Complete — Frozen)** | `GateScanner`, `gate-scanner.blade.php`, `InvitationGate`, `InvitationGatePolicy` |
 
 ### Customer Journey Boundary Rule
-Because QR Scanning & Gatekeeper Check-In is **not active** in `dev`, customer and guest interfaces in `dev` must **never** promise live gatekeeper scanning or single-use entrance verification at the venue door. QR passes in `dev` are presented strictly as personal digital invitation passes (`QR Pass`) carrying event details and the guest's personal pass code.
+New Phase 1 invitations, Studio Editor controls, and public marketing pages must **never** promote QR passes, physical door check-in, or live gatekeeper scanning, and residual `"بطاقة دخول"` wording on preserved legacy views must be cleaned up to `"بطاقة الدعوة الشخصية"`. Existing legacy `rsvp_qr` / `qr_only` cards and `/pass/{qrToken}` pages continue serving historical guests seamlessly as personal digital invitation passes.
 
 ---
 
@@ -47,11 +52,11 @@ To re-enable QR Scanning & Gatekeeper Check-In from `feature/ZAFFE-018-smart-gue
 
 ---
 
-## 5. Why QR Check-In Remains Isolated
+## 5. Why QR Check-In Remains Excluded / Isolated
 
-1. Gatekeeper scanning (`BarcodeDetector` camera behavior across iOS Safari vs. Android Chrome, multi-usher operational workflows, and single-use door rejection UX) carries high event-day operational risk at live weddings.
-2. Release 1 core scope can ship Smart Guest Roster, 4 invitation modes, and personal QR Pass Generation independently without exposing unapproved live entrance-control commitments.
-3. Isolating QR Check-In guarantees the Product Owner retains explicit sign-off control before venue-entrance scanning enters `dev`, `staging`, or `production`.
+1. Gatekeeper scanning (`BarcodeDetector` camera behavior across iOS Safari vs. Android Chrome, multi-usher operational workflows, and single-use door rejection UX) carries high event-day operational risk at live weddings and conflicts with Zaffe's strategic identity as a digital wedding invitation platform rather than an event-operations tool.
+2. Historical `2026-11-17` isolation preserved `F16` Part A without unapproved door check-in; under **`2026-11-21` `DEC-01` & `DEC-02` Option B**, Phase 1 hides roster/QR UI for newly created invitations while preserving legacy data/URLs cleanly, and Gatekeeper (`/gate/{gateToken}`) is excluded from current product strategy.
+3. Isolating `feature/ZAFFE-018-smart-guests-and-qr-checkin` ensures venue-entrance scanning never enters `dev`, `staging`, or `production`.
 
 ---
 
@@ -96,12 +101,8 @@ Before the Product Owner approves merging `feature/ZAFFE-018-smart-guests-and-qr
 
 ---
 
-## 10. Release Scope
+## 10. Release Scope (`Reconciled 2026-11-21`)
 
-- **Active in `dev` / Release 1 Candidate (`d88d381`):** F01–F10, F12, F13, F14, `ZAFFE-016`, `ZAFFE-017` Admin Coverage, `ZAFFE-020`, `ZAFFE-022`, `ZAFFE-023`/`ZAFFE-024` (14 active free templates), plus F16 Part A (Smart Guest Roster, 4 Invitation Modes, `?g=` personalized links, and QR Pass Generation `/pass/{qrToken}`).
-- **Held / Isolated Pending Manual Owner Approval:** F16 Part B (QR Scanning & Gatekeeper Check-In `/gate/{gateToken}` on `feature/ZAFFE-018-smart-guests-and-qr-checkin`), `feature/ZAFFE-015-short-urls-and-og-tags` (Owner Manual Only), and `feature/ZAFFE-017-create-invitation-wizard` (On Hold — Adoption Undecided).
-
-> [!WARNING]
-> **Unresolved Scope Governance Conflict (`BR-031`) & Copy Cleanup (`2026-11-19`):**  
-> 1. [ZAFFE_FINAL_QA_REPORT.md](../qa/reports/ZAFFE_FINAL_QA_REPORT.md) (`ZAFFE-020`, 2026-11-16) flagged `F16` Part A itself as a P0 scope violation outside original Release 1 brief definitions, whereas this isolation policy and [RELEASE_1_PRODUCT_DECISIONS.md](../product/RELEASE_1_PRODUCT_DECISIONS.md) §3 list `F16` Part A as active in Release 1. Formal Product Owner sign-off is tracked in [OPEN_QUESTIONS.md](../product/OPEN_QUESTIONS.md).  
-> 2. Residual `"بطاقة دخول"` wording remains in `resources/views/pages/guest-pass.blade.php`, `resources/views/livewire/rsvp-form.blade.php`, and `resources/views/templates/partials/access_section.blade.php` pending wording cleanup to `"بطاقة الدعوة الشخصية"` / `"QR Pass"`.
+- **Active Headline Scope in Phase 1 (BRD `v0.5` — Pending Formal Sign-Off):** Core Studio (`F01`–`F10`, `F12`–`F14`, `ZAFFE-017` Admin Coverage, `ZAFFE-022`/`023`/`024`), `14` free `.webp` templates, view-first `announcement` default (`DEC-02` Option B) with simple optional `rsvp_only` toggle, nullable `bride_name`, optimized WebP new uploads (`C-5` Option A), hidden new external `music_url` (`C-6` Option A), international phone support (`C-7` Option B), HTTPS OG previews, and stateless Saudi demo (`DEC-03` Option A).
+- **Legacy Preservation Only (`DEC-01` & `DEC-02` Option B):** `F16` Part A (`GuestRosterManager`, `rsvp_qr`/`qr_only`, `?g=`, `/pass/{qrToken}`) — hidden from newly created Phase 1 invitations and marketing, while all existing guest records, links, and modes stay protected and operational. Residual `"بطاقة دخول"` strings in `resources/views/pages/guest-pass.blade.php`, `resources/views/pages/invitation-show.blade.php`, `resources/views/livewire/rsvp-form.blade.php`, and `resources/views/templates/partials/access_section.blade.php` are queued for cleanup in Gate 3 PR 2 to `"بطاقة الدعوة الشخصية"`.
+- **Excluded / Unmerged Branches:** `F16` Part B (`feature/ZAFFE-018-smart-guests-and-qr-checkin` `/gate/{gateToken}`) is **Excluded from Current Product Strategy**; `feature/ZAFFE-015-short-urls-and-og-tags` and `feature/ZAFFE-017-create-invitation-wizard` are **Unmerged / Deferred (`DEC-03` Option A)**.
