@@ -1,5 +1,5 @@
 <x-layouts.base :title="$invitation->title . ' — زفّة'"
-                 :description="$invitation->invitation_message ?: ('نتشرف بدعوتكم لحضور حفل زفاف ' . $invitation->groom_name . ' و ' . $invitation->bride_name)"
+                 :description="$invitation->invitation_message ?: ('نتشرف بدعوتكم لحضور حفل زفاف ' . $invitation->formattedCoupleNames('ar'))"
                  :og-image="$invitation->cover_photo ?: ($invitation->template?->thumbnail ?? asset('images/og-zaffe.jpg'))">
 
     <!-- Draft Alert Banner for Owner -->
@@ -30,7 +30,7 @@
                     <a href="{{ $personalGuest->getPassUrl() }}"
                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C6A76B] text-[#151210] font-bold hover:bg-[#DFC99E] transition">
                         <x-app-icon name="qr-code" class="w-3.5 h-3.5" />
-                        <span>بطاقة الدخول (QR)</span>
+                        <span>بطاقة الدعوة الشخصية (QR)</span>
                     </a>
                 @endif
             </div>

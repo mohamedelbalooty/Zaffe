@@ -106,10 +106,10 @@
 
                     <div>
                         <label for="bride_name" class="block text-xs font-bold text-[#221E1A] mb-1.5">
-                            {{ $isEn ? 'Bride Name or Family Honorific' : 'اسم العروس الكريمة (أو الكنية العائلية)' }}
+                            {{ $isEn ? 'Bride Name or Family Honorific (Optional)' : 'اسم العروس أو الكنية العائلية (اختياري)' }}
                         </label>
-                        <input type="text" id="bride_name" name="bride_name" value="{{ old('bride_name') }}" required
-                               placeholder="{{ $isEn ? 'e.g. Sarah or Daughter of Mansour Family' : 'مثال: الجوهرة أو كريمة عائلة المنصور' }}"
+                        <input type="text" id="bride_name" name="bride_name" value="{{ old('bride_name') }}"
+                               placeholder="{{ $isEn ? 'e.g. Sarah, Daughter of Mansour Family, or leave blank' : 'مثال: الجوهرة أو كريمة عائلة المنصور (أو اتركه فارغاً)' }}"
                                class="input-atelier @error('bride_name') !border-[#BE123C] @enderror">
                         @error('bride_name')
                             <p class="text-xs text-[#BE123C] mt-1 font-bold">{{ $message }}</p>
@@ -147,11 +147,11 @@
                         {{ $isEn ? 'Event Timezone' : 'المنطقة الزمنية لموعد الحفل' }}
                     </label>
                     <select id="timezone" name="timezone" class="input-atelier">
-                        <option value="Africa/Cairo" {{ old('timezone', 'Africa/Cairo') === 'Africa/Cairo' ? 'selected' : '' }}>
-                            {{ $isEn ? 'Egypt / Cairo (Africa/Cairo)' : 'توقيت مصر والقاهرة (Africa/Cairo)' }}
-                        </option>
-                        <option value="Asia/Riyadh" {{ old('timezone') === 'Asia/Riyadh' ? 'selected' : '' }}>
+                        <option value="Asia/Riyadh" {{ old('timezone', 'Asia/Riyadh') === 'Asia/Riyadh' ? 'selected' : '' }}>
                             {{ $isEn ? 'Saudi Arabia / Riyadh (Asia/Riyadh)' : 'توقيت السعودية والرياض (Asia/Riyadh)' }}
+                        </option>
+                        <option value="Africa/Cairo" {{ old('timezone', 'Asia/Riyadh') === 'Africa/Cairo' ? 'selected' : '' }}>
+                            {{ $isEn ? 'Egypt / Cairo (Africa/Cairo)' : 'توقيت مصر والقاهرة (Africa/Cairo)' }}
                         </option>
                     </select>
                     @error('timezone')

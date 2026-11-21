@@ -33,7 +33,7 @@ class GuestPassController extends Controller
                 232,
                 '#111827',
                 '#FFFFFF',
-                'بطاقة الدخول الإلكترونية '.$guest->name
+                'بطاقة الدعوة الشخصية '.$guest->name
             )
             : null;
 

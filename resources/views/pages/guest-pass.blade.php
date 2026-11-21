@@ -1,14 +1,14 @@
-<x-layouts.base :title="'بطاقة الدخول — ' . $guest->name . ' | زفّة'">
+<x-layouts.base :title="'بطاقة الدعوة الشخصية — ' . $guest->name . ' | زفّة'">
     <div class="min-h-screen bg-[#FAF7F2] bg-luxury-grain py-8 sm:py-12 px-4 flex flex-col items-center justify-center print:bg-white print:py-2">
         <div class="w-full max-w-md bg-[#FCFBF8] rounded-3xl border border-[#C6A76B]/40 shadow-[0_24px_60px_rgba(21,18,16,0.12)] overflow-hidden print:shadow-none print:border-[#DED5C8]">
             <!-- Ticket Top Header -->
             <div class="bg-[#151210] text-white px-6 py-6 text-center space-y-2 border-b border-[#C6A76B]/30">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-[#C6A76B]/35 text-[#DFC99E] text-[11px] font-bold">
                     <x-app-icon name="qr-code" class="w-3.5 h-3.5" />
-                    <span>بطاقة دخول شخصية (QR Pass)</span>
+                    <span>بطاقة دعوة شخصية (QR Pass)</span>
                 </span>
                 <h1 class="font-cairo text-xl sm:text-2xl font-black text-white pt-1">
-                    {{ $invitation->groom_name }} و {{ $invitation->bride_name }}
+                    {{ $invitation->formattedCoupleNames('ar') }}
                 </h1>
                 <p class="text-xs text-[#DED5C8]">
                     {{ \App\Services\InvitationDateFormatter::formatGregorianDate($invitation, 'ar') }}

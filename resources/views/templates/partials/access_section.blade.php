@@ -41,13 +41,13 @@
                         210,
                         '#111827',
                         '#FFFFFF',
-                        'بطاقة الدخول الإلكترونية '.$personalGuest->name
+                        'بطاقة الدعوة الشخصية '.$personalGuest->name
                     );
                 @endphp
                 <div class="bg-[#FCFBF8] text-[#221E1A] rounded-3xl p-6 sm:p-8 border border-[#C6A76B]/35 shadow-[0_18px_48px_rgba(21,18,16,0.09)] text-center space-y-4">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C6A76B]/15 text-[#7A5A20] text-xs font-bold">
                         <x-app-icon name="qr-code" class="w-4 h-4" />
-                        <span>بطاقة الدخول المباشرة (QR Pass)</span>
+                        <span>بطاقة الدعوة الشخصية المباشرة (QR Pass)</span>
                     </span>
                     <h3 class="font-cairo text-xl sm:text-2xl font-black text-[#221E1A]">
                         أهلاً بكم، {{ $personalGuest->name }}
@@ -81,9 +81,9 @@
                     <div class="w-11 h-11 rounded-full bg-[#C6A76B]/15 text-[#7A5A20] flex items-center justify-center mx-auto">
                         <x-app-icon name="shield-check" class="w-5 h-5" />
                     </div>
-                    <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">الدخول ببطاقة QR شخصية</h3>
+                    <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">بطاقة الدعوة الشخصية (QR)</h3>
                     <p class="text-xs text-[#6E675F] max-w-md mx-auto leading-relaxed">
-                        هذه الدعوة مخصصة بكود دخول إلكتروني فردي. يرجى استخدام الرابط الخاص المرسل إليكم من منظم الحفل لإظهار بطاقة الدخول الخاصة بكم.
+                        هذه الدعوة مخصصة ببطاقة دعوة شخصية فردية. يرجى استخدام الرابط الخاص المرسل إليكم من منظم الحفل لإظهار بطاقة الدعوة الخاصة بكم.
                     </p>
                 </div>
             @endif

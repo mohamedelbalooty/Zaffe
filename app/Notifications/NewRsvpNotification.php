@@ -42,8 +42,13 @@ class NewRsvpNotification extends Notification implements ShouldQueue
                 ->greeting("Hello {$notifiable->name}!")
                 ->line("Guest **{$this->rsvp->guest_name}** has responded to your wedding invitation ({$this->invitation->title}).")
                 ->line("**Attendance Status:** {$statusTextEn}")
-                ->line("**Guest Count:** {$this->rsvp->guest_count}")
-                ->line('**Phone:** '.($this->rsvp->phone ?: '—'));
+                ->line("**Guest Count:** {$this->rsvp->guest_count}");
+
+            if (($this->rsvp->children_count ?? 0) > 0) {
+                $mail->line("**Children:** {$this->rsvp->children_count}");
+            }
+
+            $mail->line('**Phone:** '.($this->rsvp->phone ?: '—'));
 
             if (! empty($this->rsvp->message)) {
                 $mail->line("**Guest Wishes:** \"{$this->rsvp->message}\"");
@@ -59,7 +64,7 @@ class NewRsvpNotification extends Notification implements ShouldQueue
         }
 
         $statusLabels = [
-            'attending' => 'مؤكد الحضور (بكل سرور 🎉)',
+            'attending' => 'مؤكد الحضور (بكل سرور)',
             'declined' => 'اعتذر عن الحضور',
             'tentative' => 'ربما يحضر (متردد)',
         ];
@@ -71,8 +76,13 @@ class NewRsvpNotification extends Notification implements ShouldQueue
             ->greeting("مرحباً {$notifiable->name}!")
             ->line("قام الضيف الكريم **{$this->rsvp->guest_name}** بالرد على دعوة زفافكم ({$this->invitation->title}).")
             ->line("**حالة الحضور:** {$statusText}")
-            ->line("**عدد الحضور والمرافقين:** {$this->rsvp->guest_count}")
-            ->line("**رقم الهاتف:** {$this->rsvp->phone}");
+            ->line("**عدد الحضور والمرافقين:** {$this->rsvp->guest_count}");
+
+        if (($this->rsvp->children_count ?? 0) > 0) {
+            $mail->line("**عدد الأطفال:** {$this->rsvp->children_count}");
+        }
+
+        $mail->line('**رقم الهاتف:** '.($this->rsvp->phone ?: '—'));
 
         if (! empty($this->rsvp->message)) {
             $mail->line("**تهنئة الضيف:** \"{$this->rsvp->message}\"");

@@ -118,7 +118,7 @@
                                 <div class="space-y-1.5 min-w-0">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <h3 class="font-cairo text-base sm:text-lg font-extrabold text-[#221E1A] truncate">
-                                            {{ $invitation->groom_name }} &amp; {{ $invitation->bride_name }}
+                                            {{ $invitation->formattedCoupleNames($isEn ? 'en' : 'ar', ' & ') }}
                                         </h3>
                                         @if($invitation->status === 'published')
                                             <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#ECF5F0] text-[#0F4C3A] border border-[#0F4C3A]/20">

@@ -45,24 +45,27 @@ class InvitationLifecycleTest extends TestCase
         ]);
     }
 
-    public function test_user_can_create_invitation_with_default_timezone(): void
+    public function test_user_can_create_invitation_with_default_saudi_timezone_optional_bride_and_rsvp_disabled(): void
     {
         $response = $this->actingAs($this->user)->post(route('dashboard.invitations.store'), [
             'template_id' => $this->template->id,
             'groom_name' => 'أحمد',
-            'bride_name' => 'سارة',
             'wedding_date' => now()->addDays(20)->toDateString(),
-            'venue_name' => 'فندق الفورسيزونز',
+            'venue_name' => 'قاعة المملكة',
         ]);
 
         $invitation = Invitation::first();
         $this->assertNotNull($invitation);
-        $this->assertSame('Africa/Cairo', $invitation->timezone);
+        $this->assertSame('Asia/Riyadh', $invitation->timezone);
+        $this->assertNull($invitation->bride_name);
+        $this->assertSame('حفل زفاف أحمد', $invitation->title);
         $this->assertSame('draft', $invitation->status);
+        $this->assertFalse($invitation->is_rsvp_enabled);
+        $this->assertSame(Invitation::MODE_ANNOUNCEMENT, $invitation->invitation_mode);
         $response->assertRedirect(route('dashboard.invitations.editor', $invitation->id));
     }
 
-    public function test_user_can_create_invitation_with_saudi_timezone(): void
+    public function test_user_can_create_invitation_with_egyptian_timezone_and_bride_name(): void
     {
         $response = $this->actingAs($this->user)->post(route('dashboard.invitations.store'), [
             'template_id' => $this->template->id,
@@ -70,12 +73,13 @@ class InvitationLifecycleTest extends TestCase
             'bride_name' => 'نورة',
             'wedding_date' => now()->addDays(25)->toDateString(),
             'venue_name' => 'قاعة قصر الرياض',
-            'timezone' => 'Asia/Riyadh',
+            'timezone' => 'Africa/Cairo',
         ]);
 
         $invitation = Invitation::where('groom_name', 'فهد')->first();
         $this->assertNotNull($invitation);
-        $this->assertSame('Asia/Riyadh', $invitation->timezone);
+        $this->assertSame('Africa/Cairo', $invitation->timezone);
+        $this->assertSame('نورة', $invitation->bride_name);
     }
 
     public function test_user_cannot_create_invitation_with_invalid_timezone(): void

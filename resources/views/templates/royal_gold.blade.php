@@ -9,8 +9,9 @@
     $fontStack = \App\Support\TemplateStyleCatalog::fontCssStack($styles['font_family'] ?? 'Tajawal');
     $dateInfo = \App\Services\InvitationDateFormatter::forInvitation($invitation);
     $isEnInv = $dateInfo['locale'] === 'en';
+    $hasBrideName = filled(trim((string) ($invitation->bride_name ?? '')));
     $groomInitial = mb_substr(trim((string) ($invitation->groom_name ?? 'أ')), 0, 1);
-    $brideInitial = mb_substr(trim((string) ($invitation->bride_name ?? 'س')), 0, 1);
+    $brideInitial = $hasBrideName ? mb_substr(trim((string) $invitation->bride_name), 0, 1) : '';
 @endphp
 
 <div class="min-h-screen py-10 sm:py-14 px-4 sm:px-6 relative overflow-hidden"
@@ -51,16 +52,18 @@
                         {{ $invitation->groom_name }}
                     </h1>
 
-                    <div class="flex items-center justify-center gap-3">
-                        <span class="h-px w-12 opacity-45" style="background-color: {{ $primaryColor }};"></span>
-                        <span class="font-amiri text-2xl font-bold" style="color: {{ $primaryColor }};">{{ $isEnInv ? '&' : 'و' }}</span>
-                        <span class="h-px w-12 opacity-45" style="background-color: {{ $primaryColor }};"></span>
-                    </div>
+                    @if($hasBrideName)
+                        <div class="flex items-center justify-center gap-3">
+                            <span class="h-px w-12 opacity-45" style="background-color: {{ $primaryColor }};"></span>
+                            <span class="font-amiri text-2xl font-bold" style="color: {{ $primaryColor }};">{{ $isEnInv ? '&' : 'و' }}</span>
+                            <span class="h-px w-12 opacity-45" style="background-color: {{ $primaryColor }};"></span>
+                        </div>
 
-                    <h1 class="font-cairo text-3xl sm:text-5xl font-black tracking-tight leading-tight"
-                        style="color: {{ $secondaryColor }};">
-                        {{ $invitation->bride_name }}
-                    </h1>
+                        <h1 class="font-cairo text-3xl sm:text-5xl font-black tracking-tight leading-tight"
+                            style="color: {{ $secondaryColor }};">
+                            {{ $invitation->bride_name }}
+                        </h1>
+                    @endif
                 </div>
 
                 <!-- Cover Photo OR Photo-Free Royal Monogram Seal -->
@@ -69,7 +72,7 @@
                         <div class="w-36 h-36 sm:w-44 sm:h-44 mx-auto rounded-full p-1.5 shadow-lg overflow-hidden border-2"
                              style="border-color: {{ $primaryColor }};">
                             <img src="{{ $invitation->cover_photo }}"
-                                 alt="{{ $invitation->groom_name }} & {{ $invitation->bride_name }}"
+                                 alt="{{ $invitation->groom_name }}{{ $hasBrideName ? ' & ' . $invitation->bride_name : '' }}"
                                  onerror="this.parentElement.parentElement.style.display='none'"
                                  class="w-full h-full object-cover rounded-full">
                         </div>
@@ -80,7 +83,7 @@
                              style="border-color: {{ $primaryColor }}80;">
                             <div class="w-full h-full rounded-full flex items-center justify-center font-amiri text-lg font-bold"
                                  style="background-color: {{ $bgColor }}; color: {{ $secondaryColor }};">
-                                {{ $groomInitial }} &amp; {{ $brideInitial }}
+                                {{ $hasBrideName ? $groomInitial . ' & ' . $brideInitial : $groomInitial }}
                             </div>
                         </div>
                     </div>

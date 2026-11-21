@@ -10,11 +10,9 @@
 @php
     $timelineSection = collect($invitation->sections ?? [])->where('section_type', 'timeline')->first();
     $isEnabled = $timelineSection ? (bool) $timelineSection->is_enabled : false;
-    $events = $timelineSection->content['events'] ?? [
-        ['time' => '08:00 م', 'title' => 'استقبال الضيوف الكرام', 'desc' => 'الترحيب والمشروبات المنعشة'],
-        ['time' => '09:00 م', 'title' => 'الزفّة ودخول العروسين', 'desc' => 'دخول أسطوري وزفة المحبة'],
-        ['time' => '10:00 م', 'title' => 'مأدبة العشاء الفاخرة', 'desc' => 'بوفيه مفتوح مع أشهى الأطباق'],
-    ];
+    $events = is_array($timelineSection?->content['events'] ?? null)
+        ? array_values(array_filter($timelineSection->content['events'], static fn (mixed $e): bool => is_array($e) && (!empty($e['title']) || !empty($e['time']))))
+        : [];
 
     $cardBorder = $isDarkTheme ? 'rgba(230, 198, 135, 0.28)' : $primaryColor . '35';
     $itemBorder = $isDarkTheme ? 'rgba(230, 198, 135, 0.20)' : $primaryColor . '22';
@@ -30,8 +28,10 @@
             </h3>
         </div>
 
-        <div class="relative max-w-md mx-auto space-y-3.5 before:content-[''] before:absolute before:top-4 before:bottom-4 before:start-5 before:w-px"
-             style="--tw-before-bg: {{ $primaryColor }}40;">
+        <div class="relative max-w-md mx-auto space-y-3.5">
+            <div class="pointer-events-none absolute top-4 bottom-4 start-5 w-px"
+                 style="background-color: {{ $primaryColor }}40;"
+                 aria-hidden="true"></div>
             <div class="space-y-3.5">
                 @foreach($events as $event)
                     <div class="relative flex items-start gap-4 p-4 rounded-2xl border transition-colors"
