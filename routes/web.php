@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/demo', [HomeController::class, 'demo'])->name('demo.saudi');
 Route::get('/templates', [HomeController::class, 'templates'])->name('templates.index');
 Route::get('/templates/{slug}/preview', [HomeController::class, 'previewTemplate'])->name('templates.preview');
 Route::get('/pricing', [HomeController::class, 'pricing'])->name('pricing');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FunnelDailyMetric;
 use App\Models\Invitation;
 use App\Models\InvitationGuest;
 use App\Models\InvitationSection;
@@ -32,7 +33,8 @@ class DashboardController extends Controller
         $allInvitationIds = $invitations->pluck('id');
         $allRsvps = RsvpResponse::whereIn('invitation_id', $allInvitationIds)->get();
 
-        $confirmedAttendees = $allRsvps->where('attendance_status', 'attending')->sum('guest_count');
+        $confirmedAttendees = (int) $allRsvps->where('attendance_status', 'attending')->sum('guest_count')
+            + (int) $allRsvps->where('attendance_status', 'attending')->sum('children_count');
         $declinedCount = $allRsvps->where('attendance_status', 'declined')->count();
         $totalResponses = $allRsvps->count();
 
@@ -59,6 +61,12 @@ class DashboardController extends Controller
 
     public function create(Request $request)
     {
+        $startGuardKey = 'kpi_creation_start_'.now()->toDateString();
+        if (! $request->session()->has($startGuardKey)) {
+            $request->session()->put($startGuardKey, true);
+            FunnelDailyMetric::incrementToday(FunnelDailyMetric::KEY_CREATION_START);
+        }
+
         $selectedTemplateId = $request->query('template_id');
         $templates = InvitationTemplate::availableForSelection()->orderBy('sort_order')->get();
 
@@ -300,7 +308,7 @@ class DashboardController extends Controller
                 'رابط الدعوة الشخصي',
             ]);
 
-            $tz = $invitation->timezone ?: 'Africa/Cairo';
+            $tz = $invitation->timezone ?: 'Asia/Riyadh';
 
             foreach ($guests as $guest) {
                 $phoneDisplay = $guest->phone ? PhoneService::formatForDisplay($guest->phone) : '—';
@@ -338,16 +346,18 @@ class DashboardController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'phone' => ['nullable', 'string', 'max:30'],
-            'phone_country' => ['nullable', 'string', 'in:EG,SA'],
+            'phone_country' => ['nullable', 'string', 'in:SA,EG,OTHER'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
         $normalizedPhone = null;
         if (! empty($validated['phone'])) {
-            $country = $validated['phone_country'] ?? 'EG';
+            $country = $validated['phone_country'] ?? 'SA';
             if (! PhoneService::isValid($validated['phone'], $country)) {
                 return back()->withErrors([
-                    'phone' => 'رقم الهاتف المدخل غير صالح للدولة المختارة.',
+                    'phone' => $country === 'OTHER'
+                        ? 'يرجى إدخال رقم دولي صحيح يبدأ برمز الدولة (مثال: +971501234567).'
+                        : 'رقم الهاتف المدخل غير صالح للدولة المختارة.',
                 ])->withInput();
             }
             $normalizedPhone = PhoneService::normalize($validated['phone'], $country);

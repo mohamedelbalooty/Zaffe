@@ -95,7 +95,7 @@
                                 <span class="text-[#52493F]">{{ $isEn ? 'RSVPs:' : 'الحضور:' }}</span>
                                 <span class="inline-flex items-center gap-1 text-[#0F4C3A]">
                                     <x-app-icon name="check" class="w-3.5 h-3.5" />
-                                    <span>{{ $invitation->rsvps->where('attendance_status', 'attending')->sum('guest_count') }} {{ $isEn ? 'guests' : 'فرد' }}</span>
+                                    <span>{{ (int) $invitation->rsvps->where('attendance_status', 'attending')->sum('guest_count') + (int) $invitation->rsvps->where('attendance_status', 'attending')->sum('children_count') }} {{ $isEn ? 'guests' : 'فرد' }}</span>
                                 </span>
                                 <span class="inline-flex items-center gap-1 text-[#BE123C]">
                                     <x-app-icon name="x" class="w-3.5 h-3.5" />

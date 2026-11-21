@@ -61,58 +61,39 @@
                     </div>
                 </div>
 
-                <!-- Quick Contact Form -->
-                <div class="card-atelier p-7 sm:p-8 space-y-5" x-data="{ submitted: false }">
-                    <h2 class="font-cairo text-xl font-extrabold text-[#221E1A]">
-                        {{ $isEn ? 'Send a Quick Note' : 'أرسل لنا رسالة سريعة' }}
-                    </h2>
-
-                    <div x-show="submitted"
-                         x-cloak
-                         role="status"
-                         class="p-6 rounded-xl bg-[#ECF5F0] border border-[#0F4C3A]/25 text-[#0F4C3A] text-center space-y-3">
-                        <div class="w-12 h-12 rounded-full bg-[#0F4C3A] text-white flex items-center justify-center mx-auto">
-                            <x-app-icon name="check" class="w-6 h-6" />
-                        </div>
-                        <h3 class="font-cairo font-extrabold text-base">
-                            {{ $isEn ? 'Message received' : 'تم إرسال رسالتك بنجاح!' }}
-                        </h3>
-                        <p class="text-xs leading-relaxed">
+                <!-- Concierge Help Guide (Direct Verified Channels Only) -->
+                <div class="card-atelier p-7 sm:p-8 space-y-5 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <h2 class="font-cairo text-xl font-extrabold text-[#221E1A]">
+                            {{ $isEn ? 'How Our Concierge Can Help' : 'كيف يمكن لفريق زفّة مساعدتك؟' }}
+                        </h2>
+                        <p class="text-sm text-[#52493F] leading-relaxed">
                             {{ $isEn
-                                ? 'Thank you for contacting Zaffe. Our team will follow up via WhatsApp or email shortly.'
-                                : 'شكراً لتواصلك مع زفّــة. يقوم فريق الدعم بمراجعة استفسارك وسنعاود التواصل معك عبر الواتساب أو البريد الإلكتروني في أسرع وقت.' }}
+                                ? 'For the fastest support, message our concierge directly on WhatsApp or email. Sharing your invitation link or account email helps us assist you right away.'
+                                : 'للحصول على أسرع مساعدة ممكنة، تواصل معنا مباشرة عبر واتساب أو البريد الإلكتروني الموضحين، مع ذكر بريد حسابك أو رابط دعوتك لتسريع الدعم.' }}
                         </p>
+                        <ul class="space-y-2.5 text-xs sm:text-sm text-[#52493F]">
+                            <li class="flex items-center gap-2.5">
+                                <x-app-icon name="check" class="w-4 h-4 text-[#0F4C3A] shrink-0" />
+                                <span>{{ $isEn ? 'Choosing a Saudi Signature or classic wedding theme' : 'المساعدة في اختيار القالب الأنسب وتنسيق الخطوط والألوان' }}</span>
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <x-app-icon name="check" class="w-4 h-4 text-[#0F4C3A] shrink-0" />
+                                <span>{{ $isEn ? 'Configuring optional RSVP & Hijri dates' : 'ضبط التقويم الهجري (أم القرى) وتفعيل أو إخفاء تأكيد الحضور' }}</span>
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <x-app-icon name="check" class="w-4 h-4 text-[#0F4C3A] shrink-0" />
+                                <span>{{ $isEn ? 'WhatsApp link preview & Google Maps guidance' : 'التأكد من معاينة رابط الدعوة عبر واتساب وموقع القاعة' }}</span>
+                            </li>
+                        </ul>
                     </div>
 
-                    <form x-show="!submitted" @submit.prevent="submitted = true" class="space-y-4">
-                        <div>
-                            <label for="contact_name" class="block text-xs font-bold text-[#221E1A] mb-1.5">
-                                {{ $isEn ? 'Full Name' : 'الاسم الكامل' }}
-                            </label>
-                            <input id="contact_name" type="text" required
-                                   placeholder="{{ $isEn ? 'Ahmed Mahmoud' : 'أحمد محمود' }}"
-                                   class="input-atelier">
-                        </div>
-                        <div>
-                            <label for="contact_phone" class="block text-xs font-bold text-[#221E1A] mb-1.5">
-                                {{ $isEn ? 'Phone / WhatsApp Number' : 'رقم الهاتف / الواتساب' }}
-                            </label>
-                            <input id="contact_phone" type="tel" required dir="ltr"
-                                   placeholder="+966 50 000 0000"
-                                   class="input-atelier text-start">
-                        </div>
-                        <div>
-                            <label for="contact_message" class="block text-xs font-bold text-[#221E1A] mb-1.5">
-                                {{ $isEn ? 'Message or Inquiry' : 'الرسالة أو الاستفسار' }}
-                            </label>
-                            <textarea id="contact_message" rows="4" required
-                                      placeholder="{{ $isEn ? 'How can we help with your wedding invitation?' : 'كيف يمكننا مساعدتك في تجهيز دعوة زفافك؟' }}"
-                                      class="input-atelier !min-h-[110px]"></textarea>
-                        </div>
-                        <button type="submit" class="btn-royal w-full">
-                            {{ $isEn ? 'Send Message' : 'إرسال الرسالة' }}
-                        </button>
-                    </form>
+                    <div class="pt-4 border-t border-[#E4D9C8]">
+                        <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="btn-royal w-full">
+                            <x-app-icon name="whatsapp" class="w-4 h-4" />
+                            <span>{{ $isEn ? 'Message Us on WhatsApp' : 'تواصل الآن عبر واتساب' }}</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

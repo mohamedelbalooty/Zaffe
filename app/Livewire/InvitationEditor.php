@@ -6,6 +6,7 @@ use App\Models\Invitation;
 use App\Models\InvitationPhoto;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
+use App\Services\ImageOptimizationService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
@@ -197,16 +198,35 @@ class InvitationEditor extends Component
         $invitation = $this->getAuthorizedInvitation();
 
         $this->validate([
-            'new_cover_photo' => 'image|max:5120', // 5MB
+            'new_cover_photo' => ['required', 'file', 'mimes:jpeg,jpg,png,webp,gif', 'max:5120'],
         ]);
 
-        // Clean up previous cover photo if stored locally
-        $this->deleteStorageFile($invitation->cover_photo);
+        $previousCover = $invitation->cover_photo;
 
-        $path = $this->new_cover_photo->store('invitations/covers', 'public');
+        try {
+            $path = app(ImageOptimizationService::class)->storeAsWebp($this->new_cover_photo, 'invitations/covers');
+        } catch (ValidationException $e) {
+            $this->new_cover_photo = null;
+            throw ValidationException::withMessages([
+                'new_cover_photo' => collect($e->errors())->flatten()->first() ?: 'تعذر معالجة صورة الغلاف المرفوعة.',
+            ]);
+        }
+
         $this->cover_photo = Storage::disk('public')->url($path);
+        $this->new_cover_photo = null;
 
-        $this->saveChanges();
+        try {
+            $this->saveChanges();
+        } catch (ValidationException $e) {
+            $this->deleteStorageFile($this->cover_photo);
+            $this->cover_photo = $previousCover;
+            throw $e;
+        }
+
+        // Clean up previous cover photo only after optimized WebP save commits cleanly
+        if ($previousCover && $previousCover !== $this->cover_photo) {
+            $this->deleteStorageFile($previousCover);
+        }
     }
 
     public function updatedNewGalleryPhoto()
@@ -214,10 +234,17 @@ class InvitationEditor extends Component
         $invitation = $this->getAuthorizedInvitation();
 
         $this->validate([
-            'new_gallery_photo' => 'image|max:5120',
+            'new_gallery_photo' => ['required', 'file', 'mimes:jpeg,jpg,png,webp,gif', 'max:5120'],
         ]);
 
-        $path = $this->new_gallery_photo->store('invitations/gallery', 'public');
+        try {
+            $path = app(ImageOptimizationService::class)->storeAsWebp($this->new_gallery_photo, 'invitations/gallery');
+        } catch (ValidationException $e) {
+            $this->new_gallery_photo = null;
+            throw ValidationException::withMessages([
+                'new_gallery_photo' => collect($e->errors())->flatten()->first() ?: 'تعذر معالجة صورة الألبوم المرفوعة.',
+            ]);
+        }
 
         InvitationPhoto::create([
             'invitation_id' => $invitation->id,
@@ -226,6 +253,7 @@ class InvitationEditor extends Component
             'sort_order' => InvitationPhoto::where('invitation_id', $invitation->id)->count() + 1,
         ]);
 
+        $this->new_gallery_photo = null;
         $this->saveStatus = 'تمت إضافة الصورة بنجاح ✓';
     }
 

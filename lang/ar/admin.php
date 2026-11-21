@@ -227,6 +227,14 @@ return [
         'col_queue' => 'الطابور',
         'col_failed_at' => 'وقت الفشل',
         'col_error_summary' => 'ملخص الخطأ',
+        'kpi01_label' => 'KPI-01: التحويل من بدء الإنشاء إلى النشر',
+        'kpi01_sub' => ':published منشورة / :starts زيارة إنشاء (آخر 30 يوم: :rate30%)',
+        'kpi02_label' => 'KPI-02: نسبة مشاركة البطاقات (≥10 مشاهدات أو ≥1 رد)',
+        'kpi02_sub' => ':shared من :published منشورة (المشاهدات لكل جلسة وليست ضيوفاً فريدين)',
+        'kpi03b_label' => 'KPI-03b: متوسط الردود (للبطاقات المفعّل بها RSVP)',
+        'kpi03b_sub' => ':rsvps رد على :enabled مفعّلة (:adoption% تفعيل · :with_rsvp نشطة · 30 يوم: :avg30)',
+        'kpi05_label' => 'KPI-05: إحالات تذييل البطاقة (تسجيلات / زيارات)',
+        'kpi05_sub' => 'زيارات 30 يوم: :visits30 · :signups_share% من التسجيلات · :published منشورة (:couples حساب، :pub_share%)',
     ],
 
     'csv' => [

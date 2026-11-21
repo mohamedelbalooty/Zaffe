@@ -124,6 +124,10 @@
                                             <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#ECF5F0] text-[#0F4C3A] border border-[#0F4C3A]/20">
                                                 {{ $isEn ? 'Published' : 'منشورة' }}
                                             </span>
+                                        @elseif($invitation->status === 'archived')
+                                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-100 text-stone-700 border border-stone-200">
+                                                {{ $isEn ? 'Archived' : 'مؤرشفة' }}
+                                            </span>
                                         @else
                                             <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
                                                 {{ $isEn ? 'Draft' : 'مسودة' }}
@@ -158,7 +162,7 @@
                                     </span>
                                     <span class="inline-flex items-center gap-1 text-[#0F4C3A]">
                                         <x-app-icon name="check" class="w-3.5 h-3.5" />
-                                        <span>{{ $invitation->rsvps->where('attendance_status', 'attending')->sum('guest_count') }} {{ $isEn ? 'attending' : 'فرد' }}</span>
+                                        <span>{{ (int) $invitation->rsvps->where('attendance_status', 'attending')->sum('guest_count') + (int) $invitation->rsvps->where('attendance_status', 'attending')->sum('children_count') }} {{ $isEn ? 'attending' : 'فرد' }}</span>
                                     </span>
                                     <span class="inline-flex items-center gap-1 text-[#BE123C]">
                                         <x-app-icon name="x" class="w-3.5 h-3.5" />

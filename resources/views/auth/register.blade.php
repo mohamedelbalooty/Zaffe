@@ -54,19 +54,21 @@
                         @enderror
                     </div>
 
-                    <div>
+                    <div x-data="{ phoneCountry: @js(old('phone_country', 'SA')) }">
                         <label for="phone" class="block text-xs font-bold text-[#221E1A] mb-1.5">
                             {{ $isEn ? 'Mobile / WhatsApp (Optional)' : 'رقم الهاتف أو الواتساب (اختياري)' }}
                         </label>
                         <div class="flex gap-2" dir="ltr">
-                            <select name="phone_country" id="phone_country"
+                            <select name="phone_country" id="phone_country" x-model="phoneCountry"
                                     aria-label="{{ $isEn ? 'Country Code' : 'رمز الدولة' }}"
                                     class="min-h-[44px] px-3 rounded-xl border border-[#E4D9C8] bg-[#FAF7F2] text-xs font-bold text-[#221E1A] focus:outline-none focus:border-[#B59556] shrink-0">
                                 <option value="SA" {{ old('phone_country', 'SA') === 'SA' ? 'selected' : '' }}>SA (+966)</option>
                                 <option value="EG" {{ old('phone_country') === 'EG' ? 'selected' : '' }}>EG (+20)</option>
+                                <option value="OTHER" {{ old('phone_country') === 'OTHER' ? 'selected' : '' }}>{{ $isEn ? 'Other (+)' : 'دولة أخرى (+)' }}</option>
                             </select>
                             <input type="tel" id="phone" name="phone" value="{{ old('phone') }}" dir="ltr"
                                    class="input-atelier flex-1 text-left @error('phone') !border-[#BE123C] @enderror"
+                                   :placeholder="phoneCountry === 'OTHER' ? '+971 50 123 4567' : (phoneCountry === 'EG' ? '100 123 4567' : '501 234 567')"
                                    placeholder="501 234 567">
                         </div>
                         @error('phone')

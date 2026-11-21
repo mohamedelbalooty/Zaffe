@@ -7,7 +7,10 @@
 @if(!empty($invitation->music_url))
     @php
         $gateEnabled = !($isPreview ?? false);
-        $coupleTitle = collect([$invitation->groom_name ?? null, $invitation->bride_name ?? null])->filter()->implode(' & ');
+        $coupleTitle = collect([$invitation->groom_name ?? null, $invitation->bride_name ?? null])
+            ->map(static fn ($value) => trim((string) $value))
+            ->filter()
+            ->implode(' & ');
         $styles = $invitation->effective_styles ?? [];
         $accentColor = $styles['primary_color'] ?? $primaryColor ?? '#C6A76B';
 

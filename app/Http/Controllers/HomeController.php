@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FunnelDailyMetric;
 use App\Models\Invitation;
 use App\Models\InvitationTemplate;
 use App\Models\SubscriptionPlan;
@@ -27,13 +28,80 @@ class HomeController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        $demoInvitation = Invitation::with('template')->where('slug', 'ahmed-and-sarah')->first();
+        return view('pages.home', compact('featuredTemplates', 'categories', 'plans'));
+    }
 
-        return view('pages.home', compact('featuredTemplates', 'categories', 'plans', 'demoInvitation'));
+    public function demo()
+    {
+        $template = InvitationTemplate::query()
+            ->where('slug', 'diriyah-heritage')
+            ->first();
+
+        $defaultStyles = $template?->default_styles ?? [
+            'primary_color' => '#C6A76B',
+            'secondary_color' => '#2C231D',
+            'background_color' => '#FAF7F2',
+            'card_color' => '#FFFFFF',
+            'font_family' => 'Tajawal',
+        ];
+
+        $demoInvitation = (object) [
+            'id' => 0,
+            'title' => 'نموذج دعوة زفاف سعودية حية — زفّة',
+            'slug' => 'demo',
+            'groom_name' => 'فيصل بن عبد العزيز آل مقرن',
+            'bride_name' => 'الجوهرة بنت خالد السديري',
+            'wedding_date' => now()->addDays(42),
+            'wedding_time' => '20:30',
+            'timezone' => 'Asia/Riyadh',
+            'venue_name' => 'قصر طويق للاحتفالات — حي السفارات',
+            'venue_address' => 'طريق مكة المكرمة، حي السفارات، الرياض، المملكة العربية السعودية',
+            'venue_map_url' => 'https://maps.google.com/?q=Tuwaiq+Palace+Riyadh',
+            'welcome_message' => "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n«وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً»",
+            'invitation_message' => 'تتشرف العائلتان الكريمتان بدعوتكم لحضور حفل الزفاف ومشاركتنا فرحة العمر في ليلة عامرة بالمودة والسرور.',
+            'cover_photo' => null,
+            'music_url' => null,
+            'is_rsvp_enabled' => false,
+            'invitation_mode' => Invitation::MODE_ANNOUNCEMENT,
+            'rsvp_deadline' => null,
+            'max_guests_per_rsvp' => 5,
+            'status' => 'published',
+            'template' => $template ?? (object) [
+                'name_ar' => 'تراث الدرعية',
+                'name_en' => 'Diriyah Heritage',
+                'slug' => 'diriyah-heritage',
+                'view_name' => 'templates.diriyah_heritage',
+            ],
+            'effective_styles' => array_merge(
+                ['locale' => 'ar', 'digits' => 'arabic_indic', 'show_hijri' => true],
+                $defaultStyles
+            ),
+            'sections' => collect([
+                (object) [
+                    'section_type' => 'countdown',
+                    'title_ar' => 'العد التنازلي للزفاف',
+                    'content' => ['target_date' => now()->addDays(42)->toIso8601String()],
+                    'is_enabled' => true,
+                ],
+            ]),
+            'photos' => collect([]),
+            'public_url' => route('demo.saudi'),
+        ];
+
+        return view('pages.demo', compact('demoInvitation'));
     }
 
     public function templates(Request $request)
     {
+        if ($request->query('ref') === 'invite') {
+            $request->session()->put('signup_source', 'invite_footer');
+
+            $visitGuardKey = 'kpi_invite_footer_'.now()->toDateString();
+            if (! $request->session()->has($visitGuardKey)) {
+                $request->session()->put($visitGuardKey, true);
+                FunnelDailyMetric::incrementToday(FunnelDailyMetric::KEY_INVITE_FOOTER_VISIT);
+            }
+        }
         $categorySlug = $request->query('category');
         $collection = $request->query('collection');
         $search = $request->query('search');

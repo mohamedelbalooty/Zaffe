@@ -1,6 +1,13 @@
 @php
     $isEn = app()->getLocale() === 'en';
-    $defaultPhoneCountry = old('phone_country', str_starts_with((string) $user->phone, '+966') ? 'SA' : 'EG');
+    $storedPhone = (string) ($user->phone ?? '');
+    $detectedPhoneCountry = match (true) {
+        str_starts_with($storedPhone, '+20') => 'EG',
+        str_starts_with($storedPhone, '+966') => 'SA',
+        $storedPhone !== '' && str_starts_with($storedPhone, '+') => 'OTHER',
+        default => 'SA',
+    };
+    $defaultPhoneCountry = old('phone_country', $detectedPhoneCountry);
 @endphp
 
 <x-layouts.dashboard :title="$isEn ? 'Profile & Security — Zaffe' : 'الملف الشخصي والحساب — زفّة'">
@@ -41,19 +48,21 @@
                     @enderror
                 </div>
 
-                <div>
+                <div x-data="{ phoneCountry: @js($defaultPhoneCountry) }">
                     <label for="phone" class="block text-xs font-bold text-[#221E1A] mb-1.5">
-                        {{ $isEn ? 'Phone / WhatsApp Number' : 'رقم الهاتف / الواتساب' }}
+                        {{ $isEn ? 'Phone / WhatsApp Number (Optional)' : 'رقم الهاتف / الواتساب (اختياري)' }}
                     </label>
                     <div class="flex gap-2" dir="ltr">
-                        <select name="phone_country" id="phone_country"
+                        <select name="phone_country" id="phone_country" x-model="phoneCountry"
                                 aria-label="{{ $isEn ? 'Country Code' : 'رمز الدولة' }}"
                                 class="min-h-[44px] px-3 rounded-xl border border-[#E4D9C8] bg-[#FAF7F2] text-xs font-bold text-[#221E1A] focus:outline-none focus:border-[#B59556] shrink-0">
-                            <option value="EG" {{ $defaultPhoneCountry === 'EG' ? 'selected' : '' }}>EG (+20)</option>
                             <option value="SA" {{ $defaultPhoneCountry === 'SA' ? 'selected' : '' }}>SA (+966)</option>
+                            <option value="EG" {{ $defaultPhoneCountry === 'EG' ? 'selected' : '' }}>EG (+20)</option>
+                            <option value="OTHER" {{ $defaultPhoneCountry === 'OTHER' ? 'selected' : '' }}>{{ $isEn ? 'Other (+)' : 'دولة أخرى (+)' }}</option>
                         </select>
                         <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" dir="ltr"
                                class="input-atelier flex-1 text-left @error('phone') !border-[#BE123C] @enderror"
+                               :placeholder="phoneCountry === 'OTHER' ? '+971 50 123 4567' : (phoneCountry === 'EG' ? '+20 100 123 4567' : '+966 50 000 0000')"
                                placeholder="+966 50 000 0000">
                     </div>
                     @error('phone')
