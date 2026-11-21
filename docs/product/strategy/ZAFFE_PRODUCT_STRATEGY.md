@@ -32,7 +32,7 @@ Zaffe is a **premium, Arabic-first digital wedding invitation platform**, **not*
 
 ### 3.1 Approved Phase 1 Delivery *(Authorized Upon Formal BRD `v0.5` Sign-Off — PRs 1–3)*
 
-- **`PR 1` Security, Media Purge & Config (`Zero Business Risk`):** `DATA-01` media cleanup across Admin & customer deletes, `SEC-05` `/admin/*` `SecurityHeaders`, `SEC-06` canonical `PlatformSetting` delete lock, `CONF-01` PHP `^8.4` & `.env.example`/mail cleanup, and critical `DATA-02` Admin table/CSV export hardening.
+- **`PR 1` Security, Self-Service Deletion & Config (`Zero Business Risk`):** **`BRQ-13` / `DEC-05` Self-Service Dashboard Invitation Deletion (`BR-002`, `BR-018`, `BR-037`)** (harden `/dashboard/invitations` confirmation modal, wrap `DashboardController::destroy()` in `DB::transaction()` + post-commit media cleanup unified with `DATA-01`, and test authorized delete, IDOR rejection, FK cascades, partial failures & post-delete `404`), `DATA-01` Admin delete media cleanup, `SEC-05` `/admin/*` `SecurityHeaders`, `SEC-06` canonical `PlatformSetting` delete lock, `CONF-01` PHP `^8.4` & `.env.example`/mail cleanup, and critical `DATA-02` Admin table/CSV export hardening.
 - **`PR 2` Core Saudi Studio, Optional RSVP (`DEC-01`/`02`) & Audio Gate (`C-6`):**
   - Nullable non-destructive `bride_name` + zero orphan connectors across all `14` themes, emails, dashboard, WhatsApp share text, and passes (`DEC-04.1`).
   - `DEC-01` Option B legacy-only `GuestRosterManager` guard (`/guests` shows calm RSVP summary & CSV export only on new cards; legacy rows/links/`/pass/{qrToken}` untouched).
