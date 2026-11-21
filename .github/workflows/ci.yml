@@ -1,0 +1,118 @@
+name: PHP 8.4 & MariaDB CI
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php84-verify:
+    name: PHP 8.4.1+ & MariaDB 11.4 Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MYSQL_DATABASE: zaffe_ci
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP 8.4 with required extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, gd, mbstring, pdo_sqlite, pdo_mysql, fileinfo, openssl, bcmath, xml, ctype, tokenizer
+          coverage: none
+          ini-values: memory_limit=256M
+
+      - name: Verify PHP 8.4.1+ & required runtime extensions
+        run: |
+          php -v
+          php -r '
+            $ok = version_compare(PHP_VERSION, "8.4.1", ">=")
+              && extension_loaded("intl")
+              && extension_loaded("gd")
+              && (($gd = gd_info())["WebP Support"] ?? false) === true
+              && extension_loaded("pdo_mysql")
+              && extension_loaded("fileinfo");
+            if (! $ok) {
+              fwrite(STDERR, "Missing required PHP >= 8.4.1 or extension check\n");
+              exit(1);
+            }
+            echo "Verified PHP " . PHP_VERSION . " with intl, gd (WebP), pdo_mysql, fileinfo.\n";
+          '
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install frontend dependencies & build Vite assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Pint style check on changed PHP files
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}" --depth=1 || true
+          FILES=$(git diff --name-only --diff-filter=ACMR "origin/${{ github.base_ref }}...HEAD" -- '*.php')
+          if [ -n "$FILES" ]; then
+            ./vendor/bin/pint --test $FILES
+          else
+            echo "No changed PHP files in this PR."
+          fi
+
+      - name: Run full PHPUnit suite on PHP 8.4
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan test
+
+      - name: MariaDB 11.4 migration & rollback smoke check
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: zaffe_ci
+          DB_USERNAME: root
+          DB_PASSWORD: secret
+        run: |
+          php artisan migrate --force
+          php artisan migrate:rollback --step=2 --force
+          php artisan migrate --force
