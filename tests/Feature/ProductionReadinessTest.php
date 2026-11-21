@@ -145,5 +145,9 @@ class ProductionReadinessTest extends TestCase
         $envExample = file_get_contents(base_path('.env.example'));
         $this->assertIsString($envExample);
         $this->assertDoesNotMatchRegularExpression('/^RESEND_API_KEY=\s*$/m', $envExample);
+
+        $composer = json_decode((string) file_get_contents(base_path('composer.json')), true);
+        $this->assertIsArray($composer);
+        $this->assertSame('^8.4.1', $composer['require']['php'] ?? null);
     }
 }

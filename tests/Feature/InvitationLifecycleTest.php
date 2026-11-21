@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\PurgeInvitationMediaJob;
 use App\Models\Invitation;
 use App\Models\InvitationGuest;
 use App\Models\InvitationPhoto;
@@ -12,7 +13,9 @@ use App\Models\User;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Tests\TestCase;
@@ -483,5 +486,278 @@ class InvitationLifecycleTest extends TestCase
         } finally {
             Storage::forgetDisk('public');
         }
+    }
+
+    public function test_nested_transaction_rollback_preserves_media_across_dashboard_model_and_user_cascade_deletes(): void
+    {
+        Storage::fake('public');
+
+        // 1. Direct Invitation::delete() inside a transaction that fails AFTER delete() fires.
+        $directCover = UploadedFile::fake()->image('direct-cover.png')->store('invitations/covers', 'public');
+        $directGallery = UploadedFile::fake()->image('direct-gallery.png')->store('invitations/gallery', 'public');
+
+        $directInvitation = Invitation::create([
+            'user_id' => $this->user->id,
+            'template_id' => $this->template->id,
+            'title' => 'حفل اختبار التراجع المباشر',
+            'slug' => 'direct-rollback-test',
+            'groom_name' => 'خالد',
+            'bride_name' => 'ريم',
+            'venue_name' => 'قصر الشرق',
+            'wedding_date' => now()->addDays(25)->toDateString(),
+            'status' => 'published',
+            'cover_photo' => Storage::disk('public')->url($directCover),
+        ]);
+
+        InvitationPhoto::create([
+            'invitation_id' => $directInvitation->id,
+            'image_path' => $directGallery,
+            'sort_order' => 1,
+        ]);
+
+        try {
+            DB::transaction(function () use ($directInvitation): void {
+                $directInvitation->delete();
+                throw new \RuntimeException('Simulated failure after Invitation::deleted');
+            });
+            $this->fail('Expected transaction rollback exception.');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Simulated failure after Invitation::deleted', $e->getMessage());
+        }
+
+        $this->assertDatabaseHas('invitations', ['id' => $directInvitation->id]);
+        Storage::disk('public')->assertExists($directCover);
+        Storage::disk('public')->assertExists($directGallery);
+
+        Invitation::findOrFail($directInvitation->id)->delete();
+        $this->assertDatabaseMissing('invitations', ['id' => $directInvitation->id]);
+        Storage::disk('public')->assertMissing($directCover);
+        Storage::disk('public')->assertMissing($directGallery);
+
+        // 2. Dashboard destroy nested inside an outer transaction that rolls back after controller finishes.
+        $nestedCover = UploadedFile::fake()->image('nested-cover.png')->store('invitations/covers', 'public');
+        $nestedGallery = UploadedFile::fake()->image('nested-gallery.png')->store('invitations/gallery', 'public');
+
+        $nestedInvitation = Invitation::create([
+            'user_id' => $this->user->id,
+            'template_id' => $this->template->id,
+            'title' => 'حفل المعاملة المتداخلة',
+            'slug' => 'nested-tx-rollback',
+            'groom_name' => 'سعد',
+            'bride_name' => 'دانة',
+            'venue_name' => 'قاعة النور',
+            'wedding_date' => now()->addDays(35)->toDateString(),
+            'status' => 'published',
+            'cover_photo' => Storage::disk('public')->url($nestedCover),
+        ]);
+
+        InvitationPhoto::create([
+            'invitation_id' => $nestedInvitation->id,
+            'image_path' => Storage::disk('public')->url($nestedGallery),
+            'sort_order' => 1,
+        ]);
+
+        try {
+            DB::transaction(function () use ($nestedInvitation): void {
+                $this->actingAs($this->user)
+                    ->delete(route('dashboard.invitations.destroy', $nestedInvitation->id))
+                    ->assertRedirect(route('dashboard.invitations.index'));
+
+                throw new \RuntimeException('Outer nested transaction failed');
+            });
+            $this->fail('Expected outer transaction rollback.');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Outer nested transaction failed', $e->getMessage());
+        }
+
+        $this->assertDatabaseHas('invitations', ['id' => $nestedInvitation->id]);
+        Storage::disk('public')->assertExists($nestedCover);
+        Storage::disk('public')->assertExists($nestedGallery);
+
+        $this->actingAs($this->user)
+            ->delete(route('dashboard.invitations.destroy', $nestedInvitation->id))
+            ->assertRedirect(route('dashboard.invitations.index'));
+
+        $this->assertDatabaseMissing('invitations', ['id' => $nestedInvitation->id]);
+        Storage::disk('public')->assertMissing($nestedCover);
+        Storage::disk('public')->assertMissing($nestedGallery);
+
+        // 3. Cascaded User::delete() honors transaction rollback and purges cascaded invitation media on commit.
+        $victimOwner = User::factory()->create(['role' => 'user']);
+        $cascadeCover = UploadedFile::fake()->image('user-cascade-cover.png')->store('invitations/covers', 'public');
+        $cascadeGallery = UploadedFile::fake()->image('user-cascade-gallery.png')->store('invitations/gallery', 'public');
+
+        $cascadeInvitation = Invitation::create([
+            'user_id' => $victimOwner->id,
+            'template_id' => $this->template->id,
+            'title' => 'دعوة محذوفة بحذف المستخدم',
+            'slug' => 'user-cascade-delete-media',
+            'groom_name' => 'ماجد',
+            'bride_name' => 'لمى',
+            'venue_name' => 'فندق الفيصلية',
+            'wedding_date' => now()->addDays(45)->toDateString(),
+            'status' => 'published',
+            'cover_photo' => Storage::disk('public')->url($cascadeCover),
+        ]);
+
+        InvitationPhoto::create([
+            'invitation_id' => $cascadeInvitation->id,
+            'image_path' => '/storage/'.$cascadeGallery,
+            'sort_order' => 1,
+        ]);
+
+        try {
+            DB::transaction(function () use ($victimOwner): void {
+                $victimOwner->delete();
+                throw new \RuntimeException('Rollback after user cascade');
+            });
+            $this->fail('Expected user cascade rollback.');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Rollback after user cascade', $e->getMessage());
+        }
+
+        $this->assertDatabaseHas('users', ['id' => $victimOwner->id]);
+        $this->assertDatabaseHas('invitations', ['id' => $cascadeInvitation->id]);
+        Storage::disk('public')->assertExists($cascadeCover);
+        Storage::disk('public')->assertExists($cascadeGallery);
+
+        User::findOrFail($victimOwner->id)->delete();
+
+        $this->assertDatabaseMissing('users', ['id' => $victimOwner->id]);
+        $this->assertDatabaseMissing('invitations', ['id' => $cascadeInvitation->id]);
+        Storage::disk('public')->assertMissing($cascadeCover);
+        Storage::disk('public')->assertMissing($cascadeGallery);
+    }
+
+    public function test_post_commit_storage_failure_enqueues_retry_job_and_retry_job_purges_on_recovery(): void
+    {
+        Storage::fake('public');
+        Queue::fake();
+        Log::spy();
+
+        $realFakeDisk = Storage::disk('public');
+        $coverPath = UploadedFile::fake()->image('retry-cover.png')->store('invitations/covers', 'public');
+        $galleryPath = UploadedFile::fake()->image('retry-gallery.png')->store('invitations/gallery', 'public');
+
+        $invitation = Invitation::create([
+            'user_id' => $this->user->id,
+            'template_id' => $this->template->id,
+            'title' => 'حفل إعادة المحاولة',
+            'slug' => 'retry-purge-test',
+            'groom_name' => 'تركي',
+            'bride_name' => 'هند',
+            'venue_name' => 'قصر النخيل',
+            'wedding_date' => now()->addDays(50)->toDateString(),
+            'status' => 'published',
+            'cover_photo' => $realFakeDisk->url($coverPath),
+        ]);
+
+        InvitationPhoto::create([
+            'invitation_id' => $invitation->id,
+            'image_path' => $realFakeDisk->url($galleryPath),
+            'sort_order' => 1,
+        ]);
+
+        $failingDisk = Mockery::mock(Filesystem::class);
+        $failingDisk->shouldReceive('url')
+            ->with('')
+            ->andReturn(rtrim((string) config('filesystems.disks.public.url', 'http://localhost/storage'), '/').'/');
+        $failingDisk->shouldReceive('exists')->andReturn(true);
+        $failingDisk->shouldReceive('delete')->with($coverPath)->andThrow(new \RuntimeException('Transient I/O error'));
+        $failingDisk->shouldReceive('delete')->with($galleryPath)->andReturn(false);
+
+        Storage::set('public', $failingDisk);
+
+        try {
+            $response = $this->actingAs($this->user)
+                ->delete(route('dashboard.invitations.destroy', $invitation->id));
+
+            $response->assertRedirect(route('dashboard.invitations.index'));
+            $this->assertDatabaseMissing('invitations', ['id' => $invitation->id]);
+            Log::shouldHaveReceived('warning')->twice();
+
+            Queue::assertPushed(PurgeInvitationMediaJob::class, function (PurgeInvitationMediaJob $job) use ($coverPath, $galleryPath): bool {
+                return in_array($coverPath, $job->paths, true)
+                    && in_array($galleryPath, $job->paths, true);
+            });
+
+            // Verify retry job throws so queue worker retries and tracks failed_jobs while storage stays broken.
+            try {
+                (new PurgeInvitationMediaJob([$coverPath, $galleryPath]))->handle();
+                $this->fail('Expected PurgeInvitationMediaJob to fail while storage errors.');
+            } catch (\RuntimeException $e) {
+                $this->assertStringContainsString($coverPath, $e->getMessage());
+                $this->assertStringContainsString($galleryPath, $e->getMessage());
+            }
+        } finally {
+            Storage::set('public', $realFakeDisk);
+        }
+
+        // Once storage recovers, running the queued retry job removes the previously stranded files.
+        $realFakeDisk->assertExists($coverPath);
+        $realFakeDisk->assertExists($galleryPath);
+
+        (new PurgeInvitationMediaJob([$coverPath, $galleryPath]))->handle();
+
+        $realFakeDisk->assertMissing($coverPath);
+        $realFakeDisk->assertMissing($galleryPath);
+    }
+
+    public function test_cleanup_orphaned_invitation_media_command_respects_dry_run_active_refs_grace_window_and_prefixes(): void
+    {
+        Storage::fake('public');
+        $disk = Storage::disk('public');
+
+        $activeCover = UploadedFile::fake()->image('active-cover.png')->store('invitations/covers', 'public');
+        $activeGallery = UploadedFile::fake()->image('active-gallery.png')->store('invitations/gallery', 'public');
+        $agedOrphanCover = UploadedFile::fake()->image('orphan-cover.png')->store('invitations/covers', 'public');
+        $agedOrphanGallery = UploadedFile::fake()->image('orphan-gallery.png')->store('invitations/gallery', 'public');
+        $recentUpload = UploadedFile::fake()->image('recent-upload.png')->store('invitations/covers', 'public');
+        $disk->put('avatars/old-avatar.jpg', 'avatar-bytes');
+
+        $invitation = Invitation::create([
+            'user_id' => $this->user->id,
+            'template_id' => $this->template->id,
+            'title' => 'دعوة ملفات نشطة',
+            'slug' => 'active-media-refs',
+            'groom_name' => 'سعود',
+            'bride_name' => 'أمل',
+            'venue_name' => 'قصر المملكة',
+            'wedding_date' => now()->addDays(15)->toDateString(),
+            'status' => 'published',
+            'cover_photo' => $disk->url($activeCover),
+        ]);
+
+        InvitationPhoto::create([
+            'invitation_id' => $invitation->id,
+            'image_path' => '/storage/'.$activeGallery,
+            'sort_order' => 1,
+        ]);
+
+        $expiredTime = now()->subHours(3)->getTimestamp();
+        foreach ([$activeCover, $activeGallery, $agedOrphanCover, $agedOrphanGallery, 'avatars/old-avatar.jpg'] as $path) {
+            touch($disk->path($path), $expiredTime);
+        }
+        clearstatcache();
+
+        // Dry run must report candidates without deleting any files.
+        $this->artisan('zaffe:cleanup-orphaned-media', ['--dry-run' => true])
+            ->expectsOutputToContain('2 orphaned invitation media file(s)')
+            ->assertSuccessful();
+
+        $disk->assertExists($agedOrphanCover);
+        $disk->assertExists($agedOrphanGallery);
+
+        // Actual run removes aged orphans only while preserving active refs, grace-window uploads, and unrelated folders.
+        $this->artisan('zaffe:cleanup-orphaned-media')
+            ->expectsOutputToContain('deleted 2 orphaned invitation media file(s)')
+            ->assertSuccessful();
+
+        $disk->assertMissing($agedOrphanCover);
+        $disk->assertMissing($agedOrphanGallery);
+        $disk->assertExists($activeCover);
+        $disk->assertExists($activeGallery);
+        $disk->assertExists($recentUpload);
+        $disk->assertExists('avatars/old-avatar.jpg');
     }
 }

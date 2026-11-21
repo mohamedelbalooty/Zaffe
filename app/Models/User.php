@@ -14,15 +14,41 @@ class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable;
 
+    /**
+     * Media paths belonging to cascaded invitations captured prior to SQL user deletion.
+     *
+     * @var array<int, string>
+     */
+    protected array $pendingInvitationMediaPurgePaths = [];
+
     protected $fillable = [
         'name',
         'email',
-        'email_verified_at',
         'phone',
         'password',
         'role',
         'avatar_url',
     ];
+
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user): void {
+            $paths = [];
+
+            foreach ($user->invitations()->with('photos')->get() as $invitation) {
+                array_push($paths, ...$invitation->collectMediaPaths());
+            }
+
+            $user->pendingInvitationMediaPurgePaths = array_values(array_unique($paths));
+        });
+
+        static::deleted(function (User $user): void {
+            $paths = $user->pendingInvitationMediaPurgePaths;
+            $user->pendingInvitationMediaPurgePaths = [];
+
+            Invitation::schedulePostCommitMediaPurge($paths, $user->getConnectionName());
+        });
+    }
 
     protected $hidden = [
         'password',

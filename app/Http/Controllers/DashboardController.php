@@ -141,14 +141,10 @@ class DashboardController extends Controller
     public function destroy(int $id)
     {
         $invitation = Auth::user()->invitations()->with('photos')->findOrFail($id);
-        $mediaPaths = $invitation->collectMediaPaths();
 
         DB::transaction(function () use ($invitation): void {
-            $invitation->skipAutomaticMediaPurge = true;
             $invitation->delete();
         });
-
-        Invitation::purgeMediaPaths($mediaPaths);
 
         return redirect()->route('dashboard.invitations.index')
             ->with('success', 'تم حذف الدعوة بنجاح.');

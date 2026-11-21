@@ -37,6 +37,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -841,20 +842,47 @@ class AdminFeatureCoverageTest extends TestCase
 
     public function test_admin_data_hygiene_user_verification_avatar_category_default_and_filtered_rsvp_csv(): void
     {
-        // User fillable allows email_verified_at and EditUser accepts local /images/... avatar_url
-        $verifiedAt = now()->startOfMinute();
-        $this->couple->fill(['email_verified_at' => $verifiedAt])->save();
-        $this->assertNotNull($this->couple->fresh()->email_verified_at);
+        // email_verified_at is excluded from mass assignment on User, while Filament Admin can set and clear it explicitly
+        $this->assertNotContains('email_verified_at', $this->couple->getFillable());
 
         $this->actingAs($this->admin);
         Filament::setCurrentPanel('admin');
 
+        $adminCreatedVerifiedAt = now()->startOfMinute()->format('Y-m-d H:i:s');
+        Livewire::test(CreateUser::class)
+            ->fillForm([
+                'name' => 'Admin Created Verified User',
+                'email' => 'verified-by-admin@zaffe.app',
+                'email_verified_at' => $adminCreatedVerifiedAt,
+                'password' => 'StrongPass#123',
+                'role' => 'user',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $createdUser = User::where('email', 'verified-by-admin@zaffe.app')->firstOrFail();
+        $this->assertNotNull($createdUser->email_verified_at);
+
+        $this->couple->forceFill(['email_verified_at' => null])->save();
+        $verifiedAt = now()->startOfMinute();
+
         Livewire::test(EditUser::class, ['record' => $this->couple->id])
-            ->fillForm(['avatar_url' => '/images/templates/royal-gold.webp'])
+            ->fillForm([
+                'email_verified_at' => $verifiedAt->format('Y-m-d H:i:s'),
+                'avatar_url' => '/images/templates/royal-gold.webp',
+            ])
             ->call('save')
             ->assertHasNoFormErrors();
 
+        $this->assertNotNull($this->couple->fresh()->email_verified_at);
         $this->assertSame('/images/templates/royal-gold.webp', $this->couple->fresh()->avatar_url);
+
+        Livewire::test(EditUser::class, ['record' => $this->couple->id])
+            ->fillForm(['email_verified_at' => null])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertNull($this->couple->fresh()->email_verified_at);
 
         // Reject javascript: XSS scheme on avatar_url
         Livewire::test(EditUser::class, ['record' => $this->couple->id])
@@ -898,5 +926,52 @@ class AdminFeatureCoverageTest extends TestCase
 
         // Navigation sort collision resolved between UserResource and InvitationGuestResource
         $this->assertNotSame(UserResource::getNavigationSort(), InvitationGuestResource::getNavigationSort());
+    }
+
+    public function test_ordinary_user_cannot_verify_own_email_via_mass_assignment_registration_or_profile_update(): void
+    {
+        $unverified = User::create([
+            'name' => 'Self Create Attempt',
+            'email' => 'self-create@zaffe.app',
+            'password' => Hash::make('Password#123'),
+            'role' => 'user',
+            'email_verified_at' => now(),
+        ]);
+
+        $this->assertNull($unverified->fresh()->email_verified_at);
+
+        // Mass assignment via fill() or update() ignores email_verified_at
+        $unverified->fill(['email_verified_at' => now()])->save();
+        $this->assertNull($unverified->fresh()->email_verified_at);
+
+        $unverified->update(['email_verified_at' => now()]);
+        $this->assertNull($unverified->fresh()->email_verified_at);
+
+        // Registration ignores injected email_verified_at parameter
+        $this->post('/register', [
+            'name' => 'Registered Couple',
+            'email' => 'registered-unverified@zaffe.app',
+            'password' => 'Password#123',
+            'password_confirmation' => 'Password#123',
+            'email_verified_at' => now()->toDateTimeString(),
+        ])->assertRedirect(route('dashboard.invitations.create'));
+
+        $registered = User::where('email', 'registered-unverified@zaffe.app')->firstOrFail();
+        $this->assertNull($registered->email_verified_at);
+
+        // Authenticated customer profile update cannot self-verify email_verified_at
+        $this->actingAs($registered)
+            ->put(route('dashboard.profile.update'), [
+                'name' => 'Updated Couple Name',
+                'email' => 'registered-unverified@zaffe.app',
+                'email_verified_at' => now()->toDateTimeString(),
+            ])
+            ->assertSessionHas('success');
+
+        $this->assertNull($registered->fresh()->email_verified_at);
+
+        // Built-in Laravel email verification helper (forceFill) remains intact
+        $this->assertTrue($registered->markEmailAsVerified());
+        $this->assertNotNull($registered->fresh()->email_verified_at);
     }
 }

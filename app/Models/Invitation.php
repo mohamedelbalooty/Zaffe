@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Jobs\PurgeInvitationMediaJob;
 use App\Services\InvitationDateFormatter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,12 +25,7 @@ class Invitation extends Model
     public const MODE_ANNOUNCEMENT = 'announcement';
 
     /**
-     * Runtime flag allowing callers (e.g. post-commit transactions) to handle file purge explicitly.
-     */
-    public bool $skipAutomaticMediaPurge = false;
-
-    /**
-     * Normalized public disk paths captured before SQL deletion and purged after deletion succeeds.
+     * Normalized public disk paths captured before SQL deletion and purged after transaction commit.
      *
      * @var array<int, string>
      */
@@ -56,18 +53,35 @@ class Invitation extends Model
         });
 
         static::deleting(function (Invitation $invitation): void {
-            if (! $invitation->skipAutomaticMediaPurge) {
-                $invitation->pendingMediaPurgePaths = $invitation->collectMediaPaths();
-            }
+            $invitation->pendingMediaPurgePaths = $invitation->collectMediaPaths();
         });
 
         static::deleted(function (Invitation $invitation): void {
             $paths = $invitation->pendingMediaPurgePaths;
             $invitation->pendingMediaPurgePaths = [];
 
-            if (! $invitation->skipAutomaticMediaPurge && $paths !== []) {
-                self::purgeMediaPaths($paths);
-            }
+            self::schedulePostCommitMediaPurge($paths, $invitation->getConnectionName());
+        });
+    }
+
+    /**
+     * Defer uploaded media cleanup until the active database transaction commits.
+     *
+     * @param  array<int, string>  $paths
+     */
+    public static function schedulePostCommitMediaPurge(array $paths, ?string $connectionName = null): void
+    {
+        $uniquePaths = array_values(array_unique(array_filter(
+            $paths,
+            static fn (mixed $path): bool => is_string($path) && $path !== ''
+        )));
+
+        if ($uniquePaths === []) {
+            return;
+        }
+
+        DB::connection($connectionName)->afterCommit(static function () use ($uniquePaths): void {
+            self::purgeMediaPaths($uniquePaths);
         });
     }
 
@@ -142,17 +156,19 @@ class Invitation extends Model
     }
 
     /**
-     * Best-effort post-commit purge of uploaded media paths with sanitized error logging.
+     * Best-effort post-commit purge of uploaded media paths with retry dispatch on failure.
      *
      * @param  array<int, string>  $paths
+     * @return array<int, string>
      */
-    public static function purgeMediaPaths(array $paths): void
+    public static function purgeMediaPaths(array $paths, bool $dispatchRetryOnFailure = true): array
     {
         if ($paths === []) {
-            return;
+            return [];
         }
 
         $disk = Storage::disk('public');
+        $failedPaths = [];
 
         foreach (array_values(array_unique($paths)) as $path) {
             if ($path === '') {
@@ -160,16 +176,34 @@ class Invitation extends Model
             }
 
             try {
-                if ($disk->exists($path)) {
-                    $disk->delete($path);
+                if ($disk->exists($path) && ! $disk->delete($path)) {
+                    $failedPaths[] = $path;
+                    Log::warning('Failed to purge invitation media file from public disk.', [
+                        'path' => $path,
+                        'reason' => 'delete_returned_false',
+                    ]);
                 }
             } catch (\Throwable $e) {
+                $failedPaths[] = $path;
                 Log::warning('Failed to purge invitation media file from public disk.', [
                     'path' => $path,
                     'error' => $e->getMessage(),
                 ]);
             }
         }
+
+        if ($failedPaths !== [] && $dispatchRetryOnFailure) {
+            try {
+                PurgeInvitationMediaJob::dispatch($failedPaths);
+            } catch (\Throwable $e) {
+                Log::error('Failed to enqueue retry job for invitation media purge.', [
+                    'paths' => $failedPaths,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $failedPaths;
     }
 
     protected $fillable = [
