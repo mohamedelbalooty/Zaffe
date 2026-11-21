@@ -45,6 +45,10 @@ class RsvpResponsesTable
                     ->label(__('admin.fields.guest_count'))
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('children_count')
+                    ->label(__('admin.fields.children_count'))
+                    ->numeric()
+                    ->sortable(),
                 TextColumn::make('dietary_notes')
                     ->label(__('admin.fields.dietary_notes'))
                     ->limit(30)

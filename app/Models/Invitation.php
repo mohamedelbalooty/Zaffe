@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Jobs\PurgeInvitationMediaJob;
 use App\Services\InvitationDateFormatter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class Invitation extends Model
@@ -20,6 +23,13 @@ class Invitation extends Model
     public const MODE_QR_ONLY = 'qr_only';
 
     public const MODE_ANNOUNCEMENT = 'announcement';
+
+    /**
+     * Normalized public disk paths captured before SQL deletion and purged after transaction commit.
+     *
+     * @var array<int, string>
+     */
+    protected array $pendingMediaPurgePaths = [];
 
     protected static function booted(): void
     {
@@ -43,21 +53,157 @@ class Invitation extends Model
         });
 
         static::deleting(function (Invitation $invitation): void {
-            $isLocalPath = static fn (?string $path): bool => filled($path)
-                && ! str_starts_with($path, 'http://')
-                && ! str_starts_with($path, 'https://')
-                && ! str_starts_with($path, '/images/');
-
-            if ($isLocalPath($invitation->cover_photo)) {
-                Storage::disk('public')->delete($invitation->cover_photo);
-            }
-
-            foreach ($invitation->photos()->get(['image_path']) as $photo) {
-                if ($isLocalPath($photo->image_path)) {
-                    Storage::disk('public')->delete($photo->image_path);
-                }
-            }
+            $invitation->pendingMediaPurgePaths = $invitation->collectMediaPaths();
         });
+
+        static::deleted(function (Invitation $invitation): void {
+            $paths = $invitation->pendingMediaPurgePaths;
+            $invitation->pendingMediaPurgePaths = [];
+
+            self::schedulePostCommitMediaPurge($paths, $invitation->getConnectionName());
+        });
+    }
+
+    /**
+     * Defer uploaded media cleanup until the active database transaction commits.
+     *
+     * @param  array<int, string>  $paths
+     */
+    public static function schedulePostCommitMediaPurge(array $paths, ?string $connectionName = null): void
+    {
+        $uniquePaths = array_values(array_unique(array_filter(
+            $paths,
+            static fn (mixed $path): bool => is_string($path) && $path !== ''
+        )));
+
+        if ($uniquePaths === []) {
+            return;
+        }
+
+        DB::connection($connectionName)->afterCommit(static function () use ($uniquePaths): void {
+            self::purgeMediaPaths($uniquePaths);
+        });
+    }
+
+    public static function resolvePublicDiskPath(?string $pathOrUrl): ?string
+    {
+        if ($pathOrUrl === null) {
+            return null;
+        }
+
+        $candidate = trim($pathOrUrl);
+        if ($candidate === '' || str_starts_with($candidate, '/images/') || str_contains($candidate, '..')) {
+            return null;
+        }
+
+        $disk = Storage::disk('public');
+        $diskBaseUrl = rtrim((string) $disk->url(''), '/').'/';
+
+        if (str_starts_with($candidate, $diskBaseUrl)) {
+            $relative = substr($candidate, strlen($diskBaseUrl));
+        } elseif (str_starts_with($candidate, 'http://') || str_starts_with($candidate, 'https://')) {
+            $parsed = parse_url($candidate);
+            $path = is_array($parsed) ? ($parsed['path'] ?? '') : '';
+            $host = is_array($parsed) ? strtolower((string) ($parsed['host'] ?? '')) : '';
+
+            $allowedHosts = array_filter([
+                strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST)),
+                strtolower((string) parse_url($diskBaseUrl, PHP_URL_HOST)),
+                'localhost',
+                '127.0.0.1',
+            ]);
+
+            if (! str_starts_with($path, '/storage/') || ($host !== '' && ! in_array($host, $allowedHosts, true))) {
+                return null;
+            }
+
+            $relative = substr($path, strlen('/storage/'));
+        } elseif (str_starts_with($candidate, '/storage/')) {
+            $relative = substr($candidate, strlen('/storage/'));
+        } elseif (str_starts_with($candidate, '/')) {
+            return null;
+        } else {
+            $relative = $candidate;
+        }
+
+        $normalized = ltrim((string) $relative, '/');
+
+        return $normalized !== '' ? $normalized : null;
+    }
+
+    /**
+     * Collect normalized public-disk media paths belonging to this invitation.
+     *
+     * @return array<int, string>
+     */
+    public function collectMediaPaths(): array
+    {
+        $rawPaths = [$this->cover_photo];
+
+        $galleryPaths = $this->relationLoaded('photos')
+            ? $this->photos->pluck('image_path')->all()
+            : $this->photos()->pluck('image_path')->all();
+
+        $normalized = [];
+        foreach (array_merge($rawPaths, $galleryPaths) as $raw) {
+            $resolved = self::resolvePublicDiskPath(is_string($raw) ? $raw : null);
+            if ($resolved !== null) {
+                $normalized[] = $resolved;
+            }
+        }
+
+        return array_values(array_unique($normalized));
+    }
+
+    /**
+     * Best-effort post-commit purge of uploaded media paths with retry dispatch on failure.
+     *
+     * @param  array<int, string>  $paths
+     * @return array<int, string>
+     */
+    public static function purgeMediaPaths(array $paths, bool $dispatchRetryOnFailure = true): array
+    {
+        if ($paths === []) {
+            return [];
+        }
+
+        $disk = Storage::disk('public');
+        $failedPaths = [];
+
+        foreach (array_values(array_unique($paths)) as $path) {
+            if ($path === '') {
+                continue;
+            }
+
+            try {
+                if ($disk->exists($path) && ! $disk->delete($path)) {
+                    $failedPaths[] = $path;
+                    Log::warning('Failed to purge invitation media file from public disk.', [
+                        'path' => $path,
+                        'reason' => 'delete_returned_false',
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                $failedPaths[] = $path;
+                Log::warning('Failed to purge invitation media file from public disk.', [
+                    'path' => $path,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        if ($failedPaths !== [] && $dispatchRetryOnFailure) {
+            try {
+                PurgeInvitationMediaJob::dispatch($failedPaths);
+            } catch (\Throwable $e) {
+                Log::error('Failed to enqueue retry job for invitation media purge.', [
+                    'paths' => $failedPaths,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $failedPaths;
     }
 
     protected $fillable = [

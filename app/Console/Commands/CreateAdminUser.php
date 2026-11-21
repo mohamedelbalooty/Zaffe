@@ -99,17 +99,17 @@ class CreateAdminUser extends Command
             return self::FAILURE;
         }
 
-        $admin = User::create([
+        $admin = new User([
             'name' => $name,
             'email' => $email,
             'password' => Hash::make($password),
             'role' => 'admin',
-            'email_verified_at' => now(),
         ]);
+        $admin->email_verified_at = now();
+        $admin->save();
 
         $this->info("Super Admin [{$admin->email}] created with role [admin]. Sign in at /admin/login.");
 
         return self::SUCCESS;
     }
 }
-

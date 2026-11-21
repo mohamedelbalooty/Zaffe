@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\OperationsMonitor;
+use App\Filament\Resources\InvitationGuests\InvitationGuestResource;
 use App\Filament\Resources\Invitations\Pages\EditInvitation;
 use App\Filament\Resources\Invitations\Pages\ListInvitations;
 use App\Filament\Resources\InvitationTemplates\Pages\CreateInvitationTemplate;
@@ -12,10 +13,12 @@ use App\Filament\Resources\PlatformSettings\Pages\EditPlatformSetting;
 use App\Filament\Resources\PlatformSettings\Pages\ListPlatformSettings;
 use App\Filament\Resources\RsvpResponses\Pages\ListRsvpResponses;
 use App\Filament\Resources\RsvpResponses\Pages\ViewRsvpResponse;
+use App\Filament\Resources\TemplateCategories\Pages\CreateTemplateCategory;
 use App\Filament\Resources\TemplateCategories\Pages\EditTemplateCategory;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Resources\Users\UserResource;
 use App\Filament\Widgets\PlatformStatsOverview;
 use App\Livewire\InvitationEditor;
 use App\Models\Invitation;
@@ -31,8 +34,10 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -761,5 +766,212 @@ class AdminFeatureCoverageTest extends TestCase
                 'default_styles.font_family' => 'Cairo',
                 'default_styles.ornament_style' => 'constellation',
             ]);
+    }
+
+    public function test_admin_deleting_invitation_purges_full_url_and_relative_uploaded_media(): void
+    {
+        Storage::fake('public');
+
+        $coverPath = UploadedFile::fake()->image('admin-cover.png')->store('invitations/covers', 'public');
+        $galleryUrlPath = UploadedFile::fake()->image('admin-gallery-url.png')->store('invitations/gallery', 'public');
+        $galleryRelPath = UploadedFile::fake()->image('admin-gallery-rel.png')->store('invitations/gallery', 'public');
+
+        $adminDeletedInvitation = Invitation::create([
+            'user_id' => $this->couple->id,
+            'template_id' => $this->template->id,
+            'title' => 'حفل حذف الإدارة',
+            'slug' => 'admin-delete-full-urls',
+            'groom_name' => 'طارق',
+            'bride_name' => 'ليلى',
+            'wedding_date' => now()->addMonths(2)->toDateString(),
+            'venue_name' => 'قصر الرياض',
+            'status' => 'published',
+            'cover_photo' => Storage::disk('public')->url($coverPath),
+        ]);
+
+        InvitationPhoto::create([
+            'invitation_id' => $adminDeletedInvitation->id,
+            'image_path' => Storage::disk('public')->url($galleryUrlPath),
+            'sort_order' => 1,
+        ]);
+
+        InvitationPhoto::create([
+            'invitation_id' => $adminDeletedInvitation->id,
+            'image_path' => '/storage/'.$galleryRelPath,
+            'sort_order' => 2,
+        ]);
+
+        $this->actingAs($this->admin);
+        Filament::setCurrentPanel('admin');
+
+        Livewire::test(EditInvitation::class, ['record' => $adminDeletedInvitation->id])
+            ->callAction(DeleteAction::class);
+
+        $this->assertDatabaseMissing('invitations', ['id' => $adminDeletedInvitation->id]);
+        Storage::disk('public')->assertMissing($coverPath);
+        Storage::disk('public')->assertMissing($galleryUrlPath);
+        Storage::disk('public')->assertMissing($galleryRelPath);
+    }
+
+    public function test_canonical_platform_settings_cannot_be_deleted_individually_or_in_bulk_while_custom_settings_can(): void
+    {
+        $canonicalSetting = PlatformSetting::create([
+            'key' => 'contact_email',
+            'value' => 'support@zaffe.app',
+            'group' => 'contact',
+        ]);
+
+        $customSetting = PlatformSetting::create([
+            'key' => 'custom_banner_note',
+            'value' => 'Temporary note',
+            'group' => 'general',
+        ]);
+
+        $this->assertFalse(Gate::forUser($this->admin)->allows('delete', $canonicalSetting));
+        $this->assertTrue(Gate::forUser($this->admin)->allows('delete', $customSetting));
+
+        $this->actingAs($this->admin);
+        Filament::setCurrentPanel('admin');
+
+        Livewire::test(ListPlatformSettings::class)
+            ->callTableBulkAction('delete', [$canonicalSetting, $customSetting]);
+
+        $this->assertDatabaseHas('platform_settings', ['id' => $canonicalSetting->id, 'key' => 'contact_email']);
+        $this->assertDatabaseMissing('platform_settings', ['id' => $customSetting->id]);
+    }
+
+    public function test_admin_data_hygiene_user_verification_avatar_category_default_and_filtered_rsvp_csv(): void
+    {
+        // email_verified_at is excluded from mass assignment on User, while Filament Admin can set and clear it explicitly
+        $this->assertNotContains('email_verified_at', $this->couple->getFillable());
+
+        $this->actingAs($this->admin);
+        Filament::setCurrentPanel('admin');
+
+        $adminCreatedVerifiedAt = now()->startOfMinute()->format('Y-m-d H:i:s');
+        Livewire::test(CreateUser::class)
+            ->fillForm([
+                'name' => 'Admin Created Verified User',
+                'email' => 'verified-by-admin@zaffe.app',
+                'email_verified_at' => $adminCreatedVerifiedAt,
+                'password' => 'StrongPass#123',
+                'role' => 'user',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $createdUser = User::where('email', 'verified-by-admin@zaffe.app')->firstOrFail();
+        $this->assertNotNull($createdUser->email_verified_at);
+
+        $this->couple->forceFill(['email_verified_at' => null])->save();
+        $verifiedAt = now()->startOfMinute();
+
+        Livewire::test(EditUser::class, ['record' => $this->couple->id])
+            ->fillForm([
+                'email_verified_at' => $verifiedAt->format('Y-m-d H:i:s'),
+                'avatar_url' => '/images/templates/royal-gold.webp',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertNotNull($this->couple->fresh()->email_verified_at);
+        $this->assertSame('/images/templates/royal-gold.webp', $this->couple->fresh()->avatar_url);
+
+        Livewire::test(EditUser::class, ['record' => $this->couple->id])
+            ->fillForm(['email_verified_at' => null])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertNull($this->couple->fresh()->email_verified_at);
+
+        // Reject javascript: XSS scheme on avatar_url
+        Livewire::test(EditUser::class, ['record' => $this->couple->id])
+            ->fillForm(['avatar_url' => 'javascript:alert(1)'])
+            ->call('save')
+            ->assertHasFormErrors(['avatar_url']);
+
+        // TemplateCategoryForm defaults is_active to true on create
+        Livewire::test(CreateTemplateCategory::class)
+            ->assertSchemaStateSet(['is_active' => true]);
+
+        // ListRsvpResponses filtered CSV export respects active attendance filter and includes children_count
+        RsvpResponse::create([
+            'invitation_id' => $this->invitation->id,
+            'guest_name' => 'حاضر بالطفل',
+            'phone' => '+966501110001',
+            'attendance_status' => 'attending',
+            'guest_count' => 2,
+            'children_count' => 3,
+        ]);
+
+        RsvpResponse::create([
+            'invitation_id' => $this->invitation->id,
+            'guest_name' => 'معتذر لا يظهر',
+            'phone' => '+966501110002',
+            'attendance_status' => 'declined',
+            'guest_count' => 0,
+            'children_count' => 0,
+        ]);
+
+        $filteredCsv = Livewire::test(ListRsvpResponses::class)
+            ->filterTable('attendance_status', 'attending')
+            ->callAction('exportCsv');
+
+        $csvContent = base64_decode((string) ($filteredCsv->effects['download']['content'] ?? ''), true);
+        $this->assertIsString($csvContent);
+        $this->assertStringContainsString(__('admin.csv.children_count'), $csvContent);
+        $this->assertStringContainsString('حاضر بالطفل', $csvContent);
+        $this->assertStringContainsString(',2,3,', $csvContent);
+        $this->assertStringNotContainsString('معتذر لا يظهر', $csvContent);
+
+        // Navigation sort collision resolved between UserResource and InvitationGuestResource
+        $this->assertNotSame(UserResource::getNavigationSort(), InvitationGuestResource::getNavigationSort());
+    }
+
+    public function test_ordinary_user_cannot_verify_own_email_via_mass_assignment_registration_or_profile_update(): void
+    {
+        $unverified = User::create([
+            'name' => 'Self Create Attempt',
+            'email' => 'self-create@zaffe.app',
+            'password' => Hash::make('Password#123'),
+            'role' => 'user',
+            'email_verified_at' => now(),
+        ]);
+
+        $this->assertNull($unverified->fresh()->email_verified_at);
+
+        // Mass assignment via fill() or update() ignores email_verified_at
+        $unverified->fill(['email_verified_at' => now()])->save();
+        $this->assertNull($unverified->fresh()->email_verified_at);
+
+        $unverified->update(['email_verified_at' => now()]);
+        $this->assertNull($unverified->fresh()->email_verified_at);
+
+        // Registration ignores injected email_verified_at parameter
+        $this->post('/register', [
+            'name' => 'Registered Couple',
+            'email' => 'registered-unverified@zaffe.app',
+            'password' => 'Password#123',
+            'password_confirmation' => 'Password#123',
+            'email_verified_at' => now()->toDateTimeString(),
+        ])->assertRedirect(route('dashboard.invitations.create'));
+
+        $registered = User::where('email', 'registered-unverified@zaffe.app')->firstOrFail();
+        $this->assertNull($registered->email_verified_at);
+
+        // Authenticated customer profile update cannot self-verify email_verified_at
+        $this->actingAs($registered)
+            ->put(route('dashboard.profile.update'), [
+                'name' => 'Updated Couple Name',
+                'email' => 'registered-unverified@zaffe.app',
+                'email_verified_at' => now()->toDateTimeString(),
+            ])
+            ->assertSessionHas('success');
+
+        $this->assertNull($registered->fresh()->email_verified_at);
+
+        // Built-in Laravel email verification helper (forceFill) remains intact
+        $this->assertTrue($registered->markEmailAsVerified());
+        $this->assertNotNull($registered->fresh()->email_verified_at);
     }
 }

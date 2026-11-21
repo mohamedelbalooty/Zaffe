@@ -38,6 +38,9 @@ class RsvpResponseInfolist
                         TextEntry::make('guest_count')
                             ->label(__('admin.fields.guest_count'))
                             ->numeric(),
+                        TextEntry::make('children_count')
+                            ->label(__('admin.fields.children_count'))
+                            ->numeric(),
                         TextEntry::make('created_at')
                             ->label(__('admin.fields.submitted_at'))
                             ->dateTime(),

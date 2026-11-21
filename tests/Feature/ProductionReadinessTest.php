@@ -72,4 +72,82 @@ class ProductionReadinessTest extends TestCase
         $this->assertTrue(Schema::hasIndex('rsvp_responses', 'idx_rsvp_invitation_phone'));
         $this->assertTrue(Schema::hasIndex('rsvp_responses', 'idx_rsvp_invitation_created'));
     }
+
+    public function test_filament_admin_routes_include_security_headers(): void
+    {
+        $guestResponse = $this->get('/admin/login');
+        $guestResponse->assertOk();
+        $guestResponse->assertHeader('X-Content-Type-Options', 'nosniff');
+        $guestResponse->assertHeader('X-Frame-Options', 'SAMEORIGIN');
+        $guestResponse->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+        $guestResponse->assertHeader('X-XSS-Protection', '1; mode=block');
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $adminResponse = $this->actingAs($admin)->get('/admin');
+        $adminResponse->assertOk();
+        $adminResponse->assertHeader('X-Content-Type-Options', 'nosniff');
+        $adminResponse->assertHeader('X-Frame-Options', 'SAMEORIGIN');
+        $adminResponse->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+        $adminResponse->assertHeader('X-XSS-Protection', '1; mode=block');
+    }
+
+    public function test_mail_and_queue_config_hygiene(): void
+    {
+        $resendConfig = config('mail.mailers.resend');
+
+        $this->assertIsArray($resendConfig);
+        $this->assertArrayNotHasKey('encryption', $resendConfig);
+        $this->assertArrayHasKey('scheme', $resendConfig);
+        $this->assertSame('smtp.resend.com', $resendConfig['host'] ?? null);
+        $this->assertSame(465, (int) ($resendConfig['port'] ?? 0));
+        $this->assertTrue((bool) config('queue.connections.database.after_commit'));
+
+        $envKeys = ['RESEND_API_KEY', 'MAIL_PASSWORD'];
+        $backupEnv = [];
+        foreach ($envKeys as $key) {
+            $backupEnv[$key] = [
+                'env_exists' => array_key_exists($key, $_ENV),
+                'env' => $_ENV[$key] ?? null,
+                'server_exists' => array_key_exists($key, $_SERVER),
+                'server' => $_SERVER[$key] ?? null,
+                'getenv' => getenv($key),
+            ];
+        }
+
+        $_ENV['RESEND_API_KEY'] = '';
+        $_SERVER['RESEND_API_KEY'] = '';
+        putenv('RESEND_API_KEY=');
+        $_ENV['MAIL_PASSWORD'] = 're_fallback_secret';
+        $_SERVER['MAIL_PASSWORD'] = 're_fallback_secret';
+        putenv('MAIL_PASSWORD=re_fallback_secret');
+
+        try {
+            $loadedMail = require config_path('mail.php');
+            $this->assertSame('re_fallback_secret', $loadedMail['mailers']['resend']['password']);
+        } finally {
+            foreach ($envKeys as $key) {
+                if ($backupEnv[$key]['env_exists']) {
+                    $_ENV[$key] = $backupEnv[$key]['env'];
+                } else {
+                    unset($_ENV[$key]);
+                }
+
+                if ($backupEnv[$key]['server_exists']) {
+                    $_SERVER[$key] = $backupEnv[$key]['server'];
+                } else {
+                    unset($_SERVER[$key]);
+                }
+
+                putenv($backupEnv[$key]['getenv'] === false ? $key : "{$key}={$backupEnv[$key]['getenv']}");
+            }
+        }
+
+        $envExample = file_get_contents(base_path('.env.example'));
+        $this->assertIsString($envExample);
+        $this->assertDoesNotMatchRegularExpression('/^RESEND_API_KEY=\s*$/m', $envExample);
+
+        $composer = json_decode((string) file_get_contents(base_path('composer.json')), true);
+        $this->assertIsArray($composer);
+        $this->assertSame('^8.4.1', $composer['require']['php'] ?? null);
+    }
 }
