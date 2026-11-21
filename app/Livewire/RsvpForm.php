@@ -26,7 +26,7 @@ class RsvpForm extends Component
 
     public string $phone = '';
 
-    public string $phone_country = 'EG';
+    public string $phone_country = 'SA';
 
     public string $email = '';
 
@@ -64,7 +64,7 @@ class RsvpForm extends Component
         $this->invitationId = $invitationId;
         $invitation = Invitation::find($invitationId);
 
-        $this->phone_country = ($invitation && $invitation->timezone === 'Asia/Riyadh') ? 'SA' : 'EG';
+        $this->phone_country = ($invitation && $invitation->timezone === 'Africa/Cairo') ? 'EG' : 'SA';
 
         $guest = $guestId
             ? InvitationGuest::query()
@@ -95,6 +95,7 @@ class RsvpForm extends Component
                     $this->phone_country = 'EG';
                     $this->phone = substr($guest->phone, 3);
                 } else {
+                    $this->phone_country = 'OTHER';
                     $this->phone = $guest->phone;
                 }
             }
@@ -126,6 +127,7 @@ class RsvpForm extends Component
         return [
             'guest_name' => ['required', 'string', 'min:3', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
+            'phone_country' => ['required', 'string', 'in:SA,EG,OTHER'],
             'email' => ['nullable', 'email', 'max:255'],
             'attendance_status' => ['required', 'in:attending,declined,tentative'],
             'guest_count' => $this->attendance_status === 'declined'
@@ -376,7 +378,7 @@ class RsvpForm extends Component
             $this->issuedPassCode = null;
         }
         $invitation = Invitation::find($this->invitationId);
-        $this->phone_country = ($invitation && $invitation->timezone === 'Asia/Riyadh') ? 'SA' : 'EG';
+        $this->phone_country = ($invitation && $invitation->timezone === 'Africa/Cairo') ? 'EG' : 'SA';
         $this->attendance_status = 'attending';
 
         if ($this->guestId) {

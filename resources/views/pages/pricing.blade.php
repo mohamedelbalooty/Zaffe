@@ -14,8 +14,8 @@
                 </h1>
                 <p class="text-base text-[#52493F] leading-relaxed">
                     {{ $isEn
-                        ? 'For our official Release 1 launch in Saudi Arabia and Egypt, every couple enjoys full unlimited access to all six royal themes and RSVP + QR tools with zero fees or credit card.'
-                        : 'بمناسبة الإطلاق الرسمي لمنصة زفّة في مصر والمملكة العربية السعودية، نهدي جميع العرسان وصولاً كاملاً وغير محدود لكافة المميزات والقوالب الملكية مجاناً دون أي رسوم أو بطاقة ائتمان.' }}
+                        ? 'During Release 1 across Saudi Arabia and Egypt, every couple enjoys unlimited access to all 14 themes, view-first sharing, and optional RSVP tracking with zero fees or credit card.'
+                        : 'بمناسبة الإطلاق الأول لمنصة زفّة في المملكة العربية السعودية ومصر، نهدي جميع العرسان وصولاً كاملاً لكافة القوالب الـ ١٤ والمميزات الأساسية مجاناً دون أي رسوم أو بطاقة ائتمان.' }}
                 </p>
             </div>
 
@@ -27,8 +27,8 @@
                     </h2>
                     <p class="text-xs sm:text-sm text-emerald-50/90 leading-relaxed max-w-2xl">
                         {{ $isEn
-                            ? 'All six themes, custom typography and palettes, optional audio gate, unlimited RSVP confirmations, personal QR passes, and Excel/CSV exports are completely free.'
-                            : 'جميع القوالب الستة الفاخرة، تخصيص الألوان والخطوط، موسيقى الخلفية، تأكيدات الحضور غير المحدودة (RSVP)، وتصدير قوائم الضيوف إلى Excel/CSV متاحة الآن مجاناً بالكامل دون الحاجة لبطاقة بنكية.' }}
+                            ? 'All 14 curated themes, custom colors and fonts, photo-free privacy, optional RSVP confirmations, and Excel/CSV exports are completely free in Release 1.'
+                            : 'جميع القوالب الـ ١٤ الفاخرة، تخصيص الألوان والخطوط، الخصوصية بدون صور أو مع ألبوم صور محسّن، تأكيدات الحضور الاختيارية (RSVP)، وتصدير الضيوف إلى Excel/CSV متاحة مجاناً في الإصدار الأول.' }}
                     </p>
                 </div>
                 <a href="{{ auth()->check() ? route('dashboard.invitations.create') : route('register') }}"
@@ -51,7 +51,7 @@
                                 {{ $isEn ? 'All-Inclusive Royal Package' : 'الباقة الملكية الشاملة (الإطلاق المجاني)' }}
                             </h3>
                             <p class="text-xs text-[#E4D9C8]/75">
-                                {{ $isEn ? 'No subscriptions, no hidden tiers, no locked templates.' : 'تجربة زفّة المتكاملة لعرسان مصر والسعودية بدون أي قيود أو اشتراكات' }}
+                                {{ $isEn ? 'No subscriptions, no hidden tiers, no locked templates.' : 'تجربة زفّة المتكاملة في السعودية ومصر بدون أي اشتراكات أو قيود' }}
                             </p>
                         </div>
 
@@ -70,7 +70,7 @@
                             <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
                                 <x-app-icon name="check" class="w-3.5 h-3.5" />
                             </span>
-                            <span>{{ $isEn ? 'All 6 luxury wedding themes unlocked' : 'جميع القوالب الستة الفاخرة مفتوحة مجاناً' }}</span>
+                            <span>{{ $isEn ? 'All 14 luxury wedding themes unlocked' : 'جميع القوالب الـ ١٤ الفاخرة مفتوحة مجاناً' }}</span>
                         </li>
                         <li class="flex items-center gap-3">
                             <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
@@ -82,13 +82,13 @@
                             <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
                                 <x-app-icon name="check" class="w-3.5 h-3.5" />
                             </span>
-                            <span>{{ $isEn ? 'Audio open-gate & optional photo gallery' : 'بوابة صوتية وألبوم صور تفاعلي اختياري' }}</span>
+                            <span>{{ $isEn ? 'Optional bride name & photo-free privacy' : 'اسم العروس اختياري وخصوصية تامة بدون صور' }}</span>
                         </li>
                         <li class="flex items-center gap-3">
                             <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
                                 <x-app-icon name="check" class="w-3.5 h-3.5" />
                             </span>
-                            <span>{{ $isEn ? 'Unlimited RSVPs & personal QR passes' : 'تأكيدات حضور وبطاقات QR غير محدودة' }}</span>
+                            <span>{{ $isEn ? 'View-first card with optional RSVP toggle' : 'بطاقة عرض متكاملة مع تفعيل اختياري للـ RSVP' }}</span>
                         </li>
                         <li class="flex items-center gap-3">
                             <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
@@ -100,7 +100,7 @@
                             <span class="w-6 h-6 rounded-full bg-[#C6A76B]/20 text-[#DFC99E] flex items-center justify-center shrink-0">
                                 <x-app-icon name="check" class="w-3.5 h-3.5" />
                             </span>
-                            <span>{{ $isEn ? 'Riyadh/Cairo timezones & Umm al-Qura Hijri' : 'توقيت القاهرة والرياض ومشاركة واتساب' }}</span>
+                            <span>{{ $isEn ? 'Riyadh/Cairo timezones & Umm al-Qura Hijri' : 'توقيت الرياض والقاهرة وتقويم أم القرى الهجري' }}</span>
                         </li>
                     </ul>
 
@@ -110,8 +110,10 @@
                             <span>{{ $isEn ? 'Start Designing Free Now' : 'ابدأ تصميم دعوتك مجاناً الآن' }}</span>
                             <x-app-icon name="arrow-left" class="w-4 h-4 dir-arrow" />
                         </a>
-                        <p class="text-xs text-center text-[#E4D9C8]/65">
-                            {{ $isEn ? 'No credit card required • Free account setup in 30 seconds' : 'لا يتطلب بطاقة ائتمان • حساب مجاني خلال ٣٠ ثانية' }}
+                        <p class="text-xs text-center text-[#E4D9C8]/75 leading-relaxed">
+                            {{ $isEn
+                                ? 'No credit card required • Release 1 is completely free (any future paid plans after Release 1 are not yet finalized and will never charge existing cards retroactively).'
+                                : 'لا يتطلب بطاقة ائتمان • الإصدار الأول مجاني بالكامل بدون اشتراكات (لم تُحدد أي باقات مدفوعة مستقبلية بعد، ولن تُفرض رسوم بأثر رجعي على أي دعوة حالية).' }}
                         </p>
                     </div>
                 </div>

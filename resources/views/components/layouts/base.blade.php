@@ -10,6 +10,19 @@
         $defaultTitle = app()->getLocale() === 'en'
             ? 'Zaffe — Luxury Digital Wedding Invitations'
             : $siteNameAr . ' — منصة دعوات الزفاف الرقمية الفاخرة';
+        $rawOgImage = is_string($ogImage ?? null) ? trim($ogImage) : '';
+        if ($rawOgImage === '') {
+            $resolvedOgImage = url(asset('images/og-zaffe.jpg'));
+        } elseif (str_starts_with($rawOgImage, 'http://') || str_starts_with($rawOgImage, 'https://')) {
+            $resolvedOgImage = $rawOgImage;
+        } else {
+            $resolvedOgImage = url('/' . ltrim($rawOgImage, '/'));
+        }
+        $configuredAppUrl = (string) config('app.url', '');
+        $configuredHost = parse_url($configuredAppUrl, PHP_URL_HOST);
+        if (str_starts_with($configuredAppUrl, 'https://') && $configuredHost && str_starts_with($resolvedOgImage, 'http://' . $configuredHost)) {
+            $resolvedOgImage = 'https://' . substr($resolvedOgImage, 7);
+        }
     @endphp
     <title>{{ $title ?? $defaultTitle }}</title>
     <meta name="description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">
@@ -19,13 +32,13 @@
     <meta property="og:url" content="{{ $ogUrl ?? url()->current() }}">
     <meta property="og:title" content="{{ $title ?? $defaultTitle }}">
     <meta property="og:description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">
-    <meta property="og:image" content="{{ $ogImage ?? asset('images/og-zaffe.jpg') }}">
+    <meta property="og:image" content="{{ $resolvedOgImage }}">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $title ?? $defaultTitle }}">
     <meta name="twitter:description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">
-    <meta name="twitter:image" content="{{ $ogImage ?? asset('images/og-zaffe.jpg') }}">
+    <meta name="twitter:image" content="{{ $resolvedOgImage }}">
 
     <!-- Google Fonts: Tajawal, Cairo, Amiri, Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

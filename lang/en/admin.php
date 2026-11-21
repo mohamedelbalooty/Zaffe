@@ -227,6 +227,14 @@ return [
         'col_queue' => 'Queue',
         'col_failed_at' => 'Failed At',
         'col_error_summary' => 'Error Summary',
+        'kpi01_label' => 'KPI-01: Creation Start → Published',
+        'kpi01_sub' => ':published published / :starts creation visits (30d: :rate30%)',
+        'kpi02_label' => 'KPI-02: Shared Published Rate (≥10 views or ≥1 RSVP)',
+        'kpi02_sub' => ':shared of :published published (session views ≠ unique guests)',
+        'kpi03b_label' => 'KPI-03b: Avg RSVPs (RSVP-Enabled Cards)',
+        'kpi03b_sub' => ':rsvps RSVPs across :enabled enabled (:adoption% adoption · :with_rsvp active · 30d avg: :avg30)',
+        'kpi05_label' => 'KPI-05: Invite Footer Attribution (Signups / Visits)',
+        'kpi05_sub' => 'Visits 30d: :visits30 · :signups_share% of signups · :published published (:couples couples, :pub_share% of published)',
     ],
 
     'csv' => [

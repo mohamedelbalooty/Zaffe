@@ -21,9 +21,9 @@
 
                     <p class="text-base sm:text-lg text-[#52493F] max-w-[62ch] mx-auto lg:mx-0 leading-[1.75]">
                         @if($isEn)
-                            Design an interactive luxury wedding invitation tailored for Saudi Arabia and Egypt — complete with an audio open-gate seal, dual Umm al-Qura Hijri &amp; Gregorian calendar, one-tap WhatsApp sharing, and structured RSVP tracking.
+                            Design a serene luxury wedding card tailored for Saudi Arabia and Egypt — with dual Umm al-Qura Hijri &amp; Gregorian calendar, family-first privacy, one-tap WhatsApp sharing, and optional RSVP tracking.
                         @else
-                            صمّم بطاقة زفاف رقمية فاخرة تليق بخصوصية مناسبتك دون الحاجة لأي خبرة تصميمية؛ مع بوابة فتح تفاعلية، التاريخ الهجري والميلادي، ومشاركة فورية عبر واتساب مع تأكيد حضور ضيوفك (RSVP) بدقة واحترافية.
+                            صمّم بطاقة زفاف رقمية فاخرة تليق بخصوصية مناسبتك دون الحاجة لأي خبرة تصميمية؛ مع التاريخ الهجري والميلادي، خرائط القاعة، ومشاركة فورية عبر واتساب مع إمكانية تفعيل تأكيد الحضور (RSVP) متى شئت.
                         @endif
                     </p>
 
@@ -34,12 +34,12 @@
                             <span>{{ $isEn ? 'Design Your Card Free' : 'صمم دعوتك الآن مجاناً' }}</span>
                         </a>
 
-                        <a href="{{ url('/invitation/ahmed-and-sarah') }}"
+                        <a href="{{ route('demo.saudi') }}"
                            target="_blank"
                            rel="noopener noreferrer"
                            class="btn-ghost-ivory !px-7 !py-3.5 !text-base">
                             <x-app-icon name="eye" class="w-5 h-5 text-[#856326]" />
-                            <span>{{ $isEn ? 'View Live Invitation' : 'عاين دعوة حية مباشرة' }}</span>
+                            <span>{{ $isEn ? 'View Saudi Demo' : 'عاين دعوة سعودية حية' }}</span>
                         </a>
                     </div>
 
@@ -82,7 +82,7 @@
                                             @click="previewMode = 'gate'"
                                             :class="previewMode === 'gate' ? 'bg-[#C6A76B] text-[#151210]' : 'text-[#52493F] hover:text-[#221E1A]'"
                                             class="px-3 py-1 rounded-full transition cursor-pointer">
-                                        {{ $isEn ? 'Open Gate' : 'بوابة الفتح' }}
+                                        {{ $isEn ? 'Saudi Mode' : 'خصوصية وتفاصيل' }}
                                     </button>
                                 </div>
                             </div>
@@ -147,16 +147,16 @@
                                     </div>
                                 </div>
 
-                                <a href="{{ url('/invitation/ahmed-and-sarah') }}"
+                                <a href="{{ route('demo.saudi') }}"
                                    target="_blank"
                                    rel="noopener noreferrer"
                                    class="btn-obsidian w-full !min-h-[40px] !py-2 !text-xs !rounded-lg">
-                                    <x-app-icon name="heart" class="w-3.5 h-3.5 text-[#DFC99E]" />
-                                    <span>{{ $isEn ? 'Confirm Attendance (RSVP)' : 'تأكيد الحضور (RSVP)' }}</span>
+                                    <x-app-icon name="eye" class="w-3.5 h-3.5 text-[#DFC99E]" />
+                                    <span>{{ $isEn ? 'Inspect Full Saudi Demo' : 'معاينة البطاقة السعودية الكاملة' }}</span>
                                 </a>
                             </div>
 
-                            <!-- Preview Mode 2: Tactile Royal Seal Open Gate -->
+                            <!-- Preview Mode 2: Saudi Family Privacy & Instant Venue Map -->
                             <div x-show="previewMode === 'gate'"
                                  x-cloak
                                  x-transition:enter="transition ease-out duration-200"
@@ -164,31 +164,38 @@
                                  x-transition:enter-end="opacity-100"
                                  class="mt-3.5 p-6 rounded-xl bg-obsidian-royal border border-[#C6A76B]/50 text-center text-[#FAF7F2] space-y-5">
                                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-[#C6A76B]/40 text-[#DFC99E] text-[10px] font-bold">
-                                    <x-app-icon name="volume-2" class="w-3.5 h-3.5" />
-                                    <span>{{ $isEn ? 'Interactive Audio Seal' : 'شاشة فتح الدعوة بالزفّة الصوتية' }}</span>
+                                    <x-app-icon name="shield-check" class="w-3.5 h-3.5" />
+                                    <span>{{ $isEn ? 'Family Privacy & View-First Design' : 'خصوصية عائلية وبطاقة عرض متكاملة' }}</span>
                                 </div>
 
                                 <div class="space-y-1.5">
-                                    <p class="font-amiri text-sm text-[#DFC99E]">{{ $isEn ? 'Private Wedding Invitation' : 'دعوة زفاف خاصة' }}</p>
+                                    <p class="font-amiri text-sm text-[#DFC99E]">{{ $isEn ? 'Optional Bride Name & No Required Photos' : 'اسم العروس اختياري وبدون صور إلزامية' }}</p>
                                     <h3 class="font-cairo text-2xl font-black text-white">
-                                        {{ $isEn ? 'Faisal & Al-Jawhara' : 'فيصل & الجوهرة' }}
+                                        {{ $isEn ? 'Faisal Bin Khalid' : 'فيصل بن خالد' }}
                                     </h3>
-                                    <p class="text-xs text-[#E4D9C8]/75">
-                                        {{ $isEn ? 'Tap the golden seal to open the card' : 'انقر على الختم الملكي لفتح البطاقة وسماع الزفّة' }}
+                                    <p class="text-xs text-[#E4D9C8]/75 leading-relaxed">
+                                        {{ $isEn
+                                            ? 'Start serene without an RSVP form, or turn simple guest confirmations on with one click.'
+                                            : 'ابدأ بدعوة أنيقة للعرض فقط، وفعّل تأكيد الحضور الاختياري في أي لحظة.' }}
                                     </p>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2.5 text-[11px]">
+                                    <div class="p-3 rounded-xl bg-white/10 border border-[#C6A76B]/30 text-[#FAF7F2] space-y-1">
+                                        <x-app-icon name="map-pin" class="w-4 h-4 text-[#DFC99E] mx-auto" />
+                                        <span class="block font-bold">{{ $isEn ? 'Google Maps Pin' : 'موقع القاعة مباشرة' }}</span>
+                                    </div>
+                                    <div class="p-3 rounded-xl bg-white/10 border border-[#C6A76B]/30 text-[#FAF7F2] space-y-1">
+                                        <x-app-icon name="calendar" class="w-4 h-4 text-[#DFC99E] mx-auto" />
+                                        <span class="block font-bold">{{ $isEn ? 'Umm al-Qura Hijri' : 'تقويم أم القرى' }}</span>
+                                    </div>
                                 </div>
 
                                 <button type="button"
                                         @click="previewMode = 'card'"
-                                        class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-[#B59556] via-[#DFC99E] to-[#C6A76B] text-[#151210] flex flex-col items-center justify-center gap-1 glow-gold-seal animate-seal-pulse hover:scale-105 transition cursor-pointer">
-                                    <x-app-icon name="mail-open" class="w-6 h-6" />
-                                    <span class="font-cairo text-[11px] font-black">{{ $isEn ? 'Open Card' : 'افتح الدعوة' }}</span>
+                                        class="w-full py-2.5 rounded-xl bg-gradient-to-tr from-[#B59556] via-[#DFC99E] to-[#C6A76B] text-[#151210] font-cairo text-xs font-black hover:opacity-95 transition cursor-pointer">
+                                    {{ $isEn ? 'Back to Card Preview' : 'العودة لمعاينة البطاقة' }}
                                 </button>
-
-                                <div class="text-[11px] text-[#E4D9C8]/70 flex items-center justify-center gap-2">
-                                    <x-app-icon name="shield-check" class="w-3.5 h-3.5 text-[#DFC99E]" />
-                                    <span>{{ $isEn ? 'Works seamlessly inside WhatsApp' : 'يعمل بسلاسة داخل متصفح واتساب' }}</span>
-                                </div>
                             </div>
 
                             <div class="mt-3.5 flex items-center justify-center">
@@ -211,8 +218,8 @@
                     </h2>
                     <p class="text-base text-[#52493F] leading-[1.75]">
                         {{ $isEn
-                            ? 'Zaffe gives couples complete control over hospitality — from tactile audio gates and photo-free family privacy to personal QR entry passes and accurate Umm al-Qura Hijri conversion.'
-                            : 'تمنحك زفّــة تحكماً كاملاً في طريقة استقبال ضيوفك — من بوابة الختم الملكي والخصوصية التامة بدون صور، إلى تأكيدات الحضور الفورية والتقويم الهجري المزدوج.' }}
+                            ? 'Zaffe gives couples full flexibility over their digital invitation — from photo-free family privacy and optional bride naming to crisp view-only cards or simple RSVP tracking with Umm al-Qura Hijri conversion.'
+                            : 'تمنحك زفّــة تحكماً كاملاً في دعوتك الرقمية — من الخصوصية العائلية وترك اسم العروس اختيارياً، إلى بطاقة عرض متكاملة مع خيار تفعيل تأكيد الحضور والتقويم الهجري المزدوج.' }}
                     </p>
                     <div class="pt-1">
                         <a href="{{ route('templates.index') }}" class="btn-obsidian !px-6">
@@ -232,12 +239,12 @@
                             <span class="font-cairo text-xs font-black text-[#856326]">٠١</span>
                         </div>
                         <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">
-                            {{ $isEn ? 'Interactive Open-Gate & Zaffe Audio' : 'بوابة فتح الدعوة والزفّة' }}
+                            {{ $isEn ? 'View-First Card & Optional RSVP' : 'بطاقة عرض فاخرة ورد اختياري' }}
                         </h3>
                         <p class="text-sm text-[#52493F] leading-relaxed">
                             {{ $isEn
-                                ? 'Guests tap the royal seal to open the card and unlock ceremonial audio smoothly inside mobile and WhatsApp browsers.'
-                                : 'عند تفعيل الصوت، يبدأ الضيف بنقرة أنيقة على الختم الملكي لفتح الدعوة وتشغيل الزفّة بسلاسة داخل متصفح واتساب.' }}
+                                ? 'Every new invitation opens cleanly without forcing guests through forms — toggle simple RSVP on or off anytime without losing saved responses.'
+                                : 'تبدأ بطاقتك للعرض الأنيق والمباشر، مع إمكانية تفعيل أو إيقاف نموذج تأكيد الحضور متى شئت دون فقدان أي ردود مسجلة.' }}
                         </p>
                     </div>
 
@@ -334,8 +341,8 @@
                     </h3>
                     <p class="text-sm text-[#52493F] leading-relaxed">
                         {{ $isEn
-                            ? 'Set names, Hijri/Gregorian dates, venue directions, optional music gate, and RSVP/QR pass rules with instant autosave.'
-                            : 'أضف أسماء العروسين أو العائلتين، الموعد الهجري والميلادي، خريطة القاعة، وإعدادات الحضور مع معاينة فورية.' }}
+                            ? 'Set groom or couple names, Hijri/Gregorian dates, venue directions, optional WebP gallery, and optional RSVP toggle with instant autosave.'
+                            : 'أضف الاسم والتاريخ الهجري والميلادي، خريطة القاعة، وإعدادات الخصوصية أو تأكيد الحضور الاختياري مع معاينة وحفظ فوري.' }}
                     </p>
                 </div>
 
@@ -348,8 +355,8 @@
                     </h3>
                     <p class="text-sm text-[#52493F] leading-relaxed">
                         {{ $isEn
-                            ? 'Send public or personalized guest invite links in one click and track confirmed headcounts and dietary notes live.'
-                            : 'بنقرة واحدة، أرسل رابط دعوتك الفريد عبر واتساب، وتابع تأكيدات الحضور وأعداد المرافقين لحظة بلحظة من لوحة التحكم.' }}
+                            ? 'Send your invitation link via WhatsApp in one tap, update details live anytime, and export collected RSVPs to Excel/CSV.'
+                            : 'بنقرة واحدة، أرسل رابط دعوتك الفريد عبر واتساب مع معاينة أنيقة، وحدّث تفاصيل الحفل أو صدّر الردود لحظة بلحظة.' }}
                     </p>
                 </div>
             </div>
@@ -500,7 +507,7 @@
                     </div>
                     <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">{{ $isEn ? 'One-Click WhatsApp Sharing' : 'مشاركة بنقرة واحدة عبر واتساب' }}</h3>
                     <p class="text-sm text-[#52493F] leading-relaxed">
-                        {{ $isEn ? 'Generate polished invitation messages with unique personal guest links ready to send directly to family and friends.' : 'توليد رسالة تهنئة ودعوة مخصصة مع رابط دعوتك المباشر أو رابط كل مدعو لمشاركتها فوراً.' }}
+                        {{ $isEn ? 'Generate polished invitation messages with your direct card link ready to send across WhatsApp groups and family.' : 'توليد رسالة تهنئة ودعوة مخصصة مع رابط دعوتك المباشر لمشاركتها فوراً عبر واتساب بضغطة زر.' }}
                     </p>
                 </div>
 
@@ -508,9 +515,9 @@
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] text-[#7A5A20] flex items-center justify-center border border-[#C6A76B]/30">
                         <x-app-icon name="users" class="w-5 h-5" />
                     </div>
-                    <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">{{ $isEn ? 'Smart Guest Roster & QR Passes' : 'إدارة الضيوف وبطاقات QR' }}</h3>
+                    <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">{{ $isEn ? 'Optional RSVP & CSV Export' : 'تأكيد حضور اختياري وتصدير آمن' }}</h3>
                     <p class="text-sm text-[#52493F] leading-relaxed">
-                        {{ $isEn ? 'Pre-register guests via CSV, enforce adult/child quotas, issue personal SVG QR passes, and export formula-safe spreadsheets.' : 'سجل حضور دقيق يوضح المؤكدين والمرافقين والوجبات، مع قائمة مدعوين مسبقة وبطاقات QR وتصدير Excel محمي.' }}
+                        {{ $isEn ? 'Enable simple attendance responses whenever needed, view adult/child headcounts live, and export formula-safe spreadsheets.' : 'سجل حضور واضح يوضح المؤكدين والأطفال وملاحظات الضيوف، مع إمكانية التفعيل والإيقاف وتصدير Excel الآمن.' }}
                     </p>
                 </div>
 
@@ -526,11 +533,11 @@
 
                 <div class="card-atelier p-6 sm:p-7 space-y-3">
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] text-[#7A5A20] flex items-center justify-center border border-[#C6A76B]/30">
-                        <x-app-icon name="music" class="w-5 h-5" />
+                        <x-app-icon name="sparkles" class="w-5 h-5" />
                     </div>
-                    <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">{{ $isEn ? 'Audio Gate & Live Countdown' : 'بوابة صوتية وعدّاد تنازلي' }}</h3>
+                    <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">{{ $isEn ? 'Live Countdown & Saudi Timing' : 'عدّاد تنازلي وتوقيت الرياض' }}</h3>
                     <p class="text-sm text-[#52493F] leading-relaxed">
-                        {{ $isEn ? 'Timezone-accurate countdown timer paired with an interactive open-gate welcome experience for mobile browsers.' : 'عداد زمني دقيق بتوقيت حفل الزفاف، مع بوابة ترحيبية ومشغل صوتي يمنح الضيوف تجربة شعورية متكاملة.' }}
+                        {{ $isEn ? 'Timezone-accurate Riyadh and Cairo countdown timer with Umm al-Qura Hijri conversion and crisp mobile speed.' : 'عداد زمني دقيق بتوقيت الرياض والقاهرة مع تقويم أم القرى الهجري وسرعة فائقة على الجوال.' }}
                     </p>
                 </div>
             </div>
@@ -555,12 +562,12 @@
                     <x-app-icon name="sparkles" class="w-5 h-5" />
                     <span>{{ $isEn ? 'Create Invitation Free' : 'صمم دعوتك مجاناً الآن' }}</span>
                 </a>
-                <a href="{{ url('/invitation/ahmed-and-sarah') }}"
+                <a href="{{ route('demo.saudi') }}"
                    target="_blank"
                    rel="noopener noreferrer"
                    class="inline-flex items-center justify-center gap-2 min-h-[48px] px-8 py-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/25 text-white font-bold text-base transition">
                     <x-app-icon name="eye" class="w-5 h-5 text-[#DFC99E]" />
-                    <span>{{ $isEn ? 'Inspect Live Sample' : 'معاينة نموذج زفاف حقيقي' }}</span>
+                    <span>{{ $isEn ? 'Inspect Saudi Demo' : 'معاينة نموذج زفاف سعودي' }}</span>
                 </a>
             </div>
         </div>

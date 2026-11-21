@@ -29,6 +29,33 @@
             </div>
         </div>
 
+        <!-- Release 1 KPI Instrumentation (KPI-01, KPI-02, KPI-03b, KPI-05a/b/c) -->
+        <div class="zaffe-mon-kpis">
+            <div class="zaffe-mon-card">
+                <p class="zaffe-mon-label">{{ __('admin.monitor.kpi01_label') }}</p>
+                <p class="zaffe-mon-value">{{ $kpi01['creation_to_published_rate'] }}%</p>
+                <p class="zaffe-mon-sub">{{ __('admin.monitor.kpi01_sub', ['published' => $kpi01['published_invitations'], 'starts' => $kpi01['creation_starts'], 'rate30' => $kpi01['creation_to_published_rate_30d']]) }}</p>
+            </div>
+
+            <div class="zaffe-mon-card">
+                <p class="zaffe-mon-label">{{ __('admin.monitor.kpi02_label') }}</p>
+                <p class="zaffe-mon-value zaffe-mon-value--emerald">{{ $kpi02['shared_published_rate'] }}%</p>
+                <p class="zaffe-mon-sub">{{ __('admin.monitor.kpi02_sub', ['shared' => $kpi02['shared_published_count'], 'published' => $funnel['published_invitations']]) }}</p>
+            </div>
+
+            <div class="zaffe-mon-card">
+                <p class="zaffe-mon-label">{{ __('admin.monitor.kpi03b_label') }}</p>
+                <p class="zaffe-mon-value zaffe-mon-value--gold">{{ $kpi03b['avg_rsvps_per_enabled_published'] }}</p>
+                <p class="zaffe-mon-sub">{{ __('admin.monitor.kpi03b_sub', ['rsvps' => $kpi03b['rsvps_on_enabled_published'], 'enabled' => $kpi03b['rsvp_enabled_published'], 'adoption' => $kpi03b['rsvp_adoption_rate'], 'with_rsvp' => $kpi03b['enabled_with_rsvp_count'], 'avg30' => $kpi03b['avg_rsvps_per_enabled_published_30d']]) }}</p>
+            </div>
+
+            <div class="zaffe-mon-card">
+                <p class="zaffe-mon-label">{{ __('admin.monitor.kpi05_label') }}</p>
+                <p class="zaffe-mon-value">{{ $kpi05['referred_signups'] }} / {{ $kpi05['invite_footer_visits'] }}</p>
+                <p class="zaffe-mon-sub">{{ __('admin.monitor.kpi05_sub', ['visits30' => $kpi05['invite_footer_visits_30d'], 'signups_share' => $kpi05['referred_signup_share'], 'published' => $kpi05['referred_published_invitations'], 'couples' => $kpi05['referred_activated_couples'], 'pub_share' => $kpi05['referred_published_share']]) }}</p>
+            </div>
+        </div>
+
         <!-- Mail & Queue Configuration Summary (Secret-Free) -->
         <div class="zaffe-mon-card">
             <h3 class="zaffe-mon-section-title">{{ __('admin.monitor.mail_queue_section') }}</h3>

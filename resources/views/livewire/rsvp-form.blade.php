@@ -102,10 +102,11 @@
                             class="px-3 py-3 rounded-xl border border-[#DED5C8] text-xs sm:text-sm text-[#221E1A] bg-white focus:border-[#9D7B3B] focus:ring-2 focus:ring-[#C6A76B]/25 outline-none font-bold shrink-0">
                         <option value="SA">+966 (السعودية)</option>
                         <option value="EG">+20 (مصر)</option>
+                        <option value="OTHER">دولة أخرى (+)</option>
                     </select>
                     <input type="tel" id="rsvp_phone" wire:model="phone" dir="ltr"
                            class="w-full px-4 py-3 rounded-xl border border-[#DED5C8] text-sm text-[#221E1A] bg-white placeholder:text-[#6E675F]/75 focus:border-[#9D7B3B] focus:ring-2 focus:ring-[#C6A76B]/25 outline-none text-start tabular-nums transition"
-                           placeholder="50 000 0000">
+                           placeholder="{{ $phone_country === 'OTHER' ? '+971 50 123 4567' : ($phone_country === 'EG' ? '100 123 4567' : '50 000 0000') }}">
                 </div>
                 @error('phone')
                     <span class="text-xs text-rose-600 mt-1 block font-medium">{{ $message }}</span>

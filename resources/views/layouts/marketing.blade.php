@@ -234,7 +234,7 @@
                         <li><a href="{{ route('home') }}#features" class="hover:text-[#DFC99E] transition">{{ $isEn ? 'Features' : 'مميزات المنصة' }}</a></li>
                         <li><a href="{{ route('faq') }}" class="hover:text-[#DFC99E] transition">{{ $isEn ? 'FAQ' : 'الأسئلة الشائعة' }}</a></li>
                         <li>
-                            <a href="{{ url('/invitation/ahmed-and-sarah') }}" target="_blank" rel="noopener noreferrer" class="text-[#DFC99E] hover:underline inline-flex items-center gap-1.5 font-semibold">
+                            <a href="{{ route('demo.saudi') }}" target="_blank" rel="noopener noreferrer" class="text-[#DFC99E] hover:underline inline-flex items-center gap-1.5 font-semibold">
                                 <span>{{ $isEn ? 'Live Sample Card' : 'نموذج دعوة حية' }}</span>
                                 <x-app-icon name="external-link" class="w-3.5 h-3.5" />
                             </a>

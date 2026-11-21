@@ -35,10 +35,10 @@
                             <x-app-icon name="palette" class="w-4.5 h-4.5" />
                         </div>
                         <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">
-                            {{ $isEn ? '6 Curated Themes' : '٦ قوالب ملكية متخصصة' }}
+                            {{ $isEn ? '14 Curated Themes' : '١٤ قالباً ملكياً وتراثياً' }}
                         </h3>
                         <p class="text-xs text-[#52493F] leading-relaxed">
-                            {{ $isEn ? 'Six distinct visual worlds customizable with live preview and photo-free privacy.' : 'تصاميم متنوعة تكتمل أناقتها مع الصور أو بدونها حفاظاً على الخصوصية.' }}
+                            {{ $isEn ? 'Fourteen distinct visual worlds including the Saudi Signature Collection — elegant with or without photos.' : 'أربعة عشر تصميماً متنوعاً تشمل مجموعة التوقيع السعودي، تكتمل أناقتها مع الصور أو بدونها حفاظاً على الخصوصية.' }}
                         </p>
                     </div>
 
@@ -47,22 +47,22 @@
                             <x-app-icon name="calendar" class="w-4.5 h-4.5" />
                         </div>
                         <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">
-                            {{ $isEn ? 'KSA & Egypt Ready' : 'توقيت الرياض والقاهرة' }}
+                            {{ $isEn ? 'KSA & Global Ready' : 'توقيت الرياض والقاهرة' }}
                         </h3>
                         <p class="text-xs text-[#52493F] leading-relaxed">
-                            {{ $isEn ? 'Umm al-Qura Hijri calendar, +966/+20 phone validation, and bilingual RTL/LTR.' : 'تقويم أم القرى الهجري، أرقام عربية أو لاتينية، وتوافق تام مع واتساب.' }}
+                            {{ $isEn ? 'Umm al-Qura Hijri calendar, +966/+20 & international phone support, and instant WhatsApp sharing.' : 'تقويم أم القرى الهجري، أرقام عربية أو لاتينية، دعم الهواتف الدولية (+966 و +20 وغيرها)، وتوافق تام مع واتساب.' }}
                         </p>
                     </div>
 
                     <div class="p-5 rounded-xl bg-[#FAF7F2] border border-[#E4D9C8] space-y-2">
                         <div class="w-9 h-9 rounded-lg bg-[#F4EBD9] text-[#7A5A20] flex items-center justify-center">
-                            <x-app-icon name="qr-code" class="w-4.5 h-4.5" />
+                            <x-app-icon name="check-badge" class="w-4.5 h-4.5" />
                         </div>
                         <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">
-                            {{ $isEn ? 'Smart RSVP & QR' : 'ردود ذكية وبطاقات QR' }}
+                            {{ $isEn ? 'Optional RSVP & CSV Export' : 'تأكيد حضور اختياري وتصدير آمن' }}
                         </h3>
                         <p class="text-xs text-[#52493F] leading-relaxed">
-                            {{ $isEn ? 'Guest quotas, personal invite links, QR passes, and Excel/CSV exports.' : 'قوائم مدعوين مخصصة، حصص للمرافقين، وتصدير آمن بصيغة Excel/CSV.' }}
+                            {{ $isEn ? 'Start with a serene view-only card and turn simple guest RSVP on anytime with one-click CSV exports.' : 'ابدأ ببطاقة عرض أنيقة وفعّل نموذج تأكيد الحضور بضغطة واحدة متى شئت مع تصدير Excel/CSV.' }}
                         </p>
                     </div>
                 </div>

@@ -40,6 +40,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
+
             return redirect()->intended(route('dashboard'))->with('success', 'مرحباً بك مجدداً في زفّة!');
         }
 
@@ -63,7 +64,7 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['nullable', 'string', 'max:30'],
-            'phone_country' => ['nullable', 'string', 'in:EG,SA'],
+            'phone_country' => ['nullable', 'string', 'in:SA,EG,OTHER'],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ], [
             'name.required' => 'الرجاء كتابة اسم العروسين أو اسمك الكريم.',
@@ -74,15 +75,21 @@ class AuthController extends Controller
         ]);
 
         $normalizedPhone = null;
-        if (!empty($validated['phone'])) {
-            $country = $validated['phone_country'] ?? 'EG';
-            if (!PhoneService::isValid($validated['phone'], $country)) {
+        if (! empty($validated['phone'])) {
+            $country = $validated['phone_country'] ?? 'SA';
+            if (! PhoneService::isValid($validated['phone'], $country)) {
                 return back()->withErrors([
-                    'phone' => 'رقم الهاتف المدخل غير صالح للدولة المختارة.',
+                    'phone' => $country === 'OTHER'
+                        ? 'يرجى إدخال رقم دولي صحيح يبدأ برمز الدولة (مثال: +971501234567).'
+                        : 'رقم الهاتف المدخل غير صالح للدولة المختارة.',
                 ])->withInput();
             }
             $normalizedPhone = PhoneService::normalize($validated['phone'], $country);
         }
+
+        $signupSource = $request->session()->pull('signup_source') === 'invite_footer'
+            ? 'invite_footer'
+            : null;
 
         $user = User::create([
             'name' => $validated['name'],
@@ -91,6 +98,10 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => 'user',
         ]);
+
+        if ($signupSource !== null) {
+            $user->forceFill(['signup_source' => $signupSource])->save();
+        }
 
         Auth::login($user);
         $request->session()->regenerate();
