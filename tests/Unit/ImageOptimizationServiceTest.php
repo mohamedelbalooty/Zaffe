@@ -69,4 +69,40 @@ class ImageOptimizationServiceTest extends TestCase
         $this->expectException(ValidationException::class);
         $service->storeAsWebp($smallEnoughUpload, 'invitations/covers', 'public', 1600, 82, 24 * 1024 * 1024);
     }
+
+    public function test_preserves_png_alpha_transparency_and_respects_128m_shared_hosting_memory_limit(): void
+    {
+        Storage::fake('public');
+        $service = app(ImageOptimizationService::class);
+
+        $tmpPng = tempnam(sys_get_temp_dir(), 'alpha_').'.png';
+        $canvas = imagecreatetruecolor(120, 120);
+        imagealphablending($canvas, false);
+        imagesavealpha($canvas, true);
+        $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+        $gold = imagecolorallocatealpha($canvas, 198, 167, 107, 0);
+        imagefilledrectangle($canvas, 0, 0, 120, 120, $transparent);
+        imagefilledrectangle($canvas, 30, 30, 90, 90, $gold);
+        imagepng($canvas, $tmpPng);
+        unset($canvas);
+
+        $upload = new UploadedFile($tmpPng, 'transparent-crest.png', 'image/png', null, true);
+
+        // Realistic 128M shared hosting memory limit allows normal upload conversion cleanly
+        $path = $service->storeAsWebp($upload, 'invitations/gallery', 'public', 1600, 82, 128 * 1024 * 1024);
+        @unlink($tmpPng);
+
+        Storage::disk('public')->assertExists($path);
+        $decoded = imagecreatefromstring(Storage::disk('public')->get($path));
+        $this->assertNotFalse($decoded);
+
+        $cornerAlpha = (imagecolorat($decoded, 5, 5) >> 24) & 0x7F;
+        $centerAlpha = (imagecolorat($decoded, 60, 60) >> 24) & 0x7F;
+        $this->assertGreaterThan(100, $cornerAlpha);
+        $this->assertSame(0, $centerAlpha);
+
+        // Oversized 5000x4000 (~144MB estimated decode) is blocked safely under 128M limit
+        $this->expectException(ValidationException::class);
+        $service->assertSafeDimensionsAndMemory(5000, 4000, 128 * 1024 * 1024);
+    }
 }

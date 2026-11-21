@@ -18,6 +18,11 @@
         } else {
             $resolvedOgImage = url('/' . ltrim($rawOgImage, '/'));
         }
+        $configuredAppUrl = (string) config('app.url', '');
+        $configuredHost = parse_url($configuredAppUrl, PHP_URL_HOST);
+        if (str_starts_with($configuredAppUrl, 'https://') && $configuredHost && str_starts_with($resolvedOgImage, 'http://' . $configuredHost)) {
+            $resolvedOgImage = 'https://' . substr($resolvedOgImage, 7);
+        }
     @endphp
     <title>{{ $title ?? $defaultTitle }}</title>
     <meta name="description" content="{{ $description ?? 'صمم دعوة زفافك الرقمية الفاخرة وشاركها مع ضيوفك برابط مميز مع تأكيد الحضور الفوري والمباشر.' }}">

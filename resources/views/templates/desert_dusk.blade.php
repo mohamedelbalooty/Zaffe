@@ -339,7 +339,7 @@
 
         <div class="text-center text-xs text-[#E7C2A8]/80 pt-3 pb-8 font-tajawal">
             <span>{{ $isEnInv ? 'Crafted with Zaffe' : 'صُممت بكل حب عبر' }} </span>
-            <a href="{{ route('templates.index', ['ref' => 'invite']) }}" class="font-bold underline hover:text-white">{{ $isEnInv ? 'Zaffe Studio' : 'منصة زفّــة' }}</a>
+            <a href="{{ ($isPreview ?? false) ? route('templates.index') : route('templates.index', ['ref' => 'invite']) }}" class="font-bold underline hover:text-white">{{ $isEnInv ? 'Zaffe Studio' : 'منصة زفّــة' }}</a>
         </div>
     </div>
 </div>

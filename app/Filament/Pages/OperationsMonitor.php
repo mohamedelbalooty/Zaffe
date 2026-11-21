@@ -102,7 +102,9 @@ class OperationsMonitor extends Page
         $rsvpsOnEnabledPublished30d = RsvpResponse::where('created_at', '>=', $since30Days)
             ->whereHas(
                 'invitation',
-                fn ($q) => $q->where('status', 'published')->where('is_rsvp_enabled', true)
+                fn ($q) => $q->where('status', 'published')
+                    ->where('is_rsvp_enabled', true)
+                    ->where('created_at', '>=', $since30Days)
             )
             ->count();
         $avgRsvpsPerEnabledPublished30d = $rsvpEnabledPublished30d > 0

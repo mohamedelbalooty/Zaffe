@@ -97,8 +97,11 @@ class AuthController extends Controller
             'phone' => $normalizedPhone,
             'password' => Hash::make($validated['password']),
             'role' => 'user',
-            'signup_source' => $signupSource,
         ]);
+
+        if ($signupSource !== null) {
+            $user->forceFill(['signup_source' => $signupSource])->save();
+        }
 
         Auth::login($user);
         $request->session()->regenerate();

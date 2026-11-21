@@ -7,13 +7,16 @@ use App\Livewire\InvitationEditor;
 use App\Livewire\RsvpForm;
 use App\Models\FunnelDailyMetric;
 use App\Models\Invitation;
+use App\Models\InvitationGuest;
 use App\Models\InvitationTemplate;
 use App\Models\RsvpResponse;
 use App\Models\User;
 use App\Support\TemplateStyleCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -413,5 +416,166 @@ class GrowthAndSaudiReadinessTest extends TestCase
         $this->assertSame(1, $viewData['kpi05']['referred_signups']);
         $this->assertSame(3, $viewData['kpi05']['referred_published_invitations']);
         $this->assertSame(1, $viewData['kpi05']['referred_activated_couples']);
+    }
+
+    public function test_pr3_hardening_multiple_gallery_webp_uploads_https_og_privacy_demo_isolation_and_mass_assignment(): void
+    {
+        Storage::fake('public');
+
+        // 1. Multiple gallery uploads & selective WebP deletion (leaving historical files intact)
+        $couple = User::factory()->create(['role' => 'user']);
+        $template = InvitationTemplate::create([
+            'name_ar' => 'تراث الدرعية',
+            'name_en' => 'Diriyah Heritage',
+            'slug' => 'diriyah-heritage',
+            'view_name' => 'templates.diriyah_heritage',
+            'thumbnail' => '/images/templates/diriyah-heritage.webp',
+            'is_active' => true,
+        ]);
+
+        Storage::disk('public')->put('invitations/gallery/historical.png', 'old-png-bytes');
+
+        $invitation = Invitation::create([
+            'user_id' => $couple->id,
+            'template_id' => $template->id,
+            'title' => 'حفل زفاف عبدالله',
+            'slug' => 'abdullah-hardening-test',
+            'groom_name' => 'عبدالله',
+            'bride_name' => null,
+            'wedding_date' => now()->addDays(25)->toDateString(),
+            'timezone' => 'Asia/Riyadh',
+            'venue_name' => 'قصر طويق',
+            'status' => 'published',
+            'is_rsvp_enabled' => true,
+            'invitation_mode' => Invitation::MODE_RSVP_ONLY,
+        ]);
+
+        $editor = Livewire::actingAs($couple)
+            ->test(InvitationEditor::class, ['id' => $invitation->id])
+            ->set('new_gallery_photo', UploadedFile::fake()->image('g1.jpg', 900, 700))
+            ->assertHasNoErrors()
+            ->set('new_gallery_photo', UploadedFile::fake()->image('g2.png', 800, 800))
+            ->assertHasNoErrors();
+
+        $photos = $invitation->photos()->orderBy('id')->get();
+        $this->assertCount(2, $photos);
+        $this->assertStringEndsWith('.webp', $photos[0]->image_path);
+        $this->assertStringEndsWith('.webp', $photos[1]->image_path);
+
+        $firstRelativePath = Invitation::resolvePublicDiskPath($photos[0]->image_path);
+        $secondRelativePath = Invitation::resolvePublicDiskPath($photos[1]->image_path);
+        Storage::disk('public')->assertExists($firstRelativePath);
+        Storage::disk('public')->assertExists($secondRelativePath);
+
+        $editor->call('deleteGalleryPhoto', $photos[0]->id)->assertHasNoErrors();
+        Storage::disk('public')->assertMissing($firstRelativePath);
+        Storage::disk('public')->assertExists($secondRelativePath);
+        Storage::disk('public')->assertExists('invitations/gallery/historical.png');
+
+        // 2. Demo & preview render footer without ?ref=invite; live invite carries ?ref=invite
+        $demoResponse = $this->get(route('demo.saudi'));
+        $demoResponse->assertOk();
+        $demoResponse->assertDontSee('templates?ref=invite');
+
+        // 3. Forced HTTPS OG tags & zero PII leakage when personalized ?g= token is visited
+        $guest = InvitationGuest::create([
+            'invitation_id' => $invitation->id,
+            'name' => 'سمو الأمير فيصل',
+            'phone' => '+966509991111',
+            'max_adults' => 3,
+            'max_children' => 1,
+        ]);
+
+        config(['app.url' => 'https://zaffe.sa']);
+        URL::forceRootUrl('https://zaffe.sa');
+        URL::forceScheme('https');
+
+        try {
+            $publicResp = $this->get(route('invitation.show', $invitation->slug).'?g='.$guest->invite_token);
+            $publicResp->assertOk();
+            $publicResp->assertSee('property="og:image" content="https://zaffe.sa/images/templates/diriyah-heritage.webp"', false);
+            $publicResp->assertSee('name="twitter:image" content="https://zaffe.sa/images/templates/diriyah-heritage.webp"', false);
+            $publicResp->assertSee('https://zaffe.sa/templates?ref=invite');
+
+            // Confirm zero private guest PII appears inside head meta tags
+            $html = $publicResp->getContent();
+            $headEnd = stripos($html, '</head>') ?: strlen($html);
+            $headHtml = substr($html, 0, $headEnd);
+            $this->assertStringNotContainsString('+966509991111', $headHtml);
+            $this->assertStringNotContainsString($guest->pass_code, $headHtml);
+            $this->assertStringNotContainsString('سمو الأمير فيصل', $headHtml);
+        } finally {
+            URL::forceRootUrl(null);
+            URL::forceScheme(null);
+            config(['app.url' => 'http://localhost:8000']);
+        }
+
+        // 4. signup_source is not mass-assignable via User::create or POST /register payload
+        auth()->logout();
+        $massAssigned = User::create([
+            'name' => 'Mass Test',
+            'email' => 'mass.assign@example.com',
+            'password' => bcrypt('StrongPass!123'),
+            'role' => 'user',
+            'signup_source' => 'invite_footer',
+        ]);
+        $this->assertNull($massAssigned->fresh()->signup_source);
+
+        $this->post('/register', [
+            'name' => 'Spoof Attempt',
+            'email' => 'spoof.ref@example.com',
+            'phone_country' => 'SA',
+            'phone' => '0501234568',
+            'signup_source' => 'invite_footer',
+            'password' => 'StrongPass!123',
+            'password_confirmation' => 'StrongPass!123',
+        ])->assertRedirect(route('dashboard.invitations.create'));
+
+        $this->assertNull(User::where('email', 'spoof.ref@example.com')->firstOrFail()->signup_source);
+
+        // 5. KPI-03b 30d window keeps numerator aligned strictly to 30d invitations cohort
+        $olderInvitation = Invitation::create([
+            'user_id' => $couple->id,
+            'template_id' => $template->id,
+            'title' => 'حفل قديم',
+            'slug' => 'older-cohort-test',
+            'groom_name' => 'مشعل',
+            'bride_name' => null,
+            'wedding_date' => now()->addDays(10)->toDateString(),
+            'timezone' => 'Asia/Riyadh',
+            'venue_name' => 'قاعة قديمة',
+            'status' => 'published',
+            'is_rsvp_enabled' => true,
+            'invitation_mode' => Invitation::MODE_RSVP_ONLY,
+        ]);
+        $olderInvitation->forceFill(['created_at' => now()->subDays(45), 'updated_at' => now()->subDays(45)])->saveQuietly();
+
+        RsvpResponse::create([
+            'invitation_id' => $olderInvitation->id,
+            'guest_name' => 'رد حديث على دعوة قديمة',
+            'attendance_status' => 'attending',
+            'guest_count' => 1,
+        ]);
+
+        RsvpResponse::create([
+            'invitation_id' => $invitation->id,
+            'guest_name' => 'رد ضمن المدة',
+            'attendance_status' => 'attending',
+            'guest_count' => 2,
+        ]);
+
+        $viewData = (new OperationsMonitor)->getViewData();
+        $this->assertSame(1, $viewData['kpi03b']['rsvp_enabled_published_30d']);
+        $this->assertSame(1, $viewData['kpi03b']['rsvps_on_enabled_published_30d']);
+        $this->assertSame(1.0, $viewData['kpi03b']['avg_rsvps_per_enabled_published_30d']);
+
+        // 6. Migration down() / up() idempotency check
+        $migration = require database_path('migrations/2026_11_21_000002_add_growth_attribution_and_kpi_counters.php');
+        $migration->down();
+        $this->assertFalse(Schema::hasTable('funnel_daily_metrics'));
+        $this->assertFalse(Schema::hasColumn('users', 'signup_source'));
+        $migration->up();
+        $this->assertTrue(Schema::hasTable('funnel_daily_metrics'));
+        $this->assertTrue(Schema::hasColumn('users', 'signup_source'));
     }
 }

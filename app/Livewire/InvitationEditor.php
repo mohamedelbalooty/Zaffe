@@ -270,23 +270,13 @@ class InvitationEditor extends Component
 
     protected function deleteStorageFile(?string $pathOrUrl): void
     {
-        if (empty($pathOrUrl)) {
+        $relativePath = Invitation::resolvePublicDiskPath($pathOrUrl);
+        if ($relativePath === null) {
             return;
         }
 
         $disk = Storage::disk('public');
-        $storageUrl = $disk->url('');
-
-        $relativePath = $pathOrUrl;
-        if (! empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
-            $relativePath = substr($relativePath, strlen($storageUrl));
-        } elseif (str_starts_with($relativePath, '/storage/')) {
-            $relativePath = substr($relativePath, strlen('/storage/'));
-        }
-
-        $relativePath = ltrim($relativePath, '/');
-
-        if (! empty($relativePath) && $disk->exists($relativePath)) {
+        if ($disk->exists($relativePath)) {
             $disk->delete($relativePath);
         }
     }
