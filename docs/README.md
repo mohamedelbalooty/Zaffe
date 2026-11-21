@@ -1,7 +1,7 @@
 # Zaffe (زفّــة) — Documentation Hub
 
 > **Master Documentation Directory & Navigation Index**  
-> **Last Synchronized:** 2026-11-21 (`dev` baseline `d833b95`; Final Candidate Ready for Formal BRD `v0.5` Sign-Off on `chore/ZAFFE-026-saudi-first-strategy-and-phased-roadmap`)  
+> **Last Synchronized:** 2026-11-21 (`dev` baseline `a40dd70` — PR 1–3 merged; PR 4 preparation pack & PHP 8.4 CI ready for review)  
 > **Repository Root Entry Files:** [README.md](../README.md) · [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md)
 
 ---
@@ -33,7 +33,8 @@ Read these core documents in order when onboarding, planning features, or config
 | :--- | :--- |
 | **[project-discovery.md](business/project-discovery.md)** | Phase 1 reverse-engineering discovery report: actors, 34 cataloged features, 8 workflows, 36 business rules (`BR-001`–`BR-036`), schema, and verified gaps. |
 | **[DOCUMENTATION_AUDIT_SUMMARY.md](business/DOCUMENTATION_AUDIT_SUMMARY.md)** | Phase 2 full inventory of all project Markdown files, pre/post-audit accuracy ledger, resolved conflicts, and open Phase 3 clarification gaps. |
-| **[business-requirements-document.md](business/business-requirements-document.md)** | Phase 3 BRD (`v0.5`, Final Candidate Ready for Formal PO Sign-Off): `DEC-01`–`DEC-07` & `C-5`–`C-7` & `KPI-03b`/`05` recorded, Acceptance Criteria Matrix, 6-class Data Preservation Plan, and 30-day retention spec (pending legal). |
+| **[business-requirements-document.md](business/business-requirements-document.md)** | Phase 3 BRD (`v0.5`, Product Owner Signed-Off baseline for `PR 1`–`PR 3`): `DEC-01`–`DEC-07` & `C-5`–`C-7` & `KPI-03b`/`05` recorded, Acceptance Criteria Matrix, 6-class Data Preservation Plan, and 30-day retention spec (pending legal). |
+| **[PR4_LEGAL_AND_PRIVACY_REVIEW_PACK.md](business/PR4_LEGAL_AND_PRIVACY_REVIEW_PACK.md)** | Unapproved PR 4 legal/PDPL preparation pack: PII inventory, `/privacy` & `/terms` review outlines, manual privacy-request deletion SOP, and `EX-01`–`EX-03` counsel brief. |
 
 ### 3. Architecture & Technical Governance (`architecture/`)
 | Document | Purpose |
@@ -67,6 +68,7 @@ Read these core documents in order when onboarding, planning features, or config
 | :--- | :--- |
 | **[DEVELOPMENT_GUIDE.md](engineering/DEVELOPMENT_GUIDE.md)** | Local setup, Windows PHP/Composer notes (`PHP >= 8.4.1` + `ext-intl`), test execution, seed accounts, and template conventions. |
 | **[DEPLOYMENT_CHECKLIST.md](engineering/DEPLOYMENT_CHECKLIST.md)** | Staging and production release checklist including MySQL 8.4, PHP `>= 8.4.1` + `ext-intl`, Filament assets, and queues. |
+| **[PR4_LAUNCH_READINESS_PACK.md](engineering/PR4_LAUNCH_READINESS_PACK.md)** | PR 4 pre-launch operational readiness pack: Hostinger CLI/queue tradeoffs, Resend DNS/config, backup/restore runbook, and Gate 4 verification matrix. |
 | **[GIT_WORKFLOW.md](engineering/GIT_WORKFLOW.md)** | Git Flow branching strategy, branch naming rules, and protected/manual-merge branch controls. |
 | **[MASTER_ROADMAP.md](engineering/MASTER_ROADMAP.md)** | Balanced Phase 1 PR sequence (`PR 1`–`PR 3` ready upon BRD `v0.5` sign-off; `PR 4` gated on legal/ops inputs) & post-R1 deferrals (`2026-11-21`). |
 | **[FEATURE_MAP.md](engineering/FEATURE_MAP.md)** | Mapping of business feature domains (`F01`–`F16`) to Laravel controllers, models, views, and tests. |
