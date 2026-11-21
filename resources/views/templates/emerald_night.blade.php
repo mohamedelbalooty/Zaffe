@@ -3,16 +3,18 @@
 @php
     $styles = $invitation->effective_styles;
     $primaryColor = $styles['primary_color'] ?? '#E6C687';
-    $bgColor = '#0B1220';
-    $cardColor = '#151F32';
+    $secondaryColor = $styles['secondary_color'] ?? '#F1F5F9';
+    $bgColor = $styles['background_color'] ?? '#0B1220';
+    $cardColor = $styles['card_color'] ?? '#151F32';
     $fontStack = \App\Support\TemplateStyleCatalog::fontCssStack($styles['font_family'] ?? 'Cairo');
     $dateInfo = \App\Services\InvitationDateFormatter::forInvitation($invitation);
     $isEnInv = $dateInfo['locale'] === 'en';
+    $hasBrideName = filled(trim((string) ($invitation->bride_name ?? '')));
 @endphp
 
-<div class="min-h-screen py-10 sm:py-14 px-4 sm:px-6 relative overflow-hidden text-slate-100"
+<div class="min-h-screen py-10 sm:py-14 px-4 sm:px-6 relative overflow-hidden"
      dir="{{ $dateInfo['dir'] }}"
-     style="background-color: {{ $bgColor }}; background-image: radial-gradient(rgba(230, 198, 135, 0.14) 1px, transparent 1px); background-size: 28px 28px; font-family: {{ $fontStack }};">
+     style="background-color: {{ $bgColor }}; background-image: radial-gradient(rgba(230, 198, 135, 0.14) 1px, transparent 1px); background-size: 28px 28px; color: {{ $secondaryColor }}; font-family: {{ $fontStack }};">
 
     <div class="max-w-2xl mx-auto relative z-10 space-y-8">
         <!-- Celestial Midnight Gala Card -->
@@ -36,10 +38,12 @@
                 <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight" style="color: {{ $primaryColor }};">
                     {{ $invitation->groom_name }}
                 </h1>
-                <div class="text-lg text-slate-400 font-bold">&amp;</div>
-                <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight" style="color: {{ $primaryColor }};">
-                    {{ $invitation->bride_name }}
-                </h1>
+                @if($hasBrideName)
+                    <div class="text-lg text-slate-400 font-bold">{{ $isEnInv ? '&' : 'و' }}</div>
+                    <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight" style="color: {{ $primaryColor }};">
+                        {{ $invitation->bride_name }}
+                    </h1>
+                @endif
             </div>
 
             @if($invitation->cover_photo)
@@ -47,7 +51,7 @@
                     <div class="w-40 h-40 mx-auto rounded-full p-1.5 shadow-2xl overflow-hidden border-2"
                          style="border-color: {{ $primaryColor }};">
                         <img src="{{ $invitation->cover_photo }}"
-                             alt="{{ $invitation->groom_name }} & {{ $invitation->bride_name }}"
+                             alt="{{ $invitation->groom_name }}{{ $hasBrideName ? ' & ' . $invitation->bride_name : '' }}"
                              onerror="this.parentElement.parentElement.style.display='none'"
                              class="w-full h-full object-cover rounded-full">
                     </div>
@@ -55,23 +59,24 @@
             @endif
 
             @if($invitation->invitation_message)
-                <p class="text-sm sm:text-base leading-[1.85] text-slate-200 px-2 max-w-lg mx-auto font-tajawal">
+                <p class="text-sm sm:text-base leading-[1.85] opacity-90 px-2 max-w-lg mx-auto font-tajawal" style="color: {{ $secondaryColor }};">
                     {!! nl2br(e(str_replace('\n', "\n", $invitation->invitation_message))) !!}
                 </p>
             @endif
 
-            <div class="p-5 sm:p-6 rounded-xl border border-slate-700/80 bg-[#0E1628] space-y-2.5 font-tajawal">
+            <div class="p-5 sm:p-6 rounded-xl border border-slate-700/80 space-y-2.5 font-tajawal"
+                 style="background-color: {{ $bgColor }};">
                 <div class="flex items-center justify-center gap-2 text-base sm:text-lg font-extrabold" style="color: {{ $primaryColor }};">
                     <x-app-icon name="calendar" class="w-5 h-5 shrink-0" />
                     <bdi dir="{{ $dateInfo['dir'] }}">{{ $dateInfo['gregorian_date'] }}</bdi>
                 </div>
                 @if($dateInfo['hijri_date'])
-                    <div class="text-xs sm:text-sm font-semibold text-slate-200">
+                    <div class="text-xs sm:text-sm font-semibold opacity-90" style="color: {{ $secondaryColor }};">
                         @if($dateInfo['locale'] === 'ar')<span>الموافق </span>@endif<bdi dir="rtl">{{ $dateInfo['hijri_date'] }}</bdi>
                     </div>
                 @endif
                 @if($dateInfo['time'])
-                    <div class="flex items-center justify-center gap-2 text-sm text-slate-300">
+                    <div class="flex items-center justify-center gap-2 text-sm opacity-85" style="color: {{ $secondaryColor }};">
                         <x-app-icon name="clock" class="w-4 h-4 shrink-0" style="color: {{ $primaryColor }};" />
                         @if($dateInfo['locale'] === 'en')
                             <bdi dir="ltr">At {{ $dateInfo['time'] }}</bdi>
@@ -80,12 +85,12 @@
                         @endif
                     </div>
                 @endif
-                <div class="flex items-center justify-center gap-2 text-sm font-bold text-white pt-1">
+                <div class="flex items-center justify-center gap-2 text-sm font-bold pt-1" style="color: {{ $secondaryColor }};">
                     <x-app-icon name="map-pin" class="w-4 h-4 shrink-0" style="color: {{ $primaryColor }};" />
                     <span>{{ $invitation->venue_name }}</span>
                 </div>
                 @if($invitation->venue_address)
-                    <div class="text-xs text-slate-300">{{ $invitation->venue_address }}</div>
+                    <div class="text-xs opacity-75" style="color: {{ $secondaryColor }};">{{ $invitation->venue_address }}</div>
                 @endif
                 @if($invitation->venue_map_url)
                     <div class="pt-2">
@@ -100,10 +105,10 @@
             </div>
         </div>
 
-        @include('templates.partials.countdown', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'secondaryColor' => '#F1F5F9', 'cardColor' => $cardColor, 'bgColor' => '#0E1628', 'isDarkTheme' => true])
-        @include('templates.partials.timeline', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'secondaryColor' => '#F1F5F9', 'cardColor' => $cardColor, 'bgColor' => '#0E1628', 'isDarkTheme' => true])
-        @include('templates.partials.gallery', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'secondaryColor' => '#F1F5F9', 'cardColor' => $cardColor, 'bgColor' => '#0E1628', 'isDarkTheme' => true])
-        @include('templates.partials.dress_code', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'secondaryColor' => '#F1F5F9', 'cardColor' => $cardColor, 'bgColor' => '#0E1628', 'isDarkTheme' => true])
+        @include('templates.partials.countdown', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'secondaryColor' => $secondaryColor, 'cardColor' => $cardColor, 'bgColor' => $bgColor, 'isDarkTheme' => true])
+        @include('templates.partials.timeline', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'secondaryColor' => $secondaryColor, 'cardColor' => $cardColor, 'bgColor' => $bgColor, 'isDarkTheme' => true])
+        @include('templates.partials.gallery', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'secondaryColor' => $secondaryColor, 'cardColor' => $cardColor, 'bgColor' => $bgColor, 'isDarkTheme' => true])
+        @include('templates.partials.dress_code', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'secondaryColor' => $secondaryColor, 'cardColor' => $cardColor, 'bgColor' => $bgColor, 'isDarkTheme' => true])
 
         @include('templates.partials.access_section', [
             'invitation' => $invitation,
@@ -112,7 +117,7 @@
         ])
 
         @if(!$isPreview)
-            @include('templates.partials.share_box', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'secondaryColor' => '#F1F5F9', 'cardColor' => $cardColor, 'isDarkTheme' => true])
+            @include('templates.partials.share_box', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'secondaryColor' => $secondaryColor, 'cardColor' => $cardColor, 'isDarkTheme' => true])
         @endif
 
         @include('templates.partials.music_player', ['invitation' => $invitation, 'primaryColor' => $primaryColor, 'isPreview' => $isPreview ?? false])

@@ -1,5 +1,7 @@
 @php
     $isEn = app()->getLocale() === 'en';
+    $showLegacyRoster = $showLegacyRoster ?? $invitation->hasLegacyRosterAccess();
+    $coupleHeading = $invitation->formattedCoupleNames($isEn ? 'en' : 'ar', ' & ');
 @endphp
 
 <x-layouts.dashboard :title="($isEn ? 'Guests & RSVPs: ' : 'إدارة ضيوف وتأكيدات حضور: ') . $invitation->title . ' — زفّة'">
@@ -15,7 +17,7 @@
                     <span>{{ $isEn ? 'Guests & RSVPs' : 'سجل الضيوف وتأكيدات الحضور' }}</span>
                 </nav>
                 <h1 class="font-cairo text-2xl sm:text-3xl font-black text-[#221E1A]">
-                    {{ $isEn ? 'Guest List: ' : 'سجل ضيوف: ' }}{{ $invitation->groom_name }} &amp; {{ $invitation->bride_name }}
+                    {{ $isEn ? 'Guest List: ' : 'سجل ضيوف: ' }}{{ $coupleHeading }}
                 </h1>
             </div>
 
@@ -33,11 +35,13 @@
             </div>
         </div>
 
-        <!-- Section 1: Smart Pre-Invited Guest Roster & Personal QR Passes -->
-        <livewire:guest-roster-manager :invitation-id="$invitation->id" />
+        @if($showLegacyRoster)
+            <!-- Legacy Section 1: Smart Pre-Invited Guest Roster & Personal QR Passes -->
+            <livewire:guest-roster-manager :invitation-id="$invitation->id" />
+        @endif
 
         <!-- Section 2: Submitted RSVP Responses Log -->
-        <section class="space-y-5 pt-4 border-t border-[#E4D9C8]">
+        <section class="space-y-5 {{ $showLegacyRoster ? 'pt-4 border-t border-[#E4D9C8]' : '' }}">
             <div>
                 <h2 class="font-cairo text-xl font-black text-[#221E1A]">
                     {{ $isEn ? 'Submitted RSVP Responses' : 'سجل ردود تأكيد الحضور المستلمة (RSVP)' }}

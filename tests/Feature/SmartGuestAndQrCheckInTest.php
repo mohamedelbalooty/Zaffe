@@ -149,7 +149,7 @@ class SmartGuestAndQrCheckInTest extends TestCase
         $this->get('/invitation/'.$this->invitation->slug.'?g='.$guest->invite_token)
             ->assertOk()
             ->assertSee('الأمير تركي')
-            ->assertSee('بطاقة الدخول المباشرة (QR Pass)')
+            ->assertSee('بطاقة الدعوة الشخصية المباشرة (QR Pass)')
             ->assertSee($guest->pass_code)
             ->assertDontSee('إرسال تأكيد الحضور');
 
@@ -159,7 +159,7 @@ class SmartGuestAndQrCheckInTest extends TestCase
         $this->get('/invitation/'.$this->invitation->slug.'?g='.$guest->invite_token)
             ->assertOk()
             ->assertSee('الأمير تركي')
-            ->assertDontSee('بطاقة الدخول المباشرة')
+            ->assertDontSee('بطاقة الدعوة الشخصية المباشرة')
             ->assertDontSee('إرسال تأكيد الحضور');
     }
 

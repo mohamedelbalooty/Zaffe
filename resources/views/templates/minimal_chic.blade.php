@@ -9,6 +9,7 @@
     $fontStack = \App\Support\TemplateStyleCatalog::fontCssStack($styles['font_family'] ?? 'Tajawal');
     $dateInfo = \App\Services\InvitationDateFormatter::forInvitation($invitation);
     $isEnInv = $dateInfo['locale'] === 'en';
+    $hasBrideName = filled(trim((string) ($invitation->bride_name ?? '')));
 @endphp
 
 <div class="min-h-screen py-12 sm:py-16 px-4 sm:px-6 relative"
@@ -38,17 +39,19 @@
                 <h1 class="font-cairo text-4xl sm:text-5xl font-black tracking-tight text-zinc-900 leading-tight">
                     {{ $invitation->groom_name }}
                 </h1>
-                <div class="text-sm font-bold tracking-widest text-zinc-400">&amp;</div>
-                <h1 class="font-cairo text-4xl sm:text-5xl font-black tracking-tight text-zinc-900 leading-tight">
-                    {{ $invitation->bride_name }}
-                </h1>
+                @if($hasBrideName)
+                    <div class="text-sm font-bold tracking-widest text-zinc-400">&amp;</div>
+                    <h1 class="font-cairo text-4xl sm:text-5xl font-black tracking-tight text-zinc-900 leading-tight">
+                        {{ $invitation->bride_name }}
+                    </h1>
+                @endif
             </div>
 
             @if($invitation->cover_photo)
                 <div class="py-2">
                     <div class="w-full h-64 sm:h-72 mx-auto rounded-lg overflow-hidden border border-zinc-200">
                         <img src="{{ $invitation->cover_photo }}"
-                             alt="{{ $invitation->groom_name }} & {{ $invitation->bride_name }}"
+                             alt="{{ $invitation->groom_name }}{{ $hasBrideName ? ' & ' . $invitation->bride_name : '' }}"
                              onerror="this.parentElement.parentElement.style.display='none'"
                              class="w-full h-full object-cover">
                     </div>

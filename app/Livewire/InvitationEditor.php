@@ -30,7 +30,7 @@ class InvitationEditor extends Component
     // Basic Wedding Details
     public string $groom_name = '';
 
-    public string $bride_name = '';
+    public ?string $bride_name = '';
 
     public string $title = '';
 
@@ -40,7 +40,7 @@ class InvitationEditor extends Component
 
     public string $wedding_time = '';
 
-    public string $timezone = 'Africa/Cairo';
+    public string $timezone = 'Asia/Riyadh';
 
     public string $venue_name = '';
 
@@ -55,15 +55,16 @@ class InvitationEditor extends Component
     #[Locked]
     public string $status = 'draft';
 
-    public bool $is_rsvp_enabled = true;
+    public bool $is_rsvp_enabled = false;
 
-    public string $invitation_mode = Invitation::MODE_RSVP_QR;
+    public string $invitation_mode = Invitation::MODE_ANNOUNCEMENT;
 
     public int $max_guests_per_rsvp = 5;
 
     public ?string $rsvp_deadline = '';
 
-    public ?string $music_url = '';
+    #[Locked]
+    public ?string $music_url = null;
 
     public int $template_id;
 
@@ -109,12 +110,12 @@ class InvitationEditor extends Component
 
         $this->invitationId = $invitation->id;
         $this->groom_name = $invitation->groom_name;
-        $this->bride_name = $invitation->bride_name;
+        $this->bride_name = (string) ($invitation->bride_name ?? '');
         $this->title = $invitation->title;
         $this->slug = $invitation->slug;
         $this->wedding_date = $invitation->wedding_date ? $invitation->wedding_date->format('Y-m-d') : '';
         $this->wedding_time = $invitation->wedding_time ? substr($invitation->wedding_time, 0, 5) : '';
-        $this->timezone = $invitation->timezone ?? 'Africa/Cairo';
+        $this->timezone = $invitation->timezone ?: 'Asia/Riyadh';
         $this->venue_name = $invitation->venue_name;
         $this->venue_address = $invitation->venue_address ?? '';
         $this->venue_map_url = $invitation->venue_map_url ?? '';
@@ -125,7 +126,7 @@ class InvitationEditor extends Component
         $this->is_rsvp_enabled = $invitation->allowsRsvp();
         $this->max_guests_per_rsvp = $invitation->max_guests_per_rsvp;
         $this->rsvp_deadline = $invitation->rsvp_deadline ? $invitation->rsvp_deadline->format('Y-m-d') : '';
-        $this->music_url = $invitation->music_url ?? '';
+        $this->music_url = $invitation->music_url;
         $this->template_id = $invitation->template_id;
         $this->cover_photo = $invitation->cover_photo;
 
@@ -139,10 +140,10 @@ class InvitationEditor extends Component
         $this->show_hijri = (bool) ($styles['show_hijri'] ?? true);
 
         // Check active sections
-        $this->section_countdown = (bool) $invitation->sections->where('section_type', 'countdown')->first()?->is_enabled ?? true;
-        $this->section_timeline = (bool) $invitation->sections->where('section_type', 'timeline')->first()?->is_enabled ?? true;
-        $this->section_gallery = (bool) $invitation->sections->where('section_type', 'gallery')->first()?->is_enabled ?? true;
-        $this->section_dress_code = (bool) $invitation->sections->where('section_type', 'dress_code')->first()?->is_enabled ?? true;
+        $this->section_countdown = (bool) ($invitation->sections->where('section_type', 'countdown')->first()?->is_enabled ?? true);
+        $this->section_timeline = (bool) ($invitation->sections->where('section_type', 'timeline')->first()?->is_enabled ?? false);
+        $this->section_gallery = (bool) ($invitation->sections->where('section_type', 'gallery')->first()?->is_enabled ?? true);
+        $this->section_dress_code = (bool) ($invitation->sections->where('section_type', 'dress_code')->first()?->is_enabled ?? false);
     }
 
     protected function getAuthorizedInvitation(): Invitation
@@ -158,7 +159,7 @@ class InvitationEditor extends Component
     public function updatedInvitationMode(string $value): void
     {
         if (! in_array($value, Invitation::modes(), true)) {
-            $this->invitation_mode = Invitation::MODE_RSVP_QR;
+            $this->invitation_mode = Invitation::MODE_ANNOUNCEMENT;
         }
 
         $this->is_rsvp_enabled = in_array(
@@ -172,9 +173,17 @@ class InvitationEditor extends Component
     {
         if (! $value && in_array($this->invitation_mode, [Invitation::MODE_RSVP_QR, Invitation::MODE_RSVP_ONLY], true)) {
             $this->invitation_mode = Invitation::MODE_ANNOUNCEMENT;
-        } elseif ($value && $this->invitation_mode === Invitation::MODE_ANNOUNCEMENT) {
-            $this->invitation_mode = Invitation::MODE_RSVP_QR;
+        } elseif ($value && ! in_array($this->invitation_mode, [Invitation::MODE_RSVP_QR, Invitation::MODE_RSVP_ONLY], true)) {
+            $this->invitation_mode = Invitation::MODE_RSVP_ONLY;
         }
+    }
+
+    public function clearLegacyMusicUrl(): void
+    {
+        $invitation = $this->getAuthorizedInvitation();
+        $invitation->update(['music_url' => null]);
+        $this->music_url = null;
+        $this->saveStatus = 'تمت إزالة رابط الصوت السابق ✓';
     }
 
     public function updated($propertyName)
@@ -304,7 +313,7 @@ class InvitationEditor extends Component
 
         $this->validate([
             'groom_name' => ['required', 'string', 'max:255'],
-            'bride_name' => ['required', 'string', 'max:255'],
+            'bride_name' => ['nullable', 'string', 'max:255'],
             'title' => ['nullable', 'string', 'max:255'],
             'wedding_date' => ['required', 'date'],
             'wedding_time' => ['nullable', 'string', 'max:20'],
@@ -314,7 +323,6 @@ class InvitationEditor extends Component
             'venue_map_url' => ['nullable', 'url:http,https', 'max:500'],
             'welcome_message' => ['nullable', 'string', 'max:2000'],
             'invitation_message' => ['nullable', 'string', 'max:2000'],
-            'music_url' => ['nullable', 'url:http,https', 'max:500'],
             'max_guests_per_rsvp' => ['required', 'integer', 'min:1', 'max:20'],
             'rsvp_deadline' => ['nullable', 'date'],
             'primary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
@@ -333,20 +341,24 @@ class InvitationEditor extends Component
             'show_hijri' => $this->show_hijri,
         ]);
 
+        $cleanBride = filled(trim((string) $this->bride_name)) ? trim((string) $this->bride_name) : null;
+        $fallbackTitle = $cleanBride
+            ? 'حفل زفاف '.$this->groom_name.' و '.$cleanBride
+            : 'حفل زفاف '.$this->groom_name;
+
         $invitation->update([
             'groom_name' => $this->groom_name,
-            'bride_name' => $this->bride_name,
-            'title' => $this->title ?: 'حفل زفاف '.$this->groom_name.' و '.$this->bride_name,
+            'bride_name' => $cleanBride,
+            'title' => $this->title ?: $fallbackTitle,
             'wedding_date' => $this->wedding_date,
             'wedding_time' => $this->wedding_time ?: null,
-            'timezone' => $this->timezone ?: 'Africa/Cairo',
+            'timezone' => $this->timezone ?: 'Asia/Riyadh',
             'venue_name' => $this->venue_name,
             'venue_address' => $this->venue_address ?: null,
             'venue_map_url' => $this->venue_map_url ?: null,
             'welcome_message' => $this->welcome_message ?: null,
             'invitation_message' => $this->invitation_message ?: null,
             'cover_photo' => $this->cover_photo,
-            'music_url' => $this->music_url ?: null,
             'status' => $this->status,
             'is_rsvp_enabled' => $this->is_rsvp_enabled,
             'invitation_mode' => $this->invitation_mode,
@@ -362,20 +374,24 @@ class InvitationEditor extends Component
             ['is_enabled' => $this->section_countdown, 'content' => ['target_date' => $this->wedding_date]]
         );
 
-        InvitationSection::updateOrCreate(
-            ['invitation_id' => $invitation->id, 'section_type' => 'timeline'],
-            ['is_enabled' => $this->section_timeline]
-        );
+        if ($this->section_timeline || $invitation->sections()->where('section_type', 'timeline')->exists()) {
+            InvitationSection::updateOrCreate(
+                ['invitation_id' => $invitation->id, 'section_type' => 'timeline'],
+                ['is_enabled' => $this->section_timeline]
+            );
+        }
 
         InvitationSection::updateOrCreate(
             ['invitation_id' => $invitation->id, 'section_type' => 'gallery'],
             ['is_enabled' => $this->section_gallery]
         );
 
-        InvitationSection::updateOrCreate(
-            ['invitation_id' => $invitation->id, 'section_type' => 'dress_code'],
-            ['is_enabled' => $this->section_dress_code]
-        );
+        if ($this->section_dress_code || $invitation->sections()->where('section_type', 'dress_code')->exists()) {
+            InvitationSection::updateOrCreate(
+                ['invitation_id' => $invitation->id, 'section_type' => 'dress_code'],
+                ['is_enabled' => $this->section_dress_code]
+            );
+        }
 
         $this->saveStatus = 'تم الحفظ تلقائياً ✓';
     }
@@ -397,23 +413,34 @@ class InvitationEditor extends Component
             'show_hijri' => $this->show_hijri,
         ];
 
+        $timelineSection = $invitation->sections->where('section_type', 'timeline')->first();
+        $timelineEvents = is_array($timelineSection?->content['events'] ?? null)
+            ? array_filter($timelineSection->content['events'], static fn (mixed $e): bool => is_array($e) && (! empty($e['title']) || ! empty($e['time'])))
+            : [];
+        $hasCustomTimeline = $timelineEvents !== [];
+
+        $dressCodeSection = $invitation->sections->where('section_type', 'dress_code')->first();
+        $dressCodeContent = is_array($dressCodeSection?->content ?? null) ? $dressCodeSection->content : [];
+        $hasCustomDressCode = ! empty($dressCodeContent['title']) || ! empty($dressCodeContent['notes']);
+
         // Build dynamic live preview object combining active state
+        $cleanPreviewBride = filled(trim((string) $this->bride_name)) ? trim((string) $this->bride_name) : null;
         $previewObject = (object) [
             'id' => $invitation->id,
             'title' => $this->title,
             'slug' => $this->slug,
             'groom_name' => $this->groom_name ?: 'اسم العريس',
-            'bride_name' => $this->bride_name ?: 'اسم العروس',
+            'bride_name' => $cleanPreviewBride,
             'wedding_date' => $this->wedding_date ?: now()->addDays(30),
             'wedding_time' => $this->wedding_time,
-            'timezone' => $this->timezone ?: 'Africa/Cairo',
+            'timezone' => $this->timezone ?: 'Asia/Riyadh',
             'venue_name' => $this->venue_name ?: 'اسم القاعة أو الفندق',
             'venue_address' => $this->venue_address,
             'venue_map_url' => $this->venue_map_url,
             'welcome_message' => $this->welcome_message,
             'invitation_message' => $this->invitation_message,
             'cover_photo' => $this->cover_photo,
-            'music_url' => $this->music_url,
+            'music_url' => $invitation->music_url,
             'is_rsvp_enabled' => $this->is_rsvp_enabled,
             'invitation_mode' => $this->invitation_mode,
             'max_guests_per_rsvp' => $this->max_guests_per_rsvp,
@@ -429,6 +456,10 @@ class InvitationEditor extends Component
             'invitation' => $invitation,
             'previewObject' => $previewObject,
             'templates' => $templates,
+            'hasLegacyRoster' => $invitation->hasLegacyRosterAccess(),
+            'hasCustomTimeline' => $hasCustomTimeline,
+            'hasCustomDressCode' => $hasCustomDressCode,
+            'hasLegacyMusic' => filled($invitation->music_url),
         ])->layout('layouts.base', ['title' => 'محرر الدعوة: '.$invitation->title.' — زفّة']);
     }
 }

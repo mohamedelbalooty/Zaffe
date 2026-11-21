@@ -9,6 +9,7 @@
     $fontStack = \App\Support\TemplateStyleCatalog::fontCssStack($styles['font_family'] ?? 'Amiri');
     $dateInfo = \App\Services\InvitationDateFormatter::forInvitation($invitation);
     $isEnInv = $dateInfo['locale'] === 'en';
+    $hasBrideName = filled(trim((string) ($invitation->bride_name ?? '')));
 @endphp
 
 <div class="min-h-screen py-10 sm:py-14 px-4 sm:px-6 relative overflow-hidden"
@@ -30,12 +31,18 @@
                         <x-app-icon name="moon-star" class="w-7 h-7" />
                     </div>
 
-                    <div class="font-amiri font-bold text-lg sm:text-xl leading-relaxed" style="color: {{ $primaryColor }};">
-                        بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-                    </div>
-                    <div class="font-amiri text-xs sm:text-sm opacity-90 max-w-md mx-auto leading-relaxed" style="color: {{ $primaryColor }};">
-                        «وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً»
-                    </div>
+                    @if($invitation->welcome_message)
+                        <div class="font-amiri text-base sm:text-lg font-bold leading-relaxed max-w-md mx-auto" style="color: {{ $primaryColor }};">
+                            {!! nl2br(e(str_replace('\n', "\n", $invitation->welcome_message))) !!}
+                        </div>
+                    @else
+                        <div class="font-amiri font-bold text-lg sm:text-xl leading-relaxed" style="color: {{ $primaryColor }};">
+                            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+                        </div>
+                        <div class="font-amiri text-xs sm:text-sm opacity-90 max-w-md mx-auto leading-relaxed" style="color: {{ $primaryColor }};">
+                            «وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً»
+                        </div>
+                    @endif
                     <div class="w-24 h-0.5 mx-auto opacity-60" style="background: linear-gradient(90deg, transparent, {{ $goldColor }}, transparent);"></div>
                 </div>
 
@@ -48,10 +55,12 @@
                     <h1 class="text-4xl sm:text-5xl font-bold leading-tight" style="color: {{ $primaryColor }};">
                         {{ $invitation->groom_name }}
                     </h1>
-                    <div class="text-xl font-bold" style="color: {{ $goldColor }};">{{ $isEnInv ? '&' : 'وَ' }}</div>
-                    <h1 class="text-4xl sm:text-5xl font-bold leading-tight" style="color: {{ $primaryColor }};">
-                        {{ $invitation->bride_name }}
-                    </h1>
+                    @if($hasBrideName)
+                        <div class="text-xl font-bold" style="color: {{ $goldColor }};">{{ $isEnInv ? '&' : 'وَ' }}</div>
+                        <h1 class="text-4xl sm:text-5xl font-bold leading-tight" style="color: {{ $primaryColor }};">
+                            {{ $invitation->bride_name }}
+                        </h1>
+                    @endif
                 </div>
 
                 @if($invitation->cover_photo)
@@ -59,7 +68,7 @@
                         <div class="w-36 h-36 sm:w-44 sm:h-44 mx-auto rounded-full p-1.5 shadow-lg overflow-hidden border-2"
                              style="border-color: {{ $goldColor }};">
                             <img src="{{ $invitation->cover_photo }}"
-                                 alt="{{ $invitation->groom_name }} & {{ $invitation->bride_name }}"
+                                 alt="{{ $invitation->groom_name }}{{ $hasBrideName ? ' & ' . $invitation->bride_name : '' }}"
                                  onerror="this.parentElement.parentElement.style.display='none'"
                                  class="w-full h-full object-cover rounded-full">
                         </div>

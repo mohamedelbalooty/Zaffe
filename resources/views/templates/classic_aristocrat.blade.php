@@ -9,6 +9,7 @@
     $fontStack = \App\Support\TemplateStyleCatalog::fontCssStack($styles['font_family'] ?? 'Tajawal');
     $dateInfo = \App\Services\InvitationDateFormatter::forInvitation($invitation);
     $isEnInv = $dateInfo['locale'] === 'en';
+    $hasBrideName = filled(trim((string) ($invitation->bride_name ?? '')));
 @endphp
 
 <div class="min-h-screen py-14 px-4 sm:px-6 relative overflow-hidden text-[#2B2B2B]"
@@ -44,10 +45,12 @@
                     <h1 class="font-cairo text-3xl sm:text-5xl font-black leading-tight" style="color: {{ $primaryColor }};">
                         {{ $invitation->groom_name }}
                     </h1>
-                    <div class="font-amiri text-2xl font-bold" style="color: {{ $goldColor }};">{{ $isEnInv ? '&' : 'و' }}</div>
-                    <h1 class="font-cairo text-3xl sm:text-5xl font-black leading-tight" style="color: {{ $primaryColor }};">
-                        {{ $invitation->bride_name }}
-                    </h1>
+                    @if($hasBrideName)
+                        <div class="font-amiri text-2xl font-bold" style="color: {{ $goldColor }};">{{ $isEnInv ? '&' : 'و' }}</div>
+                        <h1 class="font-cairo text-3xl sm:text-5xl font-black leading-tight" style="color: {{ $primaryColor }};">
+                            {{ $invitation->bride_name }}
+                        </h1>
+                    @endif
                 </div>
 
                 @if($invitation->cover_photo)
@@ -55,7 +58,7 @@
                         <div class="w-36 h-36 sm:w-44 sm:h-44 mx-auto rounded-full p-1.5 shadow-lg overflow-hidden border-2"
                              style="border-color: {{ $goldColor }};">
                             <img src="{{ $invitation->cover_photo }}"
-                                 alt="{{ $invitation->groom_name }} & {{ $invitation->bride_name }}"
+                                 alt="{{ $invitation->groom_name }}{{ $hasBrideName ? ' & ' . $invitation->bride_name : '' }}"
                                  onerror="this.parentElement.parentElement.style.display='none'"
                                  class="w-full h-full object-cover rounded-full">
                         </div>

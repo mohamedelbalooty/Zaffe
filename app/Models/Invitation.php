@@ -41,13 +41,13 @@ class Invitation extends Model
                     true
                 );
             } elseif ($invitation->isDirty('is_rsvp_enabled')) {
-                $mode = $invitation->effectiveMode();
+                $rawMode = $invitation->invitation_mode;
                 if (! $invitation->is_rsvp_enabled
-                    && in_array($mode, [self::MODE_RSVP_QR, self::MODE_RSVP_ONLY], true)) {
+                    && (empty($rawMode) || in_array($rawMode, [self::MODE_RSVP_QR, self::MODE_RSVP_ONLY], true))) {
                     $invitation->invitation_mode = self::MODE_ANNOUNCEMENT;
                 } elseif ($invitation->is_rsvp_enabled
-                    && ! in_array($mode, [self::MODE_RSVP_QR, self::MODE_RSVP_ONLY], true)) {
-                    $invitation->invitation_mode = self::MODE_RSVP_QR;
+                    && ! in_array($rawMode, [self::MODE_RSVP_QR, self::MODE_RSVP_ONLY], true)) {
+                    $invitation->invitation_mode = self::MODE_RSVP_ONLY;
                 }
             }
         });
@@ -299,13 +299,50 @@ class Invitation extends Model
 
     public function effectiveMode(): string
     {
-        $mode = $this->invitation_mode ?: self::MODE_RSVP_QR;
+        $mode = $this->invitation_mode;
+        if (empty($mode)) {
+            $mode = $this->is_rsvp_enabled ? self::MODE_RSVP_ONLY : self::MODE_ANNOUNCEMENT;
+        }
 
         if (! $this->is_rsvp_enabled && in_array($mode, [self::MODE_RSVP_QR, self::MODE_RSVP_ONLY], true)) {
             return self::MODE_ANNOUNCEMENT;
         }
 
         return $mode;
+    }
+
+    public function hasBrideName(): bool
+    {
+        return filled(trim((string) ($this->bride_name ?? '')));
+    }
+
+    public function formattedCoupleNames(string $locale = 'ar', ?string $separator = null): string
+    {
+        $groom = trim((string) ($this->groom_name ?? ''));
+        $bride = trim((string) ($this->bride_name ?? ''));
+
+        if ($bride === '') {
+            return $groom;
+        }
+
+        if ($groom === '') {
+            return $bride;
+        }
+
+        $sep = $separator ?? ($locale === 'en' ? ' & ' : ' و ');
+
+        return $groom.$sep.$bride;
+    }
+
+    public function hasLegacyRosterAccess(): bool
+    {
+        if (in_array($this->effectiveMode(), [self::MODE_RSVP_QR, self::MODE_QR_ONLY], true)) {
+            return true;
+        }
+
+        return $this->relationLoaded('guests')
+            ? $this->guests->isNotEmpty()
+            : $this->guests()->exists();
     }
 
     public function allowsRsvp(): bool
@@ -354,16 +391,18 @@ class Invitation extends Model
     public function getWhatsAppShareText(string $lang = 'ar'): string
     {
         $url = $this->public_url;
+        $coupleNames = $this->formattedCoupleNames($lang);
+
         if ($lang === 'en') {
             return "We are delighted to invite you to share in our special day ❤️\n\n".
-                "Wedding of {$this->groom_name} & {$this->bride_name}\n".
+                "Wedding of {$coupleNames}\n".
                 'Date: '.$this->wedding_date->format('M d, Y')."\n".
                 "Venue: {$this->venue_name}\n\n".
                 "Please view your invitation & confirm attendance here:\n".$url;
         }
 
         return "يسعدنا ويشرفنا دعوتكم لمشاركتنا أجمل أيام حياتنا وبدء فصل جديد معاً ❤️\n\n".
-            "حفل زفاف: {$this->groom_name} و {$this->bride_name}\n".
+            "حفل زفاف: {$coupleNames}\n".
             'الموعد: '.InvitationDateFormatter::formatGregorianDate($this, 'ar')."\n".
             "المكان: {$this->venue_name}\n\n".
             "تفاصيل الدعوة وتأكيد الحضور:\n".$url;
@@ -381,11 +420,12 @@ class Invitation extends Model
         $personalUrl = $guest->getPersonalInviteUrl();
         $passUrl = $guest->getPassUrl();
         $date = InvitationDateFormatter::formatGregorianDate($this, $lang);
+        $coupleNames = $this->formattedCoupleNames($lang);
 
         if ($lang === 'en') {
             $intro = $isReminder
                 ? "Friendly reminder for our upcoming celebration — we would love to celebrate with {$guest->name}"
-                : "Dear {$guest->name}, we are delighted to invite you to the wedding of {$this->groom_name} & {$this->bride_name}";
+                : "Dear {$guest->name}, we are delighted to invite you to the wedding of {$coupleNames}";
 
             $text = "{$intro}\n"
                 ."Date: {$date}\n"
@@ -394,12 +434,12 @@ class Invitation extends Model
                 ."Your personal invitation link:\n{$personalUrl}";
 
             if ($this->effectiveMode() === self::MODE_QR_ONLY) {
-                $text .= "\n\nYour direct QR entry pass:\n{$passUrl}";
+                $text .= "\n\nYour personal invitation pass:\n{$passUrl}";
             }
         } else {
             $intro = $isReminder
                 ? "تذكير لطيف بحفل زفافنا السعيد — يسعدنا تشريفكم {$guest->name}"
-                : "الأستاذ/ة {$guest->name} المحترم/ة، يسعدنا ويشرفنا دعوتكم لحضور حفل زفاف {$this->groom_name} و {$this->bride_name}";
+                : "الأستاذ/ة {$guest->name} المحترم/ة، يسعدنا ويشرفنا دعوتكم لحضور حفل زفاف {$coupleNames}";
 
             $kidsPart = $guest->max_children > 0 ? " و {$guest->max_children} أطفال" : '';
             $text = "{$intro}\n"
@@ -409,7 +449,7 @@ class Invitation extends Model
                 ."رابط دعوتك الخاصة:\n{$personalUrl}";
 
             if ($this->effectiveMode() === self::MODE_QR_ONLY) {
-                $text .= "\n\nبطاقة الدخول المباشرة (QR):\n{$passUrl}";
+                $text .= "\n\nبطاقة الدعوة الشخصية المباشرة (QR):\n{$passUrl}";
             }
         }
 

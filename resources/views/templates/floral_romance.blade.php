@@ -10,6 +10,7 @@
     $fontStack = \App\Support\TemplateStyleCatalog::fontCssStack($styles['font_family'] ?? 'Cairo');
     $dateInfo = \App\Services\InvitationDateFormatter::forInvitation($invitation);
     $isEnInv = $dateInfo['locale'] === 'en';
+    $hasBrideName = filled(trim((string) ($invitation->bride_name ?? '')));
 @endphp
 
 <div class="min-h-screen py-10 sm:py-14 px-4 sm:px-6 relative overflow-hidden"
@@ -47,14 +48,16 @@
                     <h1 class="text-3xl sm:text-5xl font-black leading-tight" style="color: {{ $secondaryColor }};">
                         {{ $invitation->groom_name }}
                     </h1>
-                    <div class="flex items-center justify-center gap-3">
-                        <span class="h-px w-10 opacity-40" style="background-color: {{ $primaryColor }};"></span>
-                        <span class="text-xl font-amiri font-bold" style="color: {{ $primaryColor }};">{{ $isEnInv ? '&' : 'و' }}</span>
-                        <span class="h-px w-10 opacity-40" style="background-color: {{ $primaryColor }};"></span>
-                    </div>
-                    <h1 class="text-3xl sm:text-5xl font-black leading-tight" style="color: {{ $secondaryColor }};">
-                        {{ $invitation->bride_name }}
-                    </h1>
+                    @if($hasBrideName)
+                        <div class="flex items-center justify-center gap-3">
+                            <span class="h-px w-10 opacity-40" style="background-color: {{ $primaryColor }};"></span>
+                            <span class="text-xl font-amiri font-bold" style="color: {{ $primaryColor }};">{{ $isEnInv ? '&' : 'و' }}</span>
+                            <span class="h-px w-10 opacity-40" style="background-color: {{ $primaryColor }};"></span>
+                        </div>
+                        <h1 class="text-3xl sm:text-5xl font-black leading-tight" style="color: {{ $secondaryColor }};">
+                            {{ $invitation->bride_name }}
+                        </h1>
+                    @endif
                 </div>
 
                 @if($invitation->cover_photo)
@@ -62,7 +65,7 @@
                         <div class="w-40 h-40 mx-auto rounded-t-full rounded-b-2xl p-1.5 shadow-md overflow-hidden border"
                              style="border-color: {{ $primaryColor }}60;">
                             <img src="{{ $invitation->cover_photo }}"
-                                 alt="{{ $invitation->groom_name }} & {{ $invitation->bride_name }}"
+                                 alt="{{ $invitation->groom_name }}{{ $hasBrideName ? ' & ' . $invitation->bride_name : '' }}"
                                  onerror="this.parentElement.parentElement.style.display='none'"
                                  class="w-full h-full object-cover rounded-t-full rounded-b-xl">
                         </div>

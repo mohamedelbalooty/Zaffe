@@ -44,7 +44,6 @@ class InvitationForm
                     ->maxLength(100),
                 TextInput::make('bride_name')
                     ->label(__('admin.fields.bride_name'))
-                    ->required()
                     ->maxLength(100),
                 DatePicker::make('wedding_date')
                     ->label(__('admin.fields.wedding_date'))
@@ -56,7 +55,7 @@ class InvitationForm
                     ->label(__('admin.fields.timezone'))
                     ->options(fn (): array => __('admin.options.timezones'))
                     ->required()
-                    ->default('Africa/Cairo')
+                    ->default('Asia/Riyadh')
                     ->native(false),
                 TextInput::make('venue_name')
                     ->label(__('admin.fields.venue_name'))

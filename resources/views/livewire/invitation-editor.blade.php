@@ -151,8 +151,9 @@
                                        class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-white text-sm focus:border-[#C6A76B] outline-none">
                             </div>
                             <div>
-                                <label for="ed_bride_name" class="block text-xs font-bold text-white mb-1.5">اسم العروس</label>
+                                <label for="ed_bride_name" class="block text-xs font-bold text-white mb-1.5">اسم العروس (اختياري)</label>
                                 <input id="ed_bride_name" type="text" wire:model.live.debounce.300ms="bride_name"
+                                       placeholder="اختياري — مثال: سارة أو كريمة عائلة المنصور"
                                        class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-white text-sm focus:border-[#C6A76B] outline-none">
                             </div>
                         </div>
@@ -180,8 +181,8 @@
                             <label for="ed_timezone" class="block text-xs font-bold text-white mb-1.5">المنطقة الزمنية لموعد الحفل</label>
                             <select id="ed_timezone" wire:model.live="timezone"
                                     class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-white text-sm focus:border-[#C6A76B] outline-none">
-                                <option value="Africa/Cairo" class="bg-[#24201C] text-white">توقيت مصر والقاهرة (Africa/Cairo)</option>
                                 <option value="Asia/Riyadh" class="bg-[#24201C] text-white">توقيت السعودية والرياض (Asia/Riyadh)</option>
+                                <option value="Africa/Cairo" class="bg-[#24201C] text-white">توقيت مصر والقاهرة (Africa/Cairo)</option>
                             </select>
                         </div>
 
@@ -249,15 +250,21 @@
                                       class="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-white text-sm focus:border-[#C6A76B] outline-none leading-relaxed"></textarea>
                         </div>
 
-                        <div>
-                            <label for="ed_music_url" class="block text-xs font-bold text-white mb-1.5">رابط ملف موسيقى خلفية (MP3 اختياري)</label>
-                            <input id="ed_music_url" type="url" wire:model.live.debounce.400ms="music_url" dir="ltr"
-                                   class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-white text-sm focus:border-[#C6A76B] outline-none text-left"
-                                   placeholder="https://example.com/wedding-song.mp3">
-                            <span class="text-[11px] text-[#E4D9C8]/70 mt-1.5 block leading-relaxed">
-                                عند إضافة ملف صوتي، ستظهر شاشة فتح الدعوة للضيف لتشغيل الزفّة بضغطة زر.
-                            </span>
-                        </div>
+                        @if($hasLegacyMusic)
+                            <div class="p-3.5 rounded-xl bg-white/[0.04] border border-white/10 space-y-2.5">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs font-bold text-[#DFC99E]">مقطع صوتي محفوظ مسبقاً (إرث قديم)</span>
+                                    <button type="button"
+                                            wire:click="clearLegacyMusicUrl"
+                                            class="px-3 py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/30 text-rose-200 text-[11px] font-bold transition cursor-pointer">
+                                        إزالة الصوت
+                                    </button>
+                                </div>
+                                <p class="text-[11px] text-[#E4D9C8]/70 leading-relaxed">
+                                    الرابط الصوتي المحفوظ مسبقاً لا يزال مرتبطاً بهذه البطاقة ويمكنك إزالته في أي وقت. تم إخفاء إضافة روابط الصوت الخارجية على البطاقات الجديدة.
+                                </p>
+                            </div>
+                        @endif
                     </div>
                 @endif
 
@@ -412,39 +419,24 @@
                 <!-- 6. RSVP & Settings Tab -->
                 @if($activeTab === 'rsvp')
                     <div class="space-y-4">
-                        <h2 class="font-cairo text-sm font-extrabold text-[#DFC99E]">نظام الدعوة وتأكيد الحضور</h2>
+                        <h2 class="font-cairo text-sm font-extrabold text-[#DFC99E]">تأكيد الحضور (اختياري)</h2>
 
-                        <div class="p-4 rounded-xl bg-white/[0.05] border border-white/10 space-y-3">
-                            <p class="text-[11px] text-[#E4D9C8]/75 leading-relaxed">
-                                اختر آلية تأكيد الحضور وإصدار بطاقات الضيوف (QR) مجاناً لجميع ضيوفك:
-                            </p>
-
-                            <div class="grid grid-cols-1 gap-2">
-                                @php
-                                    $modes = [
-                                        ['key' => 'rsvp_qr', 'icon' => 'qr-code', 'title' => 'تأكيد الحضور + بطاقة QR شخصية', 'desc' => 'الأفضل لحفلات الزفاف الرسمية: يؤكد الضيف حضوره ويستلم بطاقة QR شخصية'],
-                                        ['key' => 'rsvp_only', 'icon' => 'check-circle', 'title' => 'تأكيد الحضور فقط (بدون باركود)', 'desc' => 'استمارة تأكيد الحضور والمرافقين والوجبات دون بطاقة QR'],
-                                        ['key' => 'qr_only', 'icon' => 'shield-check', 'title' => 'بطاقة دعوة QR فقط (بدون استمارة رد)', 'desc' => 'ترسل بطاقة QR المباشرة لكل مدعو من قائمة الضيوف'],
-                                        ['key' => 'announcement', 'icon' => 'sparkles', 'title' => 'دعوة للعرض فقط (بدون رد أو باركود)', 'desc' => 'مناسبة للإعلانات وحفظ التاريخ والضيافة المفتوحة'],
-                                    ];
-                                @endphp
-                                @foreach($modes as $m)
-                                    <label class="cursor-pointer rounded-xl border p-3 flex items-start gap-2.5 transition {{ $invitation_mode === $m['key'] ? 'border-[#C6A76B] bg-[#C6A76B]/15' : 'border-white/10 bg-black/25 hover:bg-white/[0.05]' }}">
-                                        <input type="radio" wire:model.live="invitation_mode" value="{{ $m['key'] }}" class="sr-only">
-                                        <x-app-icon :name="$m['icon']" class="w-4 h-4 mt-0.5 text-[#DFC99E] shrink-0" />
-                                        <span class="block">
-                                            <span class="block text-xs font-bold text-white">{{ $m['title'] }}</span>
-                                            <span class="block text-[11px] text-[#E4D9C8]/70 mt-0.5">{{ $m['desc'] }}</span>
-                                        </span>
-                                    </label>
-                                @endforeach
-                            </div>
+                        <div class="p-4 rounded-xl bg-white/[0.05] border border-white/10 space-y-3.5">
+                            <label for="ed_is_rsvp_enabled" class="flex items-start justify-between gap-3 cursor-pointer">
+                                <span class="space-y-1">
+                                    <span class="block text-xs font-bold text-white">تفعيل استمارة تأكيد الحضور (RSVP)</span>
+                                    <span class="block text-[11px] text-[#E4D9C8]/75 leading-relaxed">
+                                        عند التعطيل تكون الدعوة للعرض والمشاركة فقط بدون استمارة رد. لن تُحذف أي ردود محفوظة مسبقاً عند إيقاف الاستمارة.
+                                    </span>
+                                </span>
+                                <input id="ed_is_rsvp_enabled" type="checkbox" wire:model.live="is_rsvp_enabled" class="w-4 h-4 mt-0.5 rounded accent-[#C6A76B] shrink-0">
+                            </label>
 
                             @if($is_rsvp_enabled)
                                 <div class="pt-3 border-t border-white/10 space-y-3">
                                     <div>
                                         <label for="ed_max_guests" class="block text-xs font-bold text-white mb-1">أقصى عدد مرافقين مسموح للضيف الواحد</label>
-                                        <input id="ed_max_guests" type="number" min="1" max="10" wire:model.live="max_guests_per_rsvp"
+                                        <input id="ed_max_guests" type="number" min="1" max="20" wire:model.live="max_guests_per_rsvp"
                                                class="w-full min-h-[40px] px-3.5 py-2 rounded-xl bg-black/35 border border-white/15 text-white text-sm outline-none focus:border-[#C6A76B]">
                                     </div>
 
@@ -460,7 +452,7 @@
                                 <a href="{{ route('dashboard.invitations.guests', $invitation->id) }}"
                                    class="btn-royal w-full !min-h-[40px] !py-2 !text-xs">
                                     <x-app-icon name="users" class="w-4 h-4" />
-                                    <span>إدارة قائمة المدعوين وبطاقات QR</span>
+                                    <span>{{ $hasLegacyRoster ? 'إدارة قائمة المدعوين وبطاقات QR' : 'سجل ردود تأكيد الحضور (RSVP)' }}</span>
                                 </a>
                             </div>
                         </div>
@@ -475,13 +467,15 @@
                                 </span>
                                 <input type="checkbox" wire:model.live="section_countdown" class="w-4 h-4 rounded accent-[#C6A76B]">
                             </label>
-                            <label class="flex items-center justify-between gap-3 cursor-pointer py-1">
-                                <span class="flex items-center gap-2 text-xs font-bold text-white">
-                                    <x-app-icon name="calendar" class="w-4 h-4 text-[#DFC99E]" />
-                                    <span>جدول مواعيد وبرنامج الحفل</span>
-                                </span>
-                                <input type="checkbox" wire:model.live="section_timeline" class="w-4 h-4 rounded accent-[#C6A76B]">
-                            </label>
+                            @if($hasCustomTimeline)
+                                <label class="flex items-center justify-between gap-3 cursor-pointer py-1">
+                                    <span class="flex items-center gap-2 text-xs font-bold text-white">
+                                        <x-app-icon name="calendar" class="w-4 h-4 text-[#DFC99E]" />
+                                        <span>جدول مواعيد وبرنامج الحفل</span>
+                                    </span>
+                                    <input type="checkbox" wire:model.live="section_timeline" class="w-4 h-4 rounded accent-[#C6A76B]">
+                                </label>
+                            @endif
                             <label class="flex items-center justify-between gap-3 cursor-pointer py-1">
                                 <span class="flex items-center gap-2 text-xs font-bold text-white">
                                     <x-app-icon name="image" class="w-4 h-4 text-[#DFC99E]" />
@@ -489,13 +483,15 @@
                                 </span>
                                 <input type="checkbox" wire:model.live="section_gallery" class="w-4 h-4 rounded accent-[#C6A76B]">
                             </label>
-                            <label class="flex items-center justify-between gap-3 cursor-pointer py-1">
-                                <span class="flex items-center gap-2 text-xs font-bold text-white">
-                                    <x-app-icon name="shirt" class="w-4 h-4 text-[#DFC99E]" />
-                                    <span>قواعد اللباس (Dress Code)</span>
-                                </span>
-                                <input type="checkbox" wire:model.live="section_dress_code" class="w-4 h-4 rounded accent-[#C6A76B]">
-                            </label>
+                            @if($hasCustomDressCode)
+                                <label class="flex items-center justify-between gap-3 cursor-pointer py-1">
+                                    <span class="flex items-center gap-2 text-xs font-bold text-white">
+                                        <x-app-icon name="shirt" class="w-4 h-4 text-[#DFC99E]" />
+                                        <span>قواعد اللباس (Dress Code)</span>
+                                    </span>
+                                    <input type="checkbox" wire:model.live="section_dress_code" class="w-4 h-4 rounded accent-[#C6A76B]">
+                                </label>
+                            @endif
                         </div>
                     </div>
                 @endif

@@ -10,8 +10,8 @@
     $ivoryInk = '#FDF8F2';
     $champagneInk = '#E8C39E';
     $darkPartialCard = '#2E1F19';
-    $darkPartialBg = '#211611';
-    $darkPartialPrimary = '#E7B08E';
+    $darkPartialBg = $bgColor;
+    $darkPartialPrimary = $primaryColor;
     $darkPartialText = '#FBF3EB';
     $fontStack = \App\Support\TemplateStyleCatalog::fontCssStack($styles['font_family'] ?? 'Cairo');
     $dateInfo = \App\Services\InvitationDateFormatter::forInvitation($invitation);
@@ -67,11 +67,11 @@
 
             <!-- Fine Champagne-Sand Perimeter Frame -->
             <div class="pointer-events-none absolute inset-3 sm:inset-4 border z-10"
-                 style="border-color: {{ $champagneInk }}4D;">
-                <span class="absolute -top-1 -start-1 w-2 h-2 rotate-45 border" style="border-color: {{ $champagneInk }}; background-color: #6B564A;"></span>
-                <span class="absolute -top-1 -end-1 w-2 h-2 rotate-45 border" style="border-color: {{ $champagneInk }}; background-color: #6B564A;"></span>
-                <span class="absolute -bottom-1 -start-1 w-2 h-2 rotate-45 border" style="border-color: {{ $champagneInk }}; background-color: #6B564A;"></span>
-                <span class="absolute -bottom-1 -end-1 w-2 h-2 rotate-45 border" style="border-color: {{ $champagneInk }}; background-color: #6B564A;"></span>
+                 style="border-color: {{ $primaryColor }}80;">
+                <span class="absolute -top-1 -start-1 w-2 h-2 rotate-45 border" style="border-color: {{ $primaryColor }}; background-color: #6B564A;"></span>
+                <span class="absolute -top-1 -end-1 w-2 h-2 rotate-45 border" style="border-color: {{ $primaryColor }}; background-color: #6B564A;"></span>
+                <span class="absolute -bottom-1 -start-1 w-2 h-2 rotate-45 border" style="border-color: {{ $primaryColor }}; background-color: #6B564A;"></span>
+                <span class="absolute -bottom-1 -end-1 w-2 h-2 rotate-45 border" style="border-color: {{ $primaryColor }}; background-color: #6B564A;"></span>
             </div>
 
             <!-- Layer 3: Editorial Content Flow -->
@@ -284,9 +284,9 @@
                     @if($invitation->venue_map_url)
                         <div class="pt-1">
                             <a href="{{ $invitation->venue_map_url }}" target="_blank" rel="noopener noreferrer"
-                               class="inline-flex items-center gap-2 min-h-[44px] px-6 py-2 rounded-full text-xs font-extrabold tracking-wide shadow-sm hover:opacity-95 transition"
-                               style="background-color: {{ $champagneInk }}; color: #2D1E18;">
-                                <x-app-icon name="map-pin" class="w-3.5 h-3.5 shrink-0" style="color: #2D1E18;" />
+                               class="inline-flex items-center gap-2 min-h-[44px] px-6 py-2 rounded-full text-xs font-extrabold tracking-wide shadow-sm hover:opacity-95 transition text-white"
+                               style="background-color: {{ $primaryColor }};">
+                                <x-app-icon name="map-pin" class="w-3.5 h-3.5 shrink-0 text-white" />
                                 <span class="whitespace-nowrap">{{ $isEnInv ? 'Open Venue on Google Maps' : 'الموقع على خرائط Google Maps' }}</span>
                             </a>
                         </div>

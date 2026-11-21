@@ -10,16 +10,14 @@
 @php
     $dressCodeSection = collect($invitation->sections ?? [])->where('section_type', 'dress_code')->first();
     $isEnabled = $dressCodeSection ? (bool) $dressCodeSection->is_enabled : false;
-    $content = $dressCodeSection->content ?? [
-        'title' => 'ملابس رسمية أنيقة (Black Tie / Formal Evening)',
-        'notes' => 'نرجو من ضيوفنا الكرام الالتزام بالملابس الرسمية المسائية لتكتمل روعة وأناقة مناسبتنا.',
-    ];
+    $content = is_array($dressCodeSection?->content ?? null) ? $dressCodeSection->content : [];
+    $hasDressContent = !empty($content['title']) || !empty($content['notes']);
 
     $cardBorder = $isDarkTheme ? 'rgba(230, 198, 135, 0.28)' : $primaryColor . '35';
     $iconBorder = $isDarkTheme ? 'rgba(230, 198, 135, 0.25)' : $primaryColor . '30';
 @endphp
 
-@if($isEnabled && !empty($content))
+@if($isEnabled && $hasDressContent)
     <div class="rounded-3xl p-6 sm:p-8 shadow-[0_14px_38px_rgba(21,18,16,0.06)] border text-center space-y-3 transition-all"
          style="background-color: {{ $cardColor }}; border-color: {{ $cardBorder }};">
         <div class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center border"

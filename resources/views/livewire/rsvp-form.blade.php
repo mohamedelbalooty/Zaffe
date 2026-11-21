@@ -35,12 +35,12 @@
                     <a href="{{ $issuedPassUrl }}" target="_blank" rel="noopener noreferrer"
                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#221E1A] text-white text-xs font-bold hover:bg-[#38322C] transition">
                         <x-app-icon name="qr-code" class="w-4 h-4 text-[#DFC99E]" />
-                        <span>فتح وحفظ بطاقة الدخول للطباعة</span>
+                        <span>فتح وحفظ بطاقة الدعوة الشخصية للطباعة</span>
                     </a>
                 </div>
             @elseif($attendance_status === 'attending' && $passPreviouslyIssued)
                 <p class="text-xs text-[#7A5A20] bg-[#FAF7F2] border border-[#C6A76B]/30 rounded-xl px-4 py-3 max-w-md mx-auto leading-relaxed">
-                    تم تحديث تأكيد الحضور بنجاح. لحماية خصوصية بطاقتك، يرجى الاحتفاظ ببطاقة الدخول الصادرة لك مسبقاً أو مراجعة أصحاب الحفل لإعادة مشاركتها.
+                    تم تحديث تأكيد الحضور بنجاح. لحماية خصوصية بطاقتك، يرجى الاحتفاظ ببطاقة الدعوة الشخصية الصادرة لك مسبقاً أو مراجعة أصحاب الحفل لإعادة مشاركتها.
                 </p>
             @endif
 

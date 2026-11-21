@@ -73,7 +73,7 @@ class DashboardController extends Controller
                 Rule::exists('invitation_templates', 'id')->where('is_active', true),
             ],
             'groom_name' => ['required', 'string', 'max:255'],
-            'bride_name' => ['required', 'string', 'max:255'],
+            'bride_name' => ['nullable', 'string', 'max:255'],
             'wedding_date' => ['required', 'date'],
             'venue_name' => ['required', 'string', 'max:255'],
             'timezone' => ['nullable', 'string', 'in:Africa/Cairo,Asia/Riyadh'],
@@ -81,7 +81,6 @@ class DashboardController extends Controller
         ], [
             'template_id.required' => 'الرجاء اختيار قالب للدعوة.',
             'groom_name.required' => 'اسم العريس مطلوب.',
-            'bride_name.required' => 'اسم العروس مطلوب.',
             'wedding_date.required' => 'تاريخ الزفاف مطلوب.',
             'venue_name.required' => 'اسم قاعة الحفل مطلوب.',
         ]);
@@ -93,8 +92,15 @@ class DashboardController extends Controller
                 ->withInput();
         }
 
+        $brideName = filled(trim((string) ($validated['bride_name'] ?? '')))
+            ? trim((string) $validated['bride_name'])
+            : null;
+
         // Generate unique slug
-        $baseSlug = Str::slug($validated['groom_name'].'-and-'.$validated['bride_name']);
+        $slugSource = $brideName
+            ? $validated['groom_name'].'-and-'.$brideName
+            : $validated['groom_name'];
+        $baseSlug = Str::slug($slugSource);
         if (empty($baseSlug)) {
             $baseSlug = 'wedding-'.Str::random(6);
         }
@@ -105,21 +111,26 @@ class DashboardController extends Controller
             $counter++;
         }
 
+        $defaultTitle = $brideName
+            ? ('حفل زفاف '.$validated['groom_name'].' و '.$brideName)
+            : ('حفل زفاف '.$validated['groom_name']);
+
         $invitation = Invitation::create([
             'user_id' => Auth::id(),
             'template_id' => $template->id,
-            'title' => ($validated['title'] ?? null) ?: ('حفل زفاف '.$validated['groom_name'].' و '.$validated['bride_name']),
+            'title' => ($validated['title'] ?? null) ?: $defaultTitle,
             'slug' => $slug,
             'groom_name' => $validated['groom_name'],
-            'bride_name' => $validated['bride_name'],
+            'bride_name' => $brideName,
             'wedding_date' => $validated['wedding_date'],
             'wedding_time' => '20:00',
-            'timezone' => $validated['timezone'] ?? 'Africa/Cairo',
+            'timezone' => $validated['timezone'] ?? 'Asia/Riyadh',
             'venue_name' => $validated['venue_name'],
             'welcome_message' => "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n«وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً»",
             'invitation_message' => 'يسرنا دعوتكم لمشاركتنا فرحة العمر وتتويج قصة حبنا في ليلة لا تكتمل إلا بوجودكم.',
             'status' => 'draft',
-            'is_rsvp_enabled' => true,
+            'is_rsvp_enabled' => false,
+            'invitation_mode' => Invitation::MODE_ANNOUNCEMENT,
             'max_guests_per_rsvp' => 5,
             'custom_styles' => $template->default_styles ?? [],
         ]);
@@ -202,7 +213,9 @@ class DashboardController extends Controller
             'declined' => $invitation->rsvps()->where('attendance_status', 'declined')->count(),
         ];
 
-        return view('dashboard.guests', compact('invitation', 'rsvps', 'stats'));
+        $showLegacyRoster = $invitation->hasLegacyRosterAccess();
+
+        return view('dashboard.guests', compact('invitation', 'rsvps', 'stats', 'showLegacyRoster'));
     }
 
     public function exportGuestsCsv(int $id)
