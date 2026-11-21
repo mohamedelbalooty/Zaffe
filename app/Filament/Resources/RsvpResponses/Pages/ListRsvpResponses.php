@@ -41,12 +41,16 @@ class ListRsvpResponses extends ListRecords
                 __('admin.csv.email'),
                 __('admin.csv.status'),
                 __('admin.csv.guest_count'),
+                __('admin.csv.children_count'),
                 __('admin.csv.dietary_notes'),
                 __('admin.csv.message'),
                 __('admin.csv.submitted_at'),
             ]);
 
-            RsvpResponse::with('invitation')
+            $filteredQuery = $this->getFilteredTableQuery();
+            $query = $filteredQuery ? clone $filteredQuery : RsvpResponse::query();
+
+            $query->with('invitation')
                 ->latest()
                 ->chunk(200, function ($rows) use ($handle): void {
                     foreach ($rows as $rsvp) {
@@ -64,6 +68,7 @@ class ListRsvpResponses extends ListRecords
                             CsvSanitizer::cell($rsvp->email ?? '—'),
                             CsvSanitizer::cell((string) $statusLabel),
                             $rsvp->guest_count,
+                            (int) ($rsvp->children_count ?? 0),
                             CsvSanitizer::cell($rsvp->dietary_notes ?? '—'),
                             CsvSanitizer::cell($rsvp->message ?? '—'),
                             optional($rsvp->created_at)->format('Y-m-d H:i'),

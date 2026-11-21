@@ -11,8 +11,8 @@ use App\Services\PhoneService;
 use App\Support\CsvSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -141,14 +141,14 @@ class DashboardController extends Controller
     public function destroy(int $id)
     {
         $invitation = Auth::user()->invitations()->with('photos')->findOrFail($id);
+        $mediaPaths = $invitation->collectMediaPaths();
 
-        $this->deleteStorageFile($invitation->cover_photo);
+        DB::transaction(function () use ($invitation): void {
+            $invitation->skipAutomaticMediaPurge = true;
+            $invitation->delete();
+        });
 
-        foreach ($invitation->photos as $photo) {
-            $this->deleteStorageFile($photo->image_path);
-        }
-
-        $invitation->delete();
+        Invitation::purgeMediaPaths($mediaPaths);
 
         return redirect()->route('dashboard.invitations.index')
             ->with('success', 'تم حذف الدعوة بنجاح.');
@@ -175,29 +175,6 @@ class DashboardController extends Controller
         $invitation->update(['status' => 'archived']);
 
         return back()->with('success', 'تم أرشفة الدعوة بنجاح.');
-    }
-
-    protected function deleteStorageFile(?string $pathOrUrl): void
-    {
-        if (empty($pathOrUrl)) {
-            return;
-        }
-
-        $disk = Storage::disk('public');
-        $storageUrl = $disk->url('');
-
-        $relativePath = $pathOrUrl;
-        if (! empty($storageUrl) && str_starts_with($relativePath, $storageUrl)) {
-            $relativePath = substr($relativePath, strlen($storageUrl));
-        } elseif (str_starts_with($relativePath, '/storage/')) {
-            $relativePath = substr($relativePath, strlen('/storage/'));
-        }
-
-        $relativePath = ltrim($relativePath, '/');
-
-        if (! empty($relativePath) && $disk->exists($relativePath)) {
-            $disk->delete($relativePath);
-        }
     }
 
     public function guests(int $id, Request $request)

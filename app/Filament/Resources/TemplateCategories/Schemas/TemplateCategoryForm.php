@@ -37,6 +37,7 @@ class TemplateCategoryForm
                     ->columnSpanFull(),
                 Toggle::make('is_active')
                     ->label(__('admin.fields.is_active'))
+                    ->default(true)
                     ->required(),
                 TextInput::make('sort_order')
                     ->label(__('admin.fields.sort_order'))

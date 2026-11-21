@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Widgets\PlatformStatsOverview;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -350,6 +351,7 @@ HTML)
                 PreventRequestForgery::class,
                 SubstituteBindings::class,
                 SetLocale::class,
+                SecurityHeaders::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])

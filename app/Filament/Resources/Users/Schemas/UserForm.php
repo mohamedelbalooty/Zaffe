@@ -45,7 +45,7 @@ class UserForm
                     ->native(false),
                 TextInput::make('avatar_url')
                     ->label(__('admin.fields.avatar_url'))
-                    ->url()
+                    ->rule('regex:/^(https?:\/\/|\/).+/i')
                     ->maxLength(500),
             ]);
     }

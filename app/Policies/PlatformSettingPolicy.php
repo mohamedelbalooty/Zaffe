@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\PlatformSetting;
 use App\Models\User;
+use App\Support\PlatformSettingCatalog;
 
 class PlatformSettingPolicy
 {
@@ -29,7 +30,7 @@ class PlatformSettingPolicy
 
     public function delete(User $user, PlatformSetting $platformSetting): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() && ! PlatformSettingCatalog::has($platformSetting->key);
     }
 
     public function deleteAny(User $user): bool

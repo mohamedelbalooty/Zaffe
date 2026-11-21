@@ -58,6 +58,7 @@ class PlatformSettingsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->checkIfRecordIsSelectableUsing(fn (PlatformSetting $record): bool => ! PlatformSettingCatalog::has($record->key))
             ->filters([
                 SelectFilter::make('group')
                     ->label(__('admin.fields.group'))
@@ -68,7 +69,8 @@ class PlatformSettingsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->authorizeIndividualRecords('delete'),
                 ]),
             ]);
     }

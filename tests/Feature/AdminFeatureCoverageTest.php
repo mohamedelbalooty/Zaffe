@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\OperationsMonitor;
+use App\Filament\Resources\InvitationGuests\InvitationGuestResource;
 use App\Filament\Resources\Invitations\Pages\EditInvitation;
 use App\Filament\Resources\Invitations\Pages\ListInvitations;
 use App\Filament\Resources\InvitationTemplates\Pages\CreateInvitationTemplate;
@@ -12,10 +13,12 @@ use App\Filament\Resources\PlatformSettings\Pages\EditPlatformSetting;
 use App\Filament\Resources\PlatformSettings\Pages\ListPlatformSettings;
 use App\Filament\Resources\RsvpResponses\Pages\ListRsvpResponses;
 use App\Filament\Resources\RsvpResponses\Pages\ViewRsvpResponse;
+use App\Filament\Resources\TemplateCategories\Pages\CreateTemplateCategory;
 use App\Filament\Resources\TemplateCategories\Pages\EditTemplateCategory;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Resources\Users\UserResource;
 use App\Filament\Widgets\PlatformStatsOverview;
 use App\Livewire\InvitationEditor;
 use App\Models\Invitation;
@@ -31,6 +34,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -761,5 +765,138 @@ class AdminFeatureCoverageTest extends TestCase
                 'default_styles.font_family' => 'Cairo',
                 'default_styles.ornament_style' => 'constellation',
             ]);
+    }
+
+    public function test_admin_deleting_invitation_purges_full_url_and_relative_uploaded_media(): void
+    {
+        Storage::fake('public');
+
+        $coverPath = UploadedFile::fake()->image('admin-cover.png')->store('invitations/covers', 'public');
+        $galleryUrlPath = UploadedFile::fake()->image('admin-gallery-url.png')->store('invitations/gallery', 'public');
+        $galleryRelPath = UploadedFile::fake()->image('admin-gallery-rel.png')->store('invitations/gallery', 'public');
+
+        $adminDeletedInvitation = Invitation::create([
+            'user_id' => $this->couple->id,
+            'template_id' => $this->template->id,
+            'title' => 'حفل حذف الإدارة',
+            'slug' => 'admin-delete-full-urls',
+            'groom_name' => 'طارق',
+            'bride_name' => 'ليلى',
+            'wedding_date' => now()->addMonths(2)->toDateString(),
+            'venue_name' => 'قصر الرياض',
+            'status' => 'published',
+            'cover_photo' => Storage::disk('public')->url($coverPath),
+        ]);
+
+        InvitationPhoto::create([
+            'invitation_id' => $adminDeletedInvitation->id,
+            'image_path' => Storage::disk('public')->url($galleryUrlPath),
+            'sort_order' => 1,
+        ]);
+
+        InvitationPhoto::create([
+            'invitation_id' => $adminDeletedInvitation->id,
+            'image_path' => '/storage/'.$galleryRelPath,
+            'sort_order' => 2,
+        ]);
+
+        $this->actingAs($this->admin);
+        Filament::setCurrentPanel('admin');
+
+        Livewire::test(EditInvitation::class, ['record' => $adminDeletedInvitation->id])
+            ->callAction(DeleteAction::class);
+
+        $this->assertDatabaseMissing('invitations', ['id' => $adminDeletedInvitation->id]);
+        Storage::disk('public')->assertMissing($coverPath);
+        Storage::disk('public')->assertMissing($galleryUrlPath);
+        Storage::disk('public')->assertMissing($galleryRelPath);
+    }
+
+    public function test_canonical_platform_settings_cannot_be_deleted_individually_or_in_bulk_while_custom_settings_can(): void
+    {
+        $canonicalSetting = PlatformSetting::create([
+            'key' => 'contact_email',
+            'value' => 'support@zaffe.app',
+            'group' => 'contact',
+        ]);
+
+        $customSetting = PlatformSetting::create([
+            'key' => 'custom_banner_note',
+            'value' => 'Temporary note',
+            'group' => 'general',
+        ]);
+
+        $this->assertFalse(Gate::forUser($this->admin)->allows('delete', $canonicalSetting));
+        $this->assertTrue(Gate::forUser($this->admin)->allows('delete', $customSetting));
+
+        $this->actingAs($this->admin);
+        Filament::setCurrentPanel('admin');
+
+        Livewire::test(ListPlatformSettings::class)
+            ->callTableBulkAction('delete', [$canonicalSetting, $customSetting]);
+
+        $this->assertDatabaseHas('platform_settings', ['id' => $canonicalSetting->id, 'key' => 'contact_email']);
+        $this->assertDatabaseMissing('platform_settings', ['id' => $customSetting->id]);
+    }
+
+    public function test_admin_data_hygiene_user_verification_avatar_category_default_and_filtered_rsvp_csv(): void
+    {
+        // User fillable allows email_verified_at and EditUser accepts local /images/... avatar_url
+        $verifiedAt = now()->startOfMinute();
+        $this->couple->fill(['email_verified_at' => $verifiedAt])->save();
+        $this->assertNotNull($this->couple->fresh()->email_verified_at);
+
+        $this->actingAs($this->admin);
+        Filament::setCurrentPanel('admin');
+
+        Livewire::test(EditUser::class, ['record' => $this->couple->id])
+            ->fillForm(['avatar_url' => '/images/templates/royal-gold.webp'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('/images/templates/royal-gold.webp', $this->couple->fresh()->avatar_url);
+
+        // Reject javascript: XSS scheme on avatar_url
+        Livewire::test(EditUser::class, ['record' => $this->couple->id])
+            ->fillForm(['avatar_url' => 'javascript:alert(1)'])
+            ->call('save')
+            ->assertHasFormErrors(['avatar_url']);
+
+        // TemplateCategoryForm defaults is_active to true on create
+        Livewire::test(CreateTemplateCategory::class)
+            ->assertSchemaStateSet(['is_active' => true]);
+
+        // ListRsvpResponses filtered CSV export respects active attendance filter and includes children_count
+        RsvpResponse::create([
+            'invitation_id' => $this->invitation->id,
+            'guest_name' => 'حاضر بالطفل',
+            'phone' => '+966501110001',
+            'attendance_status' => 'attending',
+            'guest_count' => 2,
+            'children_count' => 3,
+        ]);
+
+        RsvpResponse::create([
+            'invitation_id' => $this->invitation->id,
+            'guest_name' => 'معتذر لا يظهر',
+            'phone' => '+966501110002',
+            'attendance_status' => 'declined',
+            'guest_count' => 0,
+            'children_count' => 0,
+        ]);
+
+        $filteredCsv = Livewire::test(ListRsvpResponses::class)
+            ->filterTable('attendance_status', 'attending')
+            ->callAction('exportCsv');
+
+        $csvContent = base64_decode((string) ($filteredCsv->effects['download']['content'] ?? ''), true);
+        $this->assertIsString($csvContent);
+        $this->assertStringContainsString(__('admin.csv.children_count'), $csvContent);
+        $this->assertStringContainsString('حاضر بالطفل', $csvContent);
+        $this->assertStringContainsString(',2,3,', $csvContent);
+        $this->assertStringNotContainsString('معتذر لا يظهر', $csvContent);
+
+        // Navigation sort collision resolved between UserResource and InvitationGuestResource
+        $this->assertNotSame(UserResource::getNavigationSort(), InvitationGuestResource::getNavigationSort());
     }
 }

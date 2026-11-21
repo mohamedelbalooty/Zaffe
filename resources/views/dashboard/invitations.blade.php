@@ -166,8 +166,8 @@
                                 </h3>
                                 <p class="text-xs sm:text-sm text-[#52493F] leading-relaxed">
                                     {{ $isEn
-                                        ? 'Are you sure you want to permanently delete «' . $invitation->title . '» and all its RSVP & guest records?'
-                                        : 'هل أنت متأكد من رغبتك في حذف دعوة «' . $invitation->title . '»؟ سيتم حذف جميع بيانات وتأكيدات الحضور المرتبطة بها نهائياً.' }}
+                                        ? 'Are you sure you want to permanently delete «' . $invitation->title . '»? All uploaded photos, RSVP & guest records, and shared/legacy links will be permanently removed and stop working immediately.'
+                                        : 'هل أنت متأكد من رغبتك في حذف دعوة «' . $invitation->title . '» نهائياً؟ سيتم حذف الصور المرفوعة وسجلات الضيوف وتأكيدات الحضور المرتبطة بها وإيقاف جميع روابطها فوراً.' }}
                                 </p>
                                 <div class="grid grid-cols-2 gap-3 pt-2">
                                     <button type="button" @click="showDelete = false" class="btn-ghost-ivory !min-h-[40px] !py-2 !text-xs">
