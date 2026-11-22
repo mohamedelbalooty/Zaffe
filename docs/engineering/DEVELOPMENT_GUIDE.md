@@ -1,7 +1,7 @@
 # Zaffe (زفّــة) — Developer & Contributor Guide
 
 > **Practical Guide for Local Setup, Development Workflows, Coding Standards, and Feature Extensions**  
-> **Status:** Officially Documented | **Last Updated:** 2026-11-19
+> **Status:** Officially Documented | **Last Updated:** 2026-11-22
 
 ---
 
@@ -9,7 +9,7 @@
 
 Ensure the following tools are installed on your machine before running Zaffe:
 
-- **PHP:** **`>= 8.4.1` runtime** (`composer.lock` resolves Symfony 8.1 packages requiring `>= 8.4.1`, even though `composer.json` declares `"php": "^8.3"`). Required extensions: `bcmath`, `curl`, `dom`, `fileinfo`, `gd`, **`intl` (MANDATORY for Filament `Number::format()` & Umm al-Qura `IntlDateFormatter`)**, `mbstring`, `openssl`, `pdo_sqlite`, `sqlite3`, `zip`.
+- **PHP:** **`^8.4.1` runtime** (`composer.json` specifies `"^8.4.1"`; CI tests **PHP 8.4** and local Windows runs WinGet PHP 8.5). Required extensions: `bcmath`, `curl`, `dom`, `fileinfo`, `gd` *(with WebP support for C-5 compression)*, **`intl` (MANDATORY for Filament `Number::format()` & Umm al-Qura `IntlDateFormatter`)**, `mbstring`, `openssl`, `pdo_sqlite`, `sqlite3`, `pdo_mysql`, `zip`.
 - **Composer:** `^2.7+` (Dependency Manager for PHP).
 - **Node.js:** `^20.x` or `^22.x` (Recommended LTS).
 - **NPM:** `^10.x` or `^11.x`.
@@ -93,12 +93,27 @@ composer run dev
 ```bash
 php artisan serve
 ```
-*Access site at:* `http://127.0.0.1:8000`
+*Access site at:* `http://127.0.0.1:8000` (match `APP_URL=http://localhost:8000` in `.env` so public storage URLs align cleanly).
 
-**Terminal 2 (Frontend HMR Asset Server):**
+**Terminal 2 (Frontend HMR Asset Server — Optional):**
 ```bash
 npm run dev
 ```
+*(If switching back from HMR to compiled `public/build` assets without `npm run dev` running, ensure any leftover `public/hot` file is deleted so browsers do not request `http://[::1]:5173`.)*
+
+### Option C: Local Email Log, Database Queue & Maintenance Checks
+Because `.env.example` configures `MAIL_MAILER=log` and `QUEUE_CONNECTION=database`:
+- **Drain queued emails & post-commit media purge jobs locally:**
+  ```bash
+  php artisan queue:work --stop-when-empty
+  ```
+- **Inspect logged password-reset & RSVP emails:** check `storage/logs/laravel.log`.
+- **Inspect daily maintenance schedule & orphan media:**
+  ```bash
+  php artisan schedule:list
+  php artisan zaffe:cleanup-orphaned-media --dry-run
+  ```
+- **Verify local SQLite & media backup integrity:** copy `database/database.sqlite` and `storage/app/public/invitations/` to a separate backup directory, run `sqlite3 backup.sqlite "PRAGMA integrity_check;"` (expect `ok`), and verify key row counts match live tables.
 
 ---
 
@@ -116,7 +131,7 @@ After running `php artisan db:seed`, the following accounts are ready for testin
 
 ## 5. Running Tests & Static Validation
 
-Zaffe includes **22 automated test files** (`19` Feature + `3` Unit; **196 tests / 2,230 assertions** verified passing on WinGet PHP 8.5 with `ext-intl`) verifying business logic, security constraints, IDOR prevention, rate limiting, Saudi Signature Vol. 1 templates, and Excel CSV sanitization.
+Zaffe includes **22 automated test files** (`19` Feature + `3` Unit; **234 tests** verified passing on WinGet PHP 8.5 locally and PHP 8.4 + MariaDB 11.4 in GitHub Actions CI) verifying business logic, security constraints, IDOR prevention, rate limiting, optional `bride_name` & optional RSVP workflows, WebP media compression, queue retries, Saudi Signature Vol. 1 templates, and Excel CSV sanitization.
 
 ### Run Full Test Suite
 ```bash
