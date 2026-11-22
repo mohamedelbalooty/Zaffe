@@ -46,23 +46,47 @@
                 </p>
 
                 <!-- Couple Names -->
-                <div class="py-2 space-y-2.5">
-                    <h1 class="font-cairo text-3xl sm:text-5xl font-black tracking-tight leading-tight"
-                        style="color: {{ $secondaryColor }};">
-                        {{ $invitation->groom_name }}
-                    </h1>
-
+                <div class="py-2">
                     @if($hasBrideName)
-                        <div class="flex items-center justify-center gap-3">
-                            <span class="h-px w-12 opacity-45" style="background-color: {{ $primaryColor }};"></span>
-                            <span class="font-amiri text-2xl font-bold" style="color: {{ $primaryColor }};">{{ $isEnInv ? '&' : 'و' }}</span>
-                            <span class="h-px w-12 opacity-45" style="background-color: {{ $primaryColor }};"></span>
-                        </div>
+                        <div class="grid grid-cols-11 items-center gap-1 sm:gap-3 text-center">
+                            {{-- Groom (Right side in RTL) --}}
+                            <div class="col-span-5 min-w-0 break-words">
+                                <span class="block font-tajawal text-xs sm:text-sm font-semibold tracking-wide mb-1 opacity-75" style="color: {{ $primaryColor }};">
+                                    {{ $isEnInv ? 'The Groom' : 'العريس' }}
+                                </span>
+                                <h1 class="font-cairo text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight"
+                                    style="color: {{ $secondaryColor }};">
+                                    {{ $invitation->groom_name }}
+                                </h1>
+                            </div>
 
-                        <h1 class="font-cairo text-3xl sm:text-5xl font-black tracking-tight leading-tight"
-                            style="color: {{ $secondaryColor }};">
-                            {{ $invitation->bride_name }}
-                        </h1>
+                            {{-- Center Ampersand / Waw --}}
+                            <div class="col-span-1 flex items-center justify-center font-amiri text-2xl sm:text-3xl font-bold" style="color: {{ $primaryColor }};">
+                                {{ $isEnInv ? '&' : 'و' }}
+                            </div>
+
+                            {{-- Bride (Left side in RTL) --}}
+                            <div class="col-span-5 min-w-0 break-words">
+                                <span class="block font-tajawal text-xs sm:text-sm font-semibold tracking-wide mb-1 opacity-75" style="color: {{ $primaryColor }};">
+                                    {{ $isEnInv ? 'The Bride' : 'العروس' }}
+                                </span>
+                                <h1 class="font-cairo text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight"
+                                    style="color: {{ $secondaryColor }};">
+                                    {{ $invitation->bride_name }}
+                                </h1>
+                            </div>
+                        </div>
+                    @else
+                        {{-- Centered Groom when no Bride --}}
+                        <div class="text-center">
+                            <span class="block font-tajawal text-xs sm:text-sm font-semibold tracking-wide mb-1 opacity-75" style="color: {{ $primaryColor }};">
+                                {{ $isEnInv ? 'The Groom' : 'العريس' }}
+                            </span>
+                            <h1 class="font-cairo text-3xl sm:text-5xl font-black tracking-tight leading-tight"
+                                style="color: {{ $secondaryColor }};">
+                                {{ $invitation->groom_name }}
+                            </h1>
+                        </div>
                     @endif
                 </div>
 

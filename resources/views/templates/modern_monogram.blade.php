@@ -117,33 +117,34 @@
                 <section class="relative py-3 sm:py-5 overflow-hidden">
                     <div class="pointer-events-none select-none absolute inset-0 flex flex-col items-center justify-center overflow-hidden opacity-[0.035]"
                          aria-hidden="true">
+                        <span class="font-cairo text-4xl sm:text-6xl font-black leading-tight whitespace-nowrap"
+                              style="color: {{ $primaryColor }};">{{ $groomParts['first'] }}</span>
                         @if($hasBrideName)
-                            <span class="font-cairo text-4xl sm:text-6xl font-black leading-tight whitespace-nowrap"
+                            <span class="font-cairo text-4xl sm:text-6xl font-black leading-tight whitespace-nowrap -mt-2"
                                   style="color: {{ $primaryColor }};">{{ $brideParts['first'] }}</span>
                         @endif
-                        <span class="font-cairo text-4xl sm:text-6xl font-black leading-tight whitespace-nowrap {{ $hasBrideName ? '-mt-2' : '' }}"
-                              style="color: {{ $primaryColor }};">{{ $groomParts['first'] }}</span>
                     </div>
 
                     @if($hasBrideName)
                         <h1 class="relative z-10 grid grid-cols-11 items-center gap-1 sm:gap-3 text-center">
+                            <!-- Right Wing: Groom (RTL First Column) -->
                             <span class="col-span-5 flex flex-col items-center space-y-1 min-w-0">
-                                <span class="sr-only">{{ $invitation->bride_name }}</span>
+                                <span class="sr-only">{{ $invitation->groom_name }}</span>
                                 <span class="font-tajawal text-[11px] sm:text-xs font-bold tracking-wide opacity-75"
                                       style="color: {{ $goldInk }};"
                                       aria-hidden="true">
-                                    {{ $isEnInv ? 'The Bride' : 'ابنتنا' }}
+                                    {{ $isEnInv ? 'The Groom' : 'العريس' }}
                                 </span>
                                 <span class="font-cairo text-[1.7rem] sm:text-[2.7rem] font-black leading-[1.18] break-words w-full"
                                       style="color: {{ $primaryColor }};"
                                       aria-hidden="true">
-                                    {{ $brideParts['first'] }}
+                                    {{ $groomParts['first'] }}
                                 </span>
-                                @if($brideParts['lineage'] !== '')
+                                @if($groomParts['lineage'] !== '')
                                     <span class="font-tajawal text-[11px] sm:text-sm font-medium opacity-80 break-words w-full leading-snug"
                                           style="color: {{ $secondaryColor }};"
                                           aria-hidden="true">
-                                        {{ $brideParts['lineage'] }}
+                                        {{ $groomParts['lineage'] }}
                                     </span>
                                 @endif
                             </span>
@@ -163,23 +164,24 @@
                                 @endif
                             </span>
 
+                            <!-- Left Wing: Bride (RTL Third Column) -->
                             <span class="col-span-5 flex flex-col items-center space-y-1 min-w-0">
-                                <span class="sr-only">{{ $invitation->groom_name }}</span>
+                                <span class="sr-only">{{ $invitation->bride_name }}</span>
                                 <span class="font-tajawal text-[11px] sm:text-xs font-bold tracking-wide opacity-75"
                                       style="color: {{ $goldInk }};"
                                       aria-hidden="true">
-                                    {{ $isEnInv ? 'The Groom' : 'ابننا' }}
+                                    {{ $isEnInv ? 'The Bride' : 'العروس' }}
                                 </span>
                                 <span class="font-cairo text-[1.7rem] sm:text-[2.7rem] font-black leading-[1.18] break-words w-full"
                                       style="color: {{ $primaryColor }};"
                                       aria-hidden="true">
-                                    {{ $groomParts['first'] }}
+                                    {{ $brideParts['first'] }}
                                 </span>
-                                @if($groomParts['lineage'] !== '')
+                                @if($brideParts['lineage'] !== '')
                                     <span class="font-tajawal text-[11px] sm:text-sm font-medium opacity-80 break-words w-full leading-snug"
                                           style="color: {{ $secondaryColor }};"
                                           aria-hidden="true">
-                                        {{ $groomParts['lineage'] }}
+                                        {{ $brideParts['lineage'] }}
                                     </span>
                                 @endif
                             </span>
@@ -190,7 +192,7 @@
                             <span class="font-tajawal text-xs sm:text-sm font-bold tracking-wide opacity-75"
                                   style="color: {{ $goldInk }};"
                                   aria-hidden="true">
-                                {{ $isEnInv ? 'Our Son' : 'ابننا' }}
+                                {{ $isEnInv ? 'The Groom' : 'العريس' }}
                             </span>
                             <span class="font-cairo text-3xl sm:text-5xl font-black leading-[1.18] break-words max-w-full"
                                   style="color: {{ $primaryColor }};"

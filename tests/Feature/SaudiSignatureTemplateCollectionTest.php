@@ -430,8 +430,8 @@ class SaudiSignatureTemplateCollectionTest extends TestCase
         $response->assertSee('سلمان');
         $response->assertSee('بن فهد آل سعود');
         $response->assertSee('سلمان بن فهد آل سعود');
-        $response->assertSee('ابننا');
-        $response->assertDontSee('ابنتنا');
+        $response->assertSee('العريس');
+        $response->assertDontSee('العروس');
         $response->assertSee('٩:٠٠ مساءً');
         $response->assertSee('١٠:٣٠ مساءً');
         $response->assertDontSee('<img', false);
