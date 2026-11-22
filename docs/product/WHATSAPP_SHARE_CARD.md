@@ -50,15 +50,25 @@ The **WhatsApp Share Card** solves this without compromising Zaffe's core identi
 ### Web Platform Constraint
 Web browsers and WhatsApp Web/App URL schemes (`https://api.whatsapp.com/send?text=...` / `https://wa.me/...`) **cannot reliably attach a generated image file AND pre-populate a text message + URL into WhatsApp simultaneously across all desktop and mobile browsers**:
 - `whatsapp://` / `https://api.whatsapp.com/send?text=...` supports text and links only (no binary image attachment parameter).
-- `navigator.share({ files: [pngFile], title, text })` (Web Share API Level 2) works on many modern Android/iOS mobile browsers to pass the PNG directly to the native share sheet, though **iOS WhatsApp frequently drops caption `text` when receiving a `File`**.
+- Web Share API Level 2 (`navigator.share({ files: [pngFile], title, text })`) passes the PNG file and caption text to supported mobile OS share sheets, **without guaranteeing that WhatsApp on iOS/Android preserves `text` alongside an attached `File`**.
 
-### Phase 1 Practical Customer Workflow (`/dashboard/invitations/{id}/share`)
-Zaffe never fakes an impossible 1-click "auto-attach image + message + link" guarantee. Instead, the **WhatsApp Share Card Hub** delivers an honest, guided luxury experience:
-1. **Live Card Preview:** Immediately previews the `1080 × 1350` (`4:5`) stationery card styled from the customer's chosen template, colors, dates, and privacy settings.
-2. **Mobile Native Share (When Supported):** If `navigator.canShare({ files })` is available, offers a native share action that copies the WhatsApp message + link to the clipboard as a 1-tap safeguard before opening the device share sheet with the PNG file.
-3. **Universal Two-Step Flow (All Browsers):**
-   - **Step 1 — Download Share Image:** One-click PNG download (`zaffe-invitation-{slug}.png`).
-   - **Step 2 — Share Message & Live Link:** Switch AR/EN copy, preview exact text, **Open WhatsApp with Message & Link** (`api.whatsapp.com/send?text=...`), **Copy Message & Link**, or **Copy Link Only**, paired with a clear, concise Arabic/English note explaining how to attach the downloaded image in WhatsApp.
+### 4.1 Unified Owner Share Entry Points vs. Public Guest Separation
+- **Authenticated Owner Flow:** Across the **Studio Editor toolbar**, **Studio Editor Publish Modal**, **Customer Dashboard**, **My Invitations**, and **Owner View of the Invitation Page (`share_box` + draft banner)**, the primary WhatsApp sharing action **must** route to the unified Share Card Hub (`/dashboard/invitations/{id}/share`), never silently opening a competing text-only WhatsApp link.
+- **Public Guest & Non-Owner Safety:** Unauthenticated guests and non-owners viewing `/invitation/{slug}` must **never** see authenticated `/dashboard/...` routes or private owner controls. Their share box renders a clearly scoped link-sharing CTA (`مشاركة رابط الدعوة عبر واتساب` / `Share Invitation Link via WhatsApp`).
+
+### 4.2 Native Web Share API & Honest Fallback Acceptance Criteria (`/dashboard/invitations/{id}/share`)
+1. **Live `4:5` Preview:** Previews the generated `1080 × 1350` PNG card styled from the customer's chosen template, palette, dates, and privacy settings.
+2. **Single Best-Available Native Share (Supported Mobile Browsers):**
+   - Pre-builds the `File` (`image/png`) cleanly once rendered so clicks preserve browser transient user activation.
+   - Probes `navigator.canShare({ files: [pngFile], title, text })` (with `files`-only fallback check if combined `canShare` returns false) and triggers a single `navigator.share(...)` call containing the complete AR/EN invitation message and live invitation URL **strictly once** inside `text` (never duplicating via a separate `url` field).
+   - Never assumes `canShare({ files })` guarantees WhatsApp caption preservation; states this transparently and avoids conflating "share sheet opened" or "copied" with delivery.
+3. **Explicit, Non-Misleading UI Status States:**
+   - **Share Handoff Completed:** Distinct notice explaining the share sheet opened and instructing to paste copied caption if WhatsApp omits text alongside the image (never `"تمت المشاركة"`).
+   - **Clipboard Copied vs. Permission Denied:** Verifies actual Clipboard API / `execCommand('copy')` success before confirming; surfaces a clear error prompt if clipboard permissions are blocked.
+   - **Share Canceled (`AbortError`) vs. Unsupported Browser (`NotAllowedError` / `TypeError` / `!canShare`):** Handled cleanly without claiming success.
+4. **Reliable Two-Button Caption Fallback (All Browsers):**
+   - Clear 3-step visual strip: **(1) Download Invitation Image (PNG)** -> **(2) Copy Message + Link** -> **(3) Attach image in WhatsApp and paste the text in the image caption field**.
+   - Prominent **Download Invitation Image (PNG)** and **Copy Message + Link** buttons, read-only selectable message preview (`<textarea>`), and a clearly de-emphasized secondary utility (`فتح واتساب بنص ورابط فقط (بدون صورة)` / `Open WhatsApp (Text & Link Only — No Image)`).
 
 ---
 
@@ -66,7 +76,7 @@ Zaffe never fakes an impossible 1-click "auto-attach image + message + link" gua
 
 Implemented canonically in `App\Models\Invitation::getWhatsAppShareText(string $lang = 'ar')`:
 - **Formal-Simple Saudi Arabic (`الفصحى البسيطة`):** Opens respectfully (`السلام عليكم ورحمة الله وبركاته` / `نتشرف بدعوتكم لحضور حفل زفاف ...`), removes emojis (`❤️`) and awkward romantic phrasing.
-- **Complete Event Details:** Includes couple names (gracefully omitting bride & conjunction when `bride_name` is blank/null), formatted Gregorian date, Umm al-Qura Hijri date (`الموافق ...`, when `show_hijri` is enabled), formatted event time, and venue name.
+- **Complete Event Details:** Includes couple names (gracefully omitting bride & conjunction when `bride_name` is blank/null), formatted Gregorian date, Umm al-Qura Hijri date (`الموافق ...`, when `show_hijri` is enabled), formatted event time, and venue name, with `public_url` appearing **strictly once**.
 - **RSVP-Aware Call to Action:**
   - When `allowsRsvp()` is `true`: `"للاطلاع على تفاصيل الدعوة والموقع وتأكيد الحضور:\n{url}"` (EN: `"View full invitation details & confirm attendance:\n{url}"`).
   - When `allowsRsvp()` is `false` (`announcement` / `qr_only`): `"للاطلاع على تفاصيل الدعوة والموقع:\n{url}"` (EN: `"View full invitation details & location:\n{url}"`).
@@ -75,5 +85,16 @@ Implemented canonically in `App\Models\Invitation::getWhatsAppShareText(string $
 
 ## 6. MVP Boundaries & Future Enhancements
 
-- **In Scope (Phase 1 MVP):** `4:5` (`1080 × 1350`) PNG share-card renderer adapting across all `14` templates, optional `bride_name` & optional same-origin `cover_photo`, RSVP-aware message copy, customer Share Card Hub (`/dashboard/invitations/{id}/share`), entry actions on Dashboard, My Invitations, and Studio Editor + Publish Modal.
+- **In Scope (Phase 1 MVP):** `4:5` (`1080 × 1350`) PNG share-card renderer adapting across all `14` templates, optional `bride_name` & optional same-origin `cover_photo`, RSVP-aware message copy, unified owner Share Card Hub (`/dashboard/invitations/{id}/share`), unified entry points across Studio Editor, Publish Modal, Dashboard, My Invitations, and owner card preview.
 - **Out of Scope / Future Enhancements:** Video/animated MP4 invitations, server-side headless-Chrome OG image pre-rendering/caching pipeline, and `9:16` Instagram/Snapchat story export presets.
+
+---
+
+## 7. Real-Device Verification Matrix (Release Sign-Off Checklist)
+
+| Environment | Checks Required Before Claiming Caption Preservation |
+| :--- | :--- |
+| **Chrome on Android + WhatsApp** | 1. PNG attached? 2. Message preserved? 3. URL preserved? 4. Image + message + URL together in chat? 5. Manual caption paste needed? *(Physical Android device required)* |
+| **Safari on iPhone + WhatsApp** | Same 5 checks *(Physical iPhone required; note iOS WhatsApp frequently requires pasting copied caption alongside shared image)* |
+| **Desktop Chrome + WhatsApp Web** | Unsupported file-share fallback activates cleanly; Download PNG + Copy Message+Link + attach with caption *(Authenticated WhatsApp Web session required for final send check)* |
+| **Unsupported Browsers** | Fallback strip, PNG download (`1080×1350`), manual selectable `<textarea>`, and error/denied clipboard handling work cleanly without misleading status text |
