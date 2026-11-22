@@ -7,7 +7,6 @@ namespace Tests\Feature;
 use App\Livewire\InvitationEditor;
 use App\Models\Invitation;
 use App\Models\InvitationTemplate;
-use App\Models\TemplateCategory;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -46,7 +45,7 @@ class TemplateManagementTest extends TestCase
 
     public function test_template_catalog_searches_by_arabic_and_english(): void
     {
-        $arResponse = $this->get('/templates?search=' . urlencode('الزهور'));
+        $arResponse = $this->get('/templates?search='.urlencode('الزهور'));
         $arResponse->assertStatus(200);
         $arResponse->assertSee('سحر الزهور');
 
@@ -184,8 +183,8 @@ class TemplateManagementTest extends TestCase
             $response->assertSee('alt=""', false);
             $response->assertSee('onerror="this.style.display=\'none\'"', false);
             $response->assertSee('linear-gradient(135deg, #292521 0%,', false);
-            $response->assertDontSee('alt="' . $floral->name_ar . '"', false);
-            $response->assertDontSee('alt="' . $minimal->name_ar . '"', false);
+            $response->assertDontSee('alt="'.$floral->name_ar.'"', false);
+            $response->assertDontSee('alt="'.$minimal->name_ar.'"', false);
             $response->assertSee($floral->name_ar);
             $response->assertSee($minimal->name_ar);
         }
@@ -216,5 +215,52 @@ class TemplateManagementTest extends TestCase
 
         $this->assertSame('سحر الزهور والحديقة', $floral->name_ar);
         $this->assertSame('/images/templates/floral-romance.webp', $floral->thumbnail);
+    }
+
+    public function test_templates_gallery_cards_prioritize_stationery_preview_and_clean_actions(): void
+    {
+        $templates = InvitationTemplate::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+        $this->assertCount(14, $templates);
+
+        $arResponse = $this->get('/templates');
+        $arResponse->assertOk();
+
+        // Technical catalog noise removed from gallery cards
+        $arResponse->assertDontSee('اللون الأساسي');
+        $arResponse->assertDontSee('Primary Accent');
+        $arResponse->assertDontSee('Font:');
+
+        foreach ($templates as $template) {
+            $arResponse->assertSee($template->name_ar);
+            $arResponse->assertSee($template->name_en);
+            $arResponse->assertSee(route('templates.preview', $template->slug), false);
+            $arResponse->assertSee(route('dashboard.invitations.create', ['template_id' => $template->id]), false);
+        }
+
+        $arResponse->assertSee('معاينة التصميم');
+        $arResponse->assertSee('استخدم التصميم');
+        $arResponse->assertSee('aspect-[5/7]', false);
+
+        // English LTR locale preserves both names and clean action labels
+        $this->get('/lang/en')->assertRedirect();
+        $enResponse = $this->get('/templates');
+        $enResponse->assertOk();
+        $enResponse->assertSee('Preview');
+        $enResponse->assertSee('Use Template');
+        $enResponse->assertDontSee('Primary Accent');
+
+        foreach ($templates as $template) {
+            $enResponse->assertSee($template->name_en);
+            $enResponse->assertSee($template->name_ar);
+        }
+    }
+
+    public function test_templates_gallery_preserves_invite_footer_referral_attribution(): void
+    {
+        $response = $this->get('/templates?ref=invite');
+        $response->assertOk();
+        $response->assertSessionHas('signup_source', 'invite_footer');
     }
 }
