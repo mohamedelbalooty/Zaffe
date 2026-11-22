@@ -121,93 +121,85 @@
                     </div>
                 </div>
             @else
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7 lg:gap-8">
                     @foreach($templates as $template)
                         @php
                             $primaryColor = $template->default_styles['primary_color'] ?? '#C6A76B';
                             $isSaudiSignatureCard = in_array($template->slug, $saudiSlugs, true);
+                            $cardTitle = $isEn && $template->name_en ? $template->name_en : $template->name_ar;
+                            $cardBadge = $isSaudiSignatureCard
+                                ? ($isEn ? 'Saudi Signature' : 'التوقيع السعودي')
+                                : ($isEn ? ($template->category?->name_en ?? 'Collection') : ($template->category?->name_ar ?? 'تصميم'));
                         @endphp
-                        <article class="card-atelier overflow-hidden hover:border-[#C6A76B] transition-colors flex flex-col group">
-                            <!-- Clean Vertical Preview Stage -->
-                            <div class="relative h-72 sm:h-80 overflow-hidden bg-[#221E1A] border-b border-[#E4D9C8]">
-                                <!-- Graceful Fallback (Gradient + Template Name) -->
-                                <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
-                                     style="background: linear-gradient(135deg, #292521 0%, {{ $primaryColor }} 100%);">
-                                    <div class="w-11 h-11 rounded-full bg-white/10 border border-white/25 flex items-center justify-center text-white mb-2.5">
-                                        <x-app-icon name="sparkles" class="w-5 h-5" />
+                        <article class="template-gallery-card overflow-hidden flex flex-col group">
+                            <!-- Framed Stationery Preview Mat -->
+                            <a href="{{ route('templates.preview', $template->slug) }}"
+                               aria-label="{{ $isEn ? 'Preview ' . $cardTitle : 'معاينة تصميم ' . $cardTitle }}"
+                               class="template-gallery-stage relative py-5 px-4 sm:py-6 sm:px-5 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B59556]">
+                                <div class="template-gallery-sheet relative w-[74%] aspect-[5/7] overflow-hidden bg-[#221E1A] ring-1 ring-[#221E1A]/10">
+                                    <!-- Graceful Fallback (Gradient + Template Name) -->
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center p-5 text-center"
+                                         style="background: linear-gradient(135deg, #292521 0%, {{ $primaryColor }} 100%);">
+                                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/25 flex items-center justify-center text-white mb-2">
+                                            <x-app-icon name="sparkles" class="w-5 h-5" />
+                                        </div>
+                                        <span class="font-cairo text-sm font-bold text-white">{{ $template->name_ar }}</span>
+                                        @if($template->name_en)
+                                            <span class="text-[11px] font-medium text-white/80 mt-0.5" dir="ltr">{{ $template->name_en }}</span>
+                                        @endif
                                     </div>
-                                    <span class="font-cairo text-base font-bold text-white">{{ $template->name_ar }}</span>
-                                    @if($template->name_en)
-                                        <span class="text-xs font-medium text-white/80 mt-0.5" dir="ltr">{{ $template->name_en }}</span>
+
+                                    @if($template->thumbnail)
+                                        <img src="{{ $template->thumbnail }}"
+                                             alt=""
+                                             width="540"
+                                             height="756"
+                                             loading="{{ $loop->index < 3 ? 'eager' : 'lazy' }}"
+                                             decoding="async"
+                                             onerror="this.style.display='none'"
+                                             class="relative z-10 w-full h-full object-cover object-top">
+                                    @endif
+                                </div>
+                            </a>
+
+                            <!-- Minimal Luxury Card Footer -->
+                            <div class="px-5 pt-4 pb-5 flex-1 flex flex-col justify-between gap-3.5">
+                                <div class="space-y-1">
+                                    <div class="flex items-center justify-between gap-2.5">
+                                        <h2 class="font-cairo text-[17px] font-extrabold text-[#221E1A] leading-snug truncate">
+                                            {{ $cardTitle }}
+                                        </h2>
+                                        @if($isSaudiSignatureCard)
+                                            <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#F4EBD9]/85 text-[#7A5A20] border border-[#C6A76B]/35">
+                                                <x-app-icon name="crown" class="w-3 h-3" />
+                                                <span>{{ $cardBadge }}</span>
+                                            </span>
+                                        @else
+                                            <span class="shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF7F2] text-[#6E6458] border border-[#E4D9C8]">
+                                                {{ $cardBadge }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    @if($isEn)
+                                        <p class="text-xs font-medium text-[#6E6458] leading-tight truncate" dir="rtl">{{ $template->name_ar }}</p>
+                                    @elseif($template->name_en)
+                                        <p class="text-xs font-medium text-[#6E6458] leading-tight truncate" dir="ltr">{{ $template->name_en }}</p>
                                     @endif
                                 </div>
 
-                                @if($template->thumbnail)
-                                    <img src="{{ $template->thumbnail }}"
-                                         alt=""
-                                         loading="lazy"
-                                         onerror="this.style.display='none'"
-                                         class="relative z-10 w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500">
-                                @endif
+                                <div class="grid grid-cols-2 gap-2.5 pt-0.5">
+                                    <a href="{{ route('templates.preview', $template->slug) }}"
+                                       class="btn-ghost-ivory !min-h-[44px] !py-2 !px-3 !text-xs whitespace-nowrap">
+                                        <x-app-icon name="eye" class="w-4 h-4 text-[#7A5A20] shrink-0" />
+                                        <span>{{ $isEn ? 'Preview' : 'معاينة التصميم' }}</span>
+                                    </a>
 
-                                <div class="absolute top-3 start-3 z-20 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#221E1A] border border-[#E4D9C8] shadow-xs">
-                                    {{ $isEn ? ($template->category?->name_en ?? 'Collection') : ($template->category?->name_ar ?? 'تصميم') }}
-                                </div>
-
-                                @if($isSaudiSignatureCard)
-                                    <div class="absolute top-3 end-3 z-20 bg-[#151210]/90 text-[#DFC99E] px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 border border-[#C6A76B]/40 shadow-sm">
-                                        <x-app-icon name="crown" class="w-3 h-3" />
-                                        <span>{{ $isEn ? 'Saudi Signature' : 'التوقيع السعودي' }}</span>
-                                    </div>
-                                @elseif($template->is_premium)
-                                    <div class="absolute top-3 end-3 z-20 bg-[#221E1A] text-[#DFC99E] px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 shadow-sm">
-                                        <x-app-icon name="crown" class="w-3 h-3" />
-                                        <span>{{ $isEn ? 'Royal' : 'ملكي' }}</span>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <!-- Card Body -->
-                            <div class="p-6 flex-1 flex flex-col justify-between space-y-5">
-                                <div class="space-y-2">
-                                    <div class="flex items-baseline justify-between gap-2">
-                                        <h2 class="font-cairo text-lg font-extrabold text-[#221E1A]">
-                                            {{ $template->name_ar }}
-                                        </h2>
-                                        @if($template->name_en)
-                                            <span class="text-[11px] font-medium text-[#6E6458] shrink-0" dir="ltr">{{ $template->name_en }}</span>
-                                        @endif
-                                    </div>
-                                    <p class="text-xs sm:text-sm text-[#52493F] leading-relaxed">
-                                        {{ $isEn && $template->description_en ? $template->description_en : $template->description_ar }}
-                                    </p>
-                                </div>
-
-                                <div class="space-y-4">
-                                    <div class="flex items-center justify-between text-xs text-[#52493F] pt-3 border-t border-[#E4D9C8]">
-                                        <span class="flex items-center gap-1.5 font-semibold">
-                                            <span class="w-3.5 h-3.5 rounded-full border border-black/15" style="background-color: {{ $primaryColor }};"></span>
-                                            <span>{{ $isEn ? 'Primary Accent' : 'اللون الأساسي' }}</span>
-                                        </span>
-                                        <span class="flex items-center gap-1.5 font-semibold">
-                                            <x-app-icon name="type" class="w-3.5 h-3.5 text-[#856326]" />
-                                            <span>{{ $isEn ? 'Font:' : 'خط' }} {{ $template->default_styles['font_family'] ?? 'Tajawal' }}</span>
-                                        </span>
-                                    </div>
-
-                                    <div class="grid grid-cols-2 gap-2.5">
-                                        <a href="{{ route('templates.preview', $template->slug) }}"
-                                           class="btn-ghost-ivory !min-h-[42px] !py-2 !px-3 !text-xs">
-                                            <x-app-icon name="eye" class="w-4 h-4 text-[#856326]" />
-                                            <span>{{ $isEn ? 'Live Preview' : 'معاينة حية' }}</span>
-                                        </a>
-
-                                        <a href="{{ route('dashboard.invitations.create', ['template_id' => $template->id]) }}"
-                                           class="btn-royal !min-h-[42px] !py-2 !px-3 !text-xs whitespace-nowrap">
-                                            <x-app-icon name="sparkles" class="w-4 h-4 shrink-0" />
-                                            <span>{{ $isEn ? 'Use Design' : 'استخدم التصميم' }}</span>
-                                        </a>
-                                    </div>
+                                    <a href="{{ route('dashboard.invitations.create', ['template_id' => $template->id]) }}"
+                                       class="btn-obsidian !min-h-[44px] !py-2 !px-3 !text-xs whitespace-nowrap">
+                                        <x-app-icon name="sparkles" class="w-4 h-4 text-[#DFC99E] shrink-0" />
+                                        <span>{{ $isEn ? 'Use Template' : 'استخدم التصميم' }}</span>
+                                    </a>
                                 </div>
                             </div>
                         </article>

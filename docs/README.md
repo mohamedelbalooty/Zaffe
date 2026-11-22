@@ -97,6 +97,7 @@ Read these core documents in order when onboarding, planning features, or config
 | Document | Purpose |
 | :--- | :--- |
 | **[DESIGN.md](ui/DESIGN.md)** | Canonical design system specification (`impeccable/design-v1`): tokens, typography, layout, components, RTL/accessibility rules. |
+| **[TEMPLATE_GALLERY_CARD_DESIGN.md](ui/TEMPLATE_GALLERY_CARD_DESIGN.md)** | Research, design decision, `5:7` stationery framing, and visual acceptance criteria for `/templates` gallery cards (`ZAFFE-036`). |
 | **[ZAFFE_DESIGN_SYSTEM.md](ui/ZAFFE_DESIGN_SYSTEM.md)** | Implementation guide for shared CSS tokens (`resources/css/app.css`), Blade layouts, `<x-app-icon>`, 14 themes, and Filament styling. |
 | **[ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md](ui/ZAFFE_023_SAUDI_SIGNATURE_COLLECTION.md)** | Art direction, palettes, typography, `sort_order 1–8` (`ZAFFE-024`), and composition spec for Saudi Signature Collection — Vol. 1. |
 | **[IMPECCABLE_UI_REDESIGN_REPORT.md](ui/reports/IMPECCABLE_UI_REDESIGN_REPORT.md)** | Point-in-time report for `ZAFFE-022` UI/UX audit and redesign implementation *(Historical)*. |
