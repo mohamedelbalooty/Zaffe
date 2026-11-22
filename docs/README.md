@@ -1,7 +1,7 @@
 # Zaffe (زفّــة) — Documentation Hub
 
 > **Master Documentation Directory & Navigation Index**  
-> **Last Synchronized:** 2026-11-21 (`dev` baseline `a40dd70` — PR 1–3 merged; PR 4 preparation pack & PHP 8.4 CI ready for review)  
+> **Last Synchronized:** 2026-11-22 (`dev` baseline `b29530c` — PR #4–#9 merged; **Milestone A locally complete**, PR 4 docs synchronized)  
 > **Repository Root Entry Files:** [README.md](../README.md) · [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md)
 
 ---
@@ -104,6 +104,7 @@ Read these core documents in order when onboarding, planning features, or config
 ### 7. Quality Assurance & Audit Reports (`qa/` & `qa/reports/`)
 | Document | Purpose |
 | :--- | :--- |
+| **[LOCAL_PO_ACCEPTANCE_GUIDE.md](qa/LOCAL_PO_ACCEPTANCE_GUIDE.md)** | Step-by-step local acceptance testing guide for the Product Owner covering Milestone A customer & Admin workflows without hosting. |
 | **[ZAFFE_FEATURE_TEST_MATRIX.md](qa/ZAFFE_FEATURE_TEST_MATRIX.md)** | Living test execution matrix covering customer workflows, negative paths, known `dev` gaps, and security gates. |
 | **[ZAFFE_ADMIN_INTEGRATION_MATRIX.md](qa/ZAFFE_ADMIN_INTEGRATION_MATRIX.md)** | Living integration matrix validating consistency between customer flows and Filament Super Admin (`/admin`). |
 | **[ZAFFE_MASTER_QA_PLAN.md](qa/ZAFFE_MASTER_QA_PLAN.md)** | Master QA and business validation plan across Release 1 features *(Historical Snapshot)*. |

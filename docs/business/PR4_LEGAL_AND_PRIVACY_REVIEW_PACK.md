@@ -1,14 +1,14 @@
 # Zaffe (زفّة) — Legal, Saudi PDPL & Privacy Review Pack (PR 4 Preparation)
 
 > [!CAUTION]
-> **UNAPPROVED DRAFT — FOR SAUDI PDPL LEGAL COUNSEL & PRODUCT OWNER REVIEW ONLY**  
+> **DRAFT — NOT APPROVED FOR PUBLICATION — FOR SAUDI PDPL LEGAL COUNSEL & PRODUCT OWNER REVIEW ONLY**  
 > **Status:** `Draft Preparation Pack — Legal Counsel & Product Owner Sign-Off Required`  
-> **Last Verified Date:** 2026-11-21 | **Code Baseline:** `dev` (`a40dd70` — PR 1–3 merged)  
+> **Last Verified Date:** 2026-11-22 | **Code Baseline:** `dev` (`b29530c` — PR #4–#9 merged; Milestone A locally complete)  
 > **DO NOT PUBLISH ROUTES OR ACTIVATE AUTO-DELETE UNTIL COUNSEL & PO SIGN OFF**
 
 ---
 
-## 1. Verified Personal-Data Inventory on `dev` (`a40dd70`)
+## 1. Verified Personal-Data Inventory on `dev` (`b29530c`)
 
 Exact personal and operational data persisted by Zaffe today:
 
@@ -43,7 +43,7 @@ Public `/privacy` and `/terms` routes remain **intentionally unimplemented** unt
 ### 2.2 Terms of Service Outline (`DEC-07` + Content Safety)
 
 1. **Scope & Eligibility:** Browser-based digital wedding invitation studio for lawful personal/family celebrations.
-2. **Commercial Terms (`DEC-07`):** Release 1 is currently offered **free of charge** without subscriptions. Future paid options (e.g., per-invitation pricing) remain undecided and will **never** apply retroactively to previously created invitations without separate advance notice *(NO `"Free Forever"` claims)*.
+| **2. Commercial Terms (`DEC-07`):** Release 1 is currently offered **free of charge** without subscriptions. Any future monetization will **never** apply retroactive charges to previously created invitations without a separately approved customer-transition policy and advance notice *(NO `"Free Forever"` claims)*. |
 3. **User Content & Media Responsibility (`EX-01`):** Couples warrant they hold rights/permissions to any uploaded photographs or text and agree not to publish unlawful, infringing, or defamatory material; platform reserves moderation/removal rights.
 4. **Availability & External Links:** Maps links (Google Maps) and legacy third-party audio links (`EX-01`) remain subject to third-party availability and licensing rules.
 
@@ -57,7 +57,7 @@ Until self-service account deletion UI is introduced post-launch, all couple acc
 | :---: | :--- | :--- |
 | **1. Intake** | User or guest emails `[VERIFIED_PRIVACY_EMAIL]` or messages verified WhatsApp support requesting access, correction, or erasure. | Log request ID, receipt timestamp, requester role (`couple` vs. `guest`), and target SLA deadline (`[SLA: e.g., 15 business days — confirm with Counsel]`). |
 | **2. Identity Verification** | **Never delete on unverified chat claims:**<br>- **Couple account deletion:** Verify ownership via registered email challenge or authenticated dashboard verification.<br>- **Guest RSVP erasure:** Verify guest phone/email match OR confirm directly with the owning invitation couple before modifying guest rows. | Record verification method completed without archiving raw ID copies unnecessarily. |
-| **3. Execution** | - **Single Invitation & All Guest/Photo Data:** Direct couple to `/dashboard/invitations` Delete button (`DB::transaction()` cascade + post-commit media purge) OR execute via `/admin` Super Admin action.<br>- **Full Couple Account Erasure:** Super Admin deletes the `User` record in `/admin/users` (`User::deleting()` captures all owned invitation cover + gallery paths and purges them post-commit via `Invitation::schedulePostCommitMediaPurge()`).<br>- **Single Guest RSVP Erasure:** Super Admin edits/deletes the specific `RsvpResponse` row in `/admin`. | Confirm public routes (`/invitation/{slug}`, `?g=`, `/pass/{qrToken}`) return HTTP `404` when invitation/account is removed. |
+| **3. Execution** | - **Single Invitation & All Guest/Photo Data:** Direct couple to `/dashboard/invitations` Delete button (`DB::transaction()` cascade + post-commit media purge; queued RSVP notifications declare `$deleteWhenMissingModels = true` so deleted-invitation jobs discard cleanly) OR execute via `/admin` Super Admin action.<br>- **Full Couple Account Erasure:** Super Admin deletes the `User` record in `/admin/users` (`User::deleting()` captures all owned invitation cover + gallery paths and purges them post-commit via `Invitation::schedulePostCommitMediaPurge()`).<br>- **Single Guest RSVP Erasure:** Super Admin deletes the specific `RsvpResponse` row in `/admin`. | Confirm public routes (`/invitation/{slug}`, `?g=`, `/pass/{qrToken}`) return HTTP `404` when invitation/account is removed. |
 | **4. Backup Hygiene** | Record the deleted `user_id` / `invitation_id` hash in an access-restricted **Erasure Compliance Log** (zero personal names/phones stored) for the duration of encrypted backup aging (`[N days]`). | Ensures any emergency backup restore immediately re-applies logged deletions before reopening public traffic. |
 | **5. Closure Notice** | Send written confirmation to requester via verified channel once deletion completes. | Close ticket with completion date inside SLA window. |
 
