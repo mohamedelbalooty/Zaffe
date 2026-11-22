@@ -337,3 +337,244 @@
     animation: none;
   }
 }
+
+/* ==========================================================================
+   Luxury Split-Flap Wedding Countdown
+   ========================================================================== */
+.zaffe-flip-tile {
+  position: relative;
+  width: 100%;
+  height: 3.75rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--flip-border, rgba(198, 167, 107, 0.28));
+  background-color: var(--flip-bg, #FAF7F2);
+  color: var(--flip-accent, #C6A76B);
+  perspective: 680px;
+  box-shadow:
+    0 8px 18px -8px rgba(21, 18, 16, 0.14),
+    0 2px 6px -2px rgba(21, 18, 16, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.48);
+  user-select: none;
+  contain: layout style;
+}
+
+@media (min-width: 640px) {
+  .zaffe-flip-tile {
+    height: 4.5rem;
+    border-radius: 1rem;
+  }
+}
+
+.zaffe-flip-tile--dark {
+  box-shadow:
+    0 10px 22px -8px rgba(0, 0, 0, 0.48),
+    0 2px 6px -2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.zaffe-flip-half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  background-color: var(--flip-bg, #FAF7F2);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.zaffe-flip-half--top {
+  top: 0;
+  border-top-left-radius: calc(0.875rem - 1px);
+  border-top-right-radius: calc(0.875rem - 1px);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+.zaffe-flip-half--bottom {
+  bottom: 0;
+  border-bottom-left-radius: calc(0.875rem - 1px);
+  border-bottom-right-radius: calc(0.875rem - 1px);
+  background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0.07) 100%);
+}
+
+@media (min-width: 640px) {
+  .zaffe-flip-half--top {
+    border-top-left-radius: calc(1rem - 1px);
+    border-top-right-radius: calc(1rem - 1px);
+  }
+
+  .zaffe-flip-half--bottom {
+    border-bottom-left-radius: calc(1rem - 1px);
+    border-bottom-right-radius: calc(1rem - 1px);
+  }
+}
+
+.zaffe-flip-tile--dark .zaffe-flip-half--top {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.01) 100%);
+}
+
+.zaffe-flip-tile--dark .zaffe-flip-half--bottom {
+  background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.16) 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.zaffe-flip-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 200%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cairo', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.zaffe-flip-half--top .zaffe-flip-text {
+  top: 0;
+}
+
+.zaffe-flip-half--bottom .zaffe-flip-text {
+  bottom: 0;
+}
+
+.zaffe-flip-seam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-0.5px);
+  background: var(--flip-seam, rgba(21, 18, 16, 0.12));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  z-index: 25;
+  pointer-events: none;
+}
+
+.zaffe-flip-tile--dark .zaffe-flip-seam {
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.zaffe-flip-seam::before,
+.zaffe-flip-seam::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  width: 3px;
+  height: 5px;
+  border-radius: 1px;
+  background-color: var(--flip-accent, #C6A76B);
+  opacity: 0.45;
+}
+
+.zaffe-flip-seam::before {
+  left: 0;
+}
+
+.zaffe-flip-seam::after {
+  right: 0;
+}
+
+.zaffe-flip-flap-top,
+.zaffe-flip-flap-bottom {
+  display: none;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.zaffe-flip-flap-top {
+  z-index: 20;
+  transform-origin: center bottom;
+}
+
+.zaffe-flip-flap-bottom {
+  z-index: 21;
+  transform-origin: center top;
+}
+
+.zaffe-flip-flap-top::after,
+.zaffe-flip-flap-bottom::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.zaffe-flip-flap-top::after {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.24) 100%);
+}
+
+.zaffe-flip-flap-bottom::after {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0.02) 100%);
+}
+
+@keyframes zaffeFlipTopFold {
+  0% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+  99% {
+    transform: rotateX(-90deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(-90deg);
+    opacity: 0;
+  }
+}
+
+@keyframes zaffeFlipBottomUnfold {
+  0% {
+    transform: rotateX(90deg);
+    opacity: 0;
+  }
+  1% {
+    transform: rotateX(90deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes zaffeFlipTopShade {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes zaffeFlipBottomShade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .zaffe-flip-tile.is-flipping .zaffe-flip-flap-top {
+    display: block;
+    animation: zaffeFlipTopFold 0.26s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+  }
+
+  .zaffe-flip-tile.is-flipping .zaffe-flip-flap-top::after {
+    animation: zaffeFlipTopShade 0.26s ease-in forwards;
+  }
+
+  .zaffe-flip-tile.is-flipping .zaffe-flip-flap-bottom {
+    display: block;
+    animation: zaffeFlipBottomUnfold 0.28s cubic-bezier(0.215, 0.61, 0.355, 1) 0.25s both;
+  }
+
+  .zaffe-flip-tile.is-flipping .zaffe-flip-flap-bottom::after {
+    animation: zaffeFlipBottomShade 0.28s ease-out 0.25s both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zaffe-flip-tile.is-flipping .zaffe-flip-flap-top,
+  .zaffe-flip-tile.is-flipping .zaffe-flip-flap-bottom {
+    display: none;
+    animation: none;
+  }
+}
