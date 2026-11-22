@@ -1,25 +1,26 @@
 # Zaffe (زفّة) — PR 4 Launch Readiness & Operational Preparation Pack
 
-> **Status:** `Preparation Pack — Pre-Gate 4 / External Approvals Pending`  
-> **Last Verified Date:** 2026-11-21  
-> **Baseline:** `dev` (`a40dd70` — PR 1, PR 2, and PR 3 merged)  
-> **Canonical Inputs:** [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) · [OPEN_QUESTIONS.md](../product/OPEN_QUESTIONS.md) · [business-requirements-document.md](../business/business-requirements-document.md)
+> **Status:** `Milestone A Locally Complete — Gate 4 / Production Hosting & Legal Approvals Deferred`  
+> **Last Verified Date:** 2026-11-22  
+> **Baseline:** `dev` (`b29530c` — PR #4–#9 merged, including ZAFFE-030 CI & ZAFFE-031 Queue Resilience)  
+> **Canonical Inputs:** [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) · [OPEN_QUESTIONS.md](../product/OPEN_QUESTIONS.md) · [business-requirements-document.md](../business/business-requirements-document.md) · [LOCAL_PO_ACCEPTANCE_GUIDE.md](../qa/LOCAL_PO_ACCEPTANCE_GUIDE.md)
 
 > [!IMPORTANT]
 > **Governance Guardrail:** This pack prepares verifiable technical, hosting, email, backup, and QA checklists ahead of PR 4. **Nothing in this file authorizes hosting purchase, live deployment, automatic PII deletion, or inventing real support contacts.** Every external dependency remains explicitly gated until formal Product Owner and Legal approvals arrive.
 
 ---
 
-## 1. Remaining Technical Production-Readiness Gaps (Code vs. Configuration)
+## 1. Current `dev` (`b29530c`) Verification & Remaining Milestone B Gaps
 
-| Area | Current State on `dev` (`a40dd70`) | Exact Production Gap to Close at PR 4 / Gate 4 |
+| Area | Current State on `dev` (`b29530c`) | Exact Milestone B / Gate 4 Production Gap |
 | :--- | :--- | :--- |
-| **PHP `8.4.1+` CI Parity** | Application tested locally on WinGet PHP `8.5.12`; `composer.json` specifies `"php": "^8.4.1"`. | Add & verify lightweight `.github/workflows/ci.yml` executing full PHPUnit + MariaDB `11.4` migration smoke test on **PHP 8.4**. |
-| **Environment & HTTPS Scheme** | `.env.example` defaults to `APP_ENV=local`, `APP_DEBUG=true`, `APP_URL=http://localhost:8000`; `AppServiceProvider` forces `https://` in `production` when `APP_URL` is `https://`. | Populate production `.env` (`APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://<DOMAIN>`, strong random `APP_KEY`, `SESSION_DRIVER=database`, `CACHE_STORE=database`). |
-| **Support Contacts (`PlatformSetting`)** | [`PlatformSettingCatalog.php`](../../app/Support/PlatformSettingCatalog.php) defaults to placeholder values (`support@zaffe.app`, `+20 100 000 0000`, `+201000000000`). | Ship an idempotent data migration ([AGENTS.md](../../AGENTS.md) Rule 12) setting verified Saudi `contact_email`, `contact_phone`, and `whatsapp_support` once supplied by PO. |
-| **Transactional Email (`Resend`)** | `MAIL_MAILER=log` locally; [`ResetPasswordNotification.php`](../../app/Notifications/ResetPasswordNotification.php) implements `ShouldQueue`. | Provision live `RESEND_API_KEY`, verify domain DNS (`SPF`/`DKIM`/`DMARC`), configure queue worker/cron or synchronous password reset, and run live delivery test. |
-| **Legal Pages & Audio Gate (`DEC-05`, `EX-01`)** | No public `/privacy` or `/terms` routes; legacy `music_url` metadata preserved cleanly in DB (`C-6` Option A). | Publish Counsel/PO-approved `/privacy` + `/terms` + form notices, execute legacy `music_url` DB audit (`§5`), and apply PO/Counsel ruling on `EX-01`. |
-| **Storage, Assets & Admin** | Local SQLite/Vite build tested cleanly. | Execute `npm run build` (pre-built `public/build`), `php artisan storage:link`, and interactive `php artisan zaffe:create-admin` on target host. |
+| **PHP `8.4.1+` & MariaDB `11.4` CI** | **Verified & Active ([.github/workflows/ci.yml](../../.github/workflows/ci.yml)):** GitHub Actions runs on **`PHP 8.4.28`** (`intl`, `gd` WebP, `pdo_mysql`, `fileinfo`), passing **`234` tests (`2,807` assertions)** plus full `MariaDB 11.4.13` `migrate` -> `rollback --step=2` -> `migrate` smoke checks (`runs 45018569613`, `45018827102`). | Re-verify matching PHP `>= 8.4.1` CLI/Web versions and extensions on the chosen production host when hosting is procured (`§2.1`). |
+| **Queue & Deletion Resilience (`ZAFFE-031`)** | **Verified Locally & in CI:** `QUEUE_CONNECTION=database` workers drain queued reset/RSVP notifications, retry `PurgeInvitationMediaJob` failures safely, surface exhausted failures in `OperationsMonitor`, and discard stale [`NewRsvpNotification.php`](../../app/Notifications/NewRsvpNotification.php) / [`RsvpConfirmationNotification.php`](../../app/Notifications/RsvpConfirmationNotification.php) jobs (`$deleteWhenMissingModels = true`) cleanly after invitation deletion. | Configure production 1-minute cron `flock` or VPS Supervisor worker once target hosting is selected (`§2.2`). |
+| **Environment & HTTPS Scheme** | Local `.env` defaults verified (`APP_ENV=local`, `APP_DEBUG=true`, `APP_URL=http://localhost:8000`, `MAIL_MAILER=log`, `QUEUE_CONNECTION=database`); `AppServiceProvider` forces `https://` in `production` when `APP_URL` is `https://`. | Populate production `.env` (`APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://<DOMAIN>`, strong random `APP_KEY`, `SESSION_DRIVER=database`, `CACHE_STORE=database`). |
+| **Support Contacts (`PlatformSetting`)** | [`PlatformSettingCatalog.php`](../../app/Support/PlatformSettingCatalog.php) holds non-production baseline placeholders (`support@zaffe.app`, `+20 100 000 0000`, `+201000000000`). | Ship an idempotent data migration ([AGENTS.md](../../AGENTS.md) Rule 12) setting verified Saudi `contact_email`, `contact_phone`, and `whatsapp_support` once supplied by PO (`DEC-06`). |
+| **Transactional Email (`Resend`)** | `MAIL_MAILER=log` verified locally against `storage/logs/laravel.log`; [`ResetPasswordNotification.php`](../../app/Notifications/ResetPasswordNotification.php) implements `ShouldQueue`. | Provision live `RESEND_API_KEY`, verify domain DNS (`SPF`/`DKIM`/`DMARC`), configure queue worker/cron or synchronous password reset, and run live delivery test (`§3`). |
+| **Legal Pages & Audio Gate (`DEC-05`, `EX-01`–`EX-03`)** | Public `/privacy` and `/terms` remain **unpublished** and 30-day automatic guest-data deletion remains **OFF**; legacy `music_url` metadata is preserved in DB (`C-6` Option A). | Publish Counsel/PO-approved `/privacy` + `/terms` + form notices, execute legacy `music_url` DB audit (`EX-01`), and apply PO/Counsel rulings on `EX-01`, `EX-02`, and `EX-03`. |
+| **Storage, Assets, Symlink & Admin** | Verified locally (`public/storage` symlink, compiled `vite` `public/build` assets without stale `public/hot`, SQLite backup/restore integrity drill). | Execute `npm run build`, `php artisan storage:link`, and interactive `php artisan zaffe:create-admin` on target production host. |
 
 ---
 
