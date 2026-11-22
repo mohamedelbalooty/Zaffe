@@ -177,11 +177,17 @@
 
                             <!-- Actions Row -->
                             <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-                                <div class="flex items-center gap-2">
+                                <div class="flex flex-wrap items-center gap-2">
                                     <a href="{{ route('dashboard.invitations.editor', $invitation->id) }}"
                                        class="btn-obsidian !min-h-[38px] !py-1.5 !px-3.5 !text-xs">
                                         <x-app-icon name="edit" class="w-3.5 h-3.5 text-[#DFC99E]" />
                                         <span>{{ $isEn ? 'Open Studio' : 'تعديل بالمحرر' }}</span>
+                                    </a>
+
+                                    <a href="{{ route('dashboard.invitations.share', $invitation->id) }}"
+                                       class="btn-ghost-ivory !min-h-[38px] !py-1.5 !px-3 !text-xs">
+                                        <x-app-icon name="image" class="w-3.5 h-3.5 text-[#856326]" />
+                                        <span>{{ $isEn ? 'Share Card' : 'بطاقة واتساب' }}</span>
                                     </a>
 
                                     @if($invitation->status === 'published')

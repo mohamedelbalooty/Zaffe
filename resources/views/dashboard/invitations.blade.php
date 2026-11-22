@@ -115,6 +115,12 @@
                                 <span>{{ $isEn ? 'Live Studio' : 'المحرر المباشر' }}</span>
                             </a>
 
+                            <a href="{{ route('dashboard.invitations.share', $invitation->id) }}"
+                               class="btn-ghost-ivory !min-h-[38px] !py-1.5 !px-3 !text-xs">
+                                <x-app-icon name="image" class="w-3.5 h-3.5 text-[#856326]" />
+                                <span>{{ $isEn ? 'Share Card' : 'بطاقة واتساب' }}</span>
+                            </a>
+
                             @if($invitation->status === 'published')
                                 <a href="{{ $invitation->public_url }}" target="_blank" rel="noopener noreferrer"
                                    class="w-9 h-9 rounded-lg bg-[#FAF7F2] border border-[#E4D9C8] text-[#221E1A] hover:border-[#C6A76B] transition flex items-center justify-center"

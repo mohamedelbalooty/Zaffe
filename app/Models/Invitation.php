@@ -392,20 +392,58 @@ class Invitation extends Model
     {
         $url = $this->public_url;
         $coupleNames = $this->formattedCoupleNames($lang);
+        $allowsRsvp = $this->allowsRsvp();
 
         if ($lang === 'en') {
-            return "We are delighted to invite you to share in our special day ❤️\n\n".
-                "Wedding of {$coupleNames}\n".
-                'Date: '.$this->wedding_date->format('M d, Y')."\n".
-                "Venue: {$this->venue_name}\n\n".
-                "Please view your invitation & confirm attendance here:\n".$url;
+            $gregorianDate = InvitationDateFormatter::formatGregorianDate($this, 'en');
+            $time = InvitationDateFormatter::formatTime($this, 'en');
+
+            $lines = [
+                'You are cordially invited to attend our wedding celebration.',
+                '',
+                "Wedding of {$coupleNames}",
+                "Date: {$gregorianDate}",
+            ];
+
+            if ($time !== null) {
+                $lines[] = "Time: {$time}";
+            }
+
+            $lines[] = "Venue: {$this->venue_name}";
+            $lines[] = '';
+            $lines[] = $allowsRsvp
+                ? "View full invitation details & confirm attendance:\n{$url}"
+                : "View full invitation details & location:\n{$url}";
+
+            return implode("\n", $lines);
         }
 
-        return "يسعدنا ويشرفنا دعوتكم لمشاركتنا أجمل أيام حياتنا وبدء فصل جديد معاً ❤️\n\n".
-            "حفل زفاف: {$coupleNames}\n".
-            'الموعد: '.InvitationDateFormatter::formatGregorianDate($this, 'ar')."\n".
-            "المكان: {$this->venue_name}\n\n".
-            "تفاصيل الدعوة وتأكيد الحضور:\n".$url;
+        $gregorianDate = InvitationDateFormatter::formatGregorianDate($this, 'ar');
+        $hijriDate = InvitationDateFormatter::formatHijriDate($this, null, null, null, 'ar');
+        $time = InvitationDateFormatter::formatTime($this, 'ar');
+
+        $lines = [
+            'السلام عليكم ورحمة الله وبركاته',
+            "نتشرف بدعوتكم لحضور حفل زفاف {$coupleNames}",
+            '',
+            "التاريخ: {$gregorianDate}",
+        ];
+
+        if ($hijriDate !== null) {
+            $lines[] = "الموافق: {$hijriDate}";
+        }
+
+        if ($time !== null) {
+            $lines[] = "الوقت: {$time}";
+        }
+
+        $lines[] = "المكان: {$this->venue_name}";
+        $lines[] = '';
+        $lines[] = $allowsRsvp
+            ? "للاطلاع على تفاصيل الدعوة والموقع وتأكيد الحضور:\n{$url}"
+            : "للاطلاع على تفاصيل الدعوة والموقع:\n{$url}";
+
+        return implode("\n", $lines);
     }
 
     public function getWhatsAppShareUrl(string $lang = 'ar'): string

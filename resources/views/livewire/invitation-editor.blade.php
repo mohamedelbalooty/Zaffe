@@ -58,6 +58,12 @@
                 {{ $saveStatus }}
             </span>
 
+            <a href="{{ route('dashboard.invitations.share', $invitation->id) }}"
+               class="min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/15 border border-white/10 text-white text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap">
+                <x-app-icon name="image" class="w-4 h-4 text-[#DFC99E]" />
+                <span class="hidden sm:inline">بطاقة واتساب</span>
+            </a>
+
             @if($status === 'published')
                 <a href="{{ $invitation->public_url }}" target="_blank" rel="noopener noreferrer"
                    class="min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/15 border border-white/10 text-white text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap">
@@ -594,11 +600,17 @@
                     </div>
 
                     <div class="space-y-2.5 pt-1">
+                        <a href="{{ route('dashboard.invitations.share', $invitation->id) }}"
+                           class="btn-royal w-full">
+                            <x-app-icon name="image" class="w-4 h-4" />
+                            <span>تحميل ومشاركة صورة الدعوة لواتساب</span>
+                        </a>
+
                         <a href="{{ $invitation->public_url }}"
                            target="_blank"
                            rel="noopener noreferrer"
-                           class="btn-royal w-full">
-                            <x-app-icon name="external-link" class="w-4 h-4" />
+                           class="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs transition flex items-center justify-center gap-2">
+                            <x-app-icon name="external-link" class="w-4 h-4 text-[#DFC99E]" />
                             <span>تصفح رابط الدعوة الآن</span>
                         </a>
 
