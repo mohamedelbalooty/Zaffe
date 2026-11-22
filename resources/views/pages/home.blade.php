@@ -38,7 +38,7 @@
                            target="_blank"
                            rel="noopener noreferrer"
                            class="btn-ghost-ivory !px-7 !py-3.5 !text-base">
-                            <x-app-icon name="eye" class="w-5 h-5 text-[#856326]" />
+                            <x-app-icon name="eye" class="w-5 h-5 text-[#7A5A20]" />
                             <span>{{ $isEn ? 'View Saudi Demo' : 'عاين دعوة سعودية حية' }}</span>
                         </a>
                     </div>
@@ -46,15 +46,15 @@
                     <!-- Trust & Cultural Fit Strip -->
                     <div class="pt-6 border-t border-[#E4D9C8] flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-xs font-bold text-[#52493F]">
                         <div class="flex items-center gap-2">
-                            <x-app-icon name="check-badge" class="w-4 h-4 text-[#856326] shrink-0" />
+                            <x-app-icon name="check-badge" class="w-4 h-4 text-[#7A5A20] shrink-0" />
                             <span>{{ $isEn ? 'WhatsApp In-App Browser Ready' : 'توافق تام مع متصفح واتساب' }}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <x-app-icon name="calendar" class="w-4 h-4 text-[#856326] shrink-0" />
+                            <x-app-icon name="calendar" class="w-4 h-4 text-[#7A5A20] shrink-0" />
                             <span>{{ $isEn ? 'Umm al-Qura Hijri & Gregorian' : 'التقويم الهجري (أم القرى) والميلادي' }}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <x-app-icon name="shield-check" class="w-4 h-4 text-[#856326] shrink-0" />
+                            <x-app-icon name="shield-check" class="w-4 h-4 text-[#7A5A20] shrink-0" />
                             <span>{{ $isEn ? 'Family Privacy & Optional Photos' : 'خصوصية عائلية وصور اختيارية' }}</span>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                 <!-- Interactive Royal Invitation Folio Mockup -->
                 <div class="lg:col-span-5 flex justify-center">
                     <div class="relative w-full max-w-[23.5rem]" x-data="{ previewMode: 'card' }">
-                        <div class="relative bg-white border-2 border-[#C6A76B]/55 rounded-[2rem] shadow-royal-card p-4 overflow-hidden">
+                        <div class="relative bg-white border border-[#E4D9C8] ring-1 ring-[#C6A76B]/30 rounded-[2rem] shadow-royal-card p-4 overflow-hidden">
                             <!-- Interactive Mode Switcher -->
                             <div class="flex items-center justify-between gap-2 pb-3 border-b border-[#E4D9C8]">
                                 <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#221E1A]">
@@ -213,7 +213,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
                 <div class="lg:col-span-5 space-y-5">
-                    <h2 class="font-cairo text-3xl sm:text-4xl font-black text-[#221E1A] leading-tight">
+                    <h2 class="font-cairo text-3xl sm:text-4xl font-black text-[#221E1A] leading-tight tracking-[-0.015em]">
                         {{ $isEn ? 'Flexible Invitation Modes & Exceptional Guest Experience' : 'أنماط دعوات مرنة وتجربة ضيوف استثنائية' }}
                     </h2>
                     <p class="text-base text-[#52493F] leading-[1.75]">
@@ -236,7 +236,7 @@
                             <div class="w-10 h-10 rounded-xl bg-[#221E1A] text-[#DFC99E] flex items-center justify-center">
                                 <x-app-icon name="mail-open" class="w-5 h-5" />
                             </div>
-                            <span class="font-cairo text-xs font-black text-[#856326]">٠١</span>
+                            <span class="font-cairo text-xs font-black text-[#7A5A20]">٠١</span>
                         </div>
                         <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">
                             {{ $isEn ? 'View-First Card & Optional RSVP' : 'بطاقة عرض فاخرة ورد اختياري' }}
@@ -270,7 +270,7 @@
                             <div class="w-10 h-10 rounded-xl bg-[#F4EBD9] text-[#7A5A20] border border-[#C6A76B]/40 flex items-center justify-center">
                                 <x-app-icon name="shield-check" class="w-5 h-5" />
                             </div>
-                            <span class="font-cairo text-xs font-black text-[#856326]">٠٣</span>
+                            <span class="font-cairo text-xs font-black text-[#7A5A20]">٠٣</span>
                         </div>
                         <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">
                             {{ $isEn ? 'Family Privacy by Default' : 'خصوصية العائلة أولاً' }}
@@ -287,7 +287,7 @@
                             <div class="w-10 h-10 rounded-xl bg-[#221E1A] text-[#DFC99E] flex items-center justify-center">
                                 <x-app-icon name="calendar" class="w-5 h-5" />
                             </div>
-                            <span class="font-cairo text-xs font-black text-[#856326]">٠٤</span>
+                            <span class="font-cairo text-xs font-black text-[#7A5A20]">٠٤</span>
                         </div>
                         <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">
                             {{ $isEn ? 'Umm al-Qura Hijri & Venue Maps' : 'هجري أم القرى وخرائط القاعة' }}
@@ -307,7 +307,7 @@
     <section id="how-it-works" class="py-16 sm:py-20 bg-[#FAF7F2] border-b border-[#E4D9C8]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl mb-12 space-y-3">
-                <h2 class="font-cairo text-3xl sm:text-4xl font-black text-[#221E1A]">
+                <h2 class="font-cairo text-3xl sm:text-4xl font-black text-[#221E1A] tracking-[-0.015em]">
                     {{ $isEn ? 'How Zaffe Works' : 'كيف تعمل منصة زفّــة؟' }}
                 </h2>
                 <p class="text-base text-[#52493F]">
@@ -318,7 +318,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
-                <div class="card-atelier p-7 space-y-4">
+                <div class="card-atelier p-7 space-y-4 hover:border-[#C6A76B]/70 transition-colors duration-200">
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] border border-[#C6A76B]/45 flex items-center justify-center text-[#7A5A20] font-cairo font-black text-lg">
                         ١
                     </div>
@@ -332,7 +332,7 @@
                     </p>
                 </div>
 
-                <div class="card-atelier p-7 space-y-4">
+                <div class="card-atelier p-7 space-y-4 hover:border-[#C6A76B]/70 transition-colors duration-200">
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] border border-[#C6A76B]/45 flex items-center justify-center text-[#7A5A20] font-cairo font-black text-lg">
                         ٢
                     </div>
@@ -346,7 +346,7 @@
                     </p>
                 </div>
 
-                <div class="card-atelier p-7 space-y-4">
+                <div class="card-atelier p-7 space-y-4 hover:border-[#C6A76B]/70 transition-colors duration-200">
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] border border-[#C6A76B]/45 flex items-center justify-center text-[#7A5A20] font-cairo font-black text-lg">
                         ٣
                     </div>
@@ -363,107 +363,47 @@
         </div>
     </section>
 
-    <!-- Section 4: Featured Templates Showcase (Clean Matte Framing, No Overlapping Text) -->
-    <section class="py-16 sm:py-20 bg-white border-b border-[#E4D9C8]">
+    <!-- Section 4: Featured Templates Showcase (Aligned with ZAFFE-036 Stationery Gallery) -->
+    <section class="py-16 sm:py-20 bg-[#FCFBF8] border-b border-[#E4D9C8]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-                <div class="space-y-2">
-                    <h2 class="font-cairo text-3xl sm:text-4xl font-black text-[#221E1A]">
+                <div class="space-y-2 max-w-2xl">
+                    <h2 class="font-cairo text-3xl sm:text-4xl font-black text-[#221E1A] tracking-[-0.015em]">
                         {{ $isEn ? 'Featured Wedding Themes' : 'أشهر تصاميم بطاقات الزفاف' }}
                     </h2>
                     <p class="text-sm sm:text-base text-[#52493F]">
-                        {{ $isEn ? 'Fourteen distinct visual worlds including our Saudi Signature Collection — ready to customize in minutes.' : '١٤ عالماً بصرياً متفرداً بين التصاميم الكلاسيكية ومجموعة التوقيع السعودي — قابلة للتخصيص في دقائق' }}
+                        {{ $isEn
+                            ? 'Handcrafted Saudi Signature and timeless Arabic wedding stationery — ready to preview and personalize in minutes.'
+                            : 'مختارات من مجموعة التوقيع السعودي والتصاميم الكلاسيكية — عاين كل بطاقة بكامل تفاصيلها وخصّصها في دقائق' }}
                     </p>
                 </div>
-                <div class="flex flex-wrap items-center gap-2.5 shrink-0 self-start sm:self-auto">
-                    <a href="{{ route('templates.index', ['collection' => 'saudi-signature']) }}" class="btn-royal">
-                        <x-app-icon name="crown" class="w-4 h-4" />
+                <div class="shrink-0 self-start sm:self-auto">
+                    <a href="{{ route('templates.index', ['collection' => 'saudi-signature']) }}" class="btn-ghost-ivory">
+                        <x-app-icon name="crown" class="w-4 h-4 text-[#7A5A20]" />
                         <span>{{ $isEn ? 'Saudi Signature Vol. 1' : 'مجموعة التوقيع السعودي' }}</span>
-                    </a>
-                    <a href="{{ route('templates.index') }}" class="btn-ghost-ivory">
-                        <span>{{ $isEn ? 'All 14 Templates' : 'عرض كل التصاميم' }}</span>
-                        <x-app-icon name="arrow-left" class="w-4 h-4 text-[#856326] dir-arrow" />
                     </a>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-                @foreach($featuredTemplates as $template)
-                    @php
-                        $primaryColor = $template->default_styles['primary_color'] ?? '#C6A76B';
-                    @endphp
-                    <article class="card-atelier overflow-hidden hover:border-[#C6A76B] transition-colors flex flex-col group">
-                        <!-- Clean Preview Frame (No cluttered overlapping titles) -->
-                        <div class="relative h-56 overflow-hidden bg-[#221E1A] border-b border-[#E4D9C8]">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
-                                 style="background: linear-gradient(135deg, #292521 0%, {{ $primaryColor }} 100%);">
-                                <div class="w-10 h-10 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-white mb-2">
-                                    <x-app-icon name="sparkles" class="w-5 h-5" />
-                                </div>
-                                <span class="font-cairo text-base font-bold text-white">{{ $template->name_ar }}</span>
-                                @if($template->name_en)
-                                    <span class="text-xs font-medium text-white/80 mt-0.5" dir="ltr">{{ $template->name_en }}</span>
-                                @endif
-                            </div>
-
-                            @if($template->thumbnail)
-                                <img src="{{ $template->thumbnail }}"
-                                     alt=""
-                                     loading="lazy"
-                                     onerror="this.style.display='none'"
-                                     class="relative z-10 w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500">
-                            @endif
-
-                            <div class="absolute top-3 start-3 z-20 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#221E1A] border border-[#E4D9C8] shadow-xs">
-                                {{ $isEn ? ($template->category?->name_en ?? 'Luxury') : ($template->category?->name_ar ?? 'تصميم فاخر') }}
-                            </div>
-                        </div>
-
-                        <!-- Clean Matte Card Details -->
-                        <div class="p-6 flex-1 flex flex-col justify-between space-y-5">
-                            <div class="space-y-2">
-                                <div class="flex items-baseline justify-between gap-2">
-                                    <h3 class="font-cairo text-lg font-extrabold text-[#221E1A]">
-                                        {{ $isEn && $template->name_en ? $template->name_en : $template->name_ar }}
-                                    </h3>
-                                    @if(!$isEn && $template->name_en)
-                                        <span class="text-[11px] font-medium text-[#6E6458] shrink-0" dir="ltr">{{ $template->name_en }}</span>
-                                    @endif
-                                </div>
-                                <p class="text-xs sm:text-sm text-[#52493F] line-clamp-2 leading-relaxed">
-                                    {{ $isEn && $template->description_en ? $template->description_en : $template->description_ar }}
-                                </p>
-                            </div>
-
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between text-xs text-[#52493F] pt-3 border-t border-[#E4D9C8]">
-                                    <span class="inline-flex items-center gap-1.5 font-semibold">
-                                        <span class="w-3.5 h-3.5 rounded-full border border-black/15" style="background-color: {{ $primaryColor }};"></span>
-                                        <span>{{ $isEn ? 'Custom Palette' : 'ألوان قابلة للتخصيص' }}</span>
-                                    </span>
-                                    <span class="inline-flex items-center gap-1.5 font-semibold">
-                                        <x-app-icon name="type" class="w-3.5 h-3.5 text-[#856326]" />
-                                        <span dir="ltr">{{ $template->default_styles['font_family'] ?? 'Tajawal' }}</span>
-                                    </span>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-2.5">
-                                    <a href="{{ route('templates.preview', $template->slug) }}"
-                                       class="btn-ghost-ivory !min-h-[42px] !py-2 !px-3 !text-xs">
-                                        <x-app-icon name="eye" class="w-4 h-4 text-[#856326]" />
-                                        <span>{{ $isEn ? 'Live Preview' : 'معاينة حية' }}</span>
-                                    </a>
-
-                                    <a href="{{ route('dashboard.invitations.create', ['template_id' => $template->id]) }}"
-                                       class="btn-royal !min-h-[42px] !py-2 !px-3 !text-xs">
-                                        <x-app-icon name="sparkles" class="w-4 h-4" />
-                                        <span>{{ $isEn ? 'Use Theme' : 'استخدم التصميم' }}</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7 lg:gap-8">
+                @foreach($featuredTemplates->take(3) as $template)
+                    <x-template-gallery-card
+                        :template="$template"
+                        :is-en="$isEn"
+                        heading-tag="h3"
+                        :eager="true"
+                    />
                 @endforeach
+            </div>
+
+            <div class="mt-10 sm:mt-12 flex flex-col items-center text-center space-y-2.5">
+                <a href="{{ route('templates.index') }}" class="btn-royal !px-8 !py-3.5 !text-sm sm:!text-base">
+                    <span>{{ $isEn ? 'Explore All Designs' : 'استكشف جميع التصاميم' }}</span>
+                    <x-app-icon name="arrow-left" class="w-4 h-4 dir-arrow" />
+                </a>
+                <p class="text-xs font-medium text-[#6E6458]">
+                    {{ $isEn ? '14 curated designs — 100% free during Release 1' : '١٤ تصميماً فاخراً — مجانية بالكامل في الإطلاق الأول' }}
+                </p>
             </div>
         </div>
     </section>
@@ -472,7 +412,7 @@
     <section id="features" class="py-16 sm:py-20 bg-[#FAF7F2]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl mb-12 space-y-2">
-                <h2 class="font-cairo text-3xl sm:text-4xl font-black text-[#221E1A]">
+                <h2 class="font-cairo text-3xl sm:text-4xl font-black text-[#221E1A] tracking-[-0.015em]">
                     {{ $isEn ? 'Everything Required for a Seamless Wedding Invitation' : 'كل ما تحتاجه لإدارة دعوة زفافك بلمسة عصرية' }}
                 </h2>
                 <p class="text-base text-[#52493F]">
@@ -481,7 +421,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="card-atelier p-6 sm:p-7 space-y-3">
+                <div class="card-atelier p-6 sm:p-7 space-y-3 hover:border-[#C6A76B]/70 transition-colors duration-200">
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] text-[#7A5A20] flex items-center justify-center border border-[#C6A76B]/30">
                         <x-app-icon name="crown" class="w-5 h-5" />
                     </div>
@@ -491,7 +431,7 @@
                     </p>
                 </div>
 
-                <div class="card-atelier p-6 sm:p-7 space-y-3">
+                <div class="card-atelier p-6 sm:p-7 space-y-3 hover:border-[#C6A76B]/70 transition-colors duration-200">
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] text-[#7A5A20] flex items-center justify-center border border-[#C6A76B]/30">
                         <x-app-icon name="edit" class="w-5 h-5" />
                     </div>
@@ -501,7 +441,7 @@
                     </p>
                 </div>
 
-                <div class="card-atelier p-6 sm:p-7 space-y-3">
+                <div class="card-atelier p-6 sm:p-7 space-y-3 hover:border-[#C6A76B]/70 transition-colors duration-200">
                     <div class="w-11 h-11 rounded-xl bg-[#ECF5F0] text-[#0F4C3A] flex items-center justify-center border border-[#0F4C3A]/20">
                         <x-app-icon name="whatsapp" class="w-5 h-5" />
                     </div>
@@ -511,7 +451,7 @@
                     </p>
                 </div>
 
-                <div class="card-atelier p-6 sm:p-7 space-y-3">
+                <div class="card-atelier p-6 sm:p-7 space-y-3 hover:border-[#C6A76B]/70 transition-colors duration-200">
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] text-[#7A5A20] flex items-center justify-center border border-[#C6A76B]/30">
                         <x-app-icon name="users" class="w-5 h-5" />
                     </div>
@@ -521,7 +461,7 @@
                     </p>
                 </div>
 
-                <div class="card-atelier p-6 sm:p-7 space-y-3">
+                <div class="card-atelier p-6 sm:p-7 space-y-3 hover:border-[#C6A76B]/70 transition-colors duration-200">
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] text-[#7A5A20] flex items-center justify-center border border-[#C6A76B]/30">
                         <x-app-icon name="map-pin" class="w-5 h-5" />
                     </div>
@@ -531,7 +471,7 @@
                     </p>
                 </div>
 
-                <div class="card-atelier p-6 sm:p-7 space-y-3">
+                <div class="card-atelier p-6 sm:p-7 space-y-3 hover:border-[#C6A76B]/70 transition-colors duration-200">
                     <div class="w-11 h-11 rounded-xl bg-[#F4EBD9] text-[#7A5A20] flex items-center justify-center border border-[#C6A76B]/30">
                         <x-app-icon name="sparkles" class="w-5 h-5" />
                     </div>

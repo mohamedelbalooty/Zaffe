@@ -263,4 +263,45 @@ class TemplateManagementTest extends TestCase
         $response->assertOk();
         $response->assertSessionHas('signup_source', 'invite_footer');
     }
+
+    public function test_homepage_featured_templates_match_gallery_cards_and_link_to_gallery(): void
+    {
+        $featured = InvitationTemplate::where('is_active', true)
+            ->orderBy('sort_order')
+            ->take(3)
+            ->get();
+        $this->assertCount(3, $featured);
+
+        $arHome = $this->get('/');
+        $arHome->assertOk();
+        $arHome->assertSee('أشهر تصاميم بطاقات الزفاف');
+        $arHome->assertSee('استكشف جميع التصاميم');
+        $arHome->assertSee(route('templates.index'), false);
+        $arHome->assertSee('aspect-[5/7]', false);
+        $arHome->assertSee('معاينة التصميم');
+        $arHome->assertSee('استخدم التصميم');
+        $arHome->assertDontSee('ألوان قابلة للتخصيص');
+        $arHome->assertDontSee('Custom Palette');
+
+        foreach ($featured as $template) {
+            $arHome->assertSee($template->name_ar);
+            $arHome->assertSee($template->name_en);
+            $arHome->assertSee(route('templates.preview', $template->slug), false);
+            $arHome->assertSee(route('dashboard.invitations.create', ['template_id' => $template->id]), false);
+        }
+
+        // English LTR homepage consistency
+        $this->get('/lang/en')->assertRedirect();
+        $enHome = $this->get('/');
+        $enHome->assertOk();
+        $enHome->assertSee('Featured Wedding Themes');
+        $enHome->assertSee('Explore All Designs');
+        $enHome->assertSee('Preview');
+        $enHome->assertSee('Use Template');
+
+        foreach ($featured as $template) {
+            $enHome->assertSee($template->name_en);
+            $enHome->assertSee($template->name_ar);
+        }
+    }
 }
