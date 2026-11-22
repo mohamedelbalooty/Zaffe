@@ -1,3 +1,7 @@
+@php
+    $isEn = app()->getLocale() === 'en';
+@endphp
+
 <div x-data="{ mobilePane: 'editor' }"
      class="h-screen h-dvh flex flex-col bg-[#161412] text-[#E4D9C8] overflow-hidden font-tajawal">
     <!-- Top Studio Header Toolbar -->
@@ -325,32 +329,73 @@
                 <!-- 4. Media Tab -->
                 @if($activeTab === 'media')
                     <div class="space-y-5">
-                        <h2 class="font-cairo text-sm font-extrabold text-[#DFC99E]">صور العروسين وألبوم الذكريات (اختياري)</h2>
+                        <h2 class="font-cairo text-sm font-extrabold text-[#DFC99E]">{{ $isEn ? 'Couple Photos & Memory Album (Optional)' : 'صور العروسين وألبوم الذكريات (اختياري)' }}</h2>
 
                         <div class="p-4 rounded-xl bg-white/[0.05] border border-white/10 space-y-3">
-                            <label class="block text-xs font-bold text-white">صورة الغلاف / الشعار الرئيسي</label>
+                            <label class="block text-xs font-bold text-white">{{ $isEn ? 'Cover Photo / Main Monogram' : 'صورة الغلاف / الشعار الرئيسي' }}</label>
 
                             @if($cover_photo)
-                                <div class="w-28 h-28 rounded-xl overflow-hidden border-2 border-[#C6A76B] shadow-md">
+                                <div class="relative group w-28 h-28 rounded-xl overflow-hidden border-2 border-[#C6A76B] shadow-md bg-black/30">
                                     <img src="{{ $cover_photo }}" alt="Cover" class="w-full h-full object-cover">
+                                    <button type="button"
+                                            wire:click="deleteCoverPhoto"
+                                            wire:loading.attr="disabled"
+                                            aria-label="{{ $isEn ? 'Delete cover photo' : 'حذف صورة الغلاف' }}"
+                                            title="{{ $isEn ? 'Delete cover photo' : 'حذف صورة الغلاف' }}"
+                                            class="absolute top-1.5 start-1.5 p-1.5 bg-[#BE123C] hover:bg-[#9F1239] text-white rounded-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition shadow cursor-pointer">
+                                        <x-app-icon name="trash" class="w-3.5 h-3.5" />
+                                    </button>
                                 </div>
                             @endif
 
-                            <input type="file" wire:model="new_cover_photo" accept="image/*"
-                                   class="w-full max-w-full text-xs text-[#E4D9C8]/80 file:me-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#C6A76B] file:text-[#151210] hover:file:opacity-90">
+                            <div x-data="{ fileName: '' }"
+                                 x-on:livewire-upload-finish="fileName = ''; if ($refs.coverInput) $refs.coverInput.value = ''"
+                                 x-on:livewire-upload-error="fileName = ''; if ($refs.coverInput) $refs.coverInput.value = ''"
+                                 class="flex flex-wrap items-center gap-3">
+                                <label class="cursor-pointer inline-flex items-center justify-center py-2 px-4 rounded-lg border-0 text-xs font-bold bg-[#C6A76B] text-[#151210] hover:opacity-90 transition select-none focus-within:ring-2 focus-within:ring-[#C6A76B]">
+                                    <span>{{ $isEn ? 'Choose File' : 'اختر ملف' }}</span>
+                                    <input type="file"
+                                           x-ref="coverInput"
+                                           wire:model="new_cover_photo"
+                                           accept="image/*"
+                                           class="sr-only"
+                                           x-on:change="fileName = $event.target.files.length > 0 ? $event.target.files[0].name : ''">
+                                </label>
+                                <span class="text-xs text-[#E4D9C8]/80 truncate max-w-[200px]"
+                                      x-text="fileName ? fileName : '{{ $isEn ? 'No file chosen' : 'لم يتم اختيار ملف' }}'">
+                                    {{ $isEn ? 'No file chosen' : 'لم يتم اختيار ملف' }}
+                                </span>
+                            </div>
 
                             <div wire:loading wire:target="new_cover_photo" class="text-xs text-[#DFC99E]">
-                                جاري رفع صورة الغلاف...
+                                {{ $isEn ? 'Uploading cover photo...' : 'جاري رفع صورة الغلاف...' }}
                             </div>
                         </div>
 
                         <div class="p-4 rounded-xl bg-white/[0.05] border border-white/10 space-y-3">
-                            <label class="block text-xs font-bold text-white">إضافة صور إلى ألبوم الفرح</label>
-                            <input type="file" wire:model="new_gallery_photo" accept="image/*"
-                                   class="w-full max-w-full text-xs text-[#E4D9C8]/80 file:me-3 file:py-2 file:px-4 file:rounded-lg file:border file:border-[#C6A76B] file:text-xs file:font-bold file:bg-[#1E1A16] file:text-[#DFC99E]">
+                            <label class="block text-xs font-bold text-white">{{ $isEn ? 'Add Photos to Wedding Album' : 'إضافة صور إلى ألبوم الفرح' }}</label>
+
+                            <div x-data="{ fileName: '' }"
+                                 x-on:livewire-upload-finish="fileName = ''; if ($refs.galleryInput) $refs.galleryInput.value = ''"
+                                 x-on:livewire-upload-error="fileName = ''; if ($refs.galleryInput) $refs.galleryInput.value = ''"
+                                 class="flex flex-wrap items-center gap-3">
+                                <label class="cursor-pointer inline-flex items-center justify-center py-2 px-4 rounded-lg border border-[#C6A76B] text-xs font-bold bg-[#1E1A16] text-[#DFC99E] hover:bg-[#2A241F] transition select-none focus-within:ring-2 focus-within:ring-[#C6A76B]">
+                                    <span>{{ $isEn ? 'Choose File' : 'اختر ملف' }}</span>
+                                    <input type="file"
+                                           x-ref="galleryInput"
+                                           wire:model="new_gallery_photo"
+                                           accept="image/*"
+                                           class="sr-only"
+                                           x-on:change="fileName = $event.target.files.length > 0 ? $event.target.files[0].name : ''">
+                                </label>
+                                <span class="text-xs text-[#E4D9C8]/80 truncate max-w-[200px]"
+                                      x-text="fileName ? fileName : '{{ $isEn ? 'No file chosen' : 'لم يتم اختيار ملف' }}'">
+                                    {{ $isEn ? 'No file chosen' : 'لم يتم اختيار ملف' }}
+                                </span>
+                            </div>
 
                             <div wire:loading wire:target="new_gallery_photo" class="text-xs text-[#DFC99E]">
-                                جاري رفع الصورة إلى الألبوم...
+                                {{ $isEn ? 'Uploading photo to album...' : 'جاري رفع الصورة إلى الألبوم...' }}
                             </div>
 
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
@@ -359,8 +404,10 @@
                                         <img src="{{ $p->url }}" alt="Gallery photo" class="w-full h-full object-cover">
                                         <button type="button"
                                                 wire:click="deleteGalleryPhoto({{ $p->id }})"
-                                                aria-label="حذف الصورة"
-                                                class="absolute top-1.5 start-1.5 p-1.5 bg-[#BE123C] text-white rounded-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition shadow cursor-pointer">
+                                                wire:loading.attr="disabled"
+                                                aria-label="{{ $isEn ? 'Delete photo' : 'حذف الصورة' }}"
+                                                title="{{ $isEn ? 'Delete photo' : 'حذف الصورة' }}"
+                                                class="absolute top-1.5 start-1.5 p-1.5 bg-[#BE123C] hover:bg-[#9F1239] text-white rounded-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition shadow cursor-pointer">
                                             <x-app-icon name="trash" class="w-3.5 h-3.5" />
                                         </button>
                                     </div>

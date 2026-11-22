@@ -199,6 +199,46 @@ class InvitationEditorTest extends TestCase
         $this->assertNotNull($this->invitation->cover_photo);
     }
 
+    public function test_owner_can_upload_and_delete_cover_photo(): void
+    {
+        Storage::fake('public');
+
+        $fakeCover = UploadedFile::fake()->image('cover.png', 800, 600);
+
+        $component = Livewire::actingAs($this->user)
+            ->test(InvitationEditor::class, ['id' => $this->invitation->id])
+            ->set('new_cover_photo', $fakeCover);
+
+        $this->invitation->refresh();
+        $this->assertNotNull($this->invitation->cover_photo);
+        $coverPath = Invitation::resolvePublicDiskPath($this->invitation->cover_photo);
+        $this->assertNotNull($coverPath);
+        Storage::disk('public')->assertExists($coverPath);
+
+        $component->call('deleteCoverPhoto');
+
+        $this->invitation->refresh();
+        $this->assertNull($this->invitation->cover_photo);
+        Storage::disk('public')->assertMissing($coverPath);
+    }
+
+    public function test_media_file_inputs_are_localized_based_on_website_locale(): void
+    {
+        app()->setLocale('ar');
+        Livewire::actingAs($this->user)
+            ->test(InvitationEditor::class, ['id' => $this->invitation->id])
+            ->set('activeTab', 'media')
+            ->assertSee('اختر ملف')
+            ->assertSee('لم يتم اختيار ملف');
+
+        app()->setLocale('en');
+        Livewire::actingAs($this->user)
+            ->test(InvitationEditor::class, ['id' => $this->invitation->id])
+            ->set('activeTab', 'media')
+            ->assertSee('Choose File')
+            ->assertSee('No file chosen');
+    }
+
     public function test_owner_can_upload_and_delete_gallery_photo(): void
     {
         Storage::fake('public');

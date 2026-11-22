@@ -265,7 +265,20 @@ class InvitationEditor extends Component
         $this->deleteStorageFile($photo->image_path);
 
         $photo->delete();
-        $this->saveStatus = 'تم حذف الصورة ✓';
+        $this->saveStatus = app()->getLocale() === 'en' ? 'Photo deleted ✓' : 'تم حذف الصورة ✓';
+    }
+
+    public function deleteCoverPhoto(): void
+    {
+        $this->getAuthorizedInvitation();
+        $this->new_cover_photo = null;
+
+        if ($this->cover_photo) {
+            $this->deleteStorageFile($this->cover_photo);
+            $this->cover_photo = null;
+            $this->saveChanges();
+            $this->saveStatus = app()->getLocale() === 'en' ? 'Cover photo deleted ✓' : 'تم حذف صورة الغلاف ✓';
+        }
     }
 
     protected function deleteStorageFile(?string $pathOrUrl): void

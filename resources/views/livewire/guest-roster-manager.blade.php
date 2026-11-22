@@ -81,8 +81,20 @@
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                    <input type="file" wire:model="csvFile" accept=".csv,.txt"
-                           class="text-xs text-[#52493F] file:me-2 file:px-3.5 file:py-2 file:rounded-lg file:border file:border-[#E4D9C8] file:bg-[#FAF7F2] file:font-bold file:text-[#221E1A]">
+                    <div x-data="{ fileName: '' }"
+                         x-on:livewire-upload-finish="fileName = ''; if ($refs.csvInput) $refs.csvInput.value = ''"
+                         x-on:livewire-upload-error="fileName = ''; if ($refs.csvInput) $refs.csvInput.value = ''"
+                         class="flex items-center gap-2">
+                        <label class="cursor-pointer inline-flex items-center justify-center px-3.5 py-2 rounded-lg border border-[#E4D9C8] bg-[#FAF7F2] hover:bg-[#F4EBD9] text-xs font-bold text-[#221E1A] transition select-none focus-within:ring-2 focus-within:ring-[#C6A76B]">
+                            <span>{{ $isEn ? 'Choose File' : 'اختر ملف' }}</span>
+                            <input type="file" x-ref="csvInput" wire:model="csvFile" accept=".csv,.txt" class="sr-only"
+                                   x-on:change="fileName = $event.target.files.length > 0 ? $event.target.files[0].name : ''">
+                        </label>
+                        <span class="text-xs text-[#52493F] truncate max-w-[180px]"
+                              x-text="fileName ? fileName : '{{ $isEn ? 'No file chosen' : 'لم يتم اختيار ملف' }}'">
+                            {{ $isEn ? 'No file chosen' : 'لم يتم اختيار ملف' }}
+                        </span>
+                    </div>
                     <button type="submit" class="btn-royal !min-h-[40px] !py-2 !px-5 !text-xs cursor-pointer">
                         {{ $isEn ? 'Import & Generate Passes' : 'تنفيذ الاستيراد وإصدار الأكواد' }}
                     </button>
