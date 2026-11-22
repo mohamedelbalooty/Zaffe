@@ -13,12 +13,15 @@
             msgLang: @js($defaultMsgLang),
             rendering: true,
             renderError: false,
-            canNativeFileShare: false,
+            nativeShareMode: 'unsupported',
             pngBlob: null,
-            downloaded: false,
-            copiedMsg: false,
-            copiedLink: false,
-            nativeFeedback: '',
+            pngFile: null,
+            shareState: 'idle',
+            clipboardState: 'idle',
+            downloadState: 'idle',
+            get canNativeFileShare() {
+                return this.nativeShareMode === 'files_and_text' || this.nativeShareMode === 'files_only';
+            },
             get currentMessage() {
                 return (this.payload.messages[this.msgLang] || this.payload.messages.ar).text;
             },
@@ -28,6 +31,29 @@
             async init() {
                 await this.$nextTick();
                 await this.generateCard();
+            },
+            detectNativeShareSupport() {
+                if (typeof navigator === 'undefined' || typeof navigator.share !== 'function' || typeof navigator.canShare !== 'function' || !this.pngFile) {
+                    this.nativeShareMode = 'unsupported';
+                    return;
+                }
+                try {
+                    if (navigator.canShare({
+                        files: [this.pngFile],
+                        title: this.payload.invitation.title,
+                        text: this.currentMessage,
+                    })) {
+                        this.nativeShareMode = 'files_and_text';
+                        return;
+                    }
+                } catch (e) {}
+                try {
+                    if (navigator.canShare({ files: [this.pngFile] })) {
+                        this.nativeShareMode = 'files_only';
+                        return;
+                    }
+                } catch (e) {}
+                this.nativeShareMode = 'unsupported';
             },
             async generateCard() {
                 this.rendering = true;
@@ -44,29 +70,39 @@
                     const canvas = this.$refs.shareCanvas;
                     await window.ZaffeShareCard.render(canvas, this.payload);
                     this.pngBlob = await window.ZaffeShareCard.toBlob(canvas);
-
-                    if (navigator.canShare && typeof File !== 'undefined' && this.pngBlob) {
-                        const testFile = new File([this.pngBlob], this.payload.filename, { type: 'image/png' });
-                        this.canNativeFileShare = Boolean(navigator.canShare({ files: [testFile] }));
-                    }
+                    this.pngFile = (typeof File !== 'undefined' && this.pngBlob)
+                        ? new File([this.pngBlob], this.payload.filename, { type: 'image/png' })
+                        : null;
+                    this.detectNativeShareSupport();
                 } catch (e) {
                     this.renderError = true;
                 } finally {
                     this.rendering = false;
                 }
             },
-            copyText(value, flagKey) {
-                const done = () => {
-                    this[flagKey] = true;
-                    setTimeout(() => { this[flagKey] = false; }, 2500);
-                };
-                if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-                    navigator.clipboard.writeText(value).then(done).catch(() => this.fallbackCopy(value, done));
-                    return;
+            async copyToClipboard(value, successState) {
+                this.clipboardState = 'idle';
+                let copied = false;
+                if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    try {
+                        await navigator.clipboard.writeText(value);
+                        copied = true;
+                    } catch (e) {
+                        copied = false;
+                    }
                 }
-                this.fallbackCopy(value, done);
+                if (!copied) {
+                    copied = this.fallbackCopy(value);
+                }
+                this.clipboardState = copied ? successState : 'failed';
+                setTimeout(() => {
+                    if (this.clipboardState === successState) {
+                        this.clipboardState = 'idle';
+                    }
+                }, 3500);
+                return copied;
             },
-            fallbackCopy(value, onDone) {
+            fallbackCopy(value) {
                 try {
                     const ta = document.createElement('textarea');
                     ta.value = value;
@@ -75,41 +111,67 @@
                     ta.style.opacity = '0';
                     document.body.appendChild(ta);
                     ta.select();
-                    document.execCommand('copy');
+                    const ok = Boolean(document.execCommand('copy'));
                     document.body.removeChild(ta);
-                    if (onDone) onDone();
-                } catch (e) {}
+                    return ok;
+                } catch (e) {
+                    return false;
+                }
             },
             async downloadImage() {
-                if (!this.pngBlob && this.$refs.shareCanvas && window.ZaffeShareCard) {
-                    this.pngBlob = await window.ZaffeShareCard.toBlob(this.$refs.shareCanvas);
+                this.downloadState = 'idle';
+                try {
+                    if (!this.pngBlob && this.$refs.shareCanvas && window.ZaffeShareCard) {
+                        this.pngBlob = await window.ZaffeShareCard.toBlob(this.$refs.shareCanvas);
+                    }
+                    if (!this.pngBlob) {
+                        this.downloadState = 'failed';
+                        return;
+                    }
+                    const url = URL.createObjectURL(this.pngBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = this.payload.filename || 'zaffe-share-card.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    this.downloadState = 'downloaded';
+                    setTimeout(() => {
+                        if (this.downloadState === 'downloaded') {
+                            this.downloadState = 'idle';
+                        }
+                    }, 3500);
+                } catch (e) {
+                    this.downloadState = 'failed';
                 }
-                if (!this.pngBlob) return;
-                const url = URL.createObjectURL(this.pngBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = this.payload.filename || 'zaffe-share-card.png';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
-                this.downloaded = true;
-                setTimeout(() => { this.downloaded = false; }, 3500);
             },
             async shareNative() {
-                if (!this.pngBlob || !navigator.share || typeof File === 'undefined') return;
-                this.copyText(this.currentMessage, 'copiedMsg');
-                const file = new File([this.pngBlob], this.payload.filename, { type: 'image/png' });
-                try {
-                    await navigator.share({
-                        files: [file],
+                this.detectNativeShareSupport();
+                if (!this.canNativeFileShare || !this.pngFile) {
+                    this.shareState = 'unsupported';
+                    return;
+                }
+                const shareData = this.nativeShareMode === 'files_and_text'
+                    ? {
+                        files: [this.pngFile],
                         title: this.payload.invitation.title,
                         text: this.currentMessage,
-                    });
-                    this.nativeFeedback = @js($isEn ? 'Shared! Message & link were also copied to clipboard if needed.' : 'تمت المشاركة! تم نسخ الرسالة والرابط أيضاً احتياطاً للصق.');
+                    }
+                    : {
+                        files: [this.pngFile],
+                    };
+                this.shareState = 'sharing';
+                try {
+                    await navigator.share(shareData);
+                    this.shareState = 'handoff_completed';
                 } catch (err) {
-                    if (err && err.name !== 'AbortError') {
-                        this.nativeFeedback = @js($isEn ? 'Direct app sharing was cancelled or unsupported; use Download PNG + Open WhatsApp below.' : 'تعذرت المشاركة المباشرة في هذا المتصفح؛ استخدم تحميل الصورة ثم فتح واتساب أدناه.');
+                    if (err && err.name === 'AbortError') {
+                        this.shareState = 'canceled';
+                    } else if (err && (err.name === 'NotAllowedError' || err.name === 'TypeError')) {
+                        this.shareState = 'unsupported';
+                    } else {
+                        this.shareState = 'error';
                     }
                 }
             }
@@ -238,87 +300,94 @@
             <!-- Action Workflow Column -->
             <div class="lg:col-span-7 space-y-5">
 
-                <!-- Mobile Native Share Sheet (when supported by device browser) -->
+                <!-- Primary Native Mobile Share Card (Only shown when browser supports navigator.canShare with files) -->
                 <div x-show="canNativeFileShare" x-cloak
-                     class="card-atelier p-5 border-[#0F4C3A]/30 bg-[#ECF5F0]/55 space-y-3">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="space-y-1">
-                            <h3 class="font-cairo text-base font-extrabold text-[#0F4C3A] flex items-center gap-2">
-                                <x-app-icon name="share" class="w-4.5 h-4.5" />
-                                <span>{{ $isEn ? 'Quick Mobile Share (Image + Copy)' : 'مشاركة سريعة من الجوال (صورة + نص)' }}</span>
-                            </h3>
-                            <p class="text-xs text-[#221E1A]/80 leading-relaxed">
+                     class="card-atelier p-5 sm:p-6 border-[#0F4C3A]/35 bg-[#ECF5F0]/55 space-y-3.5">
+                    <div class="space-y-1">
+                        <h3 class="font-cairo text-base sm:text-lg font-extrabold text-[#0F4C3A] flex items-center gap-2">
+                            <x-app-icon name="whatsapp" class="w-5 h-5 shrink-0" />
+                            <span>{{ $isEn ? 'Share Invitation Image & Message' : 'مشاركة صورة الدعوة والرسالة عبر واتساب' }}</span>
+                        </h3>
+                        <p class="text-xs text-[#221E1A]/85 leading-relaxed">
+                            <span x-show="nativeShareMode === 'files_and_text'">
                                 {{ $isEn
-                                    ? 'Opens your phone share sheet with the PNG card ready. We also copy the message & link to your clipboard so you can paste them easily.'
-                                    : 'يفتح قائمة المشاركة في جوالك بالصورة جاهزة، مع نسخ الرسالة والرابط تلقائياً للحافظة لتسهيل اللصق داخل واتساب.' }}
-                            </p>
-                        </div>
+                                    ? 'Opens your device share sheet with the 1080×1350 image, invitation message, and live link in one action. Some mobile WhatsApp versions omit text alongside an image—if empty, copy & paste the caption below.'
+                                    : 'يفتح نافذة المشاركة على جهازك بصورة الدعوة والرسالة والرابط معاً في خطوة واحدة. قد لا تحتفظ بعض إصدارات واتساب بالنص تلقائياً مع الصورة؛ وفي هذه الحالة يمكنك نسخه ولصقه فوراً من الخيارات أدناه.' }}
+                            </span>
+                            <span x-show="nativeShareMode === 'files_only'" x-cloak>
+                                {{ $isEn
+                                    ? 'This browser supports sharing the image file to WhatsApp, while caption text must be copied below and pasted under the image.'
+                                    : 'يدعم هذا المتصفح مشاركة ملف الصورة مباشرة، بينما يلزم نسخ الرسالة والرابط أدناه ولصقهما في خانة التعليق أسفل الصورة في واتساب.' }}
+                            </span>
+                        </p>
                     </div>
+
                     <button type="button"
                             @click="shareNative()"
-                            :disabled="rendering || renderError"
-                            class="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-[#0F4C3A] hover:bg-[#0B3A2C] text-white font-extrabold text-xs sm:text-sm transition inline-flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
-                        <x-app-icon name="whatsapp" class="w-4.5 h-4.5" />
-                        <span>{{ $isEn ? 'Share Image & Copy Message' : 'مشاركة الصورة ونسخ الرسالة' }}</span>
+                            :disabled="rendering || renderError || shareState === 'sharing'"
+                            class="w-full min-h-[46px] py-2.5 px-4 rounded-xl bg-[#0F4C3A] hover:bg-[#0B3A2C] text-white font-extrabold text-xs sm:text-sm transition inline-flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
+                        <x-app-icon name="share" class="w-4.5 h-4.5" />
+                        <span x-text="shareState === 'sharing' ? @js($isEn ? 'Opening share sheet…' : 'جاري فتح نافذة المشاركة…') : @js($isEn ? 'Share Image + Message + Link' : 'مشاركة صورة الدعوة مع الرسالة والرابط')"></span>
                     </button>
-                    <p x-show="nativeFeedback" x-cloak x-text="nativeFeedback" class="text-xs font-bold text-[#0F4C3A]"></p>
+
+                    <!-- Honest Share State Banners -->
+                    <div x-show="shareState === 'handoff_completed'" x-cloak
+                         class="p-3 rounded-xl bg-white border border-[#0F4C3A]/30 text-xs text-[#0F4C3A] font-semibold leading-relaxed">
+                        {{ $isEn
+                            ? 'Share sheet handoff completed with the invitation image. Because WhatsApp on some devices strips text when attaching an image, please verify the caption appears in WhatsApp—or use "Copy Message + Link" below to paste it.'
+                            : 'تم فتح نافذة المشاركة بالصورة. لأن بعض إصدارات واتساب لا تنقل النص تلقائياً عند إرفاق صورة، يرجى التأكد من ظهور التعليق داخل واتساب أو استخدام زر «نسخ الرسالة والرابط» أدناه ولصقه في خانة التعليق.' }}
+                    </div>
+
+                    <div x-show="shareState === 'canceled'" x-cloak
+                         class="p-3 rounded-xl bg-amber-50 border border-amber-300/70 text-xs text-amber-900 font-semibold leading-relaxed">
+                        {{ $isEn
+                            ? 'Share dialog was canceled. You can try again or use Download Image + Copy Message below.'
+                            : 'تم إلغاء نافذة المشاركة. يمكنك المحاولة مرة أخرى أو استخدام التحميل والنسخ أدناه.' }}
+                    </div>
+
+                    <div x-show="shareState === 'error' || shareState === 'unsupported'" x-cloak
+                         class="p-3 rounded-xl bg-amber-50 border border-amber-300/70 text-xs text-amber-900 font-semibold leading-relaxed">
+                        {{ $isEn
+                            ? 'This browser cannot complete native file + caption sharing directly. Please use Download Invitation Image + Copy Message & Link below.'
+                            : 'تعذر إتمام المشاركة المباشرة بالصورة والنص في هذا المتصفح. يرجى استخدام خطوات التحميل والنسخ الموثوقة أدناه.' }}
+                    </div>
                 </div>
 
-                <!-- Step 1: Download Share Image -->
-                <div class="card-atelier p-5 sm:p-6 space-y-4">
-                    <div class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-full bg-[#151210] text-[#DFC99E] font-cairo font-black text-sm flex items-center justify-center shrink-0 tabular-nums">1</span>
-                        <div>
+                <!-- Browser Notice when Native File Share is Unsupported (e.g., Desktop Chrome / WhatsApp Web) -->
+                <div x-show="!canNativeFileShare && !rendering" x-cloak
+                     class="p-4 rounded-2xl bg-[#F4EBD9]/70 border border-[#C6A76B]/40 flex items-start gap-3 text-xs text-[#221E1A] leading-relaxed">
+                    <x-app-icon name="info" class="w-4.5 h-4.5 text-[#856326] shrink-0 mt-0.5" />
+                    <p>
+                        {{ $isEn
+                            ? 'Desktop & unsupported web browsers cannot send an image file + caption directly into WhatsApp in one click. Use the two controls below to attach the PNG card and paste your message + live invitation link as its WhatsApp caption.'
+                            : 'لا تدعم متصفحات سطح المكتب (أو هذا المتصفح) إرسال ملف الصورة مع التعليق داخل واتساب بضغطة واحدة؛ استخدم الخطوات الموثوقة أدناه لإرفاق الصورة ولصق الرسالة والرابط في خانة التعليق.' }}
+                    </p>
+                </div>
+
+                <!-- Reliable Fallback: Download Image + Copy Message & Link as Caption -->
+                <div class="card-atelier p-5 sm:p-6 space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="space-y-1">
                             <h3 class="font-cairo text-base sm:text-lg font-extrabold text-[#221E1A]">
-                                {{ $isEn ? 'Download the WhatsApp Share Image' : 'الخطوة ١: تحميل صورة الدعوة لواتساب' }}
+                                {{ $isEn ? 'Share Image + Caption reliably in WhatsApp' : 'مشاركة صورة الدعوة مع الرسالة والرابط (الطريقة الموثوقة)' }}
                             </h3>
                             <p class="text-xs text-[#52493F]">
-                                {{ $isEn ? 'Crisp 1080×1350 PNG matched to your invitation theme, ready to attach in any chat.' : 'صورة عالية الدقة (1080×1350 PNG) مطابقة لهوية دعوتك ومناسبة لعرض الجوال بدون قصّ مزعج.' }}
+                                {{ $isEn
+                                    ? 'Keeps the 1080×1350 card image, full event text, and live URL together in one WhatsApp media message.'
+                                    : 'تضمن وصول صورة الدعوة بمقاس (4:5) مع الرسالة الرسمية ورابط الدعوة التفاعلية في رسالة واتساب واحدة.' }}
                             </p>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-3">
-                        <button type="button"
-                                @click="downloadImage()"
-                                :disabled="rendering || renderError"
-                                class="btn-royal flex-1 sm:flex-none cursor-pointer disabled:opacity-50">
-                            <x-app-icon name="download" class="w-4.5 h-4.5" />
-                            <span>{{ $isEn ? 'Download Share Image (PNG)' : 'تحميل صورة الدعوة (PNG)' }}</span>
-                        </button>
-
-                        <span x-show="downloaded" x-cloak class="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#0F4C3A]">
-                            <x-app-icon name="check-circle" class="w-4 h-4" />
-                            <span>{{ $isEn ? 'Image downloaded!' : 'تم تحميل الصورة بنجاح!' }}</span>
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Step 2: Dynamic WhatsApp Message + Live Link -->
-                <div class="card-atelier p-5 sm:p-6 space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-[#0F4C3A] text-white font-cairo font-black text-sm flex items-center justify-center shrink-0 tabular-nums">2</span>
-                            <div>
-                                <h3 class="font-cairo text-base sm:text-lg font-extrabold text-[#221E1A]">
-                                    {{ $isEn ? 'Send WhatsApp Message & Live Link' : 'الخطوة ٢: إرسال رسالة واتساب ورابط الدعوة' }}
-                                </h3>
-                                <p class="text-xs text-[#52493F]">
-                                    {{ $isEn ? 'Includes event date, Hijri date, venue, and your live interactive invitation link.' : 'تتضمن بيانات الزفاف الرسمية ورابط الدعوة التفاعلية للخرائط وتفاصيل الحفل.' }}
-                                </p>
-                            </div>
                         </div>
 
                         <!-- Message Locale Toggle -->
                         <div class="inline-flex items-center bg-[#FAF7F2] p-1 rounded-xl border border-[#E4D9C8] shrink-0 self-start sm:self-center">
                             <button type="button"
-                                    @click="msgLang = 'ar'"
+                                    @click="msgLang = 'ar'; detectNativeShareSupport()"
                                     :class="msgLang === 'ar' ? 'bg-[#151210] text-[#DFC99E]' : 'text-[#52493F] hover:text-[#221E1A]'"
                                     class="px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">
                                 العربية
                             </button>
                             <button type="button"
-                                    @click="msgLang = 'en'"
+                                    @click="msgLang = 'en'; detectNativeShareSupport()"
                                     :class="msgLang === 'en' ? 'bg-[#151210] text-[#DFC99E]' : 'text-[#52493F] hover:text-[#221E1A]'"
                                     class="px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">
                                 English
@@ -326,53 +395,96 @@
                         </div>
                     </div>
 
+                    <!-- Concise 3-Step Caption Workflow Strip -->
+                    <ol class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                        <li class="p-3 rounded-xl bg-[#FAF7F2] border border-[#E4D9C8] flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-full bg-[#151210] text-[#DFC99E] font-cairo font-black text-[11px] flex items-center justify-center shrink-0">1</span>
+                            <span class="font-bold text-[#221E1A]">{{ $isEn ? 'Download card image (PNG)' : 'حمّل صورة الدعوة (PNG)' }}</span>
+                        </li>
+                        <li class="p-3 rounded-xl bg-[#FAF7F2] border border-[#E4D9C8] flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-full bg-[#151210] text-[#DFC99E] font-cairo font-black text-[11px] flex items-center justify-center shrink-0">2</span>
+                            <span class="font-bold text-[#221E1A]">{{ $isEn ? 'Copy message + link' : 'انسخ الرسالة والرابط' }}</span>
+                        </li>
+                        <li class="p-3 rounded-xl bg-[#FAF7F2] border border-[#E4D9C8] flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-full bg-[#0F4C3A] text-white font-cairo font-black text-[11px] flex items-center justify-center shrink-0">3</span>
+                            <span class="font-bold text-[#221E1A]">{{ $isEn ? 'Attach image in WhatsApp & paste caption' : 'أرفق الصورة بواتساب والصق النص كتعليق' }}</span>
+                        </li>
+                    </ol>
+
+                    <!-- Primary Fallback Actions: Download PNG & Copy Message + Link -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button type="button"
+                                @click="downloadImage()"
+                                :disabled="rendering || renderError"
+                                class="btn-royal w-full cursor-pointer disabled:opacity-50">
+                            <x-app-icon name="download" class="w-4.5 h-4.5" />
+                            <span>{{ $isEn ? 'Download Invitation Image' : 'تحميل صورة الدعوة (PNG)' }}</span>
+                        </button>
+
+                        <button type="button"
+                                @click="copyToClipboard(currentMessage, 'copied_message')"
+                                class="btn-obsidian w-full cursor-pointer">
+                            <x-app-icon name="copy" class="w-4 h-4 text-[#DFC99E]" x-show="clipboardState !== 'copied_message'" />
+                            <x-app-icon name="check" class="w-4 h-4 text-emerald-300" x-show="clipboardState === 'copied_message'" x-cloak />
+                            <span x-text="clipboardState === 'copied_message' ? @js($isEn ? 'Caption Copied to Clipboard' : 'تم نسخ الرسالة والرابط للحافظة') : @js($isEn ? 'Copy Message + Link' : 'نسخ الرسالة والرابط')"></span>
+                        </button>
+                    </div>
+
+                    <!-- Explicit Download / Clipboard Feedback -->
+                    <div x-show="downloadState === 'downloaded' || downloadState === 'failed' || clipboardState === 'copied_message' || clipboardState === 'copied_link' || clipboardState === 'failed'"
+                         x-cloak
+                         class="space-y-1.5 text-xs font-bold">
+                        <p x-show="downloadState === 'downloaded'" class="text-[#0F4C3A] flex items-center gap-1.5">
+                            <x-app-icon name="check-circle" class="w-4 h-4 shrink-0" />
+                            <span>{{ $isEn ? 'PNG image downloaded to your device. Attach it in WhatsApp next.' : 'تم تحميل ملف الصورة (PNG) على جهازك. أرفقها الآن في محادثة واتساب.' }}</span>
+                        </p>
+                        <p x-show="downloadState === 'failed'" class="text-rose-700">
+                            {{ $isEn ? 'Could not export the PNG image. Please retry rendering the card.' : 'تعذر تصدير ملف الصورة؛ يرجى إعادة المحاولة.' }}
+                        </p>
+                        <p x-show="clipboardState === 'copied_message'" class="text-[#0F4C3A] flex items-center gap-1.5">
+                            <x-app-icon name="check-circle" class="w-4 h-4 shrink-0" />
+                            <span>{{ $isEn ? 'Message + live URL copied to clipboard. Paste it into the WhatsApp image caption field.' : 'تم نسخ الرسالة ورابط الدعوة للحافظة؛ الصقهما الآن في خانة التعليق أسفل الصورة في واتساب.' }}</span>
+                        </p>
+                        <p x-show="clipboardState === 'copied_link'" class="text-[#0F4C3A] flex items-center gap-1.5">
+                            <x-app-icon name="check-circle" class="w-4 h-4 shrink-0" />
+                            <span>{{ $isEn ? 'Invitation link copied to clipboard.' : 'تم نسخ رابط الدعوة إلى الحافظة.' }}</span>
+                        </p>
+                        <p x-show="clipboardState === 'failed'" class="text-rose-700">
+                            {{ $isEn ? 'Clipboard permission denied in this browser. Select and copy the text manually from the box below.' : 'تعذر النسخ التلقائي لعدم توفر صلاحية الحافظة؛ حدد النص من المربع أدناه وانسخه يدوياً.' }}
+                        </p>
+                    </div>
+
+                    <!-- Selectable Caption Preview -->
                     <div>
-                        <label for="wa-share-message-preview" class="sr-only">
-                            {{ $isEn ? 'WhatsApp Share Message' : 'نص رسالة واتساب' }}
+                        <label for="wa-share-message-preview" class="block text-xs font-bold text-[#52493F] mb-1.5">
+                            {{ $isEn ? 'Prepared Image Caption (Message + Live Link):' : 'النص الجاهز للتعليق أسفل الصورة (الرسالة + الرابط):' }}
                         </label>
                         <textarea id="wa-share-message-preview"
                                   readonly
                                   rows="8"
+                                  onclick="this.select()"
                                   :dir="msgLang === 'en' ? 'ltr' : 'rtl'"
                                   x-model="currentMessage"
                                   class="w-full rounded-xl border border-[#E4D9C8] bg-[#FCFBF8] p-4 text-xs sm:text-sm text-[#221E1A] leading-relaxed focus:outline-none focus:border-[#C6A76B] resize-none"></textarea>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-2.5">
+                    <!-- Secondary Utilities (Explicitly Labeled) -->
+                    <div class="pt-3 border-t border-[#E4D9C8] flex flex-wrap items-center justify-between gap-2.5">
+                        <button type="button"
+                                @click="copyToClipboard(payload.invitation.public_url, 'copied_link')"
+                                class="btn-ghost-ivory !min-h-[38px] !py-1.5 !px-3.5 !text-xs cursor-pointer">
+                            <x-app-icon name="copy" class="w-3.5 h-3.5 text-[#856326]" />
+                            <span>{{ $isEn ? 'Copy Link Only' : 'نسخ الرابط فقط' }}</span>
+                        </button>
+
                         <a href="{{ $shareCard['messages'][$defaultMsgLang]['whatsapp_url'] }}"
                            :href="currentWhatsAppUrl"
                            target="_blank"
                            rel="noopener noreferrer"
-                           class="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-[#0F4C3A] hover:bg-[#0B3A2C] text-white font-extrabold text-xs sm:text-sm transition">
-                            <x-app-icon name="whatsapp" class="w-4.5 h-4.5" />
-                            <span>{{ $isEn ? 'Open WhatsApp with Message & Link' : 'فتح واتساب بالرسالة والرابط' }}</span>
+                           class="inline-flex items-center gap-1.5 text-xs font-bold text-[#52493F] hover:text-[#0F4C3A] underline underline-offset-4 transition">
+                            <x-app-icon name="external-link" class="w-3.5 h-3.5" />
+                            <span>{{ $isEn ? 'Open WhatsApp (Text & Link Only — No Image)' : 'فتح واتساب بنص ورابط فقط (بدون صورة)' }}</span>
                         </a>
-
-                        <button type="button"
-                                @click="copyText(currentMessage, 'copiedMsg')"
-                                class="btn-obsidian !min-h-[44px] !py-2.5 !px-4 !text-xs cursor-pointer">
-                            <x-app-icon name="copy" class="w-4 h-4 text-[#DFC99E]" x-show="!copiedMsg" />
-                            <x-app-icon name="check" class="w-4 h-4 text-emerald-300" x-show="copiedMsg" x-cloak />
-                            <span x-text="copiedMsg ? '{{ $isEn ? 'Message Copied!' : 'تم نسخ الرسالة والرابط!' }}' : '{{ $isEn ? 'Copy Message & Link' : 'نسخ الرسالة والرابط' }}'"></span>
-                        </button>
-
-                        <button type="button"
-                                @click="copyText(payload.invitation.public_url, 'copiedLink')"
-                                class="btn-ghost-ivory !min-h-[44px] !py-2.5 !px-4 !text-xs cursor-pointer">
-                            <x-app-icon name="external-link" class="w-4 h-4 text-[#856326]" x-show="!copiedLink" />
-                            <x-app-icon name="check" class="w-4 h-4 text-[#0F4C3A]" x-show="copiedLink" x-cloak />
-                            <span x-text="copiedLink ? '{{ $isEn ? 'Link Copied!' : 'تم نسخ الرابط!' }}' : '{{ $isEn ? 'Copy Link Only' : 'نسخ الرابط فقط' }}'"></span>
-                        </button>
-                    </div>
-
-                    <!-- Honest Web UX Note -->
-                    <div class="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#E4D9C8] flex items-start gap-2.5 text-xs text-[#52493F] leading-relaxed">
-                        <x-app-icon name="info" class="w-4 h-4 text-[#856326] shrink-0 mt-0.5" />
-                        <p>
-                            {{ $isEn
-                                ? 'Note: Web browsers cannot attach an image file automatically inside a WhatsApp URL link. Simply download the share image in Step 1, attach it in WhatsApp, and paste or send the message + live link together.'
-                                : 'تنبيه عملي: لا تسمح المتصفحات بإرفاق ملف صورة تلقائياً داخل رابط واتساب المباشر؛ لذلك حمّل الصورة من الخطوة ١ وأرفقها في محادثة واتساب مع الرسالة والرابط التفاعلي الجاهز.' }}
-                        </p>
                     </div>
                 </div>
             </div>

@@ -36,7 +36,7 @@ class WhatsAppShareCardTest extends TestCase
             ->get(route('dashboard.invitations.share', $invitation->id))
             ->assertNotFound();
 
-        // Owner sees share card studio
+        // Owner sees share card studio with honest status states and fallback controls
         $response = $this->actingAs($owner)
             ->get(route('dashboard.invitations.share', $invitation->id));
 
@@ -44,11 +44,15 @@ class WhatsAppShareCardTest extends TestCase
         $response->assertSee('ZaffeShareCard', false);
         $response->assertSee('1080 × 1350', false);
         $response->assertSee('تحميل صورة الدعوة (PNG)');
-        $response->assertSee('فتح واتساب بالرسالة والرابط');
+        $response->assertSee('نسخ الرسالة والرابط');
+        $response->assertSee('فتح واتساب بنص ورابط فقط (بدون صورة)');
+        $response->assertSee('navigator.canShare', false);
+        $response->assertSee('handoff_completed', false);
         $response->assertSee('https://api.whatsapp.com/send?text=', false);
+        $response->assertDontSee('تمت المشاركة!');
     }
 
-    public function test_payload_and_whatsapp_message_handle_bride_name_present_and_omitted_cleanly(): void
+    public function test_payload_and_whatsapp_message_handle_bride_name_present_and_omitted_without_url_duplication(): void
     {
         $owner = User::factory()->create();
         $template = InvitationTemplate::where('slug', 'taif-rose')->firstOrFail();
@@ -80,7 +84,8 @@ class WhatsAppShareCardTest extends TestCase
         $this->assertSame('الجوهرة', $payloadWithBride['invitation']['bride_parts']['first']);
         $this->assertSame('تتشرف العائلتان الكريمتان بدعوتكم لحفل زفاف', $payloadWithBride['copy']['eyebrow']);
         $this->assertStringContainsString('فيصل بن عبد العزيز آل مقرن و الجوهرة بنت خالد السديري', $withBride->getWhatsAppShareText('ar'));
-        $this->assertStringContainsString('Faisal', str_replace('فيصل بن عبد العزيز آل مقرن', 'Faisal', $withBride->getWhatsAppShareText('en')));
+        $this->assertSame(1, substr_count($withBride->getWhatsAppShareText('ar'), $withBride->public_url));
+        $this->assertSame(1, substr_count($withBride->getWhatsAppShareText('en'), $withBride->public_url));
 
         $withoutBride = Invitation::create([
             'user_id' => $owner->id,
@@ -112,8 +117,10 @@ class WhatsAppShareCardTest extends TestCase
 
         $this->assertStringContainsString('سعود بن فهد الدوسري', $arText);
         $this->assertStringNotContainsString(' و ', $arText);
+        $this->assertSame(1, substr_count($arText, $withoutBride->public_url));
         $this->assertStringContainsString("Wedding of سعود بن فهد الدوسري\n", $enText);
         $this->assertStringNotContainsString('سعود بن فهد الدوسري &', $enText);
+        $this->assertSame(1, substr_count($enText, $withoutBride->public_url));
     }
 
     public function test_whatsapp_message_and_share_card_adapt_to_rsvp_enabled_vs_disabled(): void
@@ -225,27 +232,54 @@ class WhatsAppShareCardTest extends TestCase
         }
     }
 
-    public function test_dashboard_invitations_and_editor_expose_share_card_links(): void
+    public function test_all_owner_entry_points_route_whatsapp_share_to_unified_share_card_experience(): void
     {
         $owner = User::where('email', 'couple@zaffe.app')->firstOrFail();
-        $invitation = Invitation::where('user_id', $owner->id)->firstOrFail();
+        $otherUser = User::factory()->create();
+        $invitation = Invitation::where('user_id', $owner->id)
+            ->where('status', 'published')
+            ->firstOrFail();
         $shareUrl = route('dashboard.invitations.share', $invitation->id);
 
-        $this->actingAs($owner)
-            ->get(route('dashboard'))
-            ->assertOk()
-            ->assertSee($shareUrl, false)
-            ->assertSee('بطاقة واتساب');
+        // 1. Customer Dashboard: unified Share Card action replaces competing text-only link
+        $dashboardResponse = $this->actingAs($owner)->get(route('dashboard'));
+        $dashboardResponse->assertOk();
+        $dashboardResponse->assertSee($shareUrl, false);
+        $dashboardResponse->assertSee('مشاركة عبر واتساب');
+        $dashboardResponse->assertDontSee($invitation->getWhatsAppShareUrl(), false);
 
-        $this->actingAs($owner)
-            ->get(route('dashboard.invitations.index'))
-            ->assertOk()
-            ->assertSee($shareUrl, false)
-            ->assertSee('بطاقة واتساب');
+        // 2. My Invitations page: unified Share Card action replaces competing text-only link
+        $invitationsResponse = $this->actingAs($owner)->get(route('dashboard.invitations.index'));
+        $invitationsResponse->assertOk();
+        $invitationsResponse->assertSee($shareUrl, false);
+        $invitationsResponse->assertSee('مشاركة عبر واتساب');
 
+        // 3. Studio Editor toolbar & Publish Modal: no competing text-only WhatsApp link
         $this->actingAs($owner);
         Livewire::test(InvitationEditor::class, ['id' => $invitation->id])
             ->assertSee($shareUrl, false)
-            ->assertSee('بطاقة واتساب');
+            ->assertSee('مشاركة عبر واتساب')
+            ->set('showPublishModal', true)
+            ->assertSee('مشاركة صورة الدعوة والرسالة عبر واتساب')
+            ->assertDontSee('https://api.whatsapp.com/send?text=', false);
+
+        // 4. Owner viewing live invitation sees unified Share Card action in share_box
+        $ownerPublicView = $this->actingAs($owner)->get(route('invitation.show', $invitation->slug));
+        $ownerPublicView->assertOk();
+        $ownerPublicView->assertSee($shareUrl, false);
+        $ownerPublicView->assertSee('مشاركة صورة الدعوة والرسالة عبر واتساب');
+
+        // 5. Public guests & non-owners NEVER see authenticated Dashboard Share Card link
+        auth()->logout();
+        $guestPublicView = $this->get(route('invitation.show', $invitation->slug));
+        $guestPublicView->assertOk();
+        $guestPublicView->assertDontSee($shareUrl, false);
+        $guestPublicView->assertSee('مشاركة رابط الدعوة عبر واتساب');
+        $guestPublicView->assertSee($invitation->getWhatsAppShareUrl(), false);
+
+        $nonOwnerView = $this->actingAs($otherUser)->get(route('invitation.show', $invitation->slug));
+        $nonOwnerView->assertOk();
+        $nonOwnerView->assertDontSee($shareUrl, false);
+        $nonOwnerView->assertSee('مشاركة رابط الدعوة عبر واتساب');
     }
 }

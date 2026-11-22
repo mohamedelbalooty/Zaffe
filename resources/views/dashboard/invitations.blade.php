@@ -116,9 +116,9 @@
                             </a>
 
                             <a href="{{ route('dashboard.invitations.share', $invitation->id) }}"
-                               class="btn-ghost-ivory !min-h-[38px] !py-1.5 !px-3 !text-xs">
-                                <x-app-icon name="image" class="w-3.5 h-3.5 text-[#856326]" />
-                                <span>{{ $isEn ? 'Share Card' : 'بطاقة واتساب' }}</span>
+                               class="inline-flex items-center gap-1.5 min-h-[38px] py-1.5 px-3 rounded-xl bg-[#ECF5F0] text-[#0F4C3A] border border-[#0F4C3A]/25 hover:bg-[#0F4C3A] hover:text-white transition text-xs font-extrabold">
+                                <x-app-icon name="whatsapp" class="w-3.5 h-3.5 shrink-0" />
+                                <span>{{ $isEn ? 'Share via WhatsApp' : 'مشاركة عبر واتساب' }}</span>
                             </a>
 
                             @if($invitation->status === 'published')
@@ -129,15 +129,8 @@
                                     <x-app-icon name="eye" class="w-4 h-4 text-[#856326]" />
                                 </a>
 
-                                <a href="{{ $invitation->getWhatsAppShareUrl() }}" target="_blank" rel="noopener noreferrer"
-                                   class="w-9 h-9 rounded-lg bg-[#ECF5F0] text-[#0F4C3A] border border-[#0F4C3A]/20 hover:bg-[#0F4C3A] hover:text-white transition flex items-center justify-center"
-                                   title="{{ $isEn ? 'Share via WhatsApp' : 'مشاركة واتساب' }}"
-                                   aria-label="{{ $isEn ? 'Share via WhatsApp' : 'مشاركة واتساب' }}">
-                                    <x-app-icon name="whatsapp" class="w-4 h-4" />
-                                </a>
-
                                 <button type="button"
-                                        @click="navigator.clipboard?.writeText('{{ $invitation->public_url }}'); copied = true; setTimeout(() => copied = false, 2500)"
+                                        @click="navigator.clipboard?.writeText('{{ $invitation->public_url }}').then(() => { copied = true; setTimeout(() => copied = false, 2500); }).catch(() => {})"
                                         class="h-9 px-2.5 rounded-lg bg-[#FAF7F2] border border-[#E4D9C8] text-[#221E1A] hover:border-[#C6A76B] transition inline-flex items-center gap-1 text-[11px] font-bold cursor-pointer"
                                         title="{{ $isEn ? 'Copy URL' : 'نسخ الرابط' }}">
                                     <x-app-icon name="copy" class="w-3.5 h-3.5 text-[#856326]" x-show="!copied" />
