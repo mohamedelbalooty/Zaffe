@@ -19,7 +19,7 @@
 ### 1.2 Core Value Proposition
 - **Culturally Tailored Arabic-First Luxury:** Fourteen specialized themes (`sort_order 1–8`: Saudi Signature Collection — Vol. 1; `sort_order 9–14`: baseline themes) styled with curated typography (`Amiri`, `Cairo`, `Tajawal`, `Playfair Display`), formal-simple Arabic (`الفصحى البسيطة`), crisp SVG icons (`<x-app-icon>`), nullable/optional `bride_name` privacy support across all 14 themes, and photo-free luxury rendering.
 - **Zero-Code Visual Studio Editor:** A real-time Livewire 4 studio (`InvitationEditor`) with device previews, instant autosave, custom palette/font overrides, server-side WebP cover/gallery compression, and draft/publish/delete lifecycle controls.
-- **Mobile & WhatsApp WebView First:** Optimized for guests opening links inside WhatsApp's in-app browser over 4G mobile connections, featuring 1-click WhatsApp share links, stateless `/demo`, absolute OG preview metadata (`public/images/og-zaffe.jpg` fallback), and self-hosted WebP imagery.
+- **Mobile & WhatsApp WebView First:** Optimized for guests opening links inside WhatsApp's in-app browser over 4G mobile connections, featuring `4:5` (`1080×1350`) theme-matched WhatsApp share cards, formal RSVP-aware WhatsApp invite links, stateless `/demo`, absolute OG preview metadata (`public/images/og-zaffe.jpg` fallback), and self-hosted WebP imagery.
 - **View-First Card With Optional RSVP & Legacy Compatibility:** New invitations default to view-only `announcement` (`is_rsvp_enabled = false`, `Asia/Riyadh`); when RSVP is enabled, couples track RSVPs cleanly via `rsvp_only` (zero QR/roster clutter for new R1 cards), while existing pre-R1 `rsvp_qr`/`qr_only` cards and personal `/pass/{qrToken}` passes remain intact.
 
 ---
@@ -81,6 +81,7 @@ External tools, MCP servers, and AI coding agents reading this file should rely 
 
 ### 4.2 Domain Services & Support Modules (`app/Services/` & `app/Support/`)
 - **`App\Services\InvitationDateFormatter`:** Formats Gregorian and **Umm al-Qura Hijri** dates (`IntlDateFormatter`), handles invitation timezones (`Africa/Cairo` / `Asia/Riyadh`), and converts numeric outputs between `latin` (`0-9`) and `arabic_indic` (`٠-٩`).
+- **`App\Services\InvitationShareCardService`:** Builds ownership-scoped `1080×1350` (`4:5` portrait PNG) share-card payloads grounded in each invitation's theme, palette, privacy choice, dates, and RSVP-aware WhatsApp copy for client Canvas 2D rendering (`resources/js/share-card-renderer.js`).
 - **`App\Services\PhoneService`:** Validates and normalizes Egypt (`+20`) and Saudi Arabia (`+966`) mobile phone numbers into international **E.164** format.
 - **`App\Services\QrCodeService`:** Pure-PHP ISO/IEC 18004 Byte-mode QR Code SVG encoder (Versions 1–10, ECC Level M, 4-module white quiet zone) with zero external packages or third-party QR APIs.
 - **`App\Support\CsvSanitizer`:** Neutralizes CSV formula injection payloads starting with `=`, `+`, `-`, `@`, `\t`, or `\r` (after `ltrim`) by prefixing a single quote (`'`).
@@ -121,7 +122,8 @@ External tools, MCP servers, and AI coding agents reading this file should rely 
   - Selects event timezone (`Africa/Cairo` / `Asia/Riyadh`), invitation mode, RSVP deadline, guest limits, custom style JSON overrides (`custom_styles`), and instant template switching without data loss.
   - Manages cover photo and gallery uploads (`5MB` max, MIME-validated, automatic local `public` disk cleanup when deleting via `InvitationEditor` / `DashboardController`).
   - Toggles modular `InvitationSection` blocks (`countdown`, `timeline`, `gallery`, `dress_code`; note `timeline` and `dress_code` are currently boolean visibility toggles without custom item/attire editors).
-  - Toggles status (`draft` ↔ `published`; `archived` status exists in schema/Filament/POST `/archive` route, with no customer UI button) and generates localized 1-click WhatsApp share URLs (`Invitation::getWhatsAppShareUrl()`).
+  - Toggles status (`draft` ↔ `published`; `archived` status exists in schema/Filament/POST `/archive` route, with no customer UI button) and generates localized RSVP-aware WhatsApp share URLs (`Invitation::getWhatsAppShareUrl()`).
+- **WhatsApp Share Card Hub (`/dashboard/invitations/{id}/share`):** Previews and exports a theme-matched `1080×1350` (`4:5`) PNG share card alongside dynamic RSVP-aware WhatsApp copy, native mobile file sharing (`navigator.canShare`), and guided download + message/link sharing ([product/WHATSAPP_SHARE_CARD.md](product/WHATSAPP_SHARE_CARD.md)).
 
 ### 6.3 Four Invitation Access Modes (`F16` Part A)
 `Invitation` supports four invitation modes via `invitation_mode` (automatically synchronized with `is_rsvp_enabled` in `Invitation::booted()`):
@@ -201,6 +203,7 @@ erDiagram
 | `/dashboard` | `GET` | `DashboardController::index` (`auth`) | Couple studio KPIs & overview |
 | `/dashboard/invitations`, `/dashboard/invitations/create` | `GET`, `POST` | `DashboardController` (`auth`) | Invitation list, creation wizard & slug persistence |
 | `/dashboard/invitations/{id}/editor` | `GET` | `InvitationEditor` (`auth`, Livewire) | Real-time visual studio editor |
+| `/dashboard/invitations/{id}/share` | `GET` | `DashboardController::share` (`auth`) | WhatsApp Share Card Hub (`1080×1350` PNG preview/download + message/link sharing) |
 | `/dashboard/invitations/{id}/toggle-publish`, `archive`, `DELETE` | `POST`, `DELETE` | `DashboardController` (`auth`) | Publish/draft toggle, archive & deletion |
 | `/dashboard/invitations/{id}/guests` | `GET` | `DashboardController::guests` (`auth`) | RSVP response manager & `GuestRosterManager` |
 | `/dashboard/invitations/{id}/guests/export` | `GET` | `DashboardController::exportGuestsCsv` (`auth`) | Formula-safe UTF-8 BOM CSV export of RSVPs |

@@ -51,6 +51,7 @@ Read these core documents in order when onboarding, planning features, or config
 | **[BUSINESS_OVERVIEW.md](product/BUSINESS_OVERVIEW.md)** | Business domain glossary, user journeys, entity directory, feature matrix, and core business rules. |
 | **[RELEASE_1_PRODUCT_DECISIONS.md](product/RELEASE_1_PRODUCT_DECISIONS.md)** | Release 1 free-launch policy, Resend mail decision, post-R1 Paymob direction, and final `2026-11-21` PO scope & `C-5`–`C-7` reconciliations. |
 | **[SAUDI_MARKET_DECISIONS.md](product/SAUDI_MARKET_DECISIONS.md)** | KSA-first cultural, privacy, Hijri/numeral, `C-5` WebP, `C-6` audio (`EX-01` legacy escalated), religious copy, PDPL, and `KPI-01`–`05` directives. |
+| **[WHATSAPP_SHARE_CARD.md](product/WHATSAPP_SHARE_CARD.md)** | Phase 1 WhatsApp Share Card (`1080×1350` `4:5` portrait PNG) architecture, dynamic RSVP-aware copy rules, and honest Web Share UX flow (`ZAFFE-035`). |
 | **[OPEN_QUESTIONS.md](product/OPEN_QUESTIONS.md)** | Final Decision Matrix (`DEC-01`–`DEC-07`, `C-5`–`C-7`, `KPI-03b`/`05`), Exception Register (`EX-01`–`04`), Hostinger Verification Summary, and Pre-Launch Dependency Register (`2026-11-21`). |
 
 #### Strategy & Competitive Intelligence (`product/strategy/`)

@@ -10,6 +10,11 @@
             <a href="{{ route('dashboard.invitations.editor', $invitation->id) }}" class="underline bg-white/15 px-2.5 py-0.5 rounded-lg hover:bg-white/25 transition">
                 فتح المحرر لنشرها
             </a>
+            @if(auth()->id() === $invitation->user_id)
+                <a href="{{ route('dashboard.invitations.share', $invitation->id) }}" class="underline bg-white/15 px-2.5 py-0.5 rounded-lg hover:bg-white/25 transition">
+                    تجهيز بطاقة واتساب
+                </a>
+            @endif
         </div>
     @endif
 

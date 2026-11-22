@@ -8,6 +8,7 @@ use App\Models\InvitationGuest;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Models\RsvpResponse;
+use App\Services\InvitationShareCardService;
 use App\Services\PhoneService;
 use App\Support\CsvSanitizer;
 use Illuminate\Http\Request;
@@ -57,6 +58,17 @@ class DashboardController extends Controller
             ->paginate(10);
 
         return view('dashboard.invitations', compact('invitations'));
+    }
+
+    public function share(int $id, InvitationShareCardService $shareCardService)
+    {
+        $invitation = Auth::user()->invitations()
+            ->with(['template', 'sections'])
+            ->findOrFail($id);
+
+        $shareCard = $shareCardService->buildPayload($invitation);
+
+        return view('dashboard.share', compact('invitation', 'shareCard'));
     }
 
     public function create(Request $request)

@@ -58,6 +58,12 @@
                 {{ $saveStatus }}
             </span>
 
+            <a href="{{ route('dashboard.invitations.share', $invitation->id) }}"
+               class="min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#0F4C3A]/90 hover:bg-[#0F4C3A] border border-emerald-400/25 text-white text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap">
+                <x-app-icon name="whatsapp" class="w-4 h-4 text-emerald-300" />
+                <span class="hidden sm:inline">مشاركة عبر واتساب</span>
+            </a>
+
             @if($status === 'published')
                 <a href="{{ $invitation->public_url }}" target="_blank" rel="noopener noreferrer"
                    class="min-h-[38px] px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/15 border border-white/10 text-white text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap">
@@ -594,21 +600,19 @@
                     </div>
 
                     <div class="space-y-2.5 pt-1">
-                        <a href="{{ $invitation->public_url }}"
-                           target="_blank"
-                           rel="noopener noreferrer"
+                        <a href="{{ route('dashboard.invitations.share', $invitation->id) }}"
                            class="btn-royal w-full">
-                            <x-app-icon name="external-link" class="w-4 h-4" />
-                            <span>تصفح رابط الدعوة الآن</span>
+                            <x-app-icon name="whatsapp" class="w-4 h-4" />
+                            <span>مشاركة صورة الدعوة والرسالة عبر واتساب</span>
                         </a>
 
                         <div class="grid grid-cols-2 gap-2.5">
-                            <a href="{{ $invitation->getWhatsAppShareUrl() }}"
+                            <a href="{{ $invitation->public_url }}"
                                target="_blank"
                                rel="noopener noreferrer"
-                               class="py-2.5 px-4 rounded-xl bg-[#0F4C3A] hover:bg-[#14634C] border border-emerald-400/25 text-white font-bold text-xs transition flex items-center justify-center gap-1.5">
-                                <x-app-icon name="whatsapp" class="w-4 h-4" />
-                                <span>مشاركة واتساب</span>
+                               class="py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs transition flex items-center justify-center gap-1.5">
+                                <x-app-icon name="external-link" class="w-4 h-4 text-[#DFC99E]" />
+                                <span>تصفح رابط الدعوة الآن</span>
                             </a>
 
                             <button type="button"
