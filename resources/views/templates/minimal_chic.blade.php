@@ -35,15 +35,44 @@
             @endif
 
             <!-- Monumental Typography -->
-            <div class="py-4 space-y-3">
-                <h1 class="font-cairo text-4xl sm:text-5xl font-black tracking-tight text-zinc-900 leading-tight">
-                    {{ $invitation->groom_name }}
-                </h1>
+            <div class="py-4">
                 @if($hasBrideName)
-                    <div class="text-sm font-bold tracking-widest text-zinc-400">&amp;</div>
-                    <h1 class="font-cairo text-4xl sm:text-5xl font-black tracking-tight text-zinc-900 leading-tight">
-                        {{ $invitation->bride_name }}
-                    </h1>
+                    <div class="grid grid-cols-11 items-center gap-1 sm:gap-3 text-center">
+                        {{-- Groom (Right side in RTL) --}}
+                        <div class="col-span-5 min-w-0 break-words">
+                            <span class="block text-xs sm:text-sm font-bold uppercase tracking-widest mb-1 text-zinc-400">
+                                {{ $isEnInv ? 'The Groom' : 'العريس' }}
+                            </span>
+                            <h1 class="font-cairo text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-zinc-900 leading-tight">
+                                {{ $invitation->groom_name }}
+                            </h1>
+                        </div>
+
+                        {{-- Center Ampersand / Waw --}}
+                        <div class="col-span-1 flex items-center justify-center text-sm sm:text-base font-bold tracking-widest text-zinc-400">
+                            {{ $isEnInv ? '&' : 'و' }}
+                        </div>
+
+                        {{-- Bride (Left side in RTL) --}}
+                        <div class="col-span-5 min-w-0 break-words">
+                            <span class="block text-xs sm:text-sm font-bold uppercase tracking-widest mb-1 text-zinc-400">
+                                {{ $isEnInv ? 'The Bride' : 'العروس' }}
+                            </span>
+                            <h1 class="font-cairo text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-zinc-900 leading-tight">
+                                {{ $invitation->bride_name }}
+                            </h1>
+                        </div>
+                    </div>
+                @else
+                    {{-- Centered Groom when no Bride --}}
+                    <div class="text-center">
+                        <span class="block text-xs sm:text-sm font-bold uppercase tracking-widest mb-1 text-zinc-400">
+                            {{ $isEnInv ? 'The Groom' : 'العريس' }}
+                        </span>
+                        <h1 class="font-cairo text-4xl sm:text-5xl font-black tracking-tight text-zinc-900 leading-tight">
+                            {{ $invitation->groom_name }}
+                        </h1>
+                    </div>
                 @endif
             </div>
 
