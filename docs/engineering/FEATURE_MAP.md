@@ -170,10 +170,10 @@ graph TD
 ---
 
 ### F08 — Customer Dashboard, Studio KPIs & Marketing Pages `[ACTIVE - R1]`
-- **Domain Mission:** Couple dashboard metrics, invitation index, profile management, and Free Release 1 landing/pricing/informational pages.
+- **Domain Mission:** Couple dashboard metrics, invitation index, WhatsApp Share Card Hub (`ZAFFE-035`), profile management, and Free Release 1 landing/pricing/informational pages.
 - **Components & Files:**
-  - Controllers & Views: `DashboardController.php` (`index`, `invitations`, `profile`), `HomeController.php`, `views/dashboard/*`, `views/pages/{home,pricing,about,contact,faq}.blade.php`
-  - Tests: `CustomerDashboardTest.php`, `ProductQaValidationTest.php`
+  - Controllers, Services & Views: `DashboardController.php` (`index`, `invitations`, `share`, `profile`), `App\Services\InvitationShareCardService`, `resources/js/share-card-renderer.js`, `HomeController.php`, `views/dashboard/{index,invitations,share,profile}.blade.php`, `views/pages/{home,pricing,about,contact,faq}.blade.php`
+  - Tests: `CustomerDashboardTest.php`, `ProductQaValidationTest.php`, `WhatsAppShareCardTest.php`
 - **Capability Audit:**
   - `[VERIFIED]` Scoped studio metrics, E.164 profile normalization & password update, free Release 1 pricing communication.
   - `[PARTIAL]` `DashboardController::index()` omits `children_count` (unlike `guests()`), mislabels `archived` as Draft, and leaks `"مشاهدة"`; `/dashboard/invitations` lacks Publish/Archive controls (Delete only); `/contact` form is Alpine simulation only (`UX-01`); `/pricing` & `/about` say "6 themes"; legacy duplicate `resources/views/layouts/` + `welcome.blade.php` + `<x-icon>` remain on disk.
