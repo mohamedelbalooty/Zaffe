@@ -7,6 +7,8 @@ use App\Models\Invitation;
 use App\Models\InvitationSection;
 use App\Models\InvitationTemplate;
 use App\Models\User;
+use App\Services\InvitationDateFormatter;
+use App\Support\TemplateStyleCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -163,5 +165,45 @@ class FlipCountdownTimerTest extends TestCase
             ->set('previewDevice', 'mobile')
             ->assertSee('max-w-[26rem]', false)
             ->assertSee('zaffe-flip-tile', false);
+    }
+
+    public function test_demo_route_renders_flip_countdown_with_arabic_units(): void
+    {
+        $response = $this->get(route('demo.saudi'));
+        $response->assertOk();
+
+        $html = $response->getContent();
+        $this->assertIsString($html);
+        $this->assertStringContainsString('المتبقي حتى ليلة العمر', $html);
+        $this->assertStringContainsString('zaffe-flip-tile', $html);
+        $this->assertStringContainsString('zaffe-flip-flap-top', $html);
+        $this->assertStringContainsString('zaffe-flip-flap-bottom', $html);
+        $this->assertStringContainsString('requestAnimationFrame', $html);
+    }
+
+    public function test_countdown_config_and_hex_alpha_helpers_handle_valid_and_fallback_inputs(): void
+    {
+        $this->assertSame('#B36A3E35', TemplateStyleCatalog::hexWithAlpha('#B36A3E', '35', 'rgba(0,0,0,0.2)'));
+        $this->assertSame('rgba(0,0,0,0.2)', TemplateStyleCatalog::hexWithAlpha('#FFF', '35', 'rgba(0,0,0,0.2)'));
+        $this->assertSame('rgba(0,0,0,0.2)', TemplateStyleCatalog::hexWithAlpha('rgb(1, 2, 3)', '35', 'rgba(0,0,0,0.2)'));
+
+        $invitation = (object) [
+            'wedding_date' => '2026-12-20',
+            'wedding_time' => '21:00:00',
+            'timezone' => 'Invalid/Timezone',
+            'effective_styles' => [
+                'locale' => 'en',
+                'digits' => 'latin',
+            ],
+            'sections' => collect([]),
+        ];
+
+        $config = InvitationDateFormatter::countdownConfig($invitation);
+        $this->assertTrue($config['enabled']);
+        $this->assertTrue($config['is_english']);
+        $this->assertFalse($config['is_arabic_indic']);
+        $this->assertSame('0', $config['zero_char']);
+        $this->assertCount(4, $config['units']);
+        $this->assertSame('Days', $config['units'][0]['label']);
     }
 }

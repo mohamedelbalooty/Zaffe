@@ -479,7 +479,8 @@
 
 .zaffe-flip-flap-top,
 .zaffe-flip-flap-bottom {
-  display: none;
+  visibility: hidden;
+  opacity: 0;
   pointer-events: none;
   will-change: transform, opacity;
 }
@@ -553,7 +554,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .zaffe-flip-tile.is-flipping .zaffe-flip-flap-top {
-    display: block;
+    visibility: visible;
     animation: zaffeFlipTopFold 0.26s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
   }
 
@@ -562,7 +563,7 @@
   }
 
   .zaffe-flip-tile.is-flipping .zaffe-flip-flap-bottom {
-    display: block;
+    visibility: visible;
     animation: zaffeFlipBottomUnfold 0.28s cubic-bezier(0.215, 0.61, 0.355, 1) 0.25s both;
   }
 
@@ -574,7 +575,8 @@
 @media (prefers-reduced-motion: reduce) {
   .zaffe-flip-tile.is-flipping .zaffe-flip-flap-top,
   .zaffe-flip-tile.is-flipping .zaffe-flip-flap-bottom {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
     animation: none;
   }
 }

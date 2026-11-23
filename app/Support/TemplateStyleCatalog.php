@@ -362,6 +362,19 @@ class TemplateStyleCatalog
     }
 
     /**
+     * Append a two-digit hex alpha suffix only to valid 6-digit hex colors.
+     */
+    public static function hexWithAlpha(string $color, string $alphaHex, string $fallback): string
+    {
+        $trimmed = trim($color);
+        if (preg_match('/^#[0-9A-Fa-f]{6}$/', $trimmed) === 1 && preg_match('/^[0-9A-Fa-f]{2}$/', $alphaHex) === 1) {
+            return $trimmed.$alphaHex;
+        }
+
+        return $fallback;
+    }
+
+    /**
      * @param  array<string, string>  $options
      * @return array<string, string>
      */

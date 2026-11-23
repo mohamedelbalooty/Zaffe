@@ -8,37 +8,25 @@
 ])
 
 @php
-    $countdownSection = collect($invitation->sections ?? [])->where('section_type', 'countdown')->first();
-    $isEnabled = $countdownSection ? (bool) $countdownSection->is_enabled : true;
+    $countdown = \App\Services\InvitationDateFormatter::countdownConfig($invitation);
+    $isEnabled = $countdown['enabled'];
+    $targetDate = $countdown['target_iso'];
+    $isArabicIndic = $countdown['is_arabic_indic'];
+    $isEnInv = $countdown['is_english'];
+    $zeroChar = $countdown['zero_char'];
+    $countdownKey = $countdown['key'];
+    $countdownUnits = $countdown['units'];
 
-    $dateString = is_string($invitation->wedding_date)
-        ? $invitation->wedding_date
-        : ($invitation->wedding_date?->format('Y-m-d') ?? now()->addDays(30)->format('Y-m-d'));
-    $timeString = !empty($invitation->wedding_time) ? substr($invitation->wedding_time, 0, 5) : '20:00';
-    $tz = !empty($invitation->timezone) && in_array($invitation->timezone, timezone_identifiers_list(), true)
-        ? $invitation->timezone
-        : 'Asia/Riyadh';
-    $digits = \App\Services\InvitationDateFormatter::resolveDigits($invitation);
-    $isArabicIndic = $digits === 'arabic_indic';
-    $isEnInv = \App\Services\InvitationDateFormatter::resolveLocale($invitation) === 'en';
-    $zeroChar = $isArabicIndic ? '٠' : '0';
-
-    try {
-        $targetDate = \Carbon\Carbon::parse($dateString . ' ' . $timeString, $tz)->toIso8601String();
-    } catch (\Throwable $e) {
-        $targetDate = \Carbon\Carbon::now('Asia/Riyadh')->addDays(30)->toIso8601String();
-    }
-
-    $cardBorder = $isDarkTheme ? 'rgba(230, 198, 135, 0.28)' : $primaryColor . '35';
-    $cellBorder = $isDarkTheme ? 'rgba(230, 198, 135, 0.22)' : $primaryColor . '28';
-    $seamColor = $isDarkTheme ? 'rgba(0, 0, 0, 0.55)' : $primaryColor . '28';
-    $countdownKey = md5($targetDate . '|' . ($isArabicIndic ? '1' : '0') . '|' . ($isEnInv ? 'en' : 'ar'));
-    $countdownUnits = [
-        ['key' => 'days', 'label' => $isEnInv ? 'Days' : 'يوم'],
-        ['key' => 'hours', 'label' => $isEnInv ? 'Hours' : 'ساعة'],
-        ['key' => 'minutes', 'label' => $isEnInv ? 'Mins' : 'دقيقة'],
-        ['key' => 'seconds', 'label' => $isEnInv ? 'Secs' : 'ثانية'],
-    ];
+    $lightSubtleBorder = \App\Support\TemplateStyleCatalog::hexWithAlpha(
+        (string) $primaryColor,
+        '28',
+        'rgba(198, 167, 107, 0.16)'
+    );
+    $cardBorder = $isDarkTheme
+        ? 'rgba(230, 198, 135, 0.28)'
+        : \App\Support\TemplateStyleCatalog::hexWithAlpha((string) $primaryColor, '35', 'rgba(198, 167, 107, 0.21)');
+    $cellBorder = $isDarkTheme ? 'rgba(230, 198, 135, 0.22)' : $lightSubtleBorder;
+    $seamColor = $isDarkTheme ? 'rgba(0, 0, 0, 0.55)' : $lightSubtleBorder;
 @endphp
 
 @if($isEnabled && $targetDate)
@@ -85,12 +73,14 @@
                 this.$nextTick(() => {
                     const tile = this.$refs['tile_' + key];
                     if (tile) void tile.offsetWidth;
-                    unit.flipping = true;
-                    unit.timer = setTimeout(() => {
-                        unit.prev = unit.curr;
-                        unit.flipping = false;
-                        unit.timer = null;
-                    }, 560);
+                    requestAnimationFrame(() => {
+                        unit.flipping = true;
+                        unit.timer = setTimeout(() => {
+                            unit.prev = unit.curr;
+                            unit.flipping = false;
+                            unit.timer = null;
+                        }, 560);
+                    });
                 });
             },
             update() {
