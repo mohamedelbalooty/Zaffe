@@ -87,6 +87,59 @@ class InvitationDateFormatter
     }
 
     /**
+     * Build sanitized configuration and localized labels for the countdown partial.
+     *
+     * @return array{
+     *     enabled: bool,
+     *     target_iso: string,
+     *     is_arabic_indic: bool,
+     *     is_english: bool,
+     *     zero_char: string,
+     *     key: string,
+     *     units: array<int, array{key: string, label: string}>
+     * }
+     */
+    public static function countdownConfig(object $invitation): array
+    {
+        $countdownSection = collect($invitation->sections ?? [])
+            ->where('section_type', 'countdown')
+            ->first();
+        $enabled = $countdownSection ? (bool) $countdownSection->is_enabled : true;
+
+        $timezone = self::resolveTimezone($invitation);
+        $locale = self::resolveLocale($invitation);
+        $isEnglish = $locale === 'en';
+        $isArabicIndic = self::resolveDigits($invitation) === 'arabic_indic';
+
+        $dateString = is_string($invitation->wedding_date ?? null)
+            ? $invitation->wedding_date
+            : ($invitation->wedding_date?->format('Y-m-d') ?? Carbon::now($timezone)->addDays(30)->format('Y-m-d'));
+        $timeRaw = (string) ($invitation->wedding_time ?? '');
+        $timeString = trim($timeRaw) !== '' ? substr(trim($timeRaw), 0, 5) : '20:00';
+
+        try {
+            $targetIso = Carbon::parse($dateString.' '.$timeString, $timezone)->toIso8601String();
+        } catch (Throwable) {
+            $targetIso = Carbon::now($timezone)->addDays(30)->toIso8601String();
+        }
+
+        return [
+            'enabled' => $enabled,
+            'target_iso' => $targetIso,
+            'is_arabic_indic' => $isArabicIndic,
+            'is_english' => $isEnglish,
+            'zero_char' => $isArabicIndic ? '٠' : '0',
+            'key' => md5($targetIso.'|'.($isArabicIndic ? '1' : '0').'|'.($isEnglish ? 'en' : 'ar')),
+            'units' => [
+                ['key' => 'days', 'label' => $isEnglish ? 'Days' : 'يوم'],
+                ['key' => 'hours', 'label' => $isEnglish ? 'Hours' : 'ساعة'],
+                ['key' => 'minutes', 'label' => $isEnglish ? 'Mins' : 'دقيقة'],
+                ['key' => 'seconds', 'label' => $isEnglish ? 'Secs' : 'ثانية'],
+            ],
+        ];
+    }
+
+    /**
      * Alias for forInvitation().
      *
      * @return array{
